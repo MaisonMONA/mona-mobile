@@ -1,0 +1,7 @@
+{
+  "name": "MONA",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue"
+}
