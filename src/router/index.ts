@@ -17,7 +17,7 @@ const routes: Array<RouteRecordRaw> = [
       },
       {
         path: 'artwork-of-the-day',
-        component: () => import('@/views/ArtworkoftheDayPage.vue')
+        component: () => import('@/views/ArtoftheDayPage.vue')
       },
       {
         path: 'artworks-list',

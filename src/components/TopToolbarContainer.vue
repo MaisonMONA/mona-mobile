@@ -13,7 +13,7 @@ export default {
 <style scoped>
 @font-face {
     font-family: 'Gotham Rounded Light';
-    src: url("../assets/fonts/Gotham-Rounded-Light.ttf");
+    src: url("@/assets/fonts/Gotham-Rounded-Light.ttf");
 }
 ion-title {
     font-family: 'Gotham Rounded Light', sans-serif;
