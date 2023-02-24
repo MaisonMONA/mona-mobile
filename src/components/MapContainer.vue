@@ -62,7 +62,6 @@ export default {
             for (let i = 0; i < 6000; i++) {
                 features.push(new Feature(new Point([- Math.random() * 5 - 70, Math.random() * 5 + 45])))
             }
-            console.log(features);
             source.addFeatures(features);
             const layer = new VectorLayer({ source: source });
             this.mainMap.addLayer(layer);

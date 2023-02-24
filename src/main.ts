@@ -29,6 +29,13 @@ import './theme/variables.css';
 import 'leaflet/dist/leaflet.css';
 import { Icon } from "leaflet";
 
+/* ~~~~ Custom imports ~~~~ */
+import {ArtworkDatabase} from "@/internal/databases/ArtworkDatabase";
+import {PlaceDatabase} from "@/internal/databases/PlaceDatabase";
+import {HeritageDatabase} from "@/internal/databases/HeritageDatabase";
+import {BadgeDatabase} from "@/internal/databases/BadgeDatabase";
+/* ~~~~~~~~~~~~~~~~~~~~~~~~ */
+
 const app = createApp(App)
     .use(IonicVue)
     .use(router);
@@ -41,8 +48,15 @@ Icon.Default.mergeOptions({
 
 
 router.isReady().then(() => {
-    app.mount('#app');
-    defineCustomElements(window).catch(() => {
-        console.log("Error in defineCustomElements (`main.ts`)!");
+    // Init databases and THEN run Art of the day
+    console.log("Initializing databases...");
+    Promise.allSettled([
+        ArtworkDatabase.populate(),
+        PlaceDatabase.populate(),
+        HeritageDatabase.populate(),
+        BadgeDatabase.populate(),
+    ]).then(() => {
+        app.mount('#app');
+        defineCustomElements(window).catch(() => console.log("Error in defineCustomElements (`main.ts`)!"));
     });
 });

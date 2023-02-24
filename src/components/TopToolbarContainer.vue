@@ -6,8 +6,13 @@
 
 <script>
 export default {
-    name: "TopToolbarContainer"
+    name: "TopToolbarContainer",
+    components: {
+        IonTitle, IonToolbar
+    }
 }
+
+import { IonTitle, IonToolbar } from "@ionic/vue";
 </script>
 
 <style scoped>

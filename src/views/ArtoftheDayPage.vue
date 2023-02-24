@@ -90,4 +90,11 @@ export default {
     width: 80%;
     height: 15%;
 }
+
+#reroll {
+    color: black;
+    position: absolute;
+    bottom: 10%;
+    right: 5%;
+}
 </style>

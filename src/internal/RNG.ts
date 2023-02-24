@@ -28,10 +28,11 @@ export class RNG {
         return this.previous / this.m;
     }
 
-    inRange(left: number, right: number) {
-        if (right - left < 0 || (left == 0 && right == 0)) {
-            throw new Error("Invalid range.")
+    nextInRange(left: number, right: number) {
+        if (left == 0 && right == 0) {
+            throw new Error("Invalid range")
         }
+
         this.nextInt()
         return this.previous % Math.abs(right - left)
     }
