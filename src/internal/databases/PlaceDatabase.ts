@@ -1,13 +1,14 @@
 import Globals from "@/internal/Globals";
 
 import { Place } from "@/internal/Types"
-import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
+import {Directory, Encoding, Filesystem, WriteFileResult} from "@capacitor/filesystem";
+import {PlaceFactory} from "@/internal/Factories";
 
 export class PlaceDatabase {
     private static data: Array<Place> = [];
     private static path = "appdata/places.json";
 
-    static async populate(): Promise<void> {
+    public static async populate(): Promise<void> {
         // Do not reload all data if it exists already
         if (PlaceDatabase.data.length > 0) return;
 
@@ -21,7 +22,10 @@ export class PlaceDatabase {
                 encoding: Encoding.UTF8
             });
 
-            this.data = JSON.parse(content.toString());
+            const parsed = JSON.parse(content.data);
+            for (const place of parsed.data) {
+                PlaceDatabase.data.push(PlaceFactory.createPlace(place));
+            }
 
             console.log("PLACEDB: successfully populated databse.");
         } catch (e) {
@@ -31,7 +35,7 @@ export class PlaceDatabase {
     }
 
     private static async populateFromServer(): Promise<void> {
-        let response;
+        let response, content;
         try {
             response = await fetch(Globals.apiRoutes.places);
         } catch (e) {
@@ -44,20 +48,34 @@ export class PlaceDatabase {
         if (response.ok) {
             console.log("PLACEDB: data successfully fetched from the server.");
 
-            const content = await response.json();
-            for (const place of content.data) {
-                PlaceDatabase.data.push(place as Place);
+            content = await response.text();
+            for (const place of JSON.parse(content).data) {
+                PlaceDatabase.data.push(PlaceFactory.createPlace(place));
             }
+
+            // Sorting the data by element ID
+            PlaceDatabase.data.sort((element1, element2) => element1.id - element2.id);
+        } else {
+            console.log("PLACEDB: Invalid status code.");
+            return;
         }
 
         // Write the newly downloaded file
-        await Filesystem.writeFile({
+        Filesystem.writeFile({
             path: PlaceDatabase.path,
-            data: this.data.toString(),
+            data: content,
             directory: Directory.Data,
             encoding: Encoding.UTF8,
             recursive: true
-        });
+        })
+
+        .then((result: WriteFileResult) => {
+            console.log(`PLACEDB: downloaded file saved in storage at path ${result.uri}.`);
+        })
+
+        .catch((reason) => {
+            console.log(`PLACEDB: failed to write file (${reason}).`);
+        })
     }
 
     public static getFromId(id: number): Place {

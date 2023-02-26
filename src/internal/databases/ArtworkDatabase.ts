@@ -1,7 +1,7 @@
 import Globals from "@/internal/Globals";
 
 import { Artwork } from "@/internal/Types"
-import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
+import {Directory, Encoding, Filesystem, WriteFileResult} from "@capacitor/filesystem";
 import { ArtworkFactory } from "@/internal/Factories";
 
 export class ArtworkDatabase {
@@ -22,17 +22,20 @@ export class ArtworkDatabase {
                 encoding: Encoding.UTF8
             });
 
-            this.data = JSON.parse(content.toString());
+            const parsed = JSON.parse(content.data);
+            for (const artwork of parsed.data) {
+                ArtworkDatabase.data.push(ArtworkFactory.createArtwork(artwork));
+            }
 
             console.log("ARTWORKDB: successfully populated database.");
         } catch (e) {
-            console.log(`ARTWORKDB: ${ArtworkDatabase.path} does not exist (${e}).`);
+            console.log(`ARTWORKDB: error when parsing data from ${ArtworkDatabase.path} (${e}).`);
             await ArtworkDatabase.populateFromServer();
         }
     }
 
     private static async populateFromServer(): Promise<void> {
-        let response;
+        let response, content;
         try {
             response = await fetch(Globals.apiRoutes.artworks);
         } catch (e) {
@@ -45,26 +48,39 @@ export class ArtworkDatabase {
         if (response.ok) {
             console.log("ARTWORKDB: data successfully fetched from the server.");
 
-            const content = await response.json();
-            for (const artwork of content.data) {
-                // Casting each of them including the artists
+            content = await response.text();
+            for (const artwork of JSON.parse(content).data) {
                 ArtworkDatabase.data.push(ArtworkFactory.createArtwork(artwork));
             }
+
+            // Sorting the data by element ID
+            ArtworkDatabase.data.sort((element1, element2) => element1.id - element2.id);
+        } else {
+            console.log("ARTWORKSDB: Invalid status code.");
+            return;
         }
 
         // Write the newly downloaded file
-        await Filesystem.writeFile({
+        Filesystem.writeFile({
             path: ArtworkDatabase.path,
-            data: this.data.toString(),
+            data: content,
             directory: Directory.Data,
             encoding: Encoding.UTF8,
             recursive: true
-        });
+        })
+
+        .then((result: WriteFileResult) => {
+            console.log(`ARTWOKDB: downloaded file saved in storage at path ${result.uri}.`);
+        })
+
+        .catch((reason) => {
+            console.log(`ARTWORKDB: failed to write file (${reason}).`);
+        })
     }
 
     public static getFromId(id: number): Artwork {
-        if (id >= ArtworkDatabase.data.length) {
-            throw new Error("ARTWORKDB: id out of range");
+        if (id > ArtworkDatabase.data.length) {
+            throw new Error(`ARTWORKDB Error: id out of range (${id} > ${ArtworkDatabase.data.length}).`);
         }
 
         return ArtworkDatabase.data[id - 1];

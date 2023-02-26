@@ -1,13 +1,13 @@
 import Globals from "@/internal/Globals";
 
 import { Heritage } from "@/internal/Types"
-import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
+import {Directory, Encoding, Filesystem, WriteFileResult} from "@capacitor/filesystem";
 
 export class HeritageDatabase {
     private static data: Array<Heritage> = [];
     private static path = "appdata/heritages.json";
 
-    static async populate(): Promise<void> {
+    public static async populate(): Promise<void> {
         // Do not reload all data if it exists already
         if (HeritageDatabase.data.length > 0) return;
 
@@ -21,7 +21,10 @@ export class HeritageDatabase {
                 encoding: Encoding.UTF8
             });
 
-            this.data = JSON.parse(content.toString());
+            const parsed = JSON.parse(content.data);
+            for (const heritage of parsed.data) {
+                HeritageDatabase.data.push(heritage as Heritage);
+            }
 
             console.log("HERITAGEDB: successfully populated database.");
         } catch (e) {
@@ -31,7 +34,7 @@ export class HeritageDatabase {
     }
 
     private static async populateFromServer(): Promise<void> {
-        let response;
+        let response, content;
         try {
             response = await fetch(Globals.apiRoutes.heritages);
         } catch (e) {
@@ -44,20 +47,34 @@ export class HeritageDatabase {
         if (response.ok) {
             console.log("HERITAGEDB: data successfully fetched from the server.");
 
-            const content = await response.json();
-            for (const heritage of content.data) {
+            content = await response.text();
+            for (const heritage of JSON.parse(content).data) {
                 HeritageDatabase.data.push(heritage as Heritage);
             }
+
+            // Sorting the data by element ID
+            HeritageDatabase.data.sort((element1, element2) => element1.id - element2.id);
+        } else {
+            console.log("HERTITAGEDB: Invalid status code.");
+            return;
         }
 
         // Write the newly downloaded file
-        await Filesystem.writeFile({
+        Filesystem.writeFile({
             path: HeritageDatabase.path,
-            data: this.data.toString(),
+            data: content,
             directory: Directory.Data,
             encoding: Encoding.UTF8,
             recursive: true
-        });
+        })
+
+        .then((result: WriteFileResult) => {
+            console.log(`HERITAGEDB: downloaded file saved in storage at path ${result.uri}.`);
+        })
+
+        .catch((reason) => {
+            console.log(`HERITAGEDB: failed to write file (${reason}).`);
+        })
     }
 
 

@@ -1,13 +1,13 @@
 import Globals from "@/internal/Globals";
 
 import { Badge } from "@/internal/Types"
-import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
+import {Directory, Encoding, Filesystem, WriteFileResult} from "@capacitor/filesystem";
 
 export class BadgeDatabase {
     private static data: Array<Badge> = [];
     private static path = "appdata/badges.json";
 
-    static async populate(): Promise<void> {
+    public static async populate(): Promise<void> {
         // Do not reload all data if it exists already
         if (BadgeDatabase.data.length > 0) return;
 
@@ -21,7 +21,10 @@ export class BadgeDatabase {
                 encoding: Encoding.UTF8
             });
 
-            this.data = JSON.parse(content.toString());
+            const parsed = JSON.parse(content.data);
+            for (const badge of parsed.data) {
+                BadgeDatabase.data.push(badge as Badge);
+            }
 
             console.log("BADGEDB: successfully populated database.");
         } catch (e) {
@@ -31,7 +34,7 @@ export class BadgeDatabase {
     }
 
     private static async populateFromServer(): Promise<void> {
-        let response;
+        let response, content;
         try {
             response = await fetch(Globals.apiRoutes.badges);
         } catch (e) {
@@ -44,20 +47,34 @@ export class BadgeDatabase {
         if (response.ok) {
             console.log("BADGEDB: data successfully fetched from the server.");
 
-            const content = await response.json();
-            for (const badge of content.data) {
+            content = await response.text();
+            for (const badge of JSON.parse(content).data) {
                 BadgeDatabase.data.push(badge as Badge);
             }
+
+            // Sorting the data by element ID
+            BadgeDatabase.data.sort((element1, element2) => element1.id - element2.id);
+        } else {
+            console.log("BADGEDB: Invalid status code.");
+            return;
         }
 
         // Write the newly downloaded file
-        await Filesystem.writeFile({
+        Filesystem.writeFile({
             path: BadgeDatabase.path,
-            data: this.data.toString(),
+            data: content,
             directory: Directory.Data,
             encoding: Encoding.UTF8,
             recursive: true
-        });
+        })
+
+        .then((result: WriteFileResult) => {
+            console.log(`BADGEDB: downloaded file saved in storage at path ${result.uri}.`);
+        })
+
+        .catch((reason) => {
+            console.log(`BADGEDB: failed to write file (${reason}).`);
+        })
     }
 
 
