@@ -1,0 +1,72 @@
+@import url("@/theme/GlobalStyle.css");
+
+#heading * {
+    padding-top: 0.3em;
+}
+
+#heading {
+    height: 20vh;
+    padding-left: 20%;
+    color: white;
+    font-size: 64px;
+    background-color: var(--blue-powder);
+}
+
+#DOD-title {
+    font-size: x-large;
+    font-weight: bolder;
+}
+
+#pagetitle {
+    padding-left: 1em;
+    line-height: 30px;
+    font-weight: bold;
+    vertical-align: middle;
+    display: inline-block;
+    font-size: 32px;
+}
+
+#header-DOD {
+    font-size: 65px;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+#pinicon {
+    position: absolute;
+    width: 35%;
+    right: 10%
+}
+
+#cameraicon {
+    position: absolute;
+    width: 35%;
+    left: 10%;
+}
+
+#DOD-artist, #DOD-borough {
+    font-weight: lighter;
+    font-size: large;
+}
+
+#DOD-info {
+    margin-left: 10%;
+}
+
+#DOD-category, #DOD-usages {
+    font-size: small;
+    margin-top: 1em;
+}
+
+#mapicon {
+    position: absolute;
+    display: block;
+    margin: 0 auto;
+    bottom: 20%;
+    width: 80%;
+    height: 15%;
+}
+
+ion-button {
+    color: var(--mona-yellow);
+}

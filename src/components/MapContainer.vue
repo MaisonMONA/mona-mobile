@@ -7,7 +7,6 @@ import "ol/ol.css"
 import Map from "ol/Map"
 import View from "ol/View"
 import TileLayer from "ol/layer/Tile";
-// import OSM from "ol/source/OSM";
 import { useGeographic } from "ol/proj";
 import Point from "ol/geom/Point";
 import Feature from "ol/Feature";
@@ -17,7 +16,7 @@ import { Stamen } from "ol/source";
 
 
 export default {
-    name: "MapTest",
+    name: "MapContainer",
     data() {
         return {
             mainMap: null,
@@ -36,13 +35,8 @@ export default {
                 layers: [
                     // Tile style (purely decorative)
                     new TileLayer({
-                        source: new Stamen({ layer: "watercolor" }),
+                        source: new Stamen({ layer: "toner-lite" }),
                     }),
-                    
-                    // Place annotations (region/street/land names)
-                    new TileLayer({
-                        source: new Stamen({ layer: "terrain-labels" })
-                    })
                     
                     // Add more here as needed
                 ],
@@ -58,26 +52,14 @@ export default {
             });
         
             const source = new VectorSource();
-            const features = [];
-            for (let i = 0; i < 6000; i++) {
-                features.push(new Feature(new Point([- Math.random() * 5 - 70, Math.random() * 5 + 45])))
-            }
-            console.log(features);
+            const features = [new Feature(new Point(this.INITAL_COORD))];
             source.addFeatures(features);
             const layer = new VectorLayer({ source: source });
             this.mainMap.addLayer(layer);
-            // setTimeout(() => {
-            //     this.mainMap.updateSize();
-            // }, 500);
         },
     },
 };
 </script>
 
 <style scoped>
-.map {
-    min-height: 100px;
-    height: 100%;
-    width: 100%;
-}
 </style>
