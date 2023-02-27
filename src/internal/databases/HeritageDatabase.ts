@@ -1,10 +1,11 @@
 import Globals from "@/internal/Globals";
 
 import { Heritage } from "@/internal/Types"
-import {Directory, Encoding, Filesystem, WriteFileResult} from "@capacitor/filesystem";
+import { Directory, Encoding, Filesystem, WriteFileResult } from "@capacitor/filesystem";
+import { Database } from "@/internal/databases/Database";
 
-export class HeritageDatabase {
-    private static data: Array<Heritage> = [];
+export class HeritageDatabase extends Database {
+    protected static data: Array<Heritage> = [];
     private static path = "appdata/heritages.json";
 
     public static async populate(): Promise<void> {
@@ -77,16 +78,11 @@ export class HeritageDatabase {
         })
     }
 
-
     public static getFromId(id: number): Heritage {
-        if (id >= HeritageDatabase.data.length) {
-            throw new Error("HERITAGEDB: id out of range");
+        try {
+            return super.getFromId(id) as Heritage;
+        } catch (e) {
+            throw new Error(`HERITAGEDB ${e}`)
         }
-
-        return HeritageDatabase.data[id - 1];
-    }
-
-    public static getSize(): number {
-        return HeritageDatabase.data.length
     }
 }

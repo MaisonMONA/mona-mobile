@@ -1,0 +1,17 @@
+@import url("@/theme/GlobalStyle.css");
+
+ion-title {
+    font-family: 'Gotham Rounded Light', sans-serif;
+    padding: 0;
+}
+
+/* Yellow circle before title */
+ion-title:before {
+    content: '';
+    background: var(--mona-yellow);
+    border-radius: 50%;
+    margin-left: 20px;
+    margin-right: 10px;
+    width: 23px;
+    height: 20px;
+}

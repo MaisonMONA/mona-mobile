@@ -1,3 +1,10 @@
+export enum DiscoveryTypes {
+    ARTWORK,
+    PLACE,
+    HERITAGE,
+    BADGE
+}
+
 export class Artist {
     constructor(id: number, name: string) {
         this.id= id;
@@ -18,7 +25,7 @@ export class Artwork {
         produced_at: string | null, territory: string,
         location: { lat: string, lng: string },
         title: { fr: string | null, en: string | null },
-        materials: { fr: Array<string>, en: Array<string> } | null,
+        materials:  { fr: Array<string>, en: Array<string> } | null,
         dimensions: { fr: Array<string>, en: Array<string> } | null,
         categories: { fr: Array<string>, en: Array<string> } | null,
         techniques: { fr: Array<string>, en: Array<string> } | null,
@@ -67,7 +74,7 @@ export class Artwork {
 
 export class Place {
     constructor(place: {
-        id: number, title: string, usages: Array<string>,
+        id: number, title: string, usages: { fr: Array<string>, en: Array<string> },
         borough: string, territory: string, description: string | null,
         location: { lat: string, lng: string }
     }) {
@@ -83,10 +90,13 @@ export class Place {
     id: number;
     title: string;
     location: {
-        lat: string,
-        lng: string
+        lat: string;
+        lng: string;
     };
-    usages: Array<string>;
+    usages: {
+        fr: Array<string>;
+        en: Array<string>;
+    };
     borough: string;
     description: string | null;
     territory: string;
@@ -105,7 +115,7 @@ export class Heritage {
         this.location    = heritage.location;
         this.produced_at = heritage.produced_at;
         this.functions   = heritage.functions;
-        this.subUses     = heritage["sous-usages"];
+        this.subUses     = [...heritage["sous-usages"]];
         this.synthesis   = heritage.synthesis
         this.description = heritage.description;
         this.status      = heritage.status;
@@ -115,6 +125,7 @@ export class Heritage {
 
     id: number;
     title: string;
+    borough: string;
     territory: string;
     produced_at: string | null;
     description: string | null;
@@ -124,7 +135,6 @@ export class Heritage {
         en: Array<string>
     };
     status: string;
-    borough: string;
     synthesis: null;
     subUses: Array<string>;
 }

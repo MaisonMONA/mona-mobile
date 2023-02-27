@@ -24,7 +24,7 @@ import '@ionic/vue/css/flex-utils.css';
 import '@ionic/vue/css/display.css';
 
 /* Theme variables */
-import './theme/variables.css';
+import './theme/(DEFAULT_FILE)_variables.css';
 
 import 'leaflet/dist/leaflet.css';
 import { Icon } from "leaflet";
@@ -48,7 +48,8 @@ Icon.Default.mergeOptions({
 
 
 router.isReady().then(() => {
-    // Init databases and THEN run Art of the day
+    /* Init databases and THEN open Discovery of the day */
+    /*   ^--- (not implemented yet) */
     console.log("Initializing databases...");
     Promise.allSettled([
         ArtworkDatabase.populate(),
@@ -56,7 +57,8 @@ router.isReady().then(() => {
         HeritageDatabase.populate(),
         BadgeDatabase.populate(),
     ]).then(() => {
+        console.log("All done.");
         app.mount('#app');
-        defineCustomElements(window).catch(() => console.log("Error in defineCustomElements (`main.ts`)!"));
+        defineCustomElements(window).catch(() => console.error("Error in defineCustomElements (`main.ts`)."));
     });
 });

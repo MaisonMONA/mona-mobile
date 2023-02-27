@@ -1,10 +1,11 @@
 import Globals from "@/internal/Globals";
 
 import { Badge } from "@/internal/Types"
-import {Directory, Encoding, Filesystem, WriteFileResult} from "@capacitor/filesystem";
+import { Directory, Encoding, Filesystem, WriteFileResult } from "@capacitor/filesystem";
+import { Database } from "@/internal/databases/Database";
 
-export class BadgeDatabase {
-    private static data: Array<Badge> = [];
+export class BadgeDatabase extends Database {
+    protected static data: Array<Badge> = [];
     private static path = "appdata/badges.json";
 
     public static async populate(): Promise<void> {
@@ -79,14 +80,10 @@ export class BadgeDatabase {
 
 
     public static getFromId(id: number): Badge {
-        if (id >= BadgeDatabase.data.length) {
-            throw new Error("BADGEDB: id out of range");
+        try {
+            return super.getFromId(id) as Badge;
+        } catch (e) {
+            throw new Error(`BADGEDB ${e}`)
         }
-
-        return BadgeDatabase.data[id - 1];
-    }
-
-    public static getSize(): number {
-        return BadgeDatabase.data.length
     }
 }

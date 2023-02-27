@@ -1,12 +1,14 @@
 import Globals from "@/internal/Globals";
 
 import { Artwork } from "@/internal/Types"
-import {Directory, Encoding, Filesystem, WriteFileResult} from "@capacitor/filesystem";
+import { Directory, Encoding, Filesystem, WriteFileResult } from "@capacitor/filesystem";
 import { ArtworkFactory } from "@/internal/Factories";
+import { Database } from "@/internal/databases/Database";
 
-export class ArtworkDatabase {
-    private static data: Array<Artwork> = [];
+export class ArtworkDatabase extends Database {
+    protected static data: Array<Artwork> = [];
     private static path = "appdata/artworks.json";
+    private static type = Artwork;
 
     public static async populate(): Promise<void> {
         // Do not reload all data if it exists already
@@ -79,14 +81,10 @@ export class ArtworkDatabase {
     }
 
     public static getFromId(id: number): Artwork {
-        if (id > ArtworkDatabase.data.length) {
-            throw new Error(`ARTWORKDB Error: id out of range (${id} > ${ArtworkDatabase.data.length}).`);
+        try {
+            return super.getFromId(id) as Artwork;
+        } catch (e) {
+            throw new Error(`ARTWORKDB ${e}`)
         }
-
-        return ArtworkDatabase.data[id - 1];
-    }
-
-    public static getSize(): number {
-        return ArtworkDatabase.data.length
     }
 }

@@ -3,7 +3,7 @@
     <ion-tabs>
       <ion-router-outlet></ion-router-outlet>
       <ion-tab-bar slot="bottom">
-        <ion-tab-button tab="artwork-of-the-day" href="/tabs/artwork-of-the-day">
+        <ion-tab-button tab="discovery-of-the-day" href="/tabs/discovery-of-the-day">
           <ion-icon :icon="calendar" />
         </ion-tab-button>
 
@@ -28,6 +28,9 @@
 </template>
 
 <script setup lang="ts">
+/* Importing the toolbar's CSS here so it's done once and for all */
+import "@/theme/TopToolbar.css"
+
 import { IonTabBar, IonTabButton, IonTabs, IonIcon, IonPage, IonRouterOutlet } from '@ionic/vue';
 import { list, map, book, ellipsisHorizontalCircle, calendar } from 'ionicons/icons';
 </script>

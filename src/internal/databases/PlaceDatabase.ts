@@ -1,11 +1,12 @@
 import Globals from "@/internal/Globals";
 
 import { Place } from "@/internal/Types"
-import {Directory, Encoding, Filesystem, WriteFileResult} from "@capacitor/filesystem";
-import {PlaceFactory} from "@/internal/Factories";
+import { Directory, Encoding, Filesystem, WriteFileResult } from "@capacitor/filesystem";
+import { PlaceFactory } from "@/internal/Factories";
+import { Database } from "@/internal/databases/Database";
 
-export class PlaceDatabase {
-    private static data: Array<Place> = [];
+export class PlaceDatabase extends Database {
+    protected static data: Array<Place> = [];
     private static path = "appdata/places.json";
 
     public static async populate(): Promise<void> {
@@ -79,14 +80,10 @@ export class PlaceDatabase {
     }
 
     public static getFromId(id: number): Place {
-        if (id >= PlaceDatabase.data.length) {
-            throw new Error("PLACEDB: id out of range");
+        try {
+            return super.getFromId(id) as Place;
+        } catch (e) {
+            throw new Error(`PLACEDB ${e}`)
         }
-
-        return PlaceDatabase.data[id - 1];
-    }
-
-    public static getSize(): number {
-        return PlaceDatabase.data.length
     }
 }
