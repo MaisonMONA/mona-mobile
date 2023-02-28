@@ -1,72 +1,159 @@
 @import url("@/theme/GlobalStyle.css");
 
-#heading * {
-    padding-top: 0.3em;
+/*#header {*/
+/*    height: 20vh;*/
+/*    background: var(--blue-powder);*/
+/*}*/
+
+/*#DOD-title {*/
+/*    font-size: x-large;*/
+/*    font-weight: bolder;*/
+/*}*/
+
+/*#pagetitle {*/
+/*    padding-left: 1em;*/
+/*    line-height: 30px;*/
+/*    font-weight: bold;*/
+/*    vertical-align: middle;*/
+/*    display: inline-block;*/
+/*    font-size: 32px;*/
+/*}*/
+
+/*#header-DOD {*/
+/*    font-size: 65px;*/
+/*    vertical-align: middle;*/
+/*    display: inline-block;*/
+/*}*/
+
+/*#pinicon {*/
+/*    position: absolute;*/
+/*    width: 35%;*/
+/*    right: 10%*/
+/*}*/
+
+/*#cameraicon {*/
+/*    position: absolute;*/
+/*    width: 35%;*/
+/*    left: 10%;*/
+/*}*/
+
+/*#DOD-artist, #DOD-borough {*/
+/*    font-weight: lighter;*/
+/*    font-size: large;*/
+/*}*/
+
+/*#DOD-info {*/
+/*    margin-left: 10%;*/
+/*}*/
+
+/*#DOD-category, #DOD-usages {*/
+/*    font-size: small;*/
+/*    margin-top: 1em;*/
+/*}*/
+
+/*#mapicon {*/
+/*    position: absolute;*/
+/*    display: block;*/
+/*    margin: 0 auto;*/
+/*    bottom: 20%;*/
+/*    width: 80%;*/
+/*    height: 15%;*/
+/*}*/
+
+/*ion-button {*/
+/*    color: var(--mona-yellow);*/
+/*}*/
+
+@import url("@/theme/DiscoveryDetails.css");
+
+* {
+    font-family: 'OpenSans', sans-serif;
 }
 
-#heading {
-    height: 20vh;
-    padding-left: 20%;
+div, p {
+    margin: 0;
+    padding: 0;
+}
+
+.page-header {
+    position: relative;
+    height: 30%;
+    background: var(--blue-powder);
+}
+
+.page-body-background {
+    height: 70%;
+    background: var(--blue-powder);
+}
+
+.page-body {
+    height: 100%;
+    background: white;
+    border-radius: 25px 25px 0 0;
+    padding: 5%;
+}
+
+#dUsages, #dArtist, #dCategory, #dBorough {
+    padding-top: 5%;
+}
+
+#headerIcon {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    left: 25%;
+    top: 50%;
     color: white;
-    font-size: 64px;
-    background-color: var(--blue-powder);
+    font-size: 80px;
+    --ionicon-stroke-width: 20;
 }
 
-#DOD-title {
-    font-size: x-large;
-    font-weight: bolder;
-}
-
-#pagetitle {
-    padding-left: 1em;
-    line-height: 30px;
-    font-weight: bold;
-    vertical-align: middle;
-    display: inline-block;
-    font-size: 32px;
-}
-
-#header-DOD {
-    font-size: 65px;
-    vertical-align: middle;
-    display: inline-block;
-}
-
-#pinicon {
+.page-header p {
+    margin: 0;
     position: absolute;
-    width: 35%;
-    right: 10%
+    transform: translate(-50%, -50%);
+    left: 60%;
+    top: 50%;
+    color: white;
+    font-size: 28px;
+    font-weight: 600;
 }
 
-#cameraicon {
+#mapButton {
     position: absolute;
-    width: 35%;
-    left: 10%;
-}
-
-#DOD-artist, #DOD-borough {
-    font-weight: lighter;
-    font-size: large;
-}
-
-#DOD-info {
-    margin-left: 10%;
-}
-
-#DOD-category, #DOD-usages {
-    font-size: small;
-    margin-top: 1em;
-}
-
-#mapicon {
-    position: absolute;
-    display: block;
-    margin: 0 auto;
-    bottom: 20%;
-    width: 80%;
+    bottom: 11%;
+    left: 5%;
+    width: 90%;
     height: 15%;
+    background-image: url("@/assets/drawable/seeOnMapLargeButton.png");
+    background-size: contain;
+    background-repeat: no-repeat;
 }
 
-ion-button {
-    color: var(--mona-yellow);
+#cameraButton, #infoButton {
+    position: absolute;
+    justify-content: center;
+    bottom: 30%;
+    height: 100px;
+    --border-color: var(--button-outline-grey);
+    --background: white;
+    --background-activated: white;
+    color: black;
+    width: 42%;
+    transition: color 0.2s cubic-bezier(.3, .9, .9, .9), --border-color 0.2s cubic-bezier(.3, .9, .9, .9);
+}
+
+#cameraButton:active {
+    color: var(--button-activated);
+}
+
+#infoButton:active {
+    color: var(--button-activated);
+}
+
+#cameraButton {
+    left: 5%;
+}
+
+#infoButton {
+    right: 5%;
 }

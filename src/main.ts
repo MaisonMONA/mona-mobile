@@ -1,12 +1,11 @@
-import { createApp } from 'vue'
-import App from './App.vue'
+import { createApp } from 'vue';
+import App from './App.vue';
 import router from './router';
 
 import { IonicVue } from '@ionic/vue';
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
 
 /* Custom imports */
-
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/vue/css/core.css';
 
@@ -30,10 +29,10 @@ import 'leaflet/dist/leaflet.css';
 import { Icon } from "leaflet";
 
 /* ~~~~ Custom imports ~~~~ */
-import {ArtworkDatabase} from "@/internal/databases/ArtworkDatabase";
-import {PlaceDatabase} from "@/internal/databases/PlaceDatabase";
-import {HeritageDatabase} from "@/internal/databases/HeritageDatabase";
-import {BadgeDatabase} from "@/internal/databases/BadgeDatabase";
+import { ArtworkDatabase } from "@/internal/databases/ArtworkDatabase";
+import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
+import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
+import { BadgeDatabase } from "@/internal/databases/BadgeDatabase";
 /* ~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 const app = createApp(App)
@@ -47,7 +46,7 @@ Icon.Default.mergeOptions({
 });
 
 
-router.isReady().then(() => {
+router.isReady().then( async () => {
     /* Init databases and THEN open Discovery of the day */
     /*   ^--- (not implemented yet) */
     console.log("Initializing databases...");

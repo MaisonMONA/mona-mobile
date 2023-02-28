@@ -48,7 +48,7 @@ import { IonPage, IonHeader, IonContent, IonToolbar, IonTitle, IonFabButton, Ion
 import { star } from "ionicons/icons";
 import { useRoute } from "vue-router";
 
-import { Artwork, Place, Heritage, DiscoveryTypes } from "@/internal/Types";
+import { Artwork, Place, Heritage, DiscoveryEnum } from "@/internal/Types";
 import { ArtworkDatabase } from "@/internal/databases/ArtworkDatabase";
 import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
 import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
@@ -75,15 +75,15 @@ export default {
         let discovery: any;
 
         switch (parseInt(type)) {
-            case DiscoveryTypes.ARTWORK: {
+            case DiscoveryEnum.ARTWORK: {
                 discovery = ArtworkDatabase.getFromId(parseInt(id))
                 break;
             }
-            case DiscoveryTypes.HERITAGE: {
+            case DiscoveryEnum.HERITAGE: {
                 discovery = HeritageDatabase.getFromId(parseInt(id))
                 break;
             }
-            case DiscoveryTypes.PLACE: {
+            case DiscoveryEnum.PLACE: {
                 discovery = PlaceDatabase.getFromId(parseInt(id))
                 break;
             }
@@ -103,7 +103,6 @@ export default {
     width: 100%;
     height: 40%;
     background-image: url("@/assets/drawable/mona_logo_med.png");
-    /*background: var(--blue-powder);*/
 }
 
 #targetButton {

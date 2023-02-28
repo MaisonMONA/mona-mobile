@@ -8,20 +8,21 @@
     </ion-header>
 
     <ion-content :fullscreen="true">
-        <ion-nav :root="DiscoveryOfTheDay"></ion-nav>
+        <DiscoveryOfTheDay/>
     </ion-content>
   </ion-page>
 </template>
 
 <script lang="ts">
 import "@/theme/DiscoveryOfTheDay.css"
-import { IonPage, IonHeader, IonContent, IonToolbar, IonTitle, IonNav } from '@ionic/vue';
+import { IonPage, IonHeader, IonContent, IonToolbar, IonTitle } from '@ionic/vue';
 import DiscoveryOfTheDay from "@/components/DiscoveryOfTheDayContainer.vue";
 
 export default {
     name: "discovery-of-the-day",
     components: {
-        IonPage, IonHeader, IonContent, IonToolbar, IonTitle, IonNav
+        IonPage, IonHeader, IonContent, IonToolbar, IonTitle,
+        DiscoveryOfTheDay
     },
     data() {
         return {
@@ -30,3 +31,10 @@ export default {
     }
 }
 </script>
+
+<style>
+ion-header {
+    margin: 0;
+    padding: 0;
+}
+</style>

@@ -16,6 +16,9 @@
 :root {
     --mona-yellow: #fbd800;
     --blue-powder: #b5b7de;
+    --button-outline-grey: #E8E8E8;
+    --button-activated: #919191;
+
     --ion-color-primary: var(--mona-yellow);
     --ion-color-primary-contrast: #000000;
 }
