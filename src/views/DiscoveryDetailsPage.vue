@@ -19,7 +19,7 @@
                 </ion-button>
 
                 <!-- "SEE ON MAP" BUTTON -->
-                <ion-button id="seeOnMapButton" fill="outline">
+                <ion-button id="seeOnMapButton" fill="outline" :to="{ name: '/tabs/map', params: { discovery } }" router-link="/tabs/map" router-direction="forward">
                     <ion-icon id="targetIcon" :icon="mapOutline"></ion-icon>
                 </ion-button>
 

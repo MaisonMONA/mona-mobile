@@ -39,20 +39,35 @@
         <ion-button id="infoButton" fill="outline" :router-link="`/discovery-details/${type}/${discovery.id}`" router-direction="forward">
             <ion-icon :icon="informationCircleOutline"></ion-icon>
         </ion-button>
-
-        <div id="mapButton"></div>
     </div>
+
+    <div id="mapContainer" @click="activateMap([discovery.lng, discovery.lat])"></div>
 </template>
 
-<script lang="ts">
+<script>
+/* Vue/Ionic imports */
 import { camera, imageOutline, informationCircleOutline, pin } from 'ionicons/icons';
 import { IonButton, IonIcon } from "@ionic/vue";
 
+/* Imports for the map */
+import Map from "ol/Map";
+import View from "ol/View";
+import { defaults as defaultControls } from "ol/control";
+import { defaults as defaultInteractions } from "ol/interaction";
+import vLayers from "@/internal/PinsVectorLayer";
+import { useGeographic } from "ol/proj";
+import { Group as layerGroup } from "ol/layer";
+import TileLayer from "ol/layer/Tile";
+import { OSM } from "ol/source";
+import Feature from "ol/Feature";
+import Point from "ol/geom/Point";
+
+/* Imports for the discovery */
 import { ArtworkDatabase } from "@/internal/databases/ArtworkDatabase";
 import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
 import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
 import { RNG } from "@/internal/RNG"
-import { Discovery, DiscoveryEnum } from "@/internal/Types";
+import { DiscoveryEnum } from "@/internal/Types";
 
 console.log("Database:");
 console.log("\t" + ArtworkDatabase.getSize() + " artworks");
@@ -65,8 +80,9 @@ const seed = date.getDate() * 1000000 + (date.getMonth() + 1) * 10000 + date.get
 const random = new RNG(seed);
 
 const type = random.nextInRange(0, 2);  // Choose what type of discovery to show
+console.log("type", type, "seed", seed);
 
-let discovery: Discovery;
+let discovery;
 switch (type) {
     case DiscoveryEnum.ARTWORK: {   // Choose in artworks
         discovery = ArtworkDatabase.getRandomItem(seed);
@@ -93,6 +109,7 @@ export default {
     },
 
     setup() {
+        // this.myMap();
         return {
             camera, pin, imageOutline, informationCircleOutline,
         }
@@ -104,10 +121,77 @@ export default {
             type,
             DiscoveryTypes: DiscoveryEnum,
         }
+    },
+
+    mounted() {
+        this.myMap();
+    },
+
+    methods: {
+        myMap() {
+            const INITIAL_COORD = [discovery.location.lng, discovery.location.lat];
+            useGeographic();
+            this.mainMap = new Map({
+                // Hiding attribution (quite immoral isn't it?)
+                controls: defaultControls({ attribution: false, zoom: false }),
+
+                // Disabling interactions
+                interactions: defaultInteractions({
+                    dragPan: false,
+                    pinchZoom: false,
+                    mouseWheelZoom: false,
+                    doubleClickZoom: false
+                }),
+
+                target: "mapContainer",
+                view: new View({
+                    center: INITIAL_COORD,
+                    zoom: 17,
+                    enableRotation: false,
+                }),
+            });
+
+            this.mainMap.setLayerGroup(new layerGroup({
+                layers: [ new TileLayer({ source: new OSM() }) ]
+            }));
+
+            // Showing the pin
+            if (type === DiscoveryEnum.ARTWORK) {
+                this.mainMap.addLayer(vLayers.artworkDoD);
+                const feature = new Feature(new Point(INITIAL_COORD));
+                vLayers.artworkDoD.getSource().addFeature(feature);
+            } else if (type === DiscoveryEnum.PLACE) {
+                this.mainMap.addLayer(vLayers.placeDoD);
+                const feature = new Feature(new Point(INITIAL_COORD));
+                vLayers.placeDoD.getSource().addFeature(feature);
+            } else {
+                this.mainMap.addLayer(vLayers.heritageDoD);
+                const feature = new Feature(new Point(INITIAL_COORD));
+                vLayers.heritageDoD.getSource().addFeature(feature);
+            }
+        },
+
+        activateMap() {
+            const mapInstructions = {
+                path: "/tabs/map/",
+                query: {}
+            };
+
+            if (type === DiscoveryEnum.ARTWORK) {
+                mapInstructions.query.artwork = discovery.id;
+            } else if (type === DiscoveryEnum.PLACE) {
+                mapInstructions.query.place = discovery.id;
+            }  else {
+                mapInstructions.query.heritage = discovery.id;
+            }
+
+            this.$router.push(mapInstructions);
+        }
     }
 }
 </script>
 
 <style scoped>
 @import url("@/theme/DiscoveryOfTheDay.css");
+@import url("ol/ol.css");
 </style>

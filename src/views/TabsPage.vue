@@ -39,7 +39,7 @@ import { list, map, book, ellipsisHorizontalCircle, calendar } from 'ionicons/ic
 ion-tab-bar {
     height: 10%;
     border: 0;
-    --background: #F1F0F5;
+    --background: var(--toolbar-purple);
 }
 
 ion-icon {

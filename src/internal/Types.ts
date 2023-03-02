@@ -7,6 +7,10 @@ export enum DiscoveryEnum {
 
 export abstract class Discovery {
     public abstract id: number;
+    public abstract dType: string;
+    public isTargeted  = false;
+    public isCollected = false;
+
     public abstract getTitle(): string;
 
     // All code below for inheritance
@@ -45,7 +49,7 @@ export class Artwork extends Discovery {
     constructor(artwork: {
         id: number, artists: Array<Artist> | null,
         produced_at: string | null, territory: string,
-        location: { lat: string, lng: string },
+        location: { lat: number, lng: number },
         title: { fr: string | null, en: string | null },
         materials:  { fr: Array<string>, en: Array<string> } | null,
         dimensions: { fr: Array<string>, en: Array<string> } | null,
@@ -53,6 +57,7 @@ export class Artwork extends Discovery {
         techniques: { fr: Array<string>, en: Array<string> } | null,
     }) {
         super();
+        this.dType        = "artwork";
         this.id          = artwork.id;
         this.title       = artwork.title;
         this.artists     = artwork.artists;
@@ -64,35 +69,17 @@ export class Artwork extends Discovery {
         this.categories  = artwork.categories;
         this.techniques  = artwork.techniques;
     }
-
+    dType: string;
     id: number;
-    title: {
-        fr: string | null,
-        en: string | null
-    };
+    title: { fr: string | null, en: string | null };
     artists: Array<Artist> | null;
-    location: {
-        lat: string,
-        lng: string
-    };
+    location: { lat: number, lng: number };
     produced_at: string | null;
     territory: string;
-    materials: {
-        fr: Array<string>,
-        en: Array<string>
-    } | null;
-    dimensions: {
-        fr: Array<string>,
-        en: Array<string>
-    } | null;
-    categories: {
-        fr: Array<string>,
-        en: Array<string>
-    } | null;
-    techniques: {
-        fr: Array<string>,
-        en: Array<string>
-    } | null;
+    materials: { fr: Array<string>, en: Array<string> } | null;
+    dimensions: { fr: Array<string>, en: Array<string> } | null;
+    categories: { fr: Array<string>, en: Array<string> } | null;
+    techniques: { fr: Array<string>, en: Array<string> } | null;
 
     public getTitle(): string {
         const title = this.title.fr || this.title.en;
@@ -132,9 +119,10 @@ export class Place extends Discovery {
     constructor(place: {
         id: number, title: string, usages: { fr: Array<string>, en: Array<string> },
         borough: string, territory: string, description: string | null,
-        location: { lat: string, lng: string }
+        location: { lat: number, lng: number }
     }) {
         super();
+        this.dType        = "place";
         this.id          = place.id;
         this.title       = place.title;
         this.location    = place.location;
@@ -144,16 +132,11 @@ export class Place extends Discovery {
         this.territory   = place.territory;
     }
 
+    dType: string;
     id: number;
     title: string;
-    location: {
-        lat: string;
-        lng: string;
-    };
-    usages: {
-        fr: Array<string>;
-        en: Array<string>;
-    };
+    location: { lat: number, lng: number };
+    usages: { fr: Array<string>; en: Array<string>; };
     borough: string;
     description: string | null;
     territory: string;
@@ -179,11 +162,12 @@ export class Heritage extends Discovery {
     constructor(heritage: {
         id: number, title: string, territory: string,
         produced_at: string | null, description: string | null,
-        location: { lat: string, lng: string }, status: string,
+        location: { lat: number, lng: number }, status: string,
         borough: string, synthesis: null, "sous-usages": Array<string>,
         functions: { fr: Array<string>, en: Array<string> }
     }) {
         super();
+        this.dType        = "heritage";
         this.id          = heritage.id;
         this.title       = heritage.title;
         this.location    = heritage.location;
@@ -197,17 +181,15 @@ export class Heritage extends Discovery {
         this.territory   = heritage.territory;
     }
 
+    dType: string;
     id: number;
     title: string;
     borough: string;
     territory: string;
     produced_at: string | null;
     description: string | null;
-    location: { lat: string, lng: string };
-    functions: {
-        fr: Array<string>,
-        en: Array<string>
-    };
+    location: { lat: number, lng: number };
+    functions: { fr: Array<string>, en: Array<string> };
     status: string;
     synthesis: null;
     subUses: Array<string>;
@@ -234,6 +216,7 @@ export class Badge extends Discovery {
         type: string | null
     }) {
         super();
+        this.dType         = "badge";
         this.id            = badge.id;
         this.title         = badge.title;
         this.requiredCount = badge.requiredCount;
@@ -243,6 +226,7 @@ export class Badge extends Discovery {
         this.type          = badge.type;
     }
 
+    dType: string;
     id: number;
     title: string;
     requiredCount: number;
