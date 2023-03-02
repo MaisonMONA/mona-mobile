@@ -31,7 +31,9 @@ export class RNG {
          * Returns the next int in [0;m) calculated by the RNG
          */
         this.previous = (this.a * this.previous + this.c) % this.m;
-        return this.previous;
+
+        // Return the integer represented by the bits 30..16 of `this.previous`
+        return (this.previous >> 16) & 0x7FFF;
     }
 
     random() {
@@ -53,6 +55,6 @@ export class RNG {
             throw new Error(`Invalid range ([${left};${right}] is invalid).`);
 
         this.nextInt()
-        return this.previous % Math.abs(right - left) + left
+        return this.previous % Math.abs(right - left + 1) + left
     }
 }
