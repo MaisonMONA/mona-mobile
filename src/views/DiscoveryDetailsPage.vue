@@ -12,9 +12,12 @@
 
         <ion-content :fullscreen="true">
             <div class="discoveryPhotoContainer">
-                <div id="photoContainer"></div>
+                <div class="photoContainer">
+                    <ion-img id="defaultPhoto" :src="require('@/assets/drawable/mona_logo_med.png')"></ion-img>
+                    <ion-img id="userPhoto"></ion-img>
+                </div>
                 <!-- PHOTO BUTTON -->
-                <ion-button id="photoButton" fill="outline">
+                <ion-button id="photoButton" fill="outline" @click="activateCamera(discovery)">
                     <ion-icon id="targetIcon" :icon="cameraOutline"></ion-icon>
                 </ion-button>
 
@@ -69,33 +72,31 @@
     </ion-page>
 </template>
 
-<script lang="ts">
+<script>
 import {
-    IonContent,
-    IonFabButton,
-    IonButton,
-    IonHeader,
-    IonIcon,
-    IonPage,
-    IonTitle,
-    IonToolbar,
-    IonBackButton,
-    IonButtons
+    IonBackButton, IonButton, IonButtons, IonContent, IonFabButton,
+    IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, IonImg
 } from '@ionic/vue';
-import { star, cameraOutline, mapOutline } from "ionicons/icons";
+import { cameraOutline, mapOutline, star } from "ionicons/icons";
 import { useRoute } from "vue-router";
+import { Camera, CameraResultType } from "@capacitor/camera";
 
-import { Discovery, DiscoveryEnum } from "@/internal/Types";
+import { DiscoveryEnum } from "@/internal/Types";
 import { ArtworkDatabase } from "@/internal/databases/ArtworkDatabase";
 import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
 import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
+import  { UserData } from "@/internal/databases/UserData";
+import Globals from "@/internal/Globals";
+
+UserData.resetPreferences();
 
 export default {
     name: "discovery-details",
 
     components: {
         IonFabButton, IonPage, IonToolbar, IonHeader, IonTitle,
-        IonContent, IonIcon, IonButton, IonBackButton, IonButtons
+        IonContent, IonIcon, IonButton, IonBackButton, IonButtons,
+        IonImg
     },
 
     data() {
@@ -110,7 +111,7 @@ export default {
         type = type.toString();
         id = id.toString();
 
-        let discovery: Discovery;
+        let discovery;
 
         switch (parseInt(type)) {
             case DiscoveryEnum.ARTWORK: {
@@ -125,12 +126,55 @@ export default {
                 discovery = PlaceDatabase.getFromId(parseInt(id));
                 break;
             }
-
         }
 
         return {
             dType: parseInt(type),
             discovery, DiscoveryEnum
+        }
+    },
+
+    methods: {
+        async activateCamera(discovery) {
+            const img = await Globals.takePicture()
+            if (img == null) return;
+
+            const userImg = document.getElementById("userPhoto");
+            const defaultImg = document.getElementById("defaultPhoto");
+            if (userImg && defaultImg) {  // Necessary but pointless `if` block: elements should always exist
+                defaultImg.style.display = "none";
+                userImg.style.display = "block";
+                userImg.src = img.webPath || '';
+
+                // Hiding buttons
+                const photoButton = document.getElementById("photoButton");
+                const seeOnMapButton = document.getElementById("seeOnMapButton");
+                if (photoButton && seeOnMapButton) {  // Same here
+                    photoButton.style.display = "none";
+                    seeOnMapButton.style.display = "none";
+                }
+
+                // Enable image opening
+                userImg.onclick = this.showImg;
+            }
+
+            const filename = await Globals.savePicture(img);
+            UserData.addCollected(discovery, "img/" + filename, null, null);
+            UserData.addPendingUpload(discovery.id, discovery.dType)
+
+            const redirection = {
+                path: "/discovery-review/",
+                query: {
+                    id: discovery.id,
+                    type: discovery.dType,
+                }
+            };
+
+            this.$router.push(redirection);
+        },
+
+        showImg() {
+            // TODO
         }
     }
 }
@@ -139,9 +183,23 @@ export default {
 <style scoped>
 @import url("@/theme/DiscoveryDetails.css");
 ion-back-button {
-    /*position: absolute;*/
-    /*top: 2%;*/
-    /*left: 2%;*/
     color: black;
+}
+
+.photoContainer {
+    position: relative;
+    height: 100%;
+}
+
+.photoContainer ion-img#defaultPhoto {
+    position: relative;
+    top: 50px;
+}
+
+.photoContainer ion-img#userPhoto {
+    display: none;
+    object-fit: cover;
+    height: 100%;
+    width: 100%
 }
 </style>

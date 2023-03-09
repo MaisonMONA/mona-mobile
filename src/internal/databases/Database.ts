@@ -19,31 +19,32 @@ export abstract class Database {
         console.log(this.type + " db: populating...");
 
         // Parse data from file; if it fails, try to download from the server
-        Filesystem.readFile({
-            path: this.path,
-            directory: Directory.Data,
-            encoding: Encoding.UTF8
-        })
+        try {
+            const content = await Filesystem.readFile({
+                path: this.path,
+                directory: Directory.Data,
+                encoding: Encoding.UTF8
+            });
 
-        .then((content) => {
             const parsed = JSON.parse(content.data);
             for (const element of parsed.data) {
                 this.data.push(this.createSingleElement(element));
             }
 
-            console.log(this.type + " db: successfully populated database.");
-        })
-
-        .catch( async (err) => {
+            console.log(`${this.type} db: successfully populated database.`);
+        } catch (err) {
             console.log(`${this.type} db: error when parsing data from ${this.path} (${err}).`);
             await this.populateFromServer()
-        })
+        }
     }
 
     private static async populateFromServer(): Promise<void> {
         let response, content;
         try {
-            response = await fetch(Globals.apiRoutes[this.type as keyof (typeof Globals.apiRoutes)]);
+            if (this.type == "artworks") response = await fetch(Globals.apiRoutes.artworks.download);
+            else if (this.type == "places") response = await fetch(Globals.apiRoutes.places.download);
+            else if (this.type == "heritages") response = await fetch(Globals.apiRoutes.heritages.download);
+            else /* (this.type == "badges") */ response = await fetch(Globals.apiRoutes.artworks.download);
         } catch (e) {
             return;
         }

@@ -8,7 +8,7 @@
     </ion-header>
 
     <ion-content :fullscreen="true">
-        <MapContainer :discoveries="discovery ? [discovery] : []"/>
+        <MapContainer/>
     </ion-content>
 
   </ion-page>
@@ -19,16 +19,9 @@
 import "@/theme/Map.css"
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/vue';
 import MapContainer from "@/components/MapContainer.vue";
-import { Discovery } from "@/internal/Types";
 
 export default {
     name: "MapPage",
-    props: {
-        'discovery': {
-            default: null,
-            type: Array<Discovery>
-        }
-    },
     components: {
         IonHeader,
         IonContent,

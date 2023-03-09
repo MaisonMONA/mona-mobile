@@ -57,7 +57,6 @@ export class Artwork extends Discovery {
         techniques: { fr: Array<string>, en: Array<string> } | null,
     }) {
         super();
-        this.dType        = "artwork";
         this.id          = artwork.id;
         this.title       = artwork.title;
         this.artists     = artwork.artists;
@@ -69,7 +68,7 @@ export class Artwork extends Discovery {
         this.categories  = artwork.categories;
         this.techniques  = artwork.techniques;
     }
-    dType: string;
+    dType = "artwork";
     id: number;
     title: { fr: string | null, en: string | null };
     artists: Array<Artist> | null;
@@ -122,7 +121,6 @@ export class Place extends Discovery {
         location: { lat: number, lng: number }
     }) {
         super();
-        this.dType        = "place";
         this.id          = place.id;
         this.title       = place.title;
         this.location    = place.location;
@@ -132,7 +130,7 @@ export class Place extends Discovery {
         this.territory   = place.territory;
     }
 
-    dType: string;
+    dType = "place";
     id: number;
     title: string;
     location: { lat: number, lng: number };
@@ -167,7 +165,6 @@ export class Heritage extends Discovery {
         functions: { fr: Array<string>, en: Array<string> }
     }) {
         super();
-        this.dType        = "heritage";
         this.id          = heritage.id;
         this.title       = heritage.title;
         this.location    = heritage.location;
@@ -181,7 +178,7 @@ export class Heritage extends Discovery {
         this.territory   = heritage.territory;
     }
 
-    dType: string;
+    dType = "heritage";
     id: number;
     title: string;
     borough: string;
@@ -216,7 +213,6 @@ export class Badge extends Discovery {
         type: string | null
     }) {
         super();
-        this.dType         = "badge";
         this.id            = badge.id;
         this.title         = badge.title;
         this.requiredCount = badge.requiredCount;
@@ -226,7 +222,7 @@ export class Badge extends Discovery {
         this.type          = badge.type;
     }
 
-    dType: string;
+    dType = "badge";
     id: number;
     title: string;
     requiredCount: number;

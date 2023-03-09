@@ -58,7 +58,7 @@ import vLayers from "@/internal/PinsVectorLayer";
 import { useGeographic } from "ol/proj";
 import { Group as layerGroup } from "ol/layer";
 import TileLayer from "ol/layer/Tile";
-import { OSM } from "ol/source";
+import { OSM, Stamen } from "ol/source";
 import Feature from "ol/Feature";
 import Point from "ol/geom/Point";
 
@@ -68,11 +68,7 @@ import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
 import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
 import { RNG } from "@/internal/RNG"
 import { DiscoveryEnum } from "@/internal/Types";
-
-console.log("Database:");
-console.log("\t" + ArtworkDatabase.getSize() + " artworks");
-console.log("\t" + PlaceDatabase.getSize() + " places, and");
-console.log("\t" + HeritageDatabase.getSize() + " heritages");
+import { UserData } from "@/internal/databases/UserData";
 
 // Build seed as the integer represented by ddMMyyyy
 const date = new Date();
@@ -109,7 +105,6 @@ export default {
     },
 
     setup() {
-        // this.myMap();
         return {
             camera, pin, imageOutline, informationCircleOutline,
         }
@@ -151,9 +146,15 @@ export default {
                 }),
             });
 
-            this.mainMap.setLayerGroup(new layerGroup({
-                layers: [ new TileLayer({ source: new OSM() }) ]
-            }));
+            if (UserData.getMapStyle() === "osm") {
+                this.mainMap.setLayerGroup(new layerGroup({
+                    layers: [new TileLayer({ source: new OSM() })]
+                }))
+            } else {
+                this.mainMap.setLayerGroup(new layerGroup({
+                    layers: [new TileLayer({ source: new Stamen({ layer: "toner-lite" }) })]
+                }))
+            }
 
             // Showing the pin
             if (type === DiscoveryEnum.ARTWORK) {

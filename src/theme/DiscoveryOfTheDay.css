@@ -32,6 +32,10 @@ div, p {
     padding-top: 5%;
 }
 
+#dUsages {
+    font-size: 16px;
+}
+
 #headerIcon {
     position: absolute;
     transform: translate(-50%, -50%);
@@ -70,6 +74,7 @@ div, p {
     bottom: 30%;
     height: 100px;
     --border-color: var(--button-outline-grey);
+    --border-width: 1px;
     --background: white;
     --background-activated: white;
     color: black;

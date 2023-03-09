@@ -5,7 +5,7 @@
         <ion-icon :icon="funnelIcon"></ion-icon>
     </ion-button>
 
-    <ion-button @click="changeTileLayer(this)" id="changeStyleButton">
+    <ion-button @click="changeTileLayer()" id="changeStyleButton">
         <ion-icon :icon="brushIcon"></ion-icon>
     </ion-button>
 </template>
@@ -29,24 +29,35 @@ import { defaults as defaultControls } from "ol/control";
 import { ArtworkDatabase } from "@/internal/databases/ArtworkDatabase";
 import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
 import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
+import { UserData } from "@/internal/databases/UserData";
 import vLayers from "@/internal/PinsVectorLayer";
 
 export default {
     name: "MapContainer",
-    props: ['discoveries'],
 
     components: {
         IonButton, IonIcon
     },
 
     data() {
-        const layer = new layerGroup({
-            layers: [
-                new TileLayer({
-                    source: new OSM()
-                })
-            ]
-        });
+        let layer;
+        if (UserData.getMapStyle() === "osm") {
+            layer = new layerGroup({
+                layers: [
+                    new TileLayer({
+                        source: new OSM()
+                    })
+                ]
+            });
+        } else {
+            layer = new layerGroup({
+                layers: [
+                    new TileLayer({
+                        source: new Stamen({ layer: "toner-lite" })
+                    })
+                ]
+            });
+        }
 
         let discovery = null;
         if (this.$route.query.artwork !== undefined) {
@@ -67,7 +78,7 @@ export default {
             INITAL_COORD: discovery ? [discovery.location.lng, discovery.location.lat] : [-73.6, 45.5], // Defaults coordinates are on Montreal
             DEFAULT_ZOOM_LEVEL: discovery ? 17 : 14,  // If the map was opened by the DOD page we want to zoom more
             TILE_LAYER: layer,
-            brushIcon, funnelIcon
+            brushIcon, funnelIcon,
         }
     },
 
@@ -84,7 +95,7 @@ export default {
 
                 target: "map",
                 view: new View({
-                    center: this.INITAL_COORD,
+                        center: this.INITAL_COORD,
                     zoom: this.DEFAULT_ZOOM_LEVEL,
                 
                     // Disable rotation on map
@@ -173,27 +184,15 @@ export default {
             }
         },
 
-        changeTileLayer(elm) {
+        changeTileLayer() {
             // Removing the previously drawn
             const prevLayers = this.mainMap.getLayers();
             while (prevLayers.getLength() > 0) {
                 this.mainMap.removeLayer(prevLayers.pop());
-                console.log("one layer removed!");
             }
 
-            if (elm.value === "osm") {
-                const osmLayer = new layerGroup({
-                    layers: [
-                        new TileLayer({
-                            source: new OSM()
-                        })
-                    ]
-                });
+            if (UserData.getMapStyle() === "osm") {
 
-                this.mainMap.setLayerGroup(osmLayer);
-                elm.value = "stamen";
-                this.showPins();
-            } else /* (elm.value === "stamen") */ {
                 const stamenLayer = new layerGroup({
                     layers: [
                         new TileLayer({
@@ -203,8 +202,25 @@ export default {
                 });
 
                 this.mainMap.setLayerGroup(stamenLayer);
-                elm.value = "osm";
                 this.showPins();
+
+                UserData.setMapStyle("stamen");
+
+            } else /* if (UserData.getMapStyle() === "stamen") */ {
+
+                const osmLayer = new layerGroup({
+                    layers: [
+                        new TileLayer({
+                            source: new OSM()
+                        })
+                    ]
+                });
+
+                this.mainMap.setLayerGroup(osmLayer);
+                this.showPins();
+
+                UserData.setMapStyle("osm");
+
             }
         }
     },

@@ -57,4 +57,21 @@ export class RNG {
         this.nextInt()
         return this.previous % Math.abs(right - left + 1) + left
     }
+
+    randomString(size: number) {
+        /**
+         * Returns a string if size `size` composed of random alphanumeric characters
+         *
+         * @param size - the desired size of the returned value
+         */
+        if (size < 0) throw new Error("Invalid size.");
+
+        const base = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
+        let str = '';
+        for (let i = 0; i < size; i++) {
+            str += base[this.nextInRange(0, base.length - 1)];
+        }
+
+        return str;
+    }
 }

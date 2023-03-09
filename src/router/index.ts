@@ -6,7 +6,7 @@ import TabsPage from '../views/TabsPage.vue'
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    redirect: '/tabs/more'
+    redirect: '/tabs/discovery-of-the-day'
   },
   {
     path: '/tabs/',
@@ -14,7 +14,7 @@ const routes: Array<RouteRecordRaw> = [
     children: [
       {
         path: '',
-        redirect: '/tabs/more'
+        redirect: '/tabs/discovery-of-the-day'
       },
       {
         path: 'discovery-of-the-day',
@@ -41,10 +41,14 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/discovery-details/:type/:id',
     component: () => import("@/views/DiscoveryDetailsPage.vue")
+  },
+  {
+    path: '/discovery-review',
+    component: () => import("@/views/DiscoveryReviewPage.vue")
   }
 ]
 
-const   router = createRouter({
+const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
 })

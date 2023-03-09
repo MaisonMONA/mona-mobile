@@ -25,39 +25,39 @@ import '@ionic/vue/css/display.css';
 /* Theme variables */
 import './theme/(DEFAULT_FILE)_variables.css';
 
-import 'leaflet/dist/leaflet.css';
-import { Icon } from "leaflet";
-
 /* ~~~~ Custom imports ~~~~ */
 import { ArtworkDatabase } from "@/internal/databases/ArtworkDatabase";
 import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
 import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
 import { BadgeDatabase } from "@/internal/databases/BadgeDatabase";
+import { UserData } from "@/internal/databases/UserData";
+import { Directory, Filesystem } from "@capacitor/filesystem";
 /* ~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-const app = createApp(App)
-    .use(IonicVue)
-    .use(router);
-
-Icon.Default.mergeOptions({
-  iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
-  iconUrl: require("leaflet/dist/images/marker-icon.png"),
-  shadowUrl: require("leaflet/dist/images/marker-shadow.png")
-});
 
 
-router.isReady().then( async () => {
-    /* Init databases and THEN open Discovery of the day */
-    /*   ^--- (not implemented yet) */
-    console.log("Initializing databases...");
-    Promise.allSettled([
-        ArtworkDatabase.populate(),
-        PlaceDatabase.populate(),
-        HeritageDatabase.populate(),
-        BadgeDatabase.populate(),
-    ]).then(() => {
-        console.log("All done.");
+
+/* Init databases and THEN run main app */
+console.log("Initializing databases...");
+UserData.populate();
+Promise.allSettled([
+    // Filesystem.deleteFile({
+    //     path: "appdata/preferences.json",
+    //     directory: Directory.Data
+    // }),
+    ArtworkDatabase.populate(),
+    PlaceDatabase.populate(),
+    HeritageDatabase.populate(),
+    BadgeDatabase.populate(),
+]).then(() => {
+    console.log("All done.");
+
+    const app = createApp(App)
+        .use(IonicVue)
+        .use(router);
+
+    router.isReady().then( async () => {
         app.mount('#app');
         defineCustomElements(window).catch(() => console.error("Error in defineCustomElements (`main.ts`)."));
     });
-});
+})
