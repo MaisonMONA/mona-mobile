@@ -1,8 +1,17 @@
 import { Camera, CameraResultType, Photo } from "@capacitor/camera";
 import { RNG } from "@/internal/RNG";
-import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
+import { Directory, Filesystem } from "@capacitor/filesystem";
 import { UserData } from "@/internal/databases/UserData";
 import { DiscoveryEnum } from "@/internal/Types";
+
+const convertBlobToBase64 = (blob: Blob) => new Promise((resolve, reject) => {
+    const reader = new FileReader;
+    reader.onerror = reject;
+    reader.onload = () => {
+        resolve(reader.result);
+    };
+    reader.readAsDataURL(blob);
+});
 
 export default {
     apiRoutes: {
@@ -50,15 +59,17 @@ export default {
          */
         if (!img.webPath) throw new Error("Invalid webpath");
 
-        const data = await fetch(img.webPath).then(response => response.text());
+        const blob = await fetch(img.webPath).then(res => res.blob());
+        const base64Data = await convertBlobToBase64(blob) as string;
+
         const random = new RNG(Date.now())
-        const filename = random.randomString(32) + ".jpg";
+        const filename = `${random.randomString(32)}.${img.format}`;
+        console.log("filename=" + filename);
 
         await Filesystem.writeFile({
             path: "img/" + filename,
-            data: data,
+            data: base64Data,
             directory: Directory.Data,
-            encoding: Encoding.ASCII,
             recursive: true
         });
 
@@ -67,7 +78,6 @@ export default {
 
     async sendPictureAndDetails(id: number, type: number) {
         /**
-         * NOT WORKING
          * Attempts to upload the collected discovery to the server. If
          * the upload is successful, removes the item from pending uploads.
          *
@@ -83,14 +93,16 @@ export default {
         const image = await Filesystem.readFile({
             path: imagepath,
             directory: Directory.Data,
-            // encoding: Encoding.UTF8
         });
+
+        const base64Res = await fetch(`data:image/${imagepath.split('.')[1]};base64,${image.data}`);
+        const blob = await base64Res.blob();
 
         const formData = new FormData();
         formData.append("id", id.toString());
         formData.append("comment", comment);
         formData.append("rating", rating.toString());
-        formData.append("photo", image.data);
+        formData.append("photo", blob);
 
         let url;
         if (type === DiscoveryEnum.ARTWORK) {
@@ -105,12 +117,12 @@ export default {
             method: "POST",
             body: formData,
             headers: {
-                "Authorization": "Bearer F5ZC5vtiJ0EOnpMiZtwPODc1Y35VmY2h6iGk4W7fQraxmlcmUo4BBnTLD8wn",
-                "content-type": "multipart/form-data"
+                "Authorization": "Bearer jn5O9TPRsxc0Jc1h58XSCyJVxjruWLfEBlaOWzDvVVdcM1OKrDkQwAg2joIR",
             }
         })
         .then((response) => {
             if (response.ok) {
+                console.log(`Successfully uploaded image (code ${response.status})`);
                 UserData.removePendingUpload(id, type);
             } else {
                 console.log("ERR: " + response.status)
@@ -119,6 +131,6 @@ export default {
 
         .catch((err) => {
             console.log(`Could not make POST request (${err})`)
-        })
+        });
     }
 }

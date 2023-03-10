@@ -29,7 +29,7 @@ import { IonHeader, IonPage, IonTitle, IonToolbar, IonIcon, IonInput, IonButton,
 import {starOutline, star, camera } from "ionicons/icons";
 
 import { UserData } from "@/internal/databases/UserData";
-import Globals from "@/internal/Globals";
+import Globals from "@/internal/Utils";
 
 
 export default {
@@ -58,7 +58,8 @@ export default {
             UserData.editCollected(type, { id, imagepath, rating: this.givenRating, comment });
             Globals.sendPictureAndDetails(id, type);
 
-            // TODO: redirect to the page before
+            // Redirect to the previous page
+            this.$router.go(-1);
         },
     },
 }
@@ -68,6 +69,9 @@ export default {
 @import url("@/theme/GlobalStyle.css");
 .ion-page {
     background: white;
+}
+
+.comment p {
 }
 
 ion-icon {

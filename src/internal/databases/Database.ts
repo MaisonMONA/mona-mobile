@@ -1,6 +1,6 @@
 import { RNG } from "@/internal/RNG";
 import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
-import Globals from "@/internal/Globals";
+import Globals from "@/internal/Utils";
 import { Discovery } from "@/internal/Types";
 
 export abstract class Database {

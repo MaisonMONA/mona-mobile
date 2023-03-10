@@ -86,7 +86,7 @@ import { ArtworkDatabase } from "@/internal/databases/ArtworkDatabase";
 import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
 import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
 import  { UserData } from "@/internal/databases/UserData";
-import Globals from "@/internal/Globals";
+import Globals from "@/internal/Utils";
 
 UserData.resetPreferences();
 
@@ -160,7 +160,7 @@ export default {
 
             const filename = await Globals.savePicture(img);
             UserData.addCollected(discovery, "img/" + filename, null, null);
-            UserData.addPendingUpload(discovery.id, discovery.dType)
+            UserData.addPendingUpload(discovery.id, discovery.dType);
 
             const redirection = {
                 path: "/discovery-review/",
