@@ -117,7 +117,7 @@ export default {
             method: "POST",
             body: formData,
             headers: {
-                "Authorization": "Bearer jn5O9TPRsxc0Jc1h58XSCyJVxjruWLfEBlaOWzDvVVdcM1OKrDkQwAg2joIR",
+                "Authorization": `Bearer ${UserData.getToken()}`,
             }
         })
         .then((response) => {
