@@ -54,13 +54,10 @@ import Map from "ol/Map";
 import View from "ol/View";
 import { defaults as defaultControls } from "ol/control";
 import { defaults as defaultInteractions } from "ol/interaction";
-import vLayers from "@/internal/PinsVectorLayer";
 import { useGeographic } from "ol/proj";
 import { Group as layerGroup } from "ol/layer";
 import TileLayer from "ol/layer/Tile";
 import { OSM, Stamen } from "ol/source";
-import Feature from "ol/Feature";
-import Point from "ol/geom/Point";
 
 /* Imports for the discovery */
 import { ArtworkDatabase } from "@/internal/databases/ArtworkDatabase";
@@ -157,19 +154,19 @@ export default {
             }
 
             // Showing the pin
-            if (type === DiscoveryEnum.ARTWORK) {
-                this.mainMap.addLayer(vLayers.artworkDoD);
-                const feature = new Feature(new Point(INITIAL_COORD));
-                vLayers.artworkDoD.getSource().addFeature(feature);
-            } else if (type === DiscoveryEnum.PLACE) {
-                this.mainMap.addLayer(vLayers.placeDoD);
-                const feature = new Feature(new Point(INITIAL_COORD));
-                vLayers.placeDoD.getSource().addFeature(feature);
-            } else {
-                this.mainMap.addLayer(vLayers.heritageDoD);
-                const feature = new Feature(new Point(INITIAL_COORD));
-                vLayers.heritageDoD.getSource().addFeature(feature);
-            }
+            // if (type === DiscoveryEnum.ARTWORK) {
+            //     this.mainMap.addLayer(vLayers.artworkDoD);
+            //     const feature = new Feature(new Point(INITIAL_COORD));
+            //     vLayers.artworkDoD.getSource().addFeature(feature);
+            // } else if (type === DiscoveryEnum.PLACE) {
+            //     this.mainMap.addLayer(vLayers.placeDoD);
+            //     const feature = new Feature(new Point(INITIAL_COORD));
+            //     vLayers.placeDoD.getSource().addFeature(feature);
+            // } else {
+            //     this.mainMap.addLayer(vLayers.heritageDoD);
+            //     const feature = new Feature(new Point(INITIAL_COORD));
+            //     vLayers.heritageDoD.getSource().addFeature(feature);
+            // }
         },
 
         activateMap() {

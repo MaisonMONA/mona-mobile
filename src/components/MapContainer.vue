@@ -30,7 +30,23 @@ import { ArtworkDatabase } from "@/internal/databases/ArtworkDatabase";
 import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
 import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
 import { UserData } from "@/internal/databases/UserData";
-import vLayers from "@/internal/PinsVectorLayer";
+import VectorLayer from "ol/layer/Vector";
+import VectorSource from "ol/source/Vector";
+import Utils from "@/internal/Utils";
+
+
+function insertAllPins(destination, listsOfDiscoveries) {
+    for (const list of listsOfDiscoveries) {
+        for (const discovery of list) {
+            const feature = new Feature({
+                geometry: new Point([discovery.location.lng, discovery.location.lat]),
+                dType: discovery.dType
+            });
+            destination.getSource().addFeature(feature);
+        }
+    }
+}
+
 
 export default {
     name: "MapContainer",
@@ -40,24 +56,13 @@ export default {
     },
 
     data() {
-        let layer;
-        if (UserData.getMapStyle() === "osm") {
-            layer = new layerGroup({
-                layers: [
-                    new TileLayer({
-                        source: new OSM()
-                    })
-                ]
-            });
-        } else {
-            layer = new layerGroup({
-                layers: [
-                    new TileLayer({
-                        source: new Stamen({ layer: "toner-lite" })
-                    })
-                ]
-            });
-        }
+        const layer = new layerGroup({
+            layers: [
+                new TileLayer({
+                    source: new OSM()
+                })
+            ]
+        });
 
         let discovery = null;
         if (this.$route.query.artwork !== undefined) {
@@ -90,99 +95,113 @@ export default {
         myMap() {
             useGeographic();
             this.mainMap = new Map({
-                // Hiding attribution (quite immoral isn't it?)
+                // Hiding attribution (quite immoral)
                 controls: defaultControls({ attribution: false }),
 
                 target: "map",
                 view: new View({
-                        center: this.INITAL_COORD,
+                    center: this.INITAL_COORD,
                     zoom: this.DEFAULT_ZOOM_LEVEL,
-                
+
                     // Disable rotation on map
                     enableRotation: false
                 }),
-            });
 
-            this.mainMap.setLayerGroup(this.TILE_LAYER);
+                layers: [this.TILE_LAYER]
+            });
 
             this.showPins();
         },
 
         showPins(discoveries=[]) {
-            this.mainMap.addLayer(vLayers.artworkDefault);
-            this.mainMap.addLayer(vLayers.artworkCollected);
-            this.mainMap.addLayer(vLayers.artworkTargeted);
-            this.mainMap.addLayer(vLayers.placeDefault);
-            this.mainMap.addLayer(vLayers.placeCollected);
-            this.mainMap.addLayer(vLayers.placeTargeted);
-            this.mainMap.addLayer(vLayers.heritageDefault);
-            this.mainMap.addLayer(vLayers.heritageCollected);
-            this.mainMap.addLayer(vLayers.heritageTargeted);
+            const pinsLayer = new VectorLayer({
+                source: new VectorSource(),
+                style: Utils.styleFunction
+            });
 
-            const artworkPins = { default: [], collected: [], targeted: [] };
-            const placePins = { default: [], collected: [], targeted: [] };
-            const heritagePins = { default: [], collected: [], targeted: [] };
-
-            // If no specific discovery was passed as argument, must show all pins
-            if (discoveries.length === 0) {
-                for (const artwork of ArtworkDatabase.data) {
-                    this.insertPin(artwork, artworkPins);
-                }
-
-                for (const place of PlaceDatabase.data) {
-                    this.insertPin(place, placePins);
-                }
-
-                for (const heritage of HeritageDatabase.data) {
-                    this.insertPin(heritage, heritagePins);
-                }
-            } else {  // If we only want to show specific discoveries
-                for (const disc of discoveries) {
-                    switch (disc.type) {
-                        case "artwork": {
-                            this.insertPin(disc, artworkPins);
-                            break;
-                        }
-
-                        case "place": {
-                            this.insertPin(disc, placePins);
-                            break;
-                        }
-
-                        case "heritage": {
-                            this.insertPin(disc, heritagePins);
-                            break;
-                        }
-                    }
-                }
-            }
-
-            vLayers.artworkDefault.getSource().addFeatures(artworkPins.default);
-            vLayers.artworkCollected.getSource().addFeatures(artworkPins.collected);
-            vLayers.placeTargeted.getSource().addFeatures(artworkPins.targeted);
-            vLayers.placeDefault.getSource().addFeatures(placePins.default);
-            vLayers.placeCollected.getSource().addFeatures(placePins.collected);
-            vLayers.placeTargeted.getSource().addFeatures(placePins.targeted);
-            vLayers.heritageDefault.getSource().addFeatures(heritagePins.default);
-            vLayers.heritageCollected.getSource().addFeatures(heritagePins.collected);
-            vLayers.heritageTargeted.getSource().addFeatures(heritagePins.targeted);
-        },
-
-        insertPin(disc, pins) {
-            if (disc.isCollected) {
-                pins.collected.push(
-                    new Feature(new Point([disc.location.lng, disc.location.lat]))
-                );
-            } else if (disc.isTargeted) {
-                pins.targeted.push(
-                    new Feature(new Point([disc.location.lng, disc.location.lat]))
-                );
+            if (discoveries.length > 0) {
+                insertAllPins(pinsLayer, [discoveries]);
             } else {
-                pins.default.push(
-                    new Feature(new Point([disc.location.lng, disc.location.lat]))
-                );
+                insertAllPins(pinsLayer, [ArtworkDatabase.data, PlaceDatabase.data, HeritageDatabase.data]);
             }
+
+            this.mainMap.addLayer(pinsLayer);
         },
+
+        // showPins(discoveries=[]) {
+        //     this.mainMap.addLayer(vLayers.artworkDefault);
+        //     this.mainMap.addLayer(vLayers.artworkCollected);
+        //     this.mainMap.addLayer(vLayers.artworkTargeted);
+        //     this.mainMap.addLayer(vLayers.placeDefault);
+        //     this.mainMap.addLayer(vLayers.placeCollected);
+        //     this.mainMap.addLayer(vLayers.placeTargeted);
+        //     this.mainMap.addLayer(vLayers.heritageDefault);
+        //     this.mainMap.addLayer(vLayers.heritageCollected);
+        //     this.mainMap.addLayer(vLayers.heritageTargeted);
+        //
+        //     const artworkPins = { default: [], collected: [], targeted: [] };
+        //     const placePins = { default: [], collected: [], targeted: [] };
+        //     const heritagePins = { default: [], collected: [], targeted: [] };
+        //
+        //     // If no specific discovery was passed as argument, must show all pins
+        //     if (discoveries.length === 0) {
+        //         for (const artwork of ArtworkDatabase.data) {
+        //             this.insertPin(artwork, artworkPins);
+        //         }
+        //
+        //         for (const place of PlaceDatabase.data) {
+        //             this.insertPin(place, placePins);
+        //         }
+        //
+        //         for (const heritage of HeritageDatabase.data) {
+        //             this.insertPin(heritage, heritagePins);
+        //         }
+        //     } else {  // If we only want to show specific discoveries
+        //         for (const disc of discoveries) {
+        //             switch (disc.type) {
+        //                 case "artwork": {
+        //                     this.insertPin(disc, artworkPins);
+        //                     break;
+        //                 }
+        //
+        //                 case "place": {
+        //                     this.insertPin(disc, placePins);
+        //                     break;
+        //                 }
+        //
+        //                 case "heritage": {
+        //                     this.insertPin(disc, heritagePins);
+        //                     break;
+        //                 }
+        //             }
+        //         }
+        //     }
+        //
+        //     vLayers.artworkDefault.getSource().addFeatures(artworkPins.default);
+        //     vLayers.artworkCollected.getSource().addFeatures(artworkPins.collected);
+        //     vLayers.placeTargeted.getSource().addFeatures(artworkPins.targeted);
+        //     vLayers.placeDefault.getSource().addFeatures(placePins.default);
+        //     vLayers.placeCollected.getSource().addFeatures(placePins.collected);
+        //     vLayers.placeTargeted.getSource().addFeatures(placePins.targeted);
+        //     vLayers.heritageDefault.getSource().addFeatures(heritagePins.default);
+        //     vLayers.heritageCollected.getSource().addFeatures(heritagePins.collected);
+        //     vLayers.heritageTargeted.getSource().addFeatures(heritagePins.targeted);
+        // },
+
+        // insertPin(discovery, pins) {
+        //     const feature = new Feature({
+        //         geometry: new Point([discovery.location.lng, discovery.location.lat]),
+        //         dType: discovery.dType
+        //     })
+        //
+        //     if (discovery.isCollected) {
+        //         pins.collected.push(feature);
+        //     } else if (discovery.isTargeted) {
+        //         pins.targeted.push(feature);
+        //     } else {
+        //         pins.default.push(feature);
+        //     }
+        // },
 
         changeTileLayer() {
             // Removing the previously drawn
@@ -192,7 +211,6 @@ export default {
             }
 
             if (UserData.getMapStyle() === "osm") {
-
                 const stamenLayer = new layerGroup({
                     layers: [
                         new TileLayer({
@@ -205,9 +223,7 @@ export default {
                 this.showPins();
 
                 UserData.setMapStyle("stamen");
-
             } else /* if (UserData.getMapStyle() === "stamen") */ {
-
                 const osmLayer = new layerGroup({
                     layers: [
                         new TileLayer({
@@ -220,7 +236,6 @@ export default {
                 this.showPins();
 
                 UserData.setMapStyle("osm");
-
             }
         }
     },
