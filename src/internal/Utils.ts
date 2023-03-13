@@ -69,7 +69,6 @@ export default {
 
         const random = new RNG(Date.now())
         const filename = `${random.randomString(32)}.${img.format}`;
-        console.log("filename=" + filename);
 
         await Filesystem.writeFile({
             path: "img/" + filename,

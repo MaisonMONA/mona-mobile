@@ -57,7 +57,7 @@ export class UserData {
         });
     }
 
-    private static updateFile() {
+    private static updateFile(source='') {
         Filesystem.writeFile({
             path: this.path,
             data: JSON.stringify(this.data),
@@ -65,7 +65,7 @@ export class UserData {
             encoding: Encoding.UTF8
         })
         .then(() => {
-            console.log("User preferences updated successfully");
+            console.log("User preferences updated successfully" + (source ? ` (${source})` : ''));
         })
         .catch((err) => {
             console.error(`Failed to update user preferences (${err})`);
@@ -213,31 +213,64 @@ export class UserData {
         switch (collectable.dType) {
             case "artwork": {
                 this.data.targeted.artworks.push(collectable.id);
-                break
+                break;
             }
             case "place": {
                 this.data.targeted.places.push(collectable.id);
-                break
+                break;
             }
             case "heritage": {
                 this.data.targeted.heritages.push(collectable.id);
-                break
+                break;
+            }
+            default: {
+                throw new Error("Invalid discovery type");
             }
         }
 
-        this.updateFile();
+        this.updateFile("addTargeted");
+    }
+
+    public static removeTargeted(collectable: Discovery) {
+        const findAndRemove = (iterable: Array<any>, id: number) => {
+            const index = iterable.indexOf(collectable.id);
+            console.log("index=", index);
+            console.log("iterable=", iterable);
+            iterable.splice(index, 1);
+            console.log("iterable=", iterable);
+        }
+
+        switch (collectable.dType) {
+            case "artwork": {
+                findAndRemove(this.data.targeted.artworks, collectable.id);
+                break
+            }
+            case "place": {
+                findAndRemove(this.data.targeted.places, collectable.id);
+                break
+            }
+            case "heritage": {
+                findAndRemove(this.data.targeted.heritages, collectable.id);
+                break
+            }
+            default: {
+                throw new Error("Invalid discovery type");
+            }
+        }
+
+        this.updateFile("removeTargeted");
     }
 
     public static isTargeted(id: number, type: number | string): boolean {
         switch (type) {
             case "artwork": case 0: {
-                return this.data.collected.artworks.find((awk: any) => awk.id === id) !== undefined;
+                return this.data.targeted.artworks.find((awkId: any) => awkId === id) !== undefined;
             }
             case "place": case 1: {
-                return this.data.collected.places.find((pl: any) => pl.id === id) !== undefined;
+                return this.data.targeted.places.find((plId: any) => plId === id) !== undefined;
             }
             case "heritage": case 2: {
-                return this.data.collected.heritages.find((hrtg: any) => hrtg.id === id) !== undefined;
+                return this.data.targeted.heritages.find((hrtgId: any) => hrtgId === id) !== undefined;
             }
             case "badge": case 3: {
                 return false;

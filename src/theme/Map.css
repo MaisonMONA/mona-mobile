@@ -28,8 +28,8 @@
 
 div#popup {
     position: absolute;
-    background: #FFFFFF55;
-    backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
     border: 0;
     width: 0;
     height: 0;
@@ -64,13 +64,13 @@ p.details {
 }
 
 #popupTitle {
-    top: -6px;
+    /*top: -6px;*/
     font-style: italic;
     font-weight: bold;
 }
 
 #popupSubtext {
-    top: 12px;
+    top: 24px;
     left: 16px;
     font-size: 11px;
     font-weight: 400;

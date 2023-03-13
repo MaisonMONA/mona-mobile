@@ -17,7 +17,7 @@
                     <ion-img id="userPhoto"></ion-img>
                 </div>
                 <!-- PHOTO BUTTON -->
-                <ion-button id="photoButton" fill="outline" @click="activateCamera(discovery)">
+                <ion-button id="photoButton" fill="outline" @click="activateCamera">
                     <ion-icon id="targetIcon" :icon="cameraOutline"></ion-icon>
                 </ion-button>
 
@@ -27,7 +27,7 @@
                 </ion-button>
 
                 <!-- TARGET BUTTON -->
-                <ion-fab-button id="targetButton">
+                <ion-fab-button id="targetButton" @click="targetDiscovery">
                     <ion-icon id="targetIcon" :icon="star"></ion-icon>
                 </ion-fab-button>
             </div>
@@ -79,16 +79,15 @@ import {
 } from '@ionic/vue';
 import { cameraOutline, mapOutline, star } from "ionicons/icons";
 import { useRoute } from "vue-router";
-import { Camera, CameraResultType } from "@capacitor/camera";
 
 import { DiscoveryEnum } from "@/internal/Types";
 import { ArtworkDatabase } from "@/internal/databases/ArtworkDatabase";
 import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
 import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
-import  { UserData } from "@/internal/databases/UserData";
+import { UserData } from "@/internal/databases/UserData";
 import Globals from "@/internal/Utils";
+import { Directory, Filesystem } from "@capacitor/filesystem";
 
-UserData.resetPreferences();
 
 export default {
     name: "discovery-details",
@@ -128,14 +127,46 @@ export default {
             }
         }
 
+        const userData = UserData.getCollected(discovery.id, discovery.dType);
+        if (userData) {
+            console.log(`HERE id=${userData.id}, path=${userData.imagepath}, rating=${userData.rating}, comment=${userData.comment}`);
+            Filesystem.readFile({
+                path: userData.imagepath,
+                directory: Directory.Data
+            })
+            .then(async (image) => {
+                const base64Res = await fetch(`data:image/${userData.imagepath.split('.')[1]};base64,${image.data}`);
+                const blob = await base64Res.blob();
+                const url = URL.createObjectURL(blob);
+                const userImg = document.getElementById("userPhoto");
+                const defaultImg = document.getElementById("defaultPhoto");
+                if (userImg && defaultImg) {  // Necessary but pointless `if` block: elements should always exist
+                    defaultImg.style.display = "none";
+                    userImg.style.display = "block";
+                    userImg.src = url;
+
+                    // Hiding buttons
+                    const photoButton = document.getElementById("photoButton");
+                    const seeOnMapButton = document.getElementById("seeOnMapButton");
+                    if (photoButton && seeOnMapButton) {  // Same here
+                        photoButton.style.display = "none";
+                        seeOnMapButton.style.display = "none";
+                    }
+
+                    // Enable image opening
+                    // userImg.onclick = ;
+                }
+            })
+        }
+
         return {
             dType: parseInt(type),
-            discovery, DiscoveryEnum
+            discovery, DiscoveryEnum,
         }
     },
 
     methods: {
-        async activateCamera(discovery) {
+        async activateCamera() {
             const img = await Globals.takePicture()
             if (img == null) return;
 
@@ -159,18 +190,26 @@ export default {
             }
 
             const filename = await Globals.savePicture(img);
-            UserData.addCollected(discovery, "img/" + filename, null, null);
-            UserData.addPendingUpload(discovery.id, discovery.dType);
+            UserData.addCollected(this.discovery, "img/" + filename, null, null);
+            UserData.addPendingUpload(this.discovery.id, this.discovery.dType);
 
             const redirection = {
                 path: "/discovery-review/",
                 query: {
-                    id: discovery.id,
-                    type: discovery.dType,
+                    id: this.discovery.id,
+                    type: this.discovery.dType,
                 }
             };
 
             this.$router.push(redirection);
+        },
+
+        targetDiscovery() {
+            if (UserData.isTargeted(this.discovery.id, this.discovery.dType)) {
+                UserData.removeTargeted(this.discovery);
+            } else {
+                UserData.addTargeted(this.discovery);
+            }
         },
 
         showImg() {
