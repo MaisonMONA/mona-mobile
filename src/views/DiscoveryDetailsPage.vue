@@ -18,12 +18,12 @@
                 </div>
                 <!-- PHOTO BUTTON -->
                 <ion-button id="photoButton" fill="outline" @click="activateCamera">
-                    <ion-icon id="targetIcon" :icon="cameraOutline"></ion-icon>
+                    <ion-icon id="cameraIcon" :icon="cameraOutline"></ion-icon>
                 </ion-button>
 
                 <!-- "SEE ON MAP" BUTTON -->
                 <ion-button id="seeOnMapButton" fill="outline" :to="{ name: '/tabs/map', params: { discovery } }" router-link="/tabs/map" router-direction="forward">
-                    <ion-icon id="targetIcon" :icon="mapOutline"></ion-icon>
+                    <ion-icon id="mapIcon" :icon="mapOutline"></ion-icon>
                 </ion-button>
 
                 <!-- TARGET BUTTON -->
@@ -88,6 +88,11 @@ import { UserData } from "@/internal/databases/UserData";
 import Globals from "@/internal/Utils";
 import { Directory, Filesystem } from "@capacitor/filesystem";
 
+
+function changetargetIconColor(discovery) {
+    const icon = document.getElementById("targetIcon");
+    icon.style.color = UserData.isTargeted(discovery.id, discovery.dType) ? "black" : "white";
+}
 
 export default {
     name: "discovery-details",
@@ -165,6 +170,10 @@ export default {
         }
     },
 
+    mounted() {
+        changetargetIconColor(this.discovery);
+    },
+
     methods: {
         async activateCamera() {
             const img = await Globals.takePicture()
@@ -210,11 +219,13 @@ export default {
             } else {
                 UserData.addTargeted(this.discovery);
             }
+
+            changetargetIconColor(this.discovery);
         },
 
         showImg() {
             // TODO
-        }
+        },
     }
 }
 </script>
@@ -240,5 +251,9 @@ ion-back-button {
     object-fit: cover;
     height: 100%;
     width: 100%
+}
+
+#targetIcon {
+    /*color: black;*/
 }
 </style>

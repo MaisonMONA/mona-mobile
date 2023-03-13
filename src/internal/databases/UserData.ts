@@ -234,10 +234,7 @@ export class UserData {
     public static removeTargeted(collectable: Discovery) {
         const findAndRemove = (iterable: Array<any>, id: number) => {
             const index = iterable.indexOf(collectable.id);
-            console.log("index=", index);
-            console.log("iterable=", iterable);
             iterable.splice(index, 1);
-            console.log("iterable=", iterable);
         }
 
         switch (collectable.dType) {
