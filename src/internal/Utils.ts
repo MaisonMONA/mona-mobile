@@ -1,10 +1,12 @@
 import { Camera, CameraResultType, Photo } from "@capacitor/camera";
-import { RNG } from "@/internal/RNG";
 import { Directory, Filesystem } from "@capacitor/filesystem";
-import { UserData } from "@/internal/databases/UserData";
-import { DiscoveryEnum } from "@/internal/Types";
 import Feature from "ol/Feature";
 import { Icon, Style } from "ol/style";
+
+import { DiscoveryEnum } from "@/internal/Types";
+import { RNG } from "@/internal/RNG";
+import { UserData } from "@/internal/databases/UserData";
+
 
 const convertBlobToBase64 = (blob: Blob) => new Promise((resolve, reject) => {
     const reader = new FileReader;
@@ -14,6 +16,7 @@ const convertBlobToBase64 = (blob: Blob) => new Promise((resolve, reject) => {
     };
     reader.readAsDataURL(blob);
 });
+
 
 export default {
     apiRoutes: {
@@ -158,5 +161,5 @@ export default {
         });
 
         return [style];
-}
+    },
 }
