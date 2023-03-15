@@ -45,6 +45,7 @@ import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
 import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
 import { UserData } from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
+import {useRoute} from "vue-router";
 
 
 // This variable is here to know if the user focuses a discovery or not
@@ -63,54 +64,6 @@ function insertAllPins(destination, listsOfDiscoveries) {
         }
     }
 }
-
-// function focusDiscovery(map, discovery) {
-//     const transitionDuration = 350;  // Unit is milliseconds
-//
-//     // Animate centering map on the pin
-//     map.getView().animate({
-//         center: [discovery.location.lng, discovery.location.lat],
-//         duration: transitionDuration,
-//         zoom: 14.25,
-//         easing: easeOut
-//     });
-//
-//     const details = document.getElementById("popupDetails");
-//
-//     // Show popup AFTER the view has been centered
-//     setTimeout(() => {
-//         const elem = document.getElementById("popup");
-//         elem.classList.add("activated");
-//     }, transitionDuration);
-//
-//     // Show content of popup AFTER the popup was shown
-//     setTimeout(() => {
-//         let title = discovery.getTitle()
-//         let subtext = discovery.dType === "artwork" ? discovery.getArtists() : discovery.getUsages();
-//
-//         if (title.length > 13) {
-//             title = title.slice(0, 10) + "..."
-//         }
-//         if (subtext.length > 18) {
-//             subtext = subtext.slice(0, 15) + "..."
-//         } else if (subtext.length === 0) {
-//             subtext = "Inconnu";
-//         }
-//
-//         let type;
-//         if (discovery.dType === "artwork") type = 0;
-//         else if (discovery.dType === "place") type = 1;
-//         else /* if (discovery.dType === "heritage") */ type = 2;
-//
-//         // Changing the button redirection
-//         const button = document.getElementById("seeMore");
-//         button.onclick = () => this.$router.push({ path: `/discovery-details/${type}/${discovery.id}` });
-//
-//         document.getElementById("popupTitle").innerHTML = title
-//         document.getElementById("popupSubtext").innerHTML = subtext;
-//         details.hidden = false;
-//     }, transitionDuration + 100);
-// }
 
 
 function getDiscovery(id, type) {
@@ -145,17 +98,9 @@ export default {
         });
 
         let discovery = null;
-        if (this.$route.query.artwork !== undefined) {
-            const id = this.$route.query.artwork;
-            discovery = ArtworkDatabase.getFromId(id);
-        }
-        if (this.$route.query.place !== undefined) {
-            const id = this.$route.query.place;
-            discovery = PlaceDatabase.getFromId(id);
-        }
-        if (this.$route.query.heritage !== undefined) {
-            const id = this.$route.query.heritage;
-            discovery = HeritageDatabase.getFromId(id);
+        if (this.$route.query.type && this.$route.query.id) {
+            discovery = getDiscovery(parseInt(this.$route.query.id), this.$route.query.type)
+            setTimeout(() => this.focusDiscovery(discovery), 250);
         }
 
         return {
@@ -169,6 +114,14 @@ export default {
 
     mounted() {
         this.myMap();
+
+        const route = useRoute();
+        const dType = route.params.dType.toString;
+        const id = route.params.id.toString();
+        if (dType && id) {
+            const discovery = getDiscovery(parseInt(id), dType);
+            this.focusDiscovery(discovery);
+        }
     },
 
     methods: {
@@ -248,7 +201,7 @@ export default {
         },
 
         handleMapClick(event) {
-            const features = this.mainMap.getFeaturesAtPixel(event.pixel);
+            const features = this.mainMap.getFeaturesAtPixel(event.pixel, { hitTolerance: 10 });
             if (features.length > 0) {
                 const dType = features[0].get("dType");
                 const id = features[0].get("id");
@@ -258,7 +211,7 @@ export default {
                 if (hasFocus) {
                     this.unfocusDiscovery();
                 }
-                this.focusDiscovery(this.mainMap, discovery);
+                this.focusDiscovery(discovery);
                 hasFocus = true;
             } else {
                 if (hasFocus) {
@@ -268,14 +221,14 @@ export default {
             }
         },
 
-        focusDiscovery(map, discovery) {
+        focusDiscovery(discovery, map=this.mainMap) {
             const transitionDuration = 350;  // Unit is milliseconds
 
             // Animate centering map on the pin
             map.getView().animate({
                 center: [discovery.location.lng, discovery.location.lat],
                 duration: transitionDuration,
-                zoom: 14.25,
+                // zoom: 14.25,
                 easing: easeOut
             });
 
@@ -313,7 +266,7 @@ export default {
                 document.getElementById("popupTitle").innerHTML = title
                 document.getElementById("popupSubtext").innerHTML = subtext;
                 details.hidden = false;
-            }, transitionDuration + 100);
+            }, transitionDuration + 200);
         },
 
         unfocusDiscovery() {

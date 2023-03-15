@@ -232,22 +232,22 @@ export class UserData {
     }
 
     public static removeTargeted(collectable: Discovery) {
-        const findAndRemove = (iterable: Array<any>, id: number) => {
+        const findAndRemove = (iterable: Array<any>) => {
             const index = iterable.indexOf(collectable.id);
             iterable.splice(index, 1);
         }
 
         switch (collectable.dType) {
             case "artwork": {
-                findAndRemove(this.data.targeted.artworks, collectable.id);
+                findAndRemove(this.data.targeted.artworks);
                 break
             }
             case "place": {
-                findAndRemove(this.data.targeted.places, collectable.id);
+                findAndRemove(this.data.targeted.places);
                 break
             }
             case "heritage": {
-                findAndRemove(this.data.targeted.heritages, collectable.id);
+                findAndRemove(this.data.targeted.heritages);
                 break
             }
             default: {

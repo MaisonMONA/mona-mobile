@@ -172,16 +172,11 @@ export default {
         activateMap() {
             const mapInstructions = {
                 path: "/tabs/map/",
-                query: {}
+                query: {
+                    type: discovery.dType,
+                    id: discovery.id
+                }
             };
-
-            if (type === DiscoveryEnum.ARTWORK) {
-                mapInstructions.query.artwork = discovery.id;
-            } else if (type === DiscoveryEnum.PLACE) {
-                mapInstructions.query.place = discovery.id;
-            }  else {
-                mapInstructions.query.heritage = discovery.id;
-            }
 
             this.$router.push(mapInstructions);
         }

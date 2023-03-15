@@ -44,7 +44,7 @@ export default {
             return await Camera.getPhoto({
                 quality: 100,
                 correctOrientation: true,
-                allowEditing: true,
+                allowEditing: false,
                 resultType: CameraResultType.Uri
             });
         } catch (err) {

@@ -37,7 +37,7 @@ div#popup {
     top: 44%;
     z-index: 1;
     transform: translate(-50%, -50%);
-    transition: all 0.1s ease-in;
+    transition: all 0.2s ease-in;
     perspective-origin: bottom;
     border-radius: 10vw;
 }
