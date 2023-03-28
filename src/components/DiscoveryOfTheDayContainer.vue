@@ -2,35 +2,34 @@
 
     <div class="page-header">
         <p>Découverte<br>du jour</p>
-        <ion-icon id="headerIcon" :icon="imageOutline"></ion-icon>
+        <ion-icon id="headerIcon" :icon="customCalendarIcon"></ion-icon>
     </div>
 
     <div class="page-body-background">
         <div class="page-body">
             <!-- IF THE DISCOVERY IS AN ARTWORK -->
             <div v-if="type === DiscoveryEnum.ARTWORK">
-                <p id="dTitle">{{ discovery.getTitle() }}</p>
-                <span class="separatingBar"></span>
-                <p id="dArtist" v-if="discovery.artists.length">{{ discovery.getArtists() }}</p>
-                <p id="dCategory">{{ discovery.getCategories() }}</p>
+                <p id="discovery-title">{{ discovery.getTitle() }}</p>
+                <span class="separating-bar"></span>
+                <p id="discovery-artist" v-if="discovery.artists.length">{{ discovery.getArtists() }}</p>
+                <p id="discovery-category">{{ discovery.getCategories() }}</p>
             </div>
 
             <!-- ELSE IF IT'S A PLACE -->
             <div v-else-if="type === DiscoveryEnum.PLACE">
-                <p id="dTitle">{{ discovery.getTitle() }}</p>
-                <span class="separatingBar"></span>
-                <p id="dUsages">{{ discovery.getUsages() }}</p>
-                <p id="dBorough">{{ discovery.getBorough() }}</p>
+                <p id="discovery-title">{{ discovery.getTitle() }}</p>
+                <span class="separating-bar"></span>
+                <p id="discovery-usages">{{ discovery.getUsages() }}</p>
+                <p id="discovery-borough">{{ discovery.getBorough() }}</p>
             </div>
 
             <!-- ELSE (IT'S A HERITAGE) -->
             <div v-else>
-                <p id="dTitle">{{ discovery.getTitle() }}</p>
-                <span class="separatingBar"></span>
-                <p id="dBorough">{{ discovery.getBorough() }}</p>
-                <p id="dUsages">{{ discovery.getUsages() }}</p>
+                <p id="discovery-title">{{ discovery.getTitle() }}</p>
+                <span class="separating-bar"></span>
+                <p id="discovery-borough">{{ discovery.getBorough() }}</p>
+                <p id="discovery-usages">{{ discovery.getUsages() }}</p>
             </div>
-        </div>
 
         <ion-button id="cameraButton" fill="outline" @click="takePicture">
             <ion-icon :icon="camera"></ion-icon>
@@ -39,6 +38,7 @@
         <ion-button id="infoButton" fill="outline" :router-link="`/discovery-details/${type}/${discovery.id}`" router-direction="forward">
             <ion-icon :icon="informationCircleOutline"></ion-icon>
         </ion-button>
+        </div>
     </div>
 
     <div id="mapContainer" @click="activateMap([discovery.lng, discovery.lat])"></div>
@@ -47,7 +47,7 @@
 
 <script>
 /* Vue/Ionic imports */
-import { camera, imageOutline, informationCircleOutline, pin } from 'ionicons/icons';
+import { cameraOutline, informationCircleOutline, pin } from 'ionicons/icons';
 import { IonButton, IonIcon, toastController } from "@ionic/vue";
 
 /* Imports for the map */
@@ -72,6 +72,7 @@ import Utils from "@/internal/Utils";
 import Feature from "ol/Feature";
 import Point from "ol/geom/Point";
 import { UserData } from "@/internal/databases/UserData";
+import customCalendarIcon from "@/assets/drawable/icons/calendar.svg"
 
 // Build seed as the integer represented by ddMMyyyy
 const date = new Date();
@@ -114,7 +115,7 @@ export default {
 
     setup() {
         return {
-            camera, pin, imageOutline, informationCircleOutline,
+            camera: cameraOutline, pin, informationCircleOutline, customCalendarIcon
         }
     },
 

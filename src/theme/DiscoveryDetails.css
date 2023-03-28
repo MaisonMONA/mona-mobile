@@ -18,10 +18,12 @@ ion-button ion-icon {
     font-weight: 100;
     font-size: 50px;
     --ionicon-stroke-width: 20;
+    color: black;
 }
 
 ion-button {
     --border-radius: 15px;
+    --background: white;
 }
 
 #photoButton {
@@ -37,6 +39,10 @@ ion-button {
     position: absolute;
     right: 5%;
     top: 50%;
+}
+
+#targetIcon {
+    font-size: 35px;
 }
 
 .discoveryDetailsContent {

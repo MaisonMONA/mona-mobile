@@ -17,18 +17,18 @@
                     <ion-img id="userPhoto"></ion-img>
                 </div>
                 <!-- PHOTO BUTTON -->
-                <ion-button id="photoButton" fill="outline" @click="activateCamera">
+                <ion-button id="photoButton" fill="solid" @click="activateCamera">
                     <ion-icon id="cameraIcon" :icon="cameraOutline"></ion-icon>
                 </ion-button>
 
                 <!-- "SEE ON MAP" BUTTON -->
-                <ion-button id="seeOnMapButton" fill="outline" :to="{ name: '/tabs/map', params: { discovery } }" router-link="/tabs/map" router-direction="forward">
-                    <ion-icon id="mapIcon" :icon="mapOutline"></ion-icon>
+                <ion-button id="seeOnMapButton" fill="solid" :to="{ name: '/tabs/map', params: { discovery } }" router-link="/tabs/map" router-direction="forward">
+                    <ion-icon id="mapIcon" :icon="customMapIcon"></ion-icon>
                 </ion-button>
 
                 <!-- TARGET BUTTON -->
                 <ion-fab-button id="targetButton" @click="targetDiscovery">
-                    <ion-icon id="targetIcon" :icon="bookmark"></ion-icon>
+                    <ion-icon id="targetIcon" :icon="customTargetIcon"></ion-icon>
                 </ion-fab-button>
             </div>
 
@@ -77,7 +77,7 @@ import {
     IonBackButton, IonButton, IonButtons, IonContent, IonFabButton,
     IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, IonImg
 } from '@ionic/vue';
-import { cameraOutline, mapOutline, bookmark } from "ionicons/icons";
+import { cameraOutline, mapOutline } from "ionicons/icons";
 import { useRoute } from "vue-router";
 
 import { DiscoveryEnum } from "@/internal/Types";
@@ -87,6 +87,8 @@ import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
 import { UserData } from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
 import { Directory, Filesystem } from "@capacitor/filesystem";
+import customTargetIcon from "@/assets/drawable/icons/target.svg"
+import customMapIcon from "@/assets/drawable/icons/map.svg"
 
 
 function changetargetIconColor(discovery) {
@@ -105,7 +107,7 @@ export default {
 
     data() {
         return {
-            bookmark, cameraOutline, mapOutline
+            customTargetIcon, cameraOutline, customMapIcon
         }
     },
 

@@ -1,19 +1,21 @@
 <template>
-    <ion-nav :root="comp"></ion-nav>
+    <ion-page>
+        <ion-nav :root="MorePageContainer"></ion-nav>
+    </ion-page>
 </template>
 
 <script lang="ts">
-import { IonNav } from '@ionic/vue';
+import { IonNav, IonPage } from '@ionic/vue';
 import MorePageContainer from "@/components/MorePageContainer.vue";
 
 export default {
     components: {
-        IonNav
+        IonNav, IonPage
     },
 
-    data() {
+    setup() {
         return {
-            comp: MorePageContainer
+            MorePageContainer
         }
     }
 }

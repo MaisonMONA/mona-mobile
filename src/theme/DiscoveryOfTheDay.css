@@ -1,8 +1,41 @@
 @import url("@/theme/GlobalStyle.css");
-@import url("@/theme/DiscoveryDetails.css");
 
 * {
     font-family: 'OpenSans', sans-serif;
+    box-sizing: content-box;
+}
+
+ion-button ion-icon {
+    font-weight: 100;
+    font-size: 50px;
+    --ionicon-stroke-width: 20;
+}
+
+ion-button {
+    --border-radius: 15px;
+}
+
+#discovery-title {
+    font-size: 6vw;
+    font-weight: 600;
+}
+
+span.separating-bar {
+    margin-top: 2vw;
+    margin-bottom: 2vw;
+    display: block;
+    width: 20vw;
+    border-bottom: 4px solid var(--blue-powder);
+}
+
+#discovery-artist, #discovery-usages {
+    font-size: 5vw;
+    font-weight: 500;
+}
+
+#discovery-category, #discovery-borough {
+    margin-top: 2vw;
+    font-size: 4vw;
 }
 
 div, p {
@@ -19,6 +52,7 @@ div, p {
 .page-body-background {
     height: 70%;
     background: var(--blue-powder);
+    border: 0;
 }
 
 .page-body {
@@ -26,6 +60,7 @@ div, p {
     background: white;
     border-radius: 25px 25px 0 0;
     padding: 5%;
+    border: 0;
 }
 
 #dUsages, #dArtist, #dCategory, #dBorough {

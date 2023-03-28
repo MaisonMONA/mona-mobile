@@ -9,6 +9,7 @@
 
         <ion-content :fullscreen="true">
             <div class="collection-header">
+                <ion-icon id="collection-icon" :icon="customCollectionIcon"></ion-icon>
                 <p id="collected-count">{{ collected.length ? collected.length : '' }}</p>
                 <p>
                     {{ collected.length ? '' : "Aucune" }} Œuvre{{ collected.length ? 's' : ''}}<br>collectionnée{{ collected.length ? 's' : ''}}
@@ -18,12 +19,12 @@
             <div class="collection-content">
                 <p id="your-collection">Votre collection</p>
                 <ion-grid>
-                    <ion-row>
-                        <ion-col v-for="item in collected" :key="item" size="6" @click="openDetails(item)">
+                    <ion-row class="ion-justify-content-around">
+                        <ion-col v-for="item in collected" :key="item" size="5.5" @click="openDetails(item)">
                             <div class="img-card">
                                 <img :src="require('@/assets/drawable/perfs.jpg')"/>
                                 <div class="title-holder">
-                                    <p>{{ getDiscovery(item.id, item.dType).getTitle() }}</p>
+                                    <p>{{ formatTitle(getDiscovery(item.id, item.dType)) }}</p>
                                 </div>
                             </div>
                         </ion-col>
@@ -40,7 +41,7 @@ import { bookOutline } from "ionicons/icons";
 import { UserData } from '@/internal/databases/UserData';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonIcon } from '@ionic/vue';
 import Utils from "../internal/Utils";
-import { useRouter } from "vue-router";
+import customCollectionIcon from "@/assets/drawable/icons/collection_white.svg"
 
 export default {
     components: {
@@ -57,6 +58,7 @@ export default {
         return {
             collected: UserData.getCollectedChronologically(),
             getDiscovery: Utils.getDiscovery,
+            customCollectionIcon
         }
     },
 
@@ -68,6 +70,14 @@ export default {
             else /* (discovery.dType == "heritage") */ type = 2;
 
             this.$router.push(`/discovery-details/${type}/${item.id}`);
+        },
+
+        formatTitle(discovery) {
+            const title = discovery.getTitle();
+            if (title.length > 40)
+                return title.slice(0, 37) + '...'
+
+            return title;
         }
     }
 }
@@ -103,7 +113,7 @@ img {
 
 .collection-header p {
     text-align: left;
-    font-size: 28px;
+    font-size: 24px;
     /*font-weight: 600;*/
 }
 
@@ -116,30 +126,6 @@ img {
     /*font-size: 80px;*/
     --ionicon-stroke-width: 20px;
 }
-
-/*.collection-header {*/
-/*    position: relative;*/
-/*    width: 100%;*/
-/*    height: 25%;*/
-/*    background: var(--blue-powder);*/
-/*}*/
-
-/*.collection-header p {*/
-/*    margin: 0;*/
-/*    position: absolute;*/
-/*    transform: translate(-50%, -50%);*/
-/*    left: 65%;*/
-/*    top: 50%;*/
-/*    color: white;*/
-/*    font-size: 24px;*/
-/*    font-weight: 500;*/
-/*}*/
-
-/*.collection-header p#collected-count {*/
-/*    font-size: 32px;*/
-/*    font-weight: 600;*/
-/*    left: 40%;*/
-/*}*/
 
 ion-grid {
     --ion-grid-column-padding: 0;
@@ -163,12 +149,17 @@ p {
 .title-holder p {
     top: 50%;
     font-size: 16px;
+    padding-bottom: 5px;
 }
 
 #your-collection {
-    margin: 15px 0 10px 15px;
     font-size: 24px;
     line-height: 32px;
     font-weight: 600;
+    margin: 5vw 0 10px 15px;
+}
+
+#collection-icon {
+    font-size: 60px;
 }
 </style>

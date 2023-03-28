@@ -1,39 +1,41 @@
 <template>
-    <ion-header>
-        <ion-toolbar>
-            <ion-title>MONA</ion-title>
-        </ion-toolbar>
-    </ion-header>
+    <ion-page>
+        <ion-header>
+            <ion-toolbar>
+                <ion-title>MONA</ion-title>
+            </ion-toolbar>
+        </ion-header>
 
-    <ion-content>
-        <div class="more-page-header">
-            <p>{{ username }}</p>
-        </div>
-        <ion-list :inset="true">
-            <ion-nav-link router-direction="forward" :component="/* todo */ ''"> <!-- todo -->
-                <ion-item>
-                    <ion-label>Tutoriel</ion-label>
-                    <ion-icon :icon="arrowForward" slot="end"></ion-icon>
-                </ion-item>
-            </ion-nav-link>
-            <ion-nav-link router-direction="forward" :component="whoweare">
-                <ion-item>
-                    <ion-label>Qui sommes-nous ?</ion-label>
-                    <ion-icon :icon="arrowForward" slot="end"></ion-icon>
-                </ion-item>
-            </ion-nav-link>
-            <ion-nav-link router-direction="forward" :component="about">
-                <ion-item>
-                    <ion-label>À propos</ion-label>
-                    <ion-icon :icon="arrowForward" slot="end"></ion-icon>
-                </ion-item>
-            </ion-nav-link>
-        </ion-list>
-    </ion-content>
+        <ion-content>
+            <div class="more-page-header">
+                <p>{{ username }}</p>
+            </div>
+            <ion-list :inset="true">
+                <ion-nav-link router-direction="forward" :component="/* todo */ ''"> <!-- todo -->
+                    <ion-item>
+                        <ion-label>Tutoriel</ion-label>
+                        <ion-icon :icon="arrowForward" slot="end"></ion-icon>
+                    </ion-item>
+                </ion-nav-link>
+                <ion-nav-link router-direction="forward" :component="whoweare">
+                    <ion-item>
+                        <ion-label>Qui sommes-nous ?</ion-label>
+                        <ion-icon :icon="arrowForward" slot="end"></ion-icon>
+                    </ion-item>
+                </ion-nav-link>
+                <ion-nav-link router-direction="forward" :component="about">
+                    <ion-item>
+                        <ion-label>À propos</ion-label>
+                        <ion-icon :icon="arrowForward" slot="end"></ion-icon>
+                    </ion-item>
+                </ion-nav-link>
+            </ion-list>
+        </ion-content>
+    </ion-page>
 </template>
 
 <script>
-import { IonContent, IonHeader, IonToolbar, IonTitle, IonList, IonItem, IonNavLink, IonLabel, IonIcon } from "@ionic/vue";
+import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonList, IonItem, IonNavLink, IonLabel, IonIcon } from "@ionic/vue";
 import { UserData } from "@/internal/databases/UserData";
 import AboutContainer from "@/components/AboutContainer.vue";
 import { arrowForward } from "ionicons/icons";
@@ -42,7 +44,7 @@ import WhoWeAreContainer from "@/components/WhoWeAreContainer.vue";
 export default {
     name: "MorePageContainer",
     components: {
-        IonContent, IonHeader, IonToolbar, IonTitle, IonList, IonItem, IonNavLink, IonLabel, IonIcon
+        IonContent, IonHeader, IonToolbar, IonTitle, IonList, IonItem, IonNavLink, IonLabel, IonIcon, IonPage
     },
 
     data() {
