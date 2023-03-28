@@ -109,6 +109,7 @@ export default {
                             }
 
                             UserData.setToken(parsed.token);
+                            UserData.setUsername(username);
                             this.$router.replace("/loading");
                         } else {
                             // Show appropriate error
