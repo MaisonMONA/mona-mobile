@@ -8,7 +8,7 @@
     </ion-header>
 
     <ion-content :fullscreen="true">
-        <DiscoveryOfTheDay/>
+        <DiscoveryOfTheDayContainer/>
     </ion-content>
   </ion-page>
 </template>
@@ -16,19 +16,13 @@
 <script lang="ts">
 import "@/theme/DiscoveryOfTheDay.css"
 import { IonPage, IonHeader, IonContent, IonToolbar, IonTitle } from '@ionic/vue';
-import DiscoveryOfTheDay from "@/components/DiscoveryOfTheDayContainer.vue";
+import DiscoveryOfTheDayContainer from "@/components/DiscoveryOfTheDayContainer.vue";
 
 export default {
-    name: "discovery-of-the-day",
     components: {
         IonPage, IonHeader, IonContent, IonToolbar, IonTitle,
-        DiscoveryOfTheDay
+        DiscoveryOfTheDayContainer
     },
-    data() {
-        return {
-            DiscoveryOfTheDay
-        }
-    }
 }
 </script>
 
