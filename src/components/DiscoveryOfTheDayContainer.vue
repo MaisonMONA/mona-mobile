@@ -8,7 +8,7 @@
     <div class="page-body-background">
         <div class="page-body">
             <!-- IF THE DISCOVERY IS AN ARTWORK -->
-            <div v-if="type === DiscoveryTypes.ARTWORK">
+            <div v-if="type === DiscoveryEnum.ARTWORK">
                 <p id="dTitle">{{ discovery.getTitle() }}</p>
                 <span class="separatingBar"></span>
                 <p id="dArtist" v-if="discovery.artists.length">{{ discovery.getArtists() }}</p>
@@ -16,7 +16,7 @@
             </div>
 
             <!-- ELSE IF IT'S A PLACE -->
-            <div v-else-if="type === DiscoveryTypes.PLACE">
+            <div v-else-if="type === DiscoveryEnum.PLACE">
                 <p id="dTitle">{{ discovery.getTitle() }}</p>
                 <span class="separatingBar"></span>
                 <p id="dUsages">{{ discovery.getUsages() }}</p>
@@ -32,7 +32,7 @@
             </div>
         </div>
 
-        <ion-button id="cameraButton" fill="outline">
+        <ion-button id="cameraButton" fill="outline" @click="takePicture">
             <ion-icon :icon="camera"></ion-icon>
         </ion-button>
 
@@ -44,10 +44,11 @@
     <div id="mapContainer" @click="activateMap([discovery.lng, discovery.lat])"></div>
 </template>
 
+
 <script>
 /* Vue/Ionic imports */
 import { camera, imageOutline, informationCircleOutline, pin } from 'ionicons/icons';
-import { IonButton, IonIcon } from "@ionic/vue";
+import { IonButton, IonIcon, toastController } from "@ionic/vue";
 
 /* Imports for the map */
 import Map from "ol/Map";
@@ -57,7 +58,7 @@ import { defaults as defaultInteractions } from "ol/interaction";
 import { useGeographic } from "ol/proj";
 import { Group as layerGroup } from "ol/layer";
 import TileLayer from "ol/layer/Tile";
-import { OSM, Stamen } from "ol/source";
+import { OSM } from "ol/source";
 
 /* Imports for the discovery */
 import { ArtworkDatabase } from "@/internal/databases/ArtworkDatabase";
@@ -65,6 +66,11 @@ import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
 import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
 import { RNG } from "@/internal/RNG"
 import { DiscoveryEnum } from "@/internal/Types";
+import VectorLayer from "ol/layer/Vector";
+import VectorSource from "ol/source/Vector";
+import Utils from "@/internal/Utils";
+import Feature from "ol/Feature";
+import Point from "ol/geom/Point";
 import { UserData } from "@/internal/databases/UserData";
 
 // Build seed as the integer represented by ddMMyyyy
@@ -76,23 +82,28 @@ const type = random.nextInRange(0, 2);  // Choose what type of discovery to show
 console.log("type", type, "seed", seed);
 
 let discovery;
-switch (type) {
-    case DiscoveryEnum.ARTWORK: {   // Choose in artworks
-        discovery = ArtworkDatabase.getRandomItem(seed);
-        console.log("artwork id:", discovery.id);
-        break
+let i = 0;
+do {
+    switch (type) {
+        case DiscoveryEnum.ARTWORK: {   // Choose in artworks
+            discovery = ArtworkDatabase.getRandomItem(seed + i);
+            console.log("artwork id:", discovery.id);
+            break
+        }
+        case DiscoveryEnum.PLACE: {     // Choose in places
+            discovery = PlaceDatabase.getRandomItem(seed + i);
+            console.log("place id:", discovery.id);
+            break
+        }
+        case DiscoveryEnum.HERITAGE: {  // Choose in heritages
+            discovery = HeritageDatabase.getRandomItem(seed + i);
+            console.log("heritage id:", discovery.id)
+            break
+        }
     }
-    case DiscoveryEnum.PLACE: {     // Choose in places
-        discovery = PlaceDatabase.getRandomItem(seed);
-        console.log("place id:", discovery.id);
-        break
-    }
-    case DiscoveryEnum.HERITAGE: {  // Choose in heritages
-        discovery = HeritageDatabase.getRandomItem(seed);
-        console.log("heritage id:", discovery.id)
-        break
-    }
-}
+
+    i++;
+} while (UserData.isCollected(discovery.id, discovery.dType)); // Make sure the discovery is not collected
 
 export default {
     name: "DiscoveryOfTheDayContainer",
@@ -111,7 +122,7 @@ export default {
         return {
             discovery,
             type,
-            DiscoveryTypes: DiscoveryEnum,
+            DiscoveryEnum,
         }
     },
 
@@ -143,30 +154,24 @@ export default {
                 }),
             });
 
-            if (UserData.getMapStyle() === "osm") {
-                this.mainMap.setLayerGroup(new layerGroup({
-                    layers: [new TileLayer({ source: new OSM() })]
-                }))
-            } else {
-                this.mainMap.setLayerGroup(new layerGroup({
-                    layers: [new TileLayer({ source: new Stamen({ layer: "toner-lite" }) })]
-                }))
-            }
+            this.mainMap.setLayerGroup(new layerGroup({
+                layers: [new TileLayer({ source: new OSM() })]
+            }));
 
             // Showing the pin
-            // if (type === DiscoveryEnum.ARTWORK) {
-            //     this.mainMap.addLayer(vLayers.artworkDoD);
-            //     const feature = new Feature(new Point(INITIAL_COORD));
-            //     vLayers.artworkDoD.getSource().addFeature(feature);
-            // } else if (type === DiscoveryEnum.PLACE) {
-            //     this.mainMap.addLayer(vLayers.placeDoD);
-            //     const feature = new Feature(new Point(INITIAL_COORD));
-            //     vLayers.placeDoD.getSource().addFeature(feature);
-            // } else {
-            //     this.mainMap.addLayer(vLayers.heritageDoD);
-            //     const feature = new Feature(new Point(INITIAL_COORD));
-            //     vLayers.heritageDoD.getSource().addFeature(feature);
-            // }
+            const pinLayer = new VectorLayer({
+                source: new VectorSource(),
+                style: Utils.styleFunction
+            })
+
+            const pin = new Feature({
+                geometry: new Point([discovery.location.lng, discovery.location.lat]),
+                id: discovery.id,
+                dType: discovery.dType
+            });
+            pinLayer.getSource().addFeature(pin);
+
+            this.mainMap.addLayer(pinLayer);
         },
 
         activateMap() {
@@ -179,7 +184,39 @@ export default {
             };
 
             this.$router.push(mapInstructions);
-        }
+        },
+
+        async takePicture() {
+            if (UserData.isCollected(this.discovery.id, this.discovery.dType))
+                await this.presentToast("Nous avez déjà collectionné cela");
+
+            const img = await Utils.takePicture();
+            if (img == null) return;
+
+            const filename = await Utils.savePicture(img);
+            UserData.addCollected(this.discovery, "img/" + filename, null, null);
+            UserData.addPendingUpload(this.discovery.id, this.discovery.dType);
+
+            const redirection = {
+                path: "/discovery-review/",
+                query: {
+                    id: this.discovery.id,
+                    type: this.discovery.dType,
+                }
+            };
+
+            this.$router.push(redirection);
+        },
+
+        async presentToast(text) {
+            const toast = await toastController.create({
+                message: text,
+                duration: 3000,
+                button: [{ text: "Fermer" }]
+            });
+
+            await toast.present();
+        },
     }
 }
 </script>

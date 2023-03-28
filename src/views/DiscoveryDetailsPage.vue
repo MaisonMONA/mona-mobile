@@ -1,14 +1,14 @@
 <template>
     <ion-page>
 
-        <ion-header>
-            <ion-toolbar>
-                <ion-buttons slot="start">
-                    <ion-back-button></ion-back-button>
-                </ion-buttons>
-                <ion-title>MONA</ion-title>
-            </ion-toolbar>
-        </ion-header>
+            <ion-header>
+                <ion-toolbar>
+                    <ion-buttons slot="start">
+                        <ion-back-button></ion-back-button>
+                    </ion-buttons>
+                    <ion-title>MONA</ion-title>
+                </ion-toolbar>
+            </ion-header>
 
         <ion-content :fullscreen="true">
             <div class="discoveryPhotoContainer">
@@ -28,7 +28,7 @@
 
                 <!-- TARGET BUTTON -->
                 <ion-fab-button id="targetButton" @click="targetDiscovery">
-                    <ion-icon id="targetIcon" :icon="star"></ion-icon>
+                    <ion-icon id="targetIcon" :icon="bookmark"></ion-icon>
                 </ion-fab-button>
             </div>
 
@@ -77,7 +77,7 @@ import {
     IonBackButton, IonButton, IonButtons, IonContent, IonFabButton,
     IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, IonImg
 } from '@ionic/vue';
-import { cameraOutline, mapOutline, star } from "ionicons/icons";
+import { cameraOutline, mapOutline, bookmark } from "ionicons/icons";
 import { useRoute } from "vue-router";
 
 import { DiscoveryEnum } from "@/internal/Types";
@@ -85,7 +85,7 @@ import { ArtworkDatabase } from "@/internal/databases/ArtworkDatabase";
 import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
 import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
 import { UserData } from "@/internal/databases/UserData";
-import Globals from "@/internal/Utils";
+import Utils from "@/internal/Utils";
 import { Directory, Filesystem } from "@capacitor/filesystem";
 
 
@@ -105,7 +105,7 @@ export default {
 
     data() {
         return {
-            star, cameraOutline, mapOutline
+            bookmark, cameraOutline, mapOutline
         }
     },
 
@@ -135,33 +135,36 @@ export default {
         const userData = UserData.getCollected(discovery.id, discovery.dType);
         if (userData) {
             console.log(`HERE id=${userData.id}, path=${userData.imagepath}, rating=${userData.rating}, comment=${userData.comment}`);
-            Filesystem.readFile({
-                path: userData.imagepath,
-                directory: Directory.Data
-            })
-            .then(async (image) => {
-                const base64Res = await fetch(`data:image/${userData.imagepath.split('.')[1]};base64,${image.data}`);
-                const blob = await base64Res.blob();
-                const url = URL.createObjectURL(blob);
-                const userImg = document.getElementById("userPhoto");
-                const defaultImg = document.getElementById("defaultPhoto");
-                if (userImg && defaultImg) {  // Necessary but pointless `if` block: elements should always exist
-                    defaultImg.style.display = "none";
-                    userImg.style.display = "block";
-                    userImg.src = url;
+            if (userData.imagepath) {
+                Filesystem.readFile({
+                    path: userData.imagepath,
+                    directory: Directory.Data
+                })
+                .then(async (image) => {
+                    const base64Res = await fetch(`data:image/${userData.imagepath.split('.')[1]};base64,${image.data}`);
+                    const blob = await base64Res.blob();
+                    const url = URL.createObjectURL(blob);
+                    const userImg = document.getElementById("userPhoto");
+                    const defaultImg = document.getElementById("defaultPhoto");
+                    if (userImg && defaultImg) {  // Necessary but pointless `if` block: elements should always exist
+                        defaultImg.style.display = "none";
+                        userImg.style.display = "block";
+                        userImg.src = url;
 
-                    // Hiding buttons
-                    const photoButton = document.getElementById("photoButton");
-                    const seeOnMapButton = document.getElementById("seeOnMapButton");
-                    if (photoButton && seeOnMapButton) {  // Same here
-                        photoButton.style.display = "none";
-                        seeOnMapButton.style.display = "none";
+                        // Hiding buttons
+                        const photoButton = document.getElementById("photoButton");
+                        const seeOnMapButton = document.getElementById("seeOnMapButton");
+                        if (photoButton && seeOnMapButton) {  // Same here
+                            photoButton.style.display = "none";
+                            seeOnMapButton.style.display = "none";
+                        }
+
+                        // Enable image opening
+                        // TODO uncomment line below after implementing showImg
+                        // userImg.onclick = this.showImg;
                     }
-
-                    // Enable image opening
-                    // userImg.onclick = ;
-                }
-            })
+                })
+            }
         }
 
         return {
@@ -176,9 +179,10 @@ export default {
 
     methods: {
         async activateCamera() {
-            const img = await Globals.takePicture()
+            const img = await Utils.takePicture()
             if (img == null) return;
 
+            // Displaying photo on container
             const userImg = document.getElementById("userPhoto");
             const defaultImg = document.getElementById("defaultPhoto");
             if (userImg && defaultImg) {  // Necessary but pointless `if` block: elements should always exist
@@ -198,7 +202,7 @@ export default {
                 userImg.onclick = this.showImg;
             }
 
-            const filename = await Globals.savePicture(img);
+            const filename = await Utils.savePicture(img);
             UserData.addCollected(this.discovery, "img/" + filename, null, null);
             UserData.addPendingUpload(this.discovery.id, this.discovery.dType);
 

@@ -18,16 +18,19 @@ export class ArtworkFactory {
 
 export class PlaceFactory {
     static createPlace(place: any) {
-        // Creating usages list
-        const usagesFr: Array<string> = [];
-        const usagesEn: Array<string> = [];
+        // The server sends a list of objects but we store an object of lists (for coherence with the rest)
+        if (place.usages instanceof Array) {
+            // Creating usages list
+            const usagesFr: Array<string> = [];
+            const usagesEn: Array<string> = [];
 
-        for (const usage of place.usages) {
-            usagesFr.push(usage.fr);
-            usagesEn.push(usage.en);
+            for (const usage of place.usages) {
+                usagesFr.push(usage.fr);
+                usagesEn.push(usage.en);
+            }
+
+            place.usages = { fr: usagesFr, en: usagesEn };
         }
-
-        place.usages = {fr: usagesFr, en: usagesEn};
 
         return new Place(place);
     }

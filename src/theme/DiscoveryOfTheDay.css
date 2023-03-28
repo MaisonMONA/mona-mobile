@@ -72,7 +72,7 @@ div, p {
     position: absolute;
     justify-content: center;
     bottom: 30%;
-    height: 100px;
+    height: 15%;
     --border-color: var(--button-outline-grey);
     --border-width: 1px;
     --background: white;

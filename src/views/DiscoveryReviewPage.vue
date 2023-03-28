@@ -29,7 +29,7 @@ import { IonHeader, IonPage, IonTitle, IonToolbar, IonIcon, IonInput, IonButton,
 import {starOutline, star, camera } from "ionicons/icons";
 
 import { UserData } from "@/internal/databases/UserData";
-import Globals from "@/internal/Utils";
+import Utils from "@/internal/Utils";
 
 
 export default {
@@ -55,8 +55,8 @@ export default {
             const { imagepath } = UserData.getCollected(parseInt(id), type);
             const comment = document.getElementById("input").value;
 
-            UserData.editCollected(type, { id, imagepath, rating: this.givenRating, comment });
-            Globals.sendPictureAndDetails(id, type);
+            UserData.editCollected(type, { id: parseInt(id), dType: type, imagepath, rating: this.givenRating, comment });
+            Utils.sendPictureAndDetails(id, type);
 
             // Redirect to the previous page
             this.$router.go(-1);
@@ -117,5 +117,4 @@ ion-button {
     margin-right: auto;
     margin-bottom: 35%;
 }
-
 </style>

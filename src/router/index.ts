@@ -6,7 +6,7 @@ import TabsPage from '../views/TabsPage.vue'
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    redirect: '/tabs/discovery-of-the-day'
+    redirect: '/register'
   },
   {
     path: '/tabs/',
@@ -21,8 +21,8 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/views/DiscoveryOfTheDayPage.vue')
       },
       {
-        path: 'artworks-list',
-        component: () => import('@/views/ArtworksListPage.vue')
+        path: 'list',
+        component: () => import('@/views/ListPage.vue')
       },
       {
         path: 'map',
@@ -45,6 +45,22 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/discovery-review',
     component: () => import("@/views/DiscoveryReviewPage.vue")
+  },
+  {
+    path: '/register',
+    component: () => import("@/views/RegisterPage.vue")
+  },
+  {
+    path: '/login',
+    component: () => import("@/views/LoginPage.vue")
+  },
+  {
+    path: '/loading',
+    component: () => import("@/views/DataLoadingPage.vue")
+  },
+  {
+    path: '/delete',
+    component: () => import("@/views/DeleteAllData.vue")
   }
 ]
 

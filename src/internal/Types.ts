@@ -81,12 +81,14 @@ export class Artwork extends Discovery {
     techniques: { fr: Array<string>, en: Array<string> } | null;
 
     public getTitle(): string {
-        const title = this.title.fr || this.title.en;
-        if (!title || ["sans titre", "non titré", "untitled"].includes(title.toLowerCase())) {
-            return "(non titré)";
-        }
-
-        return title;
+        /* Uncomment this part to enable title normalization (untitled discoveries are all named the same) */
+        // const title = this.title.fr || this.title.en;
+        // if (!title || ["sans titre", "non titré", "untitled"].includes(title.toLowerCase())) {
+        //     return "(non titré)";
+        // }
+        //
+        // return title;
+        return this.title.fr || this.title.en || "(non titré)";
     }
 
     public getArtists(): string {
@@ -162,7 +164,7 @@ export class Heritage extends Discovery {
         produced_at: string | null, description: string | null,
         location: { lat: number, lng: number }, status: string,
         borough: string, synthesis: null, "sous-usages": Array<string>,
-        functions: { fr: Array<string>, en: Array<string> }
+        subUses: Array<string>, functions: { fr: Array<string>, en: Array<string> }
     }) {
         super();
         this.id          = heritage.id;
@@ -170,7 +172,7 @@ export class Heritage extends Discovery {
         this.location    = heritage.location;
         this.produced_at = heritage.produced_at;
         this.functions   = heritage.functions;
-        this.subUses     = heritage["sous-usages"];
+        this.subUses     = heritage["sous-usages"] || heritage.subUses;  // "sous-usages" is the original key
         this.synthesis   = heritage.synthesis
         this.description = heritage.description;
         this.status      = heritage.status;

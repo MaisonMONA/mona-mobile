@@ -8,6 +8,7 @@
         </ion-header>
 
         <ion-content :fullscreen="true">
+            <p id="alertHolder"></p>
             <div class="main-content">
                 <p id="welcome">Bienvenue !</p>
                 <p id="ask-for-registration">Commençons par créer un compte.</p>
@@ -16,7 +17,7 @@
                     <div class="input-element username">
                         <label for="username-input">Nom d'utilisateur</label>
                         <ion-item id="username-input">
-                            <ion-input type="email"></ion-input>
+                            <ion-input></ion-input>
                         </ion-item>
                     </div>
 
@@ -37,7 +38,7 @@
                     <div class="input-element password-confirmation">
                         <label for="password-confirmation-input">Vérifiez le mot de passe</label>
                         <ion-item id="password-confirmation-input">
-                            <ion-input type="password-confirmation"></ion-input>
+                            <ion-input type="password"></ion-input>
                         </ion-item>
                     </div>
 
@@ -53,19 +54,23 @@
 
 <script>
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonInput, IonButton } from "@ionic/vue";
-import Utils from "@/internal/Utils";
 import { UserData } from "@/internal/databases/UserData";
-import {useRouter} from "vue-router";
+import Globals from "@/internal/Globals";
 
-if (UserData.getToken() != '') {  // User is logged in, redirect
-    const router = useRouter();
-    router.push("/tabs/discovery-of-the-day");
-}
 
 export default {
-    name: "LoginPage",
+    name: "RegisterPage",
     components: {
         IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonInput, IonButton
+    },
+
+    beforeMount() {
+        UserData.populate()
+        .then(() => {
+            if (UserData.getToken() !== '') {  // User is logged in, redirect
+                this.$router.push("/loading");
+            }
+        })
     },
 
     methods: {
@@ -86,34 +91,54 @@ export default {
                     formData.append("password", passwordConfirm);
                     formData.append("password_confirmation", password);
 
-                    if (email)
+                    if (email) {
                         formData.append("email", email);
+                    }
 
-                    fetch(Utils.apiRoutes.register, {
+                    fetch(Globals.apiRoutes.register, {
                         method: "POST",
                         body: formData
                     })
 
-                    .then((response) => {
+                    .then(async (response) => {
+                        const parsed = await response.json();
+
                         if (response.ok) {
-                            this.$router.replace("/tabs/discovery-of-the-day");
-                        } else {
-                            const parsed = response.json();
-                            if (parsed.errors && parsed.errors.username) {
-                                this.showAlert("Le nom d'utilisateur est déjà pris.");
+                            if (!parsed.token) {
+                                this.showAlert("Server error");
                             }
+
+                            UserData.setToken(parsed.token);
+                            this.$router.replace("/loading");
+                        } else {
+                            // Show appropriate error
+                            this.handleError(parsed);
                         }
                     })
 
-                    .catch((err) => {
-                        console
-                    })
+                    .catch(() => {
+                        this.showAlert("Impossible de se connecter à internet.");
+                    });
+                } else {
+                    // Password mismatch
+                    this.showAlert("Les mots de passe ne concordent pas.")
                 }
             }
         },
 
+        handleError(parsed) {
+            if (parsed.errors) {
+                if (parsed.errors.username) this.showAlert(parsed.errors.username[0]);
+                else if (parsed.errors.password) this.showAlert(parsed.errors.password[0])
+                else if (parsed.errors.email) this.showAlert(parsed.errors.email[0]);
+            }
+        },
+
         showAlert(alertMessage) {
-            console
+            const alertElem = document.getElementById("alertHolder");
+
+            alertElem.innerHTML = alertMessage;
+            alertElem.classList.add("show");
         }
     }
 }
@@ -171,5 +196,28 @@ label {
 .redirect-to-login span {
     font-weight: bolder;
     border-bottom: 1px solid black;
+}
+
+#alertHolder {
+    position: absolute;
+    text-align: center;
+    transform: translateX(-50%);
+    left: 50%;
+
+    margin: 5% 0 0;
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+
+    font-weight: bolder;
+    color: white;
+    background: white;
+    font-size: 12px;
+
+    transition: all 0.3s linear;
+}
+
+#alertHolder.show {
+    color: darkred;
+    background: #E6B1B1;
 }
 </style>

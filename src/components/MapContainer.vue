@@ -45,23 +45,22 @@ import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
 import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
 import { UserData } from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
-import {useRoute} from "vue-router";
+import { useRoute } from "vue-router";
+import { Icon, Style } from "ol/style";
 
 
 // This variable is here to know if the user focuses a discovery or not
 let hasFocus = false;
 
 
-function insertAllPins(destination, listsOfDiscoveries) {
-    for (const list of listsOfDiscoveries) {
-        for (const discovery of list) {
-            const feature = new Feature({
-                geometry: new Point([discovery.location.lng, discovery.location.lat]),
-                id: discovery.id,
-                dType: discovery.dType
-            });
-            destination.getSource().addFeature(feature);
-        }
+function insertAllPins(destination, list) {
+    for (const discovery of list) {
+        const feature = new Feature({
+            geometry: new Point([discovery.location.lng, discovery.location.lat]),
+            id: discovery.id,
+            dType: discovery.dType
+        });
+        destination.getSource().addFeature(feature);
     }
 }
 
@@ -105,7 +104,7 @@ export default {
 
         return {
             mainMap: null,
-            INITAL_COORD: discovery ? [discovery.location.lng, discovery.location.lat] : [-73.6, 45.5], // Defaults coordinates are on Montreal
+            INITAL_COORD: discovery ? [discovery.location.lng, discovery.location.lat] : UserData.getLocation(),
             DEFAULT_ZOOM_LEVEL: discovery ? 17 : 14,  // If the map was opened by the DOD page we want to zoom more
             TILE_LAYER: layer,
             layersIcon, funnelIcon, arrowRightIcon
@@ -116,10 +115,10 @@ export default {
         this.myMap();
 
         const route = useRoute();
-        const dType = route.params.dType.toString;
-        const id = route.params.id.toString();
+        const dType = route.params.dType;
+        const id = route.params.id;
         if (dType && id) {
-            const discovery = getDiscovery(parseInt(id), dType);
+            const discovery = getDiscovery(parseInt(id.toString()), dType.toString());
             this.focusDiscovery(discovery);
         }
     },
@@ -128,7 +127,7 @@ export default {
         myMap() {
             useGeographic();
             this.mainMap = new Map({
-                // Hiding attribution (quite immoral)
+                // Hiding attribution (yes it's immoral)
                 controls: defaultControls({ attribution: false }),
 
                 target: "map",
@@ -147,6 +146,7 @@ export default {
             this.mainMap.on("movestart", this.unfocusDiscovery)
 
             this.showPins();
+            this.showLocation();
         },
 
         showPins(discoveries=[]) {
@@ -156,12 +156,34 @@ export default {
             });
 
             if (discoveries.length > 0) {
-                insertAllPins(pinsLayer, [discoveries]);
+                insertAllPins(pinsLayer, discoveries);
             } else {
-                insertAllPins(pinsLayer, [ArtworkDatabase.data, PlaceDatabase.data, HeritageDatabase.data]);
+                insertAllPins(pinsLayer, UserData.getSortedDiscoveries());
             }
 
             this.mainMap.addLayer(pinsLayer);
+        },
+
+        showLocation() {
+            const locationLayer = new VectorLayer({
+                source: new VectorSource(),
+                style: new Style({
+                    image: new Icon({
+                        anchor: [0.5, 0.5],
+                        src: require(`@/assets/drawable/pins/location.png`),
+                    })
+                }),
+            });
+
+            const feature = new Feature({
+                geometry: new Point(UserData.getLocation()),
+            });
+            locationLayer.getSource().addFeature(feature);
+
+            this.mainMap.addLayer(locationLayer);
+
+            // Update location every 25 seconds
+            setInterval(() => feature.getGeometry().setCoordinates(UserData.getLocation()), 25000);
         },
 
         changeTileLayer() {
@@ -181,8 +203,6 @@ export default {
                 });
 
                 this.mainMap.setLayerGroup(stamenLayer);
-                this.showPins();
-
                 UserData.setMapStyle("stamen");
             } else /* if (UserData.getMapStyle() === "stamen") */ {
                 const osmLayer = new layerGroup({
@@ -194,10 +214,11 @@ export default {
                 });
 
                 this.mainMap.setLayerGroup(osmLayer);
-                this.showPins();
-
                 UserData.setMapStyle("osm");
             }
+
+            this.showPins();
+            this.showLocation();
         },
 
         handleMapClick(event) {
@@ -224,17 +245,23 @@ export default {
         focusDiscovery(discovery, map=this.mainMap) {
             const transitionDuration = 350;  // Unit is milliseconds
 
-            // Animate centering map on the pin
-            map.getView().animate({
-                center: [discovery.location.lng, discovery.location.lat],
-                duration: transitionDuration,
-                // zoom: 14.25,
-                easing: easeOut
-            });
+            // Center map on the pin with animation if it isn't already centered
+            const mapCenter = map.getView().getCenter();
+            if (mapCenter[0].toFixed(3) !== discovery.location.lng.toFixed(3) ||
+                mapCenter[1].toFixed(3) !== discovery.location.lat.toFixed(3)) {
+                const currentZoom = map.getView().getZoom();
+
+                map.getView().animate({
+                    center: [discovery.location.lng, discovery.location.lat],
+                    duration: transitionDuration,
+                    zoom: Math.max(currentZoom, 14.25),
+                    easing: easeOut
+                });
+            }
 
             const details = document.getElementById("popupDetails");
 
-            // Show popup AFTER the view has been centered
+            // Show popup AFTER the view was centered
             setTimeout(() => {
                 const elem = document.getElementById("popup");
                 elem.classList.add("activated");
@@ -259,7 +286,7 @@ export default {
                 else if (discovery.dType === "place") type = 1;
                 else /* if (discovery.dType === "heritage") */ type = 2;
 
-                // Changing the button redirection
+                // Setting the button's redirection
                 const button = document.getElementById("seeMore");
                 button.onclick = () => this.$router.push({ path: `/discovery-details/${type}/${discovery.id}` });
 

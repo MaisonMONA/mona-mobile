@@ -1,13 +1,13 @@
 <template>
     <ion-page>
-        <ion-tabs>
+        <ion-tabs> <!-- @ionTabsWillChange="checkRoute"> -->
             <ion-router-outlet></ion-router-outlet>
             <ion-tab-bar slot="bottom">
                 <ion-tab-button tab="discovery-of-the-day" href="/tabs/discovery-of-the-day">
                     <ion-icon :icon="calendar"/>
                 </ion-tab-button>
 
-                <ion-tab-button tab="artworks-list" href="/tabs/artworks-list">
+                <ion-tab-button tab="artworks-list" href="/tabs/list">
                     <ion-icon :icon="list"/>
                 </ion-tab-button>
 
@@ -27,10 +27,30 @@
     </ion-page>
 </template>
 
-<script setup lang="ts">
+<script lang="js">
 /* Importing the toolbar's CSS here so it's done once and for all */
 import { IonTabBar, IonTabButton, IonTabs, IonIcon, IonPage, IonRouterOutlet } from '@ionic/vue';
 import { list, map, book, ellipsisHorizontalCircle, calendar } from 'ionicons/icons';
+
+export default {
+    components: {
+        IonTabBar, IonTabButton, IonTabs, IonIcon, IonPage, IonRouterOutlet
+    },
+
+    data() {
+        return {
+            list, map, book, ellipsisHorizontalCircle, calendar, console,
+        }
+    },
+
+    methods: {
+        checkRoute(event) {
+            if (event.tab == "map") {
+                this.$router.replace("/tabs/map");
+            }
+        }
+    }
+}
 </script>
 
 <style scoped>

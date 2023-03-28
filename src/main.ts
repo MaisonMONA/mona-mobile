@@ -25,39 +25,11 @@ import '@ionic/vue/css/display.css';
 /* Theme variables */
 import './theme/(DEFAULT_FILE)_variables.css';
 
-/* ~~~~ Custom imports ~~~~ */
-import { ArtworkDatabase } from "@/internal/databases/ArtworkDatabase";
-import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
-import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
-import { BadgeDatabase } from "@/internal/databases/BadgeDatabase";
-import { UserData } from "@/internal/databases/UserData";
-import { Directory, Filesystem } from "@capacitor/filesystem";
-/* ~~~~~~~~~~~~~~~~~~~~~~~~ */
+const app = createApp(App)
+    .use(IonicVue)
+    .use(router);
 
-
-
-
-/* Init databases and THEN run main app */
-console.log("Initializing databases...");
-UserData.populate();
-Promise.allSettled([
-    // Filesystem.deleteFile({
-    //     path: "appdata/preferences.json",
-    //     directory: Directory.Data
-    // }),
-    ArtworkDatabase.populate(),
-    PlaceDatabase.populate(),
-    HeritageDatabase.populate(),
-    BadgeDatabase.populate(),
-]).then(() => {
-    console.log("All done.");
-
-    const app = createApp(App)
-        .use(IonicVue)
-        .use(router);
-
-    router.isReady().then( async () => {
-        app.mount('#app');
-        defineCustomElements(window).catch(() => console.error("Error in defineCustomElements (`main.ts`)."));
-    });
-})
+router.isReady().then( async () => {
+    app.mount('#app');
+    defineCustomElements(window).catch(() => console.error("Error in defineCustomElements (`main.ts`)."));
+});

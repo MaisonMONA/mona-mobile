@@ -1,7 +1,7 @@
 import { RNG } from "@/internal/RNG";
 import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
-import Globals from "@/internal/Utils";
 import { Discovery } from "@/internal/Types";
+import Globals from "@/internal/Globals";
 
 export abstract class Database {
     protected static data: Array<Discovery>;
@@ -27,26 +27,28 @@ export abstract class Database {
             });
 
             const parsed = JSON.parse(content.data);
-            for (const element of parsed.data) {
+            for (const element of parsed) {
+            // for (const element of parsed.data) {
                 this.data.push(this.createSingleElement(element));
             }
 
-            console.log(`${this.type} db: successfully populated database.`);
+            console.log(`${this.type} db: successfully populated (locally).`);
         } catch (err) {
-            console.log(`${this.type} db: error when parsing data from ${this.path} (${err}).`);
-            await this.populateFromServer()
+            await this.populateFromServer();
         }
     }
 
     private static async populateFromServer(): Promise<void> {
         let response, content;
         try {
+            console.log(this.type, "db: populating from server")
             if (this.type == "artworks") response = await fetch(Globals.apiRoutes.artworks.download);
             else if (this.type == "places") response = await fetch(Globals.apiRoutes.places.download);
             else if (this.type == "heritages") response = await fetch(Globals.apiRoutes.heritages.download);
             else /* (this.type == "badges") */ response = await fetch(Globals.apiRoutes.artworks.download);
         } catch (e) {
-            return;
+            console.log("Could not fetch data from server.");
+            return Promise.reject();
         }
 
         // Request request was made successfully
@@ -59,24 +61,21 @@ export abstract class Database {
             // Sorting the data by element ID
             this.data.sort((element1, element2) => element1.id - element2.id);
         } else {
-            return;
+            return Promise.reject();
         }
 
         // Write the newly downloaded file
-        Filesystem.writeFile({
+        await Filesystem.writeFile({
             path: this.path,
-            data: content,
+            // data: content,
+            data: JSON.stringify(this.data),
             directory: Directory.Data,
             encoding: Encoding.UTF8,
             recursive: true
         })
 
-        .catch((reason) => {
-            console.log(`${this.type} db: error when writing file (${reason}).`)
-        })
+        .then(() => console.log(`${this.type} db: successfully populated (from server).`))
     }
-
-
 
     public static getFromId(id: number): Discovery {
         for (let i = Math.min(id, this.data.length) - 1; i >= 0; i--) {
@@ -108,5 +107,12 @@ export abstract class Database {
         const rand = new RNG(seed);
         const id = rand.nextInRange(0, this.data.length - 1);
         return this.data[id];
+    }
+
+    public static getSubset(a: number, b?: number): Array<Discovery> {
+        if (b == undefined)
+            return this.data.slice(0, a);
+
+        return this.data.slice(a, b);
     }
 }
