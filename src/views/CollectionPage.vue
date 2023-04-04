@@ -8,11 +8,15 @@
         </ion-header>
 
         <ion-content :fullscreen="true">
+            <ion-button @click="refreshPage()" id="refresh-button">
+                <ion-icon :icon="syncCircleIcon"></ion-icon>
+            </ion-button>
+
             <div class="collection-header">
                 <ion-icon id="collection-icon" :icon="customCollectionIcon"></ion-icon>
                 <p id="collected-count">{{ collected.length ? collected.length : '' }}</p>
                 <p>
-                    {{ collected.length ? '' : "Aucune" }} Œuvre{{ collected.length ? 's' : ''}}<br>collectionnée{{ collected.length ? 's' : ''}}
+                    {{ collected.length ? '' : "Aucune" }} Découverte{{ collected.length ? 's' : ''}}<br>collectionnée{{ collected.length ? 's' : ''}}
                 </p>
                 <ion-icon id="headerIcon" :icon="bookOutline"></ion-icon>
             </div>
@@ -22,7 +26,7 @@
                     <ion-row class="ion-justify-content-around">
                         <ion-col v-for="item in collected" :key="item" size="5.5" @click="openDetails(item)">
                             <div class="img-card">
-                                <img :src="require('@/assets/drawable/perfs.jpg')"/>
+                                <img :id="`user-photo-${item.id}-${item.dType}`" :src="getPhotoThumbnail(item.id, item.dType)"/>
                                 <div class="title-holder">
                                     <p>{{ formatTitle(getDiscovery(item.id, item.dType)) }}</p>
                                 </div>
@@ -32,20 +36,20 @@
                 </ion-grid>
             </div>
         </ion-content>
-
     </ion-page>
 </template>
 
 <script>
-import { bookOutline } from "ionicons/icons";
+import { bookOutline, syncCircleOutline } from "ionicons/icons";
 import { UserData } from '@/internal/databases/UserData';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonIcon } from '@ionic/vue';
-import Utils from "../internal/Utils";
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonIcon, IonButton } from '@ionic/vue';
+import Utils from "@/internal/Utils";
 import customCollectionIcon from "@/assets/drawable/icons/collection_white.svg"
+import { Directory, Filesystem } from "@capacitor/filesystem";
 
 export default {
     components: {
-        IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonIcon
+        IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonIcon, IonButton
     },
 
     setup() {
@@ -58,7 +62,8 @@ export default {
         return {
             collected: UserData.getCollectedChronologically(),
             getDiscovery: Utils.getDiscovery,
-            customCollectionIcon
+            customCollectionIcon,
+            syncCircleIcon: syncCircleOutline
         }
     },
 
@@ -78,6 +83,38 @@ export default {
                 return title.slice(0, 37) + '...'
 
             return title;
+        },
+
+        getPhotoThumbnail(id, dType) {
+            const { imagepath } = UserData.getCollected(id, dType);
+            if (imagepath == null) {
+                // Use default thumbnail
+                return require("@/assets/drawable/photo_placeholder.jpg");
+            } else {
+                // Load the thumbnail
+                // const thumbnail_path = "thumbnails/" + imagepath.split('/').at(-1);
+
+                Filesystem.readFile({
+                    path: imagepath,
+                    directory: Directory.Data
+                })
+                .then(async (image) => {
+                    const base64Res = await fetch(`data:image/${imagepath.split('.')[1]};base64,${image.data}`);
+                    const blob = await base64Res.blob();
+
+                    const url = URL.createObjectURL(blob);
+                    document.getElementById(`user-photo-${id}-${dType}`).src = url;
+                })
+                .catch((err) => {
+                    console.log(err)
+                    document.getElementById(`user-photo-${id}-${dType}`).src = require("@/assets/drawable/photo_placeholder.jpg")
+                })
+            }
+        },
+
+        refreshPage() {
+            this.collected = UserData.getCollectedChronologically();
+            this.$forceUpdate();
         }
     }
 }
@@ -161,5 +198,19 @@ p {
 
 #collection-icon {
     font-size: 60px;
+}
+
+#refresh-button {
+    position: fixed;
+    z-index: 2;
+    right: 10px;
+    bottom: 10px;
+    --background: var(--toolbar-purple);
+    --background-activated: lightgrey;
+    color: grey;
+    width: 50px;
+    height: 50px;
+    font-size: 8px;
+    --border-radius: 15px;
 }
 </style>

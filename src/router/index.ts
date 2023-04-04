@@ -35,7 +35,7 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'more',
         component: () => import('@/views/MorePage.vue')
-      }
+      },
     ]
   },
   {
@@ -61,6 +61,14 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/delete',
     component: () => import("@/views/DeleteAllData.vue")
+  },
+  {
+    path: '/tutorial',
+    component: () => import("@/views/TutorialPage.vue")
+  },
+  {
+    path: '/permission-denied',
+    component: () => import("@/views/PermissionDeniedPage.vue")
   }
 ]
 

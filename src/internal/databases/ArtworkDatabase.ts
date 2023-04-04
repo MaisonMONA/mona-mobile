@@ -11,7 +11,7 @@ export class ArtworkDatabase extends Database {
         return ArtworkFactory.createArtwork(artwork);
     }
 
-    public static getFromId(id: number): Artwork {
-        return super.getFromId(id) as Artwork;
+    public static getFromId(id: number): Artwork | null {
+        return super.getFromId(id) as Artwork | null;
     }
 }

@@ -28,8 +28,8 @@
 
 div#popup {
     position: absolute;
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(3px);
     border: 0;
     width: 0;
     height: 0;
@@ -44,7 +44,7 @@ div#popup {
 
 div#popup.activated {
     top: 40%;
-    width: 50vw;
+    width: 65vw;
     height: 12vw;
     border: 1px solid var(--button-outline-grey);
 }
@@ -78,6 +78,7 @@ p.details {
 
 #seeMore {
     color: black;
+    --background: none;
     --ripple-color: var(--mona-yellow);
     --border-radius: 50%;
     --border-width: 0;

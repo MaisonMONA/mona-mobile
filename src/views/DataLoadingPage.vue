@@ -46,6 +46,11 @@ export default {
                 UserData.loadCache()
             ])
         )
+        .then(() => {
+             // async but do not await (bg task)
+            UserData.checkForDBUpdate();
+            UserData.tryUploadingPendingDiscoveries();
+        })
         .then(() => this.$router.replace("/tabs/discovery-of-the-day"))
         .catch(() => {
             throw new Error("Could not retrieve user data")

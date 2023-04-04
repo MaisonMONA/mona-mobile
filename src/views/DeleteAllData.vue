@@ -37,6 +37,7 @@ export default {
             console.log("deleted");
             this.$router.push("/");
         })
+            .catch((err) => console.log(err));
     }
 }
 </script>

@@ -1,5 +1,5 @@
 import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
-import { Discovery, Heritage } from "@/internal/Types";
+import { Discovery, DiscoveryEnum, Heritage } from "@/internal/Types";
 import Utils from "@/internal/Utils";
 import Globals from "@/internal/Globals";
 import { Geolocation } from "@capacitor/geolocation";
@@ -23,7 +23,6 @@ export class UserData {
     // doing it type by type and have some pin colors completely hidden because
     // they were added first. It also gives an feeling of random.
     private static sortedDiscoveries: Array<Discovery> = [];
-
 
     public static async populate() {
         if (this.data) return;  // Do not populate twice
@@ -54,9 +53,6 @@ export class UserData {
             directory: Directory.Data,
             encoding: Encoding.UTF8
         })
-        .then(() => {
-            console.log("User preferences updated successfully");
-        })
         .catch((err) => {
             console.error(`Failed to update user preferences (${err})`);
         })
@@ -67,8 +63,13 @@ export class UserData {
             username: '',
             token: '',
             collectedWereFetched: false,
-            firstTime: true,  // TODO tutorial
+            hasSeenTutorial: false,
             mapFocus: { id: -1, dType: 'empty', active: false },
+            lastServerCheck: {
+                artworks: "1970-01-01",
+                places: "1970-01-01",
+                heritages: "1970-01-01",
+            },
             location: {  // Default on Montreal
                 lng: -73.561668,
                 lat: 45.508888
@@ -91,7 +92,7 @@ export class UserData {
                 heritages: [],
             },
             pendingUpload: {
-                // To be filled with IDs, and must exist in `this.collected` for the rest of the info
+                // To be filled with IDs, and must exist in `this.collected` (to get all the info)
                 artworks: [],
                 places: [],
                 heritages: [],
@@ -106,21 +107,18 @@ export class UserData {
         // Skip fetching the user's photos if it was done already
         if (this.data.collectedWereFetched) return;
 
-        Promise.all([
-            Utils.fetchUserDataOnEndpoint(Globals.apiRoutes.artworks.upload, "artworks"),
-            Utils.fetchUserDataOnEndpoint(Globals.apiRoutes.places.upload, "places"),
-            Utils.fetchUserDataOnEndpoint(Globals.apiRoutes.heritages.upload, "heritages"),
+       await  Promise.all([
+            Utils.fetchUserDataOnEndpoint(Globals.apiRoutes.artworks.upload, "artwork"),
+            Utils.fetchUserDataOnEndpoint(Globals.apiRoutes.places.upload, "place"),
+            Utils.fetchUserDataOnEndpoint(Globals.apiRoutes.heritages.upload, "heritage"),
         ])
-        .then(() => {
-            this.data.collectedWereFetched = true;
-            this.updateFile();
-        })
-        .catch((err) => {
-            console.log("err", err);
-        });
+
+       this.data.collectedWereFetched = true;
+       this.updateFile();
     }
 
     public static async loadCache() {
+        // TODO update this function so it works when new data is added thru checkdistantDB
         if (this.sortedDiscoveries.length !== 0) return;
 
         try {
@@ -149,7 +147,22 @@ export class UserData {
 
             // Sorting alphabetically
             const collator = new Intl.Collator("fr", { sensitivity: "base" });
-            this.sortedDiscoveries.sort((a: Discovery, b: Discovery) => collator.compare(a.getTitle(), b.getTitle()));
+            this.sortedDiscoveries.sort((a: Discovery, b: Discovery) => {
+                const aFirstChar = a.getTitle().charCodeAt(0);
+                const bFirstChar = b.getTitle().charCodeAt(0);
+
+                // If a's title start with a non alphanumeric char, send it to the end
+                if ((aFirstChar < 48 || aFirstChar > 57) && (aFirstChar < 65 || aFirstChar > 90) && (aFirstChar < 192 || aFirstChar > 383))
+                    //       ^--- capital letter                    ^--- small letter                           ^--- accented
+                    return 1;
+
+                // If b's title start with a non alphanumeric char, send it to the end
+                if ((bFirstChar < 48 || bFirstChar > 57) && (bFirstChar < 65 || bFirstChar > 90) && (bFirstChar < 192 || bFirstChar > 383))
+                    return -1;
+
+                // Both discoveries start with an alphanumeric character, sort them normally
+                return collator.compare(a.getTitle(), b.getTitle())
+            });
 
             await Filesystem.writeFile({
                 path: this.cachePath,
@@ -160,8 +173,63 @@ export class UserData {
         }
     }
 
-    public static getSortedDiscoveries() {
-        return this.sortedDiscoveries
+    public static getSortedDiscoveries(sliceA?: number, sliceB?: number) {
+        return this.sortedDiscoveries.slice(sliceA || 0, sliceB || Infinity)
+    }
+
+    public static async checkForDBUpdate() {
+        const targets = [
+            { url: Globals.apiRoutes.artworks.getUpdate + `?date=${this.data.lastServerCheck.artworks}`, type: "artworks" },
+            { url: Globals.apiRoutes.places.getUpdate + `?date=${this.data.lastServerCheck.places}`, type: "places" },
+            { url: Globals.apiRoutes.heritages.getUpdate + `?date=${this.data.lastServerCheck.heritages}`, type: "heritages" }
+        ];
+
+        for (const target of targets) {
+            try {
+                const response = await fetch(target.url);
+                if (response.ok) {
+                    const content = await response.text();
+
+                    if (target.type == "artworks")
+                        ArtworkDatabase.insertNewElements(JSON.parse(content).data)
+                    else if (target.type == "places")
+                        PlaceDatabase.insertNewElements(JSON.parse(content).data)
+                    else /* if (target.type == "heritages") */
+                        HeritageDatabase.insertNewElements(JSON.parse(content).data);
+                } else {
+                    console.log(`Server error when updating ${target.type} DB: code ${response.status}`);
+                }
+            } catch (err) {
+                console.log(`Failed to update ${target.type} DB (err: ${err})`)
+            }
+        }
+    }
+
+    public static setDBLastUpdate(type: string, date: Date) {
+        const dateUpdate = date.toISOString().slice(0, 10);
+
+        switch (type) {
+            case "artworks": case "artwork": {
+                this.data.lastServerCheck.artworks = dateUpdate;
+                break;
+            }
+            case "places": case "place": {
+                this.data.lastServerCheck.places = dateUpdate;
+                break;
+            }
+            case "heritages": case "heritage": {
+                this.data.lastServerCheck.heritages = dateUpdate;
+                break;
+            }
+        }
+    }
+
+    public static async tryUploadingPendingDiscoveries() {
+        for (const type of Object.keys(this.data.pendingUpload)) {
+            for (const id of this.data.pendingUpload[type]) {
+                await Utils.sendPictureAndDetails(id, type);  // Pending upload removed inside sendPictureAndDetails
+            }
+        }
     }
 
     public static setUsername(username: string) {
@@ -180,6 +248,16 @@ export class UserData {
 
     public static getToken(): string {
         return this.data.token;
+    }
+
+    public static hasSeenTutorial() {
+        return this.data.hasSeenTutorial;
+    }
+
+    public static setSeenTutorial(val: boolean) {
+        this.data.hasSeenTutorial = val;
+
+        this.updateFile();
     }
 
     public static async setLocation() {
@@ -223,7 +301,7 @@ export class UserData {
         const insertFirst = (element: any, list: Array<any>) => {
             /* Only inserts if the element is not in `list` */
             if (list.find((it: any) => it.id === item.id) !== -1)
-                return [ element, ...list];
+                return [ element, ...list ];
             return list;
         }
 
@@ -259,8 +337,6 @@ export class UserData {
             for (let i = 0; i < arr.length; i++) {
                 if (arr[i].id == newData.id) {
                     arr[i] = newData;
-                    console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
-                    console.log(arr[i]);
                     return;
                 }
             }
@@ -269,19 +345,19 @@ export class UserData {
         }
 
         switch (type) {
-            case "artwork": case 0: {
+            case "artwork": case "artworks": case DiscoveryEnum.ARTWORK: {
                 replace(this.data.collected.artworks);
                 break;
             }
-            case "place": case 1: {
+            case "place": case "places": case DiscoveryEnum.PLACE: {
                 replace(this.data.collected.places);
                 break;
             }
-            case "heritage": case 2: {
+            case "heritage": case "heritages": case DiscoveryEnum.HERITAGE: {
                 replace(this.data.collected.heritages);
                 break;
             }
-            case "badge": case 3: {
+            case "badge": case "badges": case DiscoveryEnum.BADGE: {
                 replace(this.data.collected.badges);
                 break;
             }
@@ -295,16 +371,16 @@ export class UserData {
 
     public static getCollected(id: number, type: number | string): Review {
         switch (type) {
-            case "artwork": case 0: {
+            case "artwork": case "artworks": case DiscoveryEnum.ARTWORK: {
                 return this.data.collected.artworks.find((awk: any) => awk.id == id);
             }
-            case "place": case 1: {
+            case "place": case "places": case DiscoveryEnum.PLACE: {
                 return this.data.collected.places.find((pl: any) => pl.id == id);
             }
-            case "heritage": case 2: {
+            case "heritage": case "heritages": case DiscoveryEnum.HERITAGE: {
                 return this.data.collected.heritages.find((hrtg: any) => hrtg.id == id);
             }
-            case "badge": case 3: {
+            case "badge": case "badges": case DiscoveryEnum.BADGE: {
                 return this.data.collected.badges.find((bg: any) => bg.id == id);
             }
             default: {
@@ -372,16 +448,16 @@ export class UserData {
 
     public static isTargeted(id: number, type: number | string): boolean {
         switch (type) {
-            case "artwork": case 0: {
+            case "artwork": case "artworks": case DiscoveryEnum.ARTWORK: {
                 return this.data.targeted.artworks.find((awkId: any) => awkId === id) !== undefined;
             }
-            case "place": case 1: {
+            case "place": case "places": case DiscoveryEnum.PLACE: {
                 return this.data.targeted.places.find((plId: any) => plId === id) !== undefined;
             }
-            case "heritage": case 2: {
+            case "heritage": case "heritages": case DiscoveryEnum.HERITAGE: {
                 return this.data.targeted.heritages.find((hrtgId: any) => hrtgId === id) !== undefined;
             }
-            case "badge": case 3: {
+            case "badge": case "badges": case DiscoveryEnum.BADGE: {
                 return false;
             }
             default: {
@@ -401,7 +477,7 @@ export class UserData {
 
     public static addPendingUpload(id: number, type: number | string) {
         switch (type) {
-            case "artwork": case 0: {
+            case "artwork": case "artworks": case DiscoveryEnum.ARTWORK: {
                 if (this.isCollected(id, type)) {
                     this.data.pendingUpload.artworks.push(id);
                     break;
@@ -409,7 +485,7 @@ export class UserData {
                     throw new Error(`Cannot add discovery ${type} id=${id}: not collected.`);
                 }
             }
-            case "place": case 1: {
+            case "place": case "places": case DiscoveryEnum.PLACE: {
                 if (this.isCollected(id, type)) {
                     this.data.pendingUpload.places.push(id);
                     break;
@@ -417,7 +493,7 @@ export class UserData {
                     throw new Error(`Cannot add discovery ${type} id=${id}: not collected.`);
                 }
             }
-            case "heritage": case 2: {
+            case "heritage": case "heritages": case DiscoveryEnum.HERITAGE: {
                 if (this.isCollected(id, type)) {
                     this.data.pendingUpload.heritages.push(id);
                     break;
@@ -437,28 +513,28 @@ export class UserData {
 
     public static removePendingUpload(id: number, type: number | string) {
         switch (type) {
-            case "artwork": case 0: {
+            case "artwork": case "artworks": case DiscoveryEnum.ARTWORK: {
                 const index = this.data.pendingUpload.artworks.indexOf(id);
                 if (index > -1) {
                     this.data.pendingUpload.artworks.splice(index, 1);
                 }
                 break;
             }
-            case "place": case 1: {
+            case "place": case "places": case DiscoveryEnum.PLACE: {
                 const index = this.data.pendingUpload.places.indexOf(id);
                 if (index > -1) {
                     this.data.pendingUpload.places.splice(index, 1);
                 }
                 break;
             }
-            case "heritage": case 2: {
+            case "heritage": case "heritages": case DiscoveryEnum.HERITAGE: {
                 const index = this.data.pendingUpload.heritages.indexOf(id);
                 if (index > -1) {
                     this.data.pendingUpload.heritages.splice(index, 1);
                 }
                 break;
             }
-            case "badge": case 3: {
+            case "badge": case "badges": case DiscoveryEnum.BADGE: {
                 break;
             }
             default: {

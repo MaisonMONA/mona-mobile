@@ -8,7 +8,7 @@
         </ion-header>
 
         <ion-content :fullscreen="true">
-            <p id="alertHolder"></p>
+            <p id="register-alert-holder"></p>
             <div class="main-content">
                 <p id="welcome">Bienvenue !</p>
                 <p id="ask-for-registration">Commençons par créer un compte.</p>
@@ -56,6 +56,10 @@
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonInput, IonButton } from "@ionic/vue";
 import { UserData } from "@/internal/databases/UserData";
 import Globals from "@/internal/Globals";
+import { Filesystem } from "@capacitor/filesystem";
+import { Camera } from "@capacitor/camera";
+import { Geolocation } from "@capacitor/geolocation";
+import { useRouter } from "vue-router";
 
 
 export default {
@@ -64,13 +68,18 @@ export default {
         IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonInput, IonButton
     },
 
-    beforeMount() {
-        UserData.populate()
-        .then(() => {
-            if (UserData.getToken() !== '') {  // User is logged in, redirect
-                this.$router.push("/loading");
-            }
-        })
+    async beforeMount() {
+        await UserData.populate();
+
+        if (!UserData.hasSeenTutorial()) {
+            // Show tutorial on first time
+            this.$router.replace("/tutorial");
+        } else if (UserData.getToken() !== '') {
+            // If user is logged in, redirect immediately
+            this.$router.replace("/loading");
+        }
+
+        await this.checkPermissions();
     },
 
     methods: {
@@ -118,7 +127,7 @@ export default {
                     })
 
                     .catch(() => {
-                        this.showAlert("Impossible de se connecter à internet.");
+                        this.showAlert("Impossible de se connecter à internet !");
                     });
                 } else {
                     // Password mismatch
@@ -136,10 +145,24 @@ export default {
         },
 
         showAlert(alertMessage) {
-            const alertElem = document.getElementById("alertHolder");
+            const alertElem = document.getElementById("register-alert-holder");
 
             alertElem.innerHTML = alertMessage;
             alertElem.classList.add("show");
+        },
+
+        async checkPermissions() {
+            const cameraPermStatus   = await Camera.checkPermissions();
+            const filePermStatus     = await Filesystem.checkPermissions();
+            const locationPermStatus = await  Geolocation.checkPermissions();
+
+            if (cameraPermStatus.camera !== "granted" ||
+                filePermStatus.publicStorage !== "granted" ||
+                locationPermStatus.location !== "granted") {
+
+                const router = useRouter();
+                if (router) router.replace("/permission-denied");
+            }
         }
     }
 }
@@ -199,7 +222,7 @@ label {
     border-bottom: 1px solid black;
 }
 
-#alertHolder {
+#register-alert-holder {
     position: absolute;
     text-align: center;
     transform: translateX(-50%);
@@ -217,7 +240,7 @@ label {
     transition: all 0.3s linear;
 }
 
-#alertHolder.show {
+#register-alert-holder.show {
     color: darkred;
     background: #E6B1B1;
 }

@@ -2,6 +2,7 @@ import { RNG } from "@/internal/RNG";
 import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
 import { Discovery } from "@/internal/Types";
 import Globals from "@/internal/Globals";
+import { UserData } from "@/internal/databases/UserData";
 
 export abstract class Database {
     protected static data: Array<Discovery>;
@@ -41,7 +42,6 @@ export abstract class Database {
     private static async populateFromServer(): Promise<void> {
         let response, content;
         try {
-            console.log(this.type, "db: populating from server")
             if (this.type == "artworks") response = await fetch(Globals.apiRoutes.artworks.download);
             else if (this.type == "places") response = await fetch(Globals.apiRoutes.places.download);
             else if (this.type == "heritages") response = await fetch(Globals.apiRoutes.heritages.download);
@@ -54,20 +54,30 @@ export abstract class Database {
         // Request request was made successfully
         if (response.ok) {
             content = await response.text();
-            for (const element of JSON.parse(content).data) {
-                this.data.push(this.createSingleElement(element));
-            }
-
-            // Sorting the data by element ID
-            this.data.sort((element1, element2) => element1.id - element2.id);
+            this.insertNewElements(JSON.parse(content).data)
         } else {
             return Promise.reject();
         }
+    }
+
+    public static insertNewElements(elements: any) {
+        for (const element of elements) {
+            const newDiscovery = this.createSingleElement(element)
+
+            if (this.getFromId(newDiscovery.id) == null) {
+                // If it exists we remove the old one before
+                this.data = this.data.filter((elm: Discovery) => elm.id != newDiscovery.id)
+            }
+
+            this.data.push(newDiscovery);
+        }
+
+        // Sorting data by element ID
+        this.data.sort((element1, element2) => element1.id - element2.id);
 
         // Write the newly downloaded file
-        await Filesystem.writeFile({
+        Filesystem.writeFile({
             path: this.path,
-            // data: content,
             data: JSON.stringify(this.data),
             directory: Directory.Data,
             encoding: Encoding.UTF8,
@@ -75,16 +85,18 @@ export abstract class Database {
         })
 
         .then(() => console.log(`${this.type} db: successfully populated (from server).`))
+
+        UserData.setDBLastUpdate(this.type, new Date());
     }
 
-    public static getFromId(id: number): Discovery {
+    public static getFromId(id: number): Discovery | null {
         for (let i = Math.min(id, this.data.length) - 1; i >= 0; i--) {
             if (this.data[i].id == id) {
                 return this.data[i];
             }
         }
 
-        throw new Error(`No element associated with ID=${id}.`);
+        return null;
     }
 
     public static getSize() {

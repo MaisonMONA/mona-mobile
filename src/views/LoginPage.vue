@@ -8,7 +8,7 @@
         </ion-header>
 
         <ion-content :fullscreen="true">
-            <p id="alertHolder"></p>
+            <p id="login-alert-holder"></p>
             <div class="main-content">
                 <p id="welcome">Bienvenue !</p>
                 <p id="ask-for-login">Connectez-vous à votre compte.</p>
@@ -54,7 +54,7 @@ export default {
         UserData.populate()
         .then(() => {
             if (UserData.getToken() !== '') {  // User is logged in, redirect
-                this.$router.push("/loading");
+                this.$router.replace("/loading");
             }
         })
     },
@@ -95,7 +95,6 @@ export default {
                             console.log(parsed)
                             this.showAlert(parsed.errors.username[0]);
                         } else {
-                            console.log("here")
                             this.showAlert(`Erreur serveur (code ${response.status})`);
                         }
                     }
@@ -108,7 +107,7 @@ export default {
         },
 
         showAlert(alertMessage) {
-            const alertElem = document.getElementById("alertHolder");
+            const alertElem = document.getElementById("login-alert-holder");
 
             alertElem.innerHTML = alertMessage;
             alertElem.classList.add("show");
@@ -171,7 +170,7 @@ label {
     border-bottom: 1px solid black;
 }
 
-#alertHolder {
+#login-alert-holder {
     position: absolute;
     text-align: center;
     transform: translateX(-50%);
@@ -189,7 +188,7 @@ label {
     transition: all 0.3s linear;
 }
 
-#alertHolder.show {
+#login-alert-holder.show {
     color: darkred;
     background: #E6B1B1;
 }

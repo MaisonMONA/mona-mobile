@@ -26,7 +26,7 @@
 
 <script>
 import { IonHeader, IonPage, IonTitle, IonToolbar, IonIcon, IonInput, IonButton, IonItem } from "@ionic/vue";
-import {starOutline, star, camera } from "ionicons/icons";
+import { starOutline, star, camera } from "ionicons/icons";
 
 import { UserData } from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
@@ -71,9 +71,6 @@ export default {
     background: white;
 }
 
-.comment p {
-}
-
 ion-icon {
     color: var(--mona-yellow)
 }
@@ -109,12 +106,12 @@ li {
 .comment {
     text-align: center;
     margin-top: 50%;
-    /*bottom: 20%;*/
 }
 
 ion-button {
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 35%;
+    --background: var(--mona-yellow);
 }
 </style>

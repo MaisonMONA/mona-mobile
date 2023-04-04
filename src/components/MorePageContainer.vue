@@ -10,8 +10,8 @@
             <div class="more-page-header">
                 <p>{{ username }}</p>
             </div>
-            <ion-list :inset="true">
-                <ion-nav-link router-direction="forward" :component="/* todo */ ''"> <!-- todo -->
+            <ion-list lines="inset">
+                <ion-nav-link @click="playTutorial">
                     <ion-item>
                         <ion-label>Tutoriel</ion-label>
                         <ion-icon :icon="arrowForward" slot="end"></ion-icon>
@@ -54,6 +54,12 @@ export default {
             whoweare: WhoWeAreContainer,
             arrowForward,
         }
+    },
+
+    methods: {
+        playTutorial() {
+            this.$router.push({ path: "/tutorial", query: { callbackurl: "/tabs/more" }})
+        }
     }
 }
 </script>
@@ -78,5 +84,9 @@ export default {
 
 ion-icon, ion-label {
     color: black;
+}
+
+ion-item {
+    --border-color: black;
 }
 </style>

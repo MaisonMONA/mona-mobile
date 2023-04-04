@@ -22,9 +22,14 @@ const convertBlobToBase64 = (blob: Blob) => new Promise((resolve, reject) => {
 });
 
 
-const downloadImage = async (link: string, filename: string) => {
-    const blob = await fetch(link, { headers: { "Content-Type": "multipart/form-data" } })
+const downloadImage = async (id: number | string, type: string, filename: string) => {
+    const blob = await fetch(Globals.apiRoutes.getPhotos + `?discovery_id=${id}&type=${type}`, {
+        headers: {
+            "Authorization": "Bearer " + UserData.getToken()
+        }
+    })
         .then(response => response.blob());
+
     const base64Data = await convertBlobToBase64(blob) as string;
 
     await Filesystem.writeFile({
@@ -33,6 +38,8 @@ const downloadImage = async (link: string, filename: string) => {
         directory: Directory.Data,
         recursive: true
     });
+
+    // TODO: create a thumbnail with lower resolution (maybe npmjs.com/package/sharp?)
 
     return "img/" + filename
 }
@@ -80,7 +87,7 @@ export default {
         return filename;
     },
 
-    async sendPictureAndDetails(id: number, type: number) {
+    async sendPictureAndDetails(id: number, type: number | string) {
         /**
          * Attempts to upload the collected discovery to the server. If
          * the upload is successful, removes the item from pending uploads.
@@ -109,9 +116,21 @@ export default {
         formData.append("photo", blob);
 
         let url;
-        if (type === DiscoveryEnum.ARTWORK)            url = Globals.apiRoutes.artworks.upload;
-        else if (type === DiscoveryEnum.PLACE)         url = Globals.apiRoutes.places.upload;
-        else /* if (type == DiscoveryEnum.HERITAGE) */ url = Globals.apiRoutes.heritages.upload;
+        switch (type) {
+            case DiscoveryEnum.ARTWORK: case "artworks": case "artwork": {
+                url = Globals.apiRoutes.artworks.upload;
+                break;
+            }
+            case DiscoveryEnum.PLACE: case "places": case "place": {
+                url = Globals.apiRoutes.places.upload;
+                break;
+            }
+            case DiscoveryEnum.HERITAGE: case "heritages": case "heritage": {
+                url = Globals.apiRoutes.heritages.upload;
+                break;
+            }
+            default: throw new Error("Invalid type");
+        }
 
         fetch(url, {
             method: "POST",
@@ -175,7 +194,6 @@ export default {
     },
 
     async fetchUserDataOnEndpoint(url: string, type: string) {
-        // return;
         const response = await fetch(url, {
             method: "GET",
             headers: {
@@ -187,22 +205,18 @@ export default {
 
         // Add each discovery to collected
         for (const element of parsed) {
-            let discovery;
-            if (type === "artworks") discovery = this.getDiscovery(element.artwork_id, type);
-            else if (type === "places") discovery = this.getDiscovery(element.place_id, type);
-            else /* (type === "heritages") */ discovery = this.getDiscovery(element.heritage_id, type);
+            const discovery = this.getDiscovery(parseInt(element.artwork_id || element.place_id || element.heritage_id), type);
+            if (!discovery) throw new Error("This discovery does not exist.");
+
             const rating = element.rating ? element.rating : null;
             const comment = element.comment ? element.comment : null;
 
-            const imagepath = null;
-            // TODO below: the server needs to open a new API endpoint serving each photo (see "CORS" on Google)
-            // if (element.photo) {
-            //     const path = element.photo.split('/');
-            //     const imageurl = Globals.apiRoutes.photos + '/' + path.slice(1).join('/')
-            //     const filename = path.at(-1);
-            //
-            //     imagepath = await downloadImage(imageurl, filename);
-            // }
+            let imagepath = null;
+            if (element.photo) {
+                const filename = element.photo.split('/').at(-1);
+
+                imagepath = await downloadImage(element.artwork_id || element.place_id || element.heritage_id, type, filename);
+            }
 
             UserData.addCollected(discovery, imagepath, rating, comment);
         }

@@ -27,7 +27,7 @@
                 </ion-button>
 
                 <!-- TARGET BUTTON -->
-                <ion-fab-button id="targetButton" @click="targetDiscovery">
+                <ion-fab-button id="targetButton" @click="toggleTargetDiscovery">
                     <ion-icon id="targetIcon" :icon="customTargetIcon"></ion-icon>
                 </ion-fab-button>
             </div>
@@ -75,7 +75,7 @@
 <script>
 import {
     IonBackButton, IonButton, IonButtons, IonContent, IonFabButton,
-    IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, IonImg
+    IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, IonImg, toastController
 } from '@ionic/vue';
 import { cameraOutline, mapOutline } from "ionicons/icons";
 import { useRoute } from "vue-router";
@@ -87,14 +87,10 @@ import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
 import { UserData } from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
 import { Directory, Filesystem } from "@capacitor/filesystem";
-import customTargetIcon from "@/assets/drawable/icons/target.svg"
+import targetIconWhite from "@/assets/drawable/icons/target.svg"
+import targetIconBlack from "@/assets/drawable/icons/target_black.svg"
 import customMapIcon from "@/assets/drawable/icons/map.svg"
 
-
-function changetargetIconColor(discovery) {
-    const icon = document.getElementById("targetIcon");
-    icon.style.color = UserData.isTargeted(discovery.id, discovery.dType) ? "black" : "white";
-}
 
 export default {
     name: "discovery-details",
@@ -107,8 +103,17 @@ export default {
 
     data() {
         return {
-            customTargetIcon, cameraOutline, customMapIcon
+            cameraOutline, customMapIcon,
+            customTargetIcon: targetIconWhite  // May be overriden during mount
         }
+    },
+
+    mounted() {
+        if (UserData.isTargeted(this.discovery.id, this.discovery.dType))
+            this.customTargetIcon = targetIconBlack;
+
+        else
+            this.customTargetIcon = targetIconWhite;
     },
 
     setup() {
@@ -136,7 +141,6 @@ export default {
 
         const userData = UserData.getCollected(discovery.id, discovery.dType);
         if (userData) {
-            console.log(`HERE id=${userData.id}, path=${userData.imagepath}, rating=${userData.rating}, comment=${userData.comment}`);
             if (userData.imagepath) {
                 Filesystem.readFile({
                     path: userData.imagepath,
@@ -163,7 +167,7 @@ export default {
 
                         // Enable image opening
                         // TODO uncomment line below after implementing showImg
-                        // userImg.onclick = this.showImg;
+                        userImg.onclick = () => window.open(userImg.src, '_system', 'location=yes');
                     }
                 })
             }
@@ -173,10 +177,6 @@ export default {
             dType: parseInt(type),
             discovery, DiscoveryEnum,
         }
-    },
-
-    mounted() {
-        changetargetIconColor(this.discovery);
     },
 
     methods: {
@@ -219,14 +219,27 @@ export default {
             this.$router.push(redirection);
         },
 
-        targetDiscovery() {
+        async toggleTargetDiscovery() {
+            let toastMessage;
+
             if (UserData.isTargeted(this.discovery.id, this.discovery.dType)) {
                 UserData.removeTargeted(this.discovery);
+                this.customTargetIcon = targetIconWhite;
+
+                toastMessage = "La découverte n'est plus ciblée";
             } else {
                 UserData.addTargeted(this.discovery);
+                this.customTargetIcon = targetIconBlack;
+
+                toastMessage = "La découverte est maintenant ciblée";
             }
 
-            changetargetIconColor(this.discovery);
+            toastController.create({
+                message: toastMessage,
+                duration: 2000,
+                position: "bottom",
+            })
+            .then((toast) => toast.present());
         },
 
         showImg() {
@@ -259,7 +272,7 @@ ion-back-button {
     width: 100%
 }
 
-#targetIcon {
-    /*color: black;*/
-}
+/*#targetIcon {*/
+/*    font-size: ;*/
+/*}*/
 </style>

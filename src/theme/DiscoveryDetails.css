@@ -16,7 +16,7 @@
 
 ion-button ion-icon {
     font-weight: 100;
-    font-size: 50px;
+    font-size: 45px;
     --ionicon-stroke-width: 20;
     color: black;
 }
@@ -42,7 +42,7 @@ ion-button {
 }
 
 #targetIcon {
-    font-size: 35px;
+    font-size: 30px;
 }
 
 .discoveryDetailsContent {

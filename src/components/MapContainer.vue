@@ -2,9 +2,9 @@
     <div id="map" class="map">
         <div id="popup">
             <div id="popupDetails" hidden>
-                <p id="popupTitle" class="details"></p>  <!-- Set to max 13 char (including '...' if necesssary) -->
-                <p id="popupSubtext" class="details"></p>  <!-- Set to max 18 char (same) -->
-                <ion-button fill="outline" id="seeMore" router-direction="forward">
+                <p id="popupTitle" class="details"></p>  <!-- Set length to max 23 char (including '...' if necessary) -->
+                <p id="popupSubtext" class="details"></p>  <!-- Set length to max 30 char (same) -->
+                <ion-button fill="clear" id="seeMore" router-direction="forward">
                     <ion-icon slot="icon-only" :icon="arrowRightIcon"></ion-icon>
                 </ion-button>
             </div>
@@ -65,21 +65,6 @@ function insertAllPins(destination, list) {
 }
 
 
-function getDiscovery(id, type) {
-    switch (type) {
-        case "artwork": case "artworks": case 0: {
-            return ArtworkDatabase.getFromId(id);
-        }
-        case "place": case "places": case 1: {
-            return PlaceDatabase.getFromId(id);
-        }
-        case "heritage": case "heritages": case 2: {
-            return HeritageDatabase.getFromId(id);
-        }
-    }
-}
-
-
 export default {
     name: "MapContainer",
 
@@ -98,7 +83,7 @@ export default {
 
         let discovery = null;
         if (this.$route.query.type && this.$route.query.id) {
-            discovery = getDiscovery(parseInt(this.$route.query.id), this.$route.query.type)
+            discovery = Utils.getDiscovery(parseInt(this.$route.query.id), this.$route.query.type)
             setTimeout(() => this.focusDiscovery(discovery), 250);
         }
 
@@ -118,7 +103,7 @@ export default {
         const dType = route.params.dType;
         const id = route.params.id;
         if (dType && id) {
-            const discovery = getDiscovery(parseInt(id.toString()), dType.toString());
+            const discovery = Utils.getDiscovery(parseInt(id.toString()), dType.toString());
             this.focusDiscovery(discovery);
         }
     },
@@ -227,7 +212,7 @@ export default {
                 const dType = features[0].get("dType");
                 const id = features[0].get("id");
 
-                const discovery = getDiscovery(id, dType);
+                const discovery = Utils.getDiscovery(id, dType);
 
                 if (hasFocus) {
                     this.unfocusDiscovery();
@@ -243,6 +228,8 @@ export default {
         },
 
         focusDiscovery(discovery, map=this.mainMap) {
+            if (!discovery) return;
+
             const transitionDuration = 350;  // Unit is milliseconds
 
             // Center map on the pin with animation if it isn't already centered
@@ -272,11 +259,11 @@ export default {
                 let title = discovery.getTitle()
                 let subtext = discovery.dType === "artwork" ? discovery.getArtists() : discovery.getUsages();
 
-                if (title.length > 13) {
-                    title = title.slice(0, 10) + "..."
+                if (title.length > 23) {
+                    title = title.slice(0, 20) + "..."
                 }
-                if (subtext.length > 18) {
-                    subtext = subtext.slice(0, 15) + "..."
+                if (subtext.length > 30) {
+                    subtext = subtext.slice(0, 27) + "..."
                 } else if (subtext.length === 0) {
                     subtext = "Inconnu";
                 }

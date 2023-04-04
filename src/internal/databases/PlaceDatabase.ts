@@ -11,7 +11,7 @@ export class PlaceDatabase extends Database {
         return PlaceFactory.createPlace(place);
     }
 
-    public static getFromId(id: number): Place {
-            return super.getFromId(id) as Place;
+    public static getFromId(id: number): Place | null {
+            return super.getFromId(id) as Place | null;
     }
 }

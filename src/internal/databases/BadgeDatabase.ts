@@ -11,7 +11,7 @@ export class BadgeDatabase extends Database {
         return new Badge(badge);
     }
 
-    public static getFromId(id: number): Badge {
-        return super.getFromId(id) as Badge;
+    public static getFromId(id: number): Badge | null {
+        return super.getFromId(id) as Badge | null;
     }
 }
