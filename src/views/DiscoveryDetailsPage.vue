@@ -114,6 +114,24 @@ export default {
 
         else
             this.customTargetIcon = targetIconWhite;
+
+        // Change the bar's color based on its type
+        let primaryColor, secondaryColor;
+        if (this.discovery.dType === "artwork") {
+            primaryColor = "#EBB000";
+            secondaryColor = "#FFD450"
+        } else if (this.discovery.dType === "place") {
+            primaryColor = "#5F05C5";
+            secondaryColor = "#B965ED";
+        } else {
+            primaryColor = "#E1826B";
+            secondaryColor = "#F4A997";
+        }
+
+        const separatingBar = document.querySelector("span.separatingBar");
+        const backgroundPlaceholderColor = document.querySelector(".discoveryPhotoContainer");
+        separatingBar.style.borderColor = primaryColor;
+        backgroundPlaceholderColor.style.background = `linear-gradient(to top, ${secondaryColor}, ${primaryColor})`
     },
 
     setup() {
