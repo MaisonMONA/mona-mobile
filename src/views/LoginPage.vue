@@ -70,7 +70,7 @@ export default {
 
             if (username && password) {
                 const formData = new FormData();
-                formData.append("username", username);
+                formData.append("username", username.trim());
                 formData.append("password", password);
 
                 fetch(Globals.apiRoutes.login, {
@@ -87,7 +87,7 @@ export default {
                         }
 
                         UserData.setToken(parsed.token)
-                        UserData.setUsername(username);
+                        UserData.setUsername(username.trim());
                         this.$router.replace("/loading");
                     } else {
                         // Show appropriate error

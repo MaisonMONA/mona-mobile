@@ -96,7 +96,7 @@ export default {
             if (username && password && passwordConfirm) {
                 if (password === passwordConfirm) {
                     const formData = new FormData();
-                    formData.append("username", username);
+                    formData.append("username", username.trim());
                     formData.append("password", passwordConfirm);
                     formData.append("password_confirmation", password);
 
@@ -118,7 +118,7 @@ export default {
                             }
 
                             UserData.setToken(parsed.token);
-                            UserData.setUsername(username);
+                            UserData.setUsername(username.trim());
                             this.$router.replace("/loading");
                         } else {
                             // Show appropriate error

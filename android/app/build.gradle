@@ -6,7 +6,7 @@ android {
         applicationId "com.maison.mona"
         minSdkVersion 26
         targetSdkVersion 31
-        versionCode 55
+        versionCode 58
         versionName "3.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
