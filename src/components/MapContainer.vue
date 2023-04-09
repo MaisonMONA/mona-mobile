@@ -11,12 +11,12 @@
         </div>
     </div>
 
-    <ion-button id="settingsButton">
-        <ion-icon :icon="funnelIcon"></ion-icon>
+    <ion-button @click="changeTileLayer" id="settings-button">
+        <ion-icon :icon="settingsIcon"></ion-icon>
     </ion-button>
 
-    <ion-button @click="changeTileLayer()" id="changeStyleButton">
-        <ion-icon :icon="layersIcon"></ion-icon>
+    <ion-button @click="recenterView" id="recenter-button">
+        <ion-icon :icon="locationIcon"></ion-icon>
     </ion-button>
 </template>
 
@@ -24,7 +24,7 @@
 <script>
 import "ol/ol.css"
 
-import { arrowForward as arrowRightIcon, layers as layersIcon, funnel as funnelIcon } from "ionicons/icons";
+import { arrowForward as arrowRightIcon, cogOutline } from "ionicons/icons";
 import { IonButton, IonIcon } from "@ionic/vue";
 
 import Map from "ol/Map";
@@ -40,14 +40,11 @@ import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import { easeOut } from "ol/easing";
 
-import { ArtworkDatabase } from "@/internal/databases/ArtworkDatabase";
-import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
-import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
 import { UserData } from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
 import { useRoute } from "vue-router";
 import { Icon, Style } from "ol/style";
-
+import customLocationIcon from "@/assets/drawable/icons/location.svg"
 
 // This variable is here to know if the user focuses a discovery or not
 let hasFocus = false;
@@ -92,7 +89,9 @@ export default {
             INITAL_COORD: discovery ? [discovery.location.lng, discovery.location.lat] : UserData.getLocation(),
             DEFAULT_ZOOM_LEVEL: discovery ? 17 : 14,  // If the map was opened by the DOD page we want to zoom more
             TILE_LAYER: layer,
-            layersIcon, funnelIcon, arrowRightIcon
+            arrowRightIcon,
+            settingsIcon: cogOutline,
+            locationIcon: customLocationIcon,
         }
     },
 
@@ -121,10 +120,10 @@ export default {
                     zoom: this.DEFAULT_ZOOM_LEVEL,
 
                     // Disable rotation on map
-                    enableRotation: false
+                    enableRotation: false,
                 }),
 
-                layers: [this.TILE_LAYER]
+                layers: [ this.TILE_LAYER ],
             });
 
             this.mainMap.on("singleclick", this.handleMapClick)
@@ -167,8 +166,8 @@ export default {
 
             this.mainMap.addLayer(locationLayer);
 
-            // Update location every 25 seconds
-            setInterval(() => feature.getGeometry().setCoordinates(UserData.getLocation()), 25000);
+            // Update location every 5 seconds
+            setInterval(() => feature.getGeometry().setCoordinates(UserData.getLocation()), 5000);
         },
 
         changeTileLayer() {
@@ -214,9 +213,9 @@ export default {
 
                 const discovery = Utils.getDiscovery(id, dType);
 
-                if (hasFocus) {
+                if (hasFocus)
                     this.unfocusDiscovery();
-                }
+
                 this.focusDiscovery(discovery);
                 hasFocus = true;
             } else {
@@ -230,7 +229,7 @@ export default {
         focusDiscovery(discovery, map=this.mainMap) {
             if (!discovery) return;
 
-            const transitionDuration = 350;  // Unit is milliseconds
+            const transitionDuration = 200;  // Unit is milliseconds
 
             // Center map on the pin with animation if it isn't already centered
             const mapCenter = map.getView().getCenter();
@@ -280,7 +279,7 @@ export default {
                 document.getElementById("popupTitle").innerHTML = title
                 document.getElementById("popupSubtext").innerHTML = subtext;
                 details.hidden = false;
-            }, transitionDuration + 200);
+            }, transitionDuration + 100);
         },
 
         unfocusDiscovery() {
@@ -289,6 +288,17 @@ export default {
 
             details.hidden = true;
             elem.classList.remove("activated");
+        },
+
+        recenterView() {
+            const mapView = this.mainMap.getView();
+
+            mapView.animate({
+                center: UserData.getLocation(),
+                duration: 200,
+                zoom: Math.max(mapView.getZoom(), 14.25),
+                easing: easeOut
+            });
         }
     },
 };

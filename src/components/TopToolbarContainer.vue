@@ -14,6 +14,3 @@ export default {
 
 import { IonTitle, IonToolbar } from "@ionic/vue";
 </script>
-
-<style scoped>
-</style>

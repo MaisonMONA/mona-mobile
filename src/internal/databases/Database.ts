@@ -121,8 +121,11 @@ export abstract class Database {
         return this.data[id];
     }
 
-    public static getSubset(a: number, b?: number): Array<Discovery> {
-        if (b == undefined)
+    public static getSubset(a?: number, b?: number): Array<Discovery> {
+        if (a == undefined)
+            return this.data;
+
+        else if (b == undefined)
             return this.data.slice(0, a);
 
         return this.data.slice(a, b);

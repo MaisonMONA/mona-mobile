@@ -164,6 +164,10 @@ ion-item {
     --min-height: 15vw;
 }
 
+ion-label {
+    padding-left: 15px;
+}
+
 ion-avatar img {
     margin-top: 5px;
     max-width: 8vw;

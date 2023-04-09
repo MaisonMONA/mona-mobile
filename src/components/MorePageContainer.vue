@@ -47,11 +47,16 @@ export default {
         IonContent, IonHeader, IonToolbar, IonTitle, IonList, IonItem, IonNavLink, IonLabel, IonIcon, IonPage
     },
 
+    setup() {
+        return {
+            about: AboutContainer,
+            whoweare: WhoWeAreContainer,
+        }
+    },
+
     data() {
         return {
             username: UserData.getUsername(),
-            about: AboutContainer,
-            whoweare: WhoWeAreContainer,
             arrowForward,
         }
     },

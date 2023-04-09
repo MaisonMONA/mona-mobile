@@ -6,23 +6,23 @@
     width: 100%;
 }
 
-#changeStyleButton, #settingsButton {
+#recenter-button, #settings-button {
     position: absolute;
     right: 10px;
     --background: var(--toolbar-purple);
     --background-activated: lightgrey;
-    color: grey;
+    color: #7F7F7F;
     width: 50px;
     height: 50px;
-    font-size: 12px;
+    font-size: 10px;
     --border-radius: 15px;
 }
 
-#changeStyleButton {
+#recenter-button {
     bottom: 12%;
 }
 
-#settingsButton {
+#settings-button {
     bottom: 20%;
 }
 
@@ -37,7 +37,7 @@ div#popup {
     top: 44%;
     z-index: 1;
     transform: translate(-50%, -50%);
-    transition: all 0.2s ease-in;
+    transition: all 0.1s cubic-bezier(0, .8, .2, 1);
     perspective-origin: bottom;
     border-radius: 10vw;
 }

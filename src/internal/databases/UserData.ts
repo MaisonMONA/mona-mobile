@@ -92,7 +92,7 @@ export class UserData {
                 heritages: [],
             },
             pendingUpload: {
-                // To be filled with IDs, and must exist in `this.collected` (to get all the info)
+                // To be filled with IDs, **and must exist in `this.collected`** (to get all the info)
                 artworks: [],
                 places: [],
                 heritages: [],
@@ -118,7 +118,6 @@ export class UserData {
     }
 
     public static async loadCache() {
-        // TODO update this function so it works when new data is added thru checkdistantDB
         if (this.sortedDiscoveries.length !== 0) return;
 
         try {
@@ -141,36 +140,40 @@ export class UserData {
             });
         } catch (err) {
             console.log("Failed to load cache, building it.");
-            this.sortedDiscoveries = ArtworkDatabase.getSubset(0, ArtworkDatabase.getSize());
-            this.sortedDiscoveries = this.sortedDiscoveries.concat(PlaceDatabase.getSubset(0, PlaceDatabase.getSize()));
-            this.sortedDiscoveries = this.sortedDiscoveries.concat(HeritageDatabase.getSubset(0, HeritageDatabase.getSize()));
-
-            // Sorting alphabetically
-            const collator = new Intl.Collator("fr", { sensitivity: "base" });
-            this.sortedDiscoveries.sort((a: Discovery, b: Discovery) => {
-                const aFirstChar = a.getTitle().charCodeAt(0);
-                const bFirstChar = b.getTitle().charCodeAt(0);
-
-                // If a's title start with a non alphanumeric char, send it to the end
-                if ((aFirstChar < 48 || aFirstChar > 57) && (aFirstChar < 65 || aFirstChar > 90) && (aFirstChar < 192 || aFirstChar > 383))
-                    //       ^--- capital letter                    ^--- small letter                           ^--- accented
-                    return 1;
-
-                // If b's title start with a non alphanumeric char, send it to the end
-                if ((bFirstChar < 48 || bFirstChar > 57) && (bFirstChar < 65 || bFirstChar > 90) && (bFirstChar < 192 || bFirstChar > 383))
-                    return -1;
-
-                // Both discoveries start with an alphanumeric character, sort them normally
-                return collator.compare(a.getTitle(), b.getTitle())
-            });
-
-            await Filesystem.writeFile({
-                path: this.cachePath,
-                data: JSON.stringify(this.sortedDiscoveries),
-                directory: Directory.Cache,
-                encoding: Encoding.UTF8
-            });
+            await this.buildCache();
         }
+    }
+
+    private static async buildCache() {
+        this.sortedDiscoveries = ArtworkDatabase.getSubset(0, ArtworkDatabase.getSize());
+        this.sortedDiscoveries = this.sortedDiscoveries.concat(PlaceDatabase.getSubset(0, PlaceDatabase.getSize()));
+        this.sortedDiscoveries = this.sortedDiscoveries.concat(HeritageDatabase.getSubset(0, HeritageDatabase.getSize()));
+
+        // Sorting alphabetically
+        const collator = new Intl.Collator("fr", { sensitivity: "base" });
+        this.sortedDiscoveries.sort((a: Discovery, b: Discovery) => {
+            const aFirstChar = a.getTitle().charCodeAt(0);
+            const bFirstChar = b.getTitle().charCodeAt(0);
+
+            // If a's title start with a non alphanumeric char, send it to the end
+            if ((aFirstChar < 48 || aFirstChar > 57) && (aFirstChar < 65 || aFirstChar > 90) && (aFirstChar < 192 || aFirstChar > 383))
+                //       ^--- capital letter                    ^--- small letter                           ^--- accented
+                return 1;
+
+            // If b's title start with a non alphanumeric char, send it to the end
+            if ((bFirstChar < 48 || bFirstChar > 57) && (bFirstChar < 65 || bFirstChar > 90) && (bFirstChar < 192 || bFirstChar > 383))
+                return -1;
+
+            // Both discoveries start with an alphanumeric character, sort them normally
+            return collator.compare(a.getTitle(), b.getTitle())
+        });
+
+        await Filesystem.writeFile({
+            path: this.cachePath,
+            data: JSON.stringify(this.sortedDiscoveries),
+            directory: Directory.Cache,
+            encoding: Encoding.UTF8
+        });
     }
 
     public static getSortedDiscoveries(sliceA?: number, sliceB?: number) {
@@ -184,6 +187,8 @@ export class UserData {
             { url: Globals.apiRoutes.heritages.getUpdate + `?date=${this.data.lastServerCheck.heritages}`, type: "heritages" }
         ];
 
+        let hasFoundUpdate = false;
+
         for (const target of targets) {
             try {
                 const response = await fetch(target.url);
@@ -196,6 +201,8 @@ export class UserData {
                         PlaceDatabase.insertNewElements(JSON.parse(content).data)
                     else /* if (target.type == "heritages") */
                         HeritageDatabase.insertNewElements(JSON.parse(content).data);
+
+                    hasFoundUpdate = true;
                 } else {
                     console.log(`Server error when updating ${target.type} DB: code ${response.status}`);
                 }
@@ -203,6 +210,9 @@ export class UserData {
                 console.log(`Failed to update ${target.type} DB (err: ${err})`)
             }
         }
+
+        if (hasFoundUpdate)  // Rebuild cache when any DB is updated
+            await this.buildCache();
     }
 
     public static setDBLastUpdate(type: string, date: Date) {
@@ -262,13 +272,12 @@ export class UserData {
 
     public static async setLocation() {
         const geoloc = await Geolocation.getCurrentPosition({
-            enableHighAccuracy: true
+            enableHighAccuracy: true,
+            timeout: 30000,
         });
 
         this.data.location.lng = geoloc.coords.longitude;
         this.data.location.lat = geoloc.coords.latitude;
-
-        console.log(geoloc.coords.longitude, geoloc.coords.latitude)
 
         this.updateFile()
     }

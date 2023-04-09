@@ -42,19 +42,19 @@ export default {
                 }
 
                 // Ask for permissions
-                const cameraPermStatus   = await Camera.requestPermissions();
-                const filePermStatus     = await Filesystem.requestPermissions();
-                const locationPermStatus = await  Geolocation.requestPermissions();
-
-                if (cameraPermStatus.camera === "granted"      &&
-                    filePermStatus.publicStorage === "granted" &&
-                    locationPermStatus.location === "granted") {
+                // const cameraPermStatus   = await Camera.requestPermissions();
+                // const filePermStatus     = await Filesystem.requestPermissions();
+                // const locationPermStatus = await  Geolocation.requestPermissions();
+                //
+                // if (cameraPermStatus.camera === "granted"      &&
+                //     filePermStatus.publicStorage === "granted" &&
+                //     locationPermStatus.location === "granted") {
 
                     UserData.setSeenTutorial(true);
                     this.$router.replace("/register");
-                } else {
-                    this.$router.replace("/permission-denied")
-                }
+                // } else {
+                //     this.$router.replace("/permission-denied")
+                // }
             }
         }
     }
