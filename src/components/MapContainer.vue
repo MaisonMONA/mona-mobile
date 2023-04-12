@@ -233,12 +233,11 @@ export default {
 
             // Center map on the pin with animation if it isn't already centered
             const mapCenter = map.getView().getCenter();
-            if (mapCenter[0].toFixed(3) !== discovery.location.lng.toFixed(3) ||
-                mapCenter[1].toFixed(3) !== discovery.location.lat.toFixed(3)) {
+            if (mapCenter[0] !== discovery.location.lng || mapCenter[1] !== discovery.location.lat) {
                 const currentZoom = map.getView().getZoom();
 
                 map.getView().animate({
-                    center: [discovery.location.lng, discovery.location.lat],
+                    center: [ discovery.location.lng, discovery.location.lat ],
                     duration: transitionDuration,
                     zoom: Math.max(currentZoom, 14.25),
                     easing: easeOut
