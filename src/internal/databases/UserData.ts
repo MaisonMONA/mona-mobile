@@ -105,17 +105,17 @@ export class UserData {
     }
 
     public static async getFromServer() {
-        // Skip fetching the user's photos if it was done already
-        if (this.data.collectedWereFetched) return;
+        if (this.data.collectedWereFetched)
+            return;  // Skip fetching the user's photos if it was done already
 
-       await  Promise.all([
+        await Promise.all([
             Utils.fetchUserDataOnEndpoint(Globals.apiRoutes.artworks.upload, "artwork"),
             Utils.fetchUserDataOnEndpoint(Globals.apiRoutes.places.upload, "place"),
             Utils.fetchUserDataOnEndpoint(Globals.apiRoutes.heritages.upload, "heritage"),
-        ])
+        ]);
 
-       this.data.collectedWereFetched = true;
-       this.updateFile();
+        this.data.collectedWereFetched = true;
+        this.updateFile();
     }
 
     public static async loadCache() {
@@ -131,7 +131,6 @@ export class UserData {
 
             const parsed = JSON.parse(content.data);
             this.sortedDiscoveries = parsed.map((discovery: any) => {
-                // console.log(discovery);
                 if (discovery.dType === "artwork")
                     return ArtworkFactory.createArtwork(discovery);
                 else if (discovery.dType === "place")
@@ -219,26 +218,18 @@ export class UserData {
     public static setDBLastUpdate(type: string, date: Date) {
         const dateUpdate = date.toISOString().slice(0, 10);
 
-        switch (type) {
-            case "artworks": case "artwork": {
-                this.data.lastServerCheck.artworks = dateUpdate;
-                break;
-            }
-            case "places": case "place": {
-                this.data.lastServerCheck.places = dateUpdate;
-                break;
-            }
-            case "heritages": case "heritage": {
-                this.data.lastServerCheck.heritages = dateUpdate;
-                break;
-            }
-        }
+        if (type == "artworks" || type == "artwork")
+            this.data.lastServerCheck.artworks = dateUpdate;
+        else if (type == "places" || type == "place")
+            this.data.lastServerCheck.places = dateUpdate;
+        else if (type == "heritages" || type == "heritage")
+            this.data.lastServerCheck.heritages = dateUpdate
     }
 
     public static async tryUploadingPendingDiscoveries() {
-        for (const type of Object.keys(this.data.pendingUpload)) {
-            for (const id of this.data.pendingUpload[type]) {
-                await Utils.sendPictureAndDetails(id, type);  // Pending upload removed inside sendPictureAndDetails
+        for (const type of Object.keys(this.data.pendingUpload)) {  // Checking each category
+            for (const id of this.data.pendingUpload[type]) {       // For each element of the category's list
+                await Utils.sendPictureAndDetails(id, type);        // (Pending upload removed inside sendPictureAndDetails)
             }
         }
     }
@@ -300,6 +291,13 @@ export class UserData {
     }
 
     public static addCollected(collectable: Discovery, path: string | null, rating: number | null, comment: string | null) {
+        const insertFirst = (element: any, list: Array<any>) => {
+            /* Only inserts if the element is not in `list` */
+            if (list.find((it: any) => it.id === item.id) !== -1)
+                return [ element, ...list ];
+            return list;
+        }
+
         const item = {
             id: collectable.id,
             dType: collectable.dType,
@@ -308,36 +306,11 @@ export class UserData {
             comment: comment,
         };
 
-        const insertFirst = (element: any, list: Array<any>) => {
-            /* Only inserts if the element is not in `list` */
-            if (list.find((it: any) => it.id === item.id) !== -1)
-                return [ element, ...list ];
-            return list;
-        }
+        const key = collectable.dType + 's';
+        this.data.collected[key] = insertFirst(item, this.data.collected[key]);
 
-        switch (collectable.dType) {
-            case "artwork": {
-                this.data.collected.artworks = insertFirst(item, this.data.collected.artworks);
-                break
-            }
-            case "place": {
-                this.data.collected.places = insertFirst(item, this.data.collected.places);
-                break
-            }
-            case "heritage": {
-                this.data.collected.heritages = insertFirst(item, this.data.collected.heritages);
-                break
-            }
-            case "badge": {
-                this.data.collected.badges = insertFirst(item, this.data.collected.badges);
-                break;
-            }
-            default:
-                throw new Error("Invalid type");
-        }
-
-        // Now that `dType` has been checked, add to the general list for `tabs/collection`
-        this.data.collected.chronological = [ item, ...this.data.collected.chronological ]
+        // Add to the general list for `/tabs/collection`
+        this.data.collected.chronological = [ item, ...this.data.collected.chronological ];
 
         this.updateFile();
     }
@@ -397,23 +370,8 @@ export class UserData {
     }
 
     public static addTargeted(collectable: Discovery) {
-        switch (collectable.dType) {
-            case "artwork": {
-                this.data.targeted.artworks.push(collectable.id);
-                break;
-            }
-            case "place": {
-                this.data.targeted.places.push(collectable.id);
-                break;
-            }
-            case "heritage": {
-                this.data.targeted.heritages.push(collectable.id);
-                break;
-            }
-            default: {
-                throw new Error("Invalid discovery type");
-            }
-        }
+        const type = collectable.dType + 's';
+        this.data.targeted[type].push(collectable.id);
 
         this.updateFile();
     }
@@ -455,35 +413,19 @@ export class UserData {
     }
 
     public static addPendingUpload(id: number, type: number | string) {
-        switch (type) {
-            case "artwork": case "artworks": case DiscoveryEnum.ARTWORK: {
-                if (this.isCollected(id, type)) {
-                    this.data.pendingUpload.artworks.push(id);
-                    break;
-                } else {
-                    throw new Error(`Cannot add discovery ${type} id=${id}: not collected.`);
-                }
-            }
-            case "place": case "places": case DiscoveryEnum.PLACE: {
-                if (this.isCollected(id, type)) {
-                    this.data.pendingUpload.places.push(id);
-                    break;
-                } else {
-                    throw new Error(`Cannot add discovery ${type} id=${id}: not collected.`);
-                }
-            }
-            case "heritage": case "heritages": case DiscoveryEnum.HERITAGE: {
-                if (this.isCollected(id, type)) {
-                    this.data.pendingUpload.heritages.push(id);
-                    break;
-                } else {
-                    throw new Error(`Cannot add discovery ${type} id=${id}: not collected.`);
-                }
-            }
-            default: {
-                throw new Error("Invalid collectable type " + type);
-            }
-        }
+        let key;
+        if (type == "artwork" || type == "artworks" || type == DiscoveryEnum.ARTWORK)
+            key = "artworks"
+        else if (type == "place" || type == "places" || type == DiscoveryEnum.PLACE)
+            key = "places"
+        else if (type == "heritage" || type == "heritage" || type == DiscoveryEnum.HERITAGE)
+            key = "heritages"
+        else throw new Error("Invalid collectable type.");
+
+        if (this.isCollected(id, type))
+            this.data.pendingUpload[key].push(id)
+        else
+            throw new Error(`Cannot add discovery ${type} id=${id}: discovery not collected.`);
     }
 
     public static getPendingUploads() {
