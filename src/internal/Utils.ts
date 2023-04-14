@@ -28,7 +28,7 @@ const downloadImage = async (id: number | string, type: string, filename: string
             "Authorization": "Bearer " + UserData.getToken()
         }
     })
-        .then(response => response.blob());
+    .then(response => response.blob());
 
     const base64Data = await convertBlobToBase64(blob) as string;
 
@@ -39,7 +39,7 @@ const downloadImage = async (id: number | string, type: string, filename: string
         recursive: true
     });
 
-    // TODO: create a thumbnail with lower resolution (maybe npmjs.com/package/sharp?)
+    // TODO: create a thumbnail with lower resolution (maybe using the sharp npm package?)
 
     return "img/" + filename
 }
@@ -49,7 +49,7 @@ export default {
     async takePicture(): Promise<Photo | null> {
         try {
             return await Camera.getPhoto({
-                quality: 100,
+                quality: 95,
                 correctOrientation: true,
                 allowEditing: false,
                 resultType: CameraResultType.Uri
@@ -74,7 +74,7 @@ export default {
         const blob = await fetch(img.webPath).then(res => res.blob());
         const base64Data = await convertBlobToBase64(blob) as string;
 
-        const random = new RNG(Date.now())
+        const random = new RNG();
         const filename = `${random.randomString(32)}.${img.format}`;
 
         await Filesystem.writeFile({
@@ -116,21 +116,13 @@ export default {
         formData.append("photo", blob);
 
         let url;
-        switch (type) {
-            case DiscoveryEnum.ARTWORK: case "artworks": case "artwork": {
-                url = Globals.apiRoutes.artworks.upload;
-                break;
-            }
-            case DiscoveryEnum.PLACE: case "places": case "place": {
-                url = Globals.apiRoutes.places.upload;
-                break;
-            }
-            case DiscoveryEnum.HERITAGE: case "heritages": case "heritage": {
-                url = Globals.apiRoutes.heritages.upload;
-                break;
-            }
-            default: throw new Error("Invalid type");
-        }
+        if (type == "artwork" || type == "artworks" || type == DiscoveryEnum.ARTWORK)
+            url = Globals.apiRoutes.artworks.upload;
+        else if (type == "place" || type == "places" || type == DiscoveryEnum.PLACE)
+            url = Globals.apiRoutes.places.upload;
+        else if (type == "heritage" || type == "heritages" || type == DiscoveryEnum.HERITAGE)
+            url = Globals.apiRoutes.heritages.upload;
+        else throw new Error("Invalid type");
 
         fetch(url, {
             method: "POST",
@@ -144,7 +136,9 @@ export default {
                 console.log(`Successfully uploaded image (code ${response.status})`);
                 UserData.removePendingUpload(id, type);
             } else {
-                console.log("ERR: " + response.status)
+                response.json().then((json) => {
+                    console.log(`UPLOAD ERR: code ${response.status}, ${JSON.stringify(json)}`);
+                })
             }
         })
 
