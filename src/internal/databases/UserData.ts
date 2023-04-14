@@ -51,7 +51,8 @@ export class UserData {
             path: this.path,
             data: JSON.stringify(this.data),
             directory: Directory.Data,
-            encoding: Encoding.UTF8
+            encoding: Encoding.UTF8,
+            recursive: true,
         })
         .catch((err) => {
             console.error(`Failed to update user preferences (${err})`);
@@ -92,12 +93,12 @@ export class UserData {
                 heritages: [],
             },
             pendingUpload: {
-                // To be filled with IDs, **and must exist in `this.collected`** (to get all the info)
+                // To be filled with IDs, **and must exist in `this.collected`** (to get the rest of the info)
                 artworks: [],
                 places: [],
                 heritages: [],
             },
-            mapStyle: "osm",
+            mapStyle: "osm",  // Preferred map style (not in use @ the moment)
         };
 
         this.updateFile();
@@ -342,40 +343,29 @@ export class UserData {
     }
 
     public static editCollected(type: number | string, newData: Review) {
-        const replace = (arr: Array<Review>) => {
-            for (let i = 0; i < arr.length; i++) {
-                if (arr[i].id == newData.id) {
-                    arr[i] = newData;
-                    return;
-                }
-            }
+        let list: Array<Review>;
+        if (type == "artwork" || type == "artworks" || type == DiscoveryEnum.ARTWORK)
+            list = this.data.collected.artworks;
+        else if (type == "place" || type == "places" || type == DiscoveryEnum.PLACE)
+            list = this.data.collected.places;
+        else if (type == "heritage" || type == "heritage" || type == DiscoveryEnum.HERITAGE)
+            list = this.data.collected.heritages;
+        else if (type == "badge" || type == "badges"|| type == DiscoveryEnum.BADGE)
+            list = this.data.collected.badges;
+        else throw new Error("Invalid collectable type " + type);  // Not a valid type
 
-            throw new Error("Invalid (id, type) pair (object does not exist)");
-        }
+        // Replace the corresponding collected with the new one
+        for (const [index, collected] of list.entries()) {
+            if (collected.id == newData.id) {
+                list[index] = newData;
 
-        switch (type) {
-            case "artwork": case "artworks": case DiscoveryEnum.ARTWORK: {
-                replace(this.data.collected.artworks);
-                break;
-            }
-            case "place": case "places": case DiscoveryEnum.PLACE: {
-                replace(this.data.collected.places);
-                break;
-            }
-            case "heritage": case "heritages": case DiscoveryEnum.HERITAGE: {
-                replace(this.data.collected.heritages);
-                break;
-            }
-            case "badge": case "badges": case DiscoveryEnum.BADGE: {
-                replace(this.data.collected.badges);
-                break;
-            }
-            default: {
-                throw new Error("Invalid collectable type " + type);
+                this.updateFile();
+                return;
             }
         }
 
-        this.updateFile();
+        // Collected not found, throw error
+        throw new Error("Invalid (id, type) pair (object does not exist)");
     }
 
     public static getCollected(id: number, type: number | string): Review {
@@ -429,28 +419,8 @@ export class UserData {
     }
 
     public static removeTargeted(collectable: Discovery) {
-        const findAndRemove = (iterable: Array<any>) => {
-            const index = iterable.indexOf(collectable.id);
-            iterable.splice(index, 1);
-        }
-
-        switch (collectable.dType) {
-            case "artwork": {
-                findAndRemove(this.data.targeted.artworks);
-                break
-            }
-            case "place": {
-                findAndRemove(this.data.targeted.places);
-                break
-            }
-            case "heritage": {
-                findAndRemove(this.data.targeted.heritages);
-                break
-            }
-            default: {
-                throw new Error("Invalid discovery type");
-            }
-        }
+        const type = collectable.dType + 's';
+        this.data.targeted[type] = this.data.targeted[type].filter((targetId: number) => targetId != collectable.id);
 
         this.updateFile();
     }
@@ -521,35 +491,17 @@ export class UserData {
     }
 
     public static removePendingUpload(id: number, type: number | string) {
-        switch (type) {
-            case "artwork": case "artworks": case DiscoveryEnum.ARTWORK: {
-                const index = this.data.pendingUpload.artworks.indexOf(id);
-                if (index > -1) {
-                    this.data.pendingUpload.artworks.splice(index, 1);
-                }
-                break;
-            }
-            case "place": case "places": case DiscoveryEnum.PLACE: {
-                const index = this.data.pendingUpload.places.indexOf(id);
-                if (index > -1) {
-                    this.data.pendingUpload.places.splice(index, 1);
-                }
-                break;
-            }
-            case "heritage": case "heritages": case DiscoveryEnum.HERITAGE: {
-                const index = this.data.pendingUpload.heritages.indexOf(id);
-                if (index > -1) {
-                    this.data.pendingUpload.heritages.splice(index, 1);
-                }
-                break;
-            }
-            case "badge": case "badges": case DiscoveryEnum.BADGE: {
-                break;
-            }
-            default: {
-                throw new Error("Invalid collectable type " + type);
-            }
-        }
+        let key;
+        if (type == "artwork" || type == "artworks" || type == DiscoveryEnum.ARTWORK)
+            key = "artworks"
+        else if (type == "place" || type == "places" || type == DiscoveryEnum.PLACE)
+            key = "places"
+        else if (type == "heritage" || type == "heritage" || type == DiscoveryEnum.HERITAGE)
+            key = "heritages"
+        else return;  // Not a valid type
 
+        // Removing all pending uploads
+        this.data.pendingUpload[key] = this.data.pendingUpload[key].filter((pendingId: number) => pendingId != id);
+        this.updateFile();
     }
 }
