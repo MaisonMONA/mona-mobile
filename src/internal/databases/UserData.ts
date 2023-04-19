@@ -73,7 +73,8 @@ export class UserData {
             },
             location: {  // Default on Montreal
                 lng: -73.561668,
-                lat: 45.508888
+                lat: 45.508888,
+                accuracy: 5
             },
             collected: {
                 // To be filled with { id:, imagepath:, rating:, comment: }
@@ -226,10 +227,11 @@ export class UserData {
             this.data.lastServerCheck.heritages = dateUpdate
     }
 
-    public static async tryUploadingPendingDiscoveries() {
+    public static tryUploadingPendingDiscoveries() {
         for (const type of Object.keys(this.data.pendingUpload)) {  // Checking each category
             for (const id of this.data.pendingUpload[type]) {       // For each element of the category's list
-                await Utils.sendPictureAndDetails(id, type);        // (Pending upload removed inside sendPictureAndDetails)
+                Utils.sendPictureAndDetails(id, type)               // (Pending upload removed inside sendPictureAndDetails)
+                    .catch(() => { /* Do nothing */ })
             }
         }
     }
@@ -268,14 +270,18 @@ export class UserData {
             timeout: 30000,
         });
 
+        // TODO: use `accuracy` to be displayed as a feature on the map (choose the layer with the location icon)
+
         this.data.location.lng = geoloc.coords.longitude;
         this.data.location.lat = geoloc.coords.latitude;
+        this.data.location.accuracy = geoloc.coords.accuracy;
 
         this.updateFile()
     }
 
-    public static getLocation() {
-        this.setLocation().catch(() => { /* Ignore */ });
+    public static getLocation(update=true) {
+        if (update)
+            this.setLocation().catch(() => { /* Ignore fail */ });
 
         return [ this.data.location.lng, this.data.location.lat ];
     }
