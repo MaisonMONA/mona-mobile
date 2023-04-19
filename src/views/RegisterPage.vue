@@ -10,8 +10,8 @@
         <ion-content :fullscreen="true">
             <p id="register-alert-holder"></p>
             <div class="main-content">
-                <p id="welcome">Bienvenue !</p>
-                <p id="ask-for-registration">Commençons par créer un compte.</p>
+                <p id="welcome">Inscription</p>
+                <p id="ask-for-registration">Bienvenue !<br>Commençons par créer un compte.</p>
 
                 <div class="form-section">
                     <div class="input-element username">

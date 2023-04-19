@@ -10,7 +10,7 @@
         <ion-content :fullscreen="true">
             <p id="login-alert-holder"></p>
             <div class="main-content">
-                <p id="welcome">Bienvenue !</p>
+                <p id="welcome">Connexion</p>
                 <p id="ask-for-login">Connectez-vous à votre compte.</p>
 
                 <div class="form-section">
@@ -129,7 +129,7 @@ p, label {
 
 #welcome {
     font-size: 20px;
-    font-weight: bold;
+    font-weight: 900;
 }
 
 .main-content {
