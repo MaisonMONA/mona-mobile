@@ -8,6 +8,10 @@
         </ion-header>
 
         <ion-content :fullscreen="true">
+            <ion-refresher slot="fixed" @ion-refresh="refreshPage">
+                <ion-refresher-content></ion-refresher-content>
+            </ion-refresher>
+
             <ion-button @click="refreshPage" id="refresh-button">
                 <ion-icon :icon="syncCircleIcon"></ion-icon>
             </ion-button>
@@ -20,11 +24,12 @@
 
             <div class="collection-header">
                 <ion-icon id="collection-icon" :icon="customCollectionIcon"></ion-icon>
-                <p id="collected-count">{{ collected.length ? collected.length : '' }}</p>
+                <p id="collected-count">{{ collected.length > 0 ? collected.length : '' }}</p>
                 <p>
-                    {{ collected.length ? '' : "Aucune" }} Découverte{{ collected.length ? 's' : ''}}<br>collectionnée{{ collected.length ? 's' : ''}}
+                    {{ collected.length > 0 ? 'D' : "Aucune d" }}écouverte{{ collected.length > 0 ? 's' : ''}}
+                    <br>
+                    collectionnée{{ collected.length > 0 ? 's' : ''}}
                 </p>
-                <ion-icon id="headerIcon" :icon="bookOutline"></ion-icon>
             </div>
             <div class="collection-content">
                 <p id="your-collection">Votre collection</p>
@@ -46,9 +51,10 @@
 </template>
 
 <script>
-import { bookOutline, syncCircleOutline } from "ionicons/icons";
+import { reload } from "ionicons/icons";
 import { UserData } from '@/internal/databases/UserData';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonNavLink, IonGrid, IonRow, IonCol, IonIcon, IonButton } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonNavLink,
+         IonGrid, IonRow, IonCol, IonIcon, IonButton, IonRefresher, IonRefresherContent } from '@ionic/vue';
 import Utils from "@/internal/Utils";
 import customCollectionIcon from "@/assets/drawable/icons/collection_white.svg"
 import { Directory, Filesystem } from "@capacitor/filesystem";
@@ -57,12 +63,12 @@ import BadgesContainer from "@/components/BadgesContainer.vue";
 export default {
     name: "CollectionContainer",
     components: {
-        IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonIcon, IonButton, IonNavLink
+        IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonIcon, IonButton, IonNavLink,
+        IonRefresher, IonRefresherContent
     },
 
     setup() {
         return {
-            bookOutline,
             BadgesContainer
         }
     },
@@ -72,7 +78,7 @@ export default {
             collected: UserData.getCollectedChronologically(),
             getDiscovery: Utils.getDiscovery,
             customCollectionIcon,
-            syncCircleIcon: syncCircleOutline,
+            syncCircleIcon: reload,
         }
     },
 
@@ -121,9 +127,12 @@ export default {
             }
         },
 
-        refreshPage() {
+        refreshPage(event) {
             this.collected = UserData.getCollectedChronologically();
             this.$forceUpdate();
+
+            if (event && event.target && event.target.complete)  // Signal
+                event.target.complete();
         }
     }
 }
@@ -160,7 +169,6 @@ img {
 .collection-header p {
     text-align: left;
     font-size: 24px;
-    /*font-weight: 600;*/
 }
 
 .collection-header p#collected-count {
@@ -218,9 +226,9 @@ p {
     --background: var(--toolbar-purple);
     --background-activated: lightgrey;
     color: grey;
-    width: 50px;
-    height: 50px;
-    font-size: 8px;
+    width: 14vw;
+    height: 14vw;
+    font-size: 10px;
     --border-radius: 15px;
 }
 
