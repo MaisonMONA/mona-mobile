@@ -1,9 +1,11 @@
 <template>
     <div id="map" class="map">
         <div id="popup">
-            <div id="popupDetails" hidden>
-                <p id="popupTitle" class="details"></p>  <!-- Set length to max 23 char (including '...' if necessary) -->
-                <p id="popupSubtext" class="details"></p>  <!-- Set length to max 30 char (same) -->
+            <div id="popup-content" hidden>
+                <div id="popup-details">
+                    <p id="popupTitle" class="details"></p>
+                    <p id="popupSubtext" class="details"></p>
+                </div>
                 <ion-button fill="clear" id="seeMore" router-direction="forward">
                     <ion-icon slot="icon-only" :icon="arrowRightIcon"></ion-icon>
                 </ion-button>
@@ -11,11 +13,11 @@
         </div>
     </div>
 
-    <ion-button @click="changeTileLayer" id="settings-button">
+    <ion-button @click="changeTileLayer" id="settings-button" class="map-button">
         <ion-icon :icon="settingsIcon"></ion-icon>
     </ion-button>
 
-    <ion-button @click="recenterView" id="recenter-button">
+    <ion-button @click="recenterView" id="recenter-button" class="map-button">
         <ion-icon :icon="locationIcon"></ion-icon>
     </ion-button>
 </template>
@@ -244,7 +246,7 @@ export default {
                 });
             }
 
-            const details = document.getElementById("popupDetails");
+            const details = document.getElementById("popup-content");
 
             // Show popup AFTER the view was centered
             setTimeout(() => {
@@ -254,17 +256,8 @@ export default {
 
             // Show content of popup AFTER the popup was shown
             setTimeout(() => {
-                let title = discovery.getTitle()
-                let subtext = discovery.dType === "artwork" ? discovery.getArtists() : discovery.getUsages();
-
-                if (title.length > 23) {
-                    title = title.slice(0, 20) + "..."
-                }
-                if (subtext.length > 30) {
-                    subtext = subtext.slice(0, 27) + "..."
-                } else if (subtext.length === 0) {
-                    subtext = "Inconnu";
-                }
+                const title = discovery.getTitle()
+                const subtext = discovery.dType === "artwork" ? discovery.getArtists() : discovery.getUsages();
 
                 let type;
                 if (discovery.dType === "artwork") type = 0;
@@ -276,13 +269,13 @@ export default {
                 button.onclick = () => this.$router.push({ path: `/discovery-details/${type}/${discovery.id}` });
 
                 document.getElementById("popupTitle").innerHTML = title
-                document.getElementById("popupSubtext").innerHTML = subtext;
+                document.getElementById("popupSubtext").innerHTML = subtext.length > 0 ? subtext : "Inconnu";
                 details.hidden = false;
             }, transitionDuration + 100);
         },
 
         unfocusDiscovery() {
-            const details = document.getElementById("popupDetails");
+            const details = document.getElementById("popup-content");
             const elem = document.getElementById("popup");
 
             details.hidden = true;

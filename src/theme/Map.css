@@ -6,9 +6,9 @@
     width: 100%;
 }
 
-#recenter-button, #settings-button {
+.map-button {
     position: absolute;
-    right: 10px;
+    right: 3vw;
     --background: var(--toolbar-purple);
     --background-activated: lightgrey;
     color: #7F7F7F;
@@ -19,27 +19,11 @@
 }
 
 #recenter-button {
-    bottom: 12%;
+    bottom: 12vh;
 }
 
 #settings-button {
-    bottom: 20%;
-}
-
-div#popup {
-    position: absolute;
-    background: rgba(255, 255, 255, 0.3);
-    backdrop-filter: blur(3px);
-    border: 0;
-    width: 0;
-    height: 0;
-    left: 50%;
-    top: 44%;
-    z-index: 1;
-    transform: translate(-50%, -50%);
-    transition: all 0.1s cubic-bezier(0, .8, .2, 1);
-    perspective-origin: bottom;
-    border-radius: 10vw;
+    bottom: 20vh;
 }
 
 div#popup.activated {
@@ -49,43 +33,62 @@ div#popup.activated {
     border: 1px solid var(--button-outline-grey);
 }
 
-#popupDetails {
-    position: relative;
-    bottom: 2px;
-    padding-left: 4vw;
-    padding-top: 2vw;
+#popup {
+    perspective-origin: bottom;
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(3px);
+    position: absolute;
+    left: 50%;
+    top: 40%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    width: 0;
+    height: 0;
+    border-radius: 10vw;
+    overflow: inherit;
+    transition: all 0.1s cubic-bezier(0, .8, .2, 1);
 }
 
-p.details {
-    position: absolute;
-    font-family: "OpenSans", sans-serif;
-    line-height: 4.5vw;
-    color: black;
+#popup-details {
+    position: relative;
+    left: 5vw;
+    width: 48vw;
+    height: 12vw;
+    text-overflow: ellipsis;
+    padding-top: 1vw;
 }
 
 #popupTitle {
-    /*top: -6px;*/
+    font-size: 16px;
     font-style: italic;
     font-weight: bold;
 }
 
 #popupSubtext {
-    top: 24px;
-    left: 16px;
+    position: relative;
+    top: -0.5vw;
     font-size: 11px;
     font-weight: 400;
 }
 
-#seeMore {
+#popupTitle, #popupSubtext {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    font-family: "OpenSans", sans-serif;
+    color: black;
+}
+
+#popup ion-button {
+    position: absolute;
+    top: 0;
+    right: 2px;
+    font-size: 1px;
+    width: 10vw;
+    height: 10vw;
     color: black;
     --background: none;
     --ripple-color: var(--mona-yellow);
     --border-radius: 50%;
     --border-width: 0;
-    width: 10vw;
-    height: 10vw;
-    font-size: 5px;
-    position: absolute;
-    right: 2px;
-    top: 1px;
 }
