@@ -59,12 +59,12 @@ export class UserData {
         })
     }
 
-    public static resetPreferences() {
+    public static resetPreferences(resetTutorial=true) {
         this.data = {
             username: '',
             token: '',
             collectedWereFetched: false,
-            hasSeenTutorial: false,
+            hasSeenTutorial: resetTutorial ? false : this.data.hasSeenTutorial,
             mapFocus: { id: -1, dType: 'empty', active: false },
             lastServerCheck: {
                 artworks: "1970-01-01",

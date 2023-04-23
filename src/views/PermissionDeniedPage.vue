@@ -24,12 +24,11 @@
     </ion-page>
 </template>
 
-<script lang="ts">
+<script>
 import { IonPage, IonToolbar, IonTitle, IonContent, IonButton } from "@ionic/vue";
 import { Filesystem } from "@capacitor/filesystem";
 import { Camera } from "@capacitor/camera";
 import { Geolocation } from "@capacitor/geolocation";
-import { useRouter } from "vue-router";
 
 export default {
     name: "PermissionDeniedPage",
@@ -47,16 +46,14 @@ export default {
                 filePermStatus.publicStorage === "granted" &&
                 locationPermStatus.location === "granted") {
 
-                const router = useRouter();
-                if (router) router.replace("/register");
+                this.$router.replace("/register");
             } else if (cameraPermStatus.camera === "denied" ||
                        filePermStatus.publicStorage === "denied" ||
                        locationPermStatus.location === "denied") {
 
                 const warnings = document.getElementsByClassName("cannot-ask-for-perms");
                 for (const warning of warnings) {
-                    const elem = warning as HTMLElement;
-                    elem.style.display = "block";
+                    warning.style.display = "block";
                 }
             }
         }

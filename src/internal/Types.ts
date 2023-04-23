@@ -55,6 +55,7 @@ export class Artwork extends Discovery {
         dimensions: { fr: Array<string>, en: Array<string> } | null,
         categories: { fr: Array<string>, en: Array<string> } | null,
         techniques: { fr: Array<string>, en: Array<string> } | null,
+        directions: { fr: string | null, en: string | null } | null
     }) {
         super();
         this.id          = artwork.id;
@@ -67,6 +68,7 @@ export class Artwork extends Discovery {
         this.dimensions  = artwork.dimensions;
         this.categories  = artwork.categories;
         this.techniques  = artwork.techniques;
+        this.directions  = artwork.directions
     }
     dType = "artwork";
     id: number;
@@ -79,9 +81,10 @@ export class Artwork extends Discovery {
     dimensions: { fr: Array<string>, en: Array<string> } | null;
     categories: { fr: Array<string>, en: Array<string> } | null;
     techniques: { fr: Array<string>, en: Array<string> } | null;
+    directions: { fr: string | null, en: string | null } | null;
 
     public getTitle(): string {
-        /* Uncomment this part to enable title normalization (untitled discoveries are all named the same) */
+        /* Uncomment this part to enable title normalization (untitled discoveries are all named "(non titré)") */
         // const title = this.title.fr || this.title.en;
         // if (!title || ["sans titre", "non titré", "untitled"].includes(title.toLowerCase())) {
         //     return "(non titré)";
@@ -114,13 +117,20 @@ export class Artwork extends Discovery {
             return this.categories.en.join(', ');
         }
     }
+
+    public getDirections(): string | null {
+        if (this.directions)  // `direction` can be null
+            return this.directions.fr || this.directions.en || 'Emplacement inconnu';  // In case both `fr` and `en` are null
+
+        return 'Emplacement inconnu';
+    }
 }
 
 export class Place extends Discovery {
     constructor(place: {
         id: number, title: string, usages: { fr: Array<string>, en: Array<string> },
         borough: string, territory: string, description: string | null,
-        location: { lat: number, lng: number }
+        location: { lat: number, lng: number }, address: string
     }) {
         super();
         this.id          = place.id;
@@ -130,6 +140,7 @@ export class Place extends Discovery {
         this.borough     = place.borough;
         this.description = place.description;
         this.territory   = place.territory;
+        this.address     = place.address;
     }
 
     dType = "place";
@@ -140,21 +151,25 @@ export class Place extends Discovery {
     borough: string;
     description: string | null;
     territory: string;
+    address: string;
 
     public getTitle(): string {
         return this.title;
     }
 
     public getUsages(lang='fr'): string {
-        if (lang == 'fr') {
+        if (lang == 'fr')
             return this.usages.fr.join(', ');
-        } else {
+        else
             return this.usages.en.join(', ');
-        }
     }
 
     public getBorough(): string {
-        return this.borough
+        return this.borough;
+    }
+
+    public getAddress(): string {
+        return this.address;
     }
 }
 
@@ -164,7 +179,8 @@ export class Heritage extends Discovery {
         produced_at: string | null, description: string | null,
         location: { lat: number, lng: number }, status: string,
         borough: string, synthesis: null, "sous-usages": Array<string>,
-        subUses: Array<string>, functions: { fr: Array<string>, en: Array<string> }
+        subUses: Array<string>, functions: { fr: Array<string>, en: Array<string> },
+        addresses: Array<string>
     }) {
         super();
         this.id          = heritage.id;
@@ -178,6 +194,7 @@ export class Heritage extends Discovery {
         this.status      = heritage.status;
         this.borough     = heritage.borough;
         this.territory   = heritage.territory;
+        this.addresses   = heritage.addresses;
     }
 
     dType = "heritage";
@@ -192,6 +209,7 @@ export class Heritage extends Discovery {
     status: string;
     synthesis: null;
     subUses: Array<string>;
+    addresses: Array<string>;
 
     public getTitle(): string {
         return this.title;
@@ -203,6 +221,13 @@ export class Heritage extends Discovery {
 
     public getUsages(): string {
         return this.subUses.join(', ') || "Utilisations inconnues";
+    }
+
+    public getAddress(): string {
+        if (this.addresses.length > 0)
+            return this.addresses[0];
+        else
+            return 'Adresse inconnue'
     }
 }
 

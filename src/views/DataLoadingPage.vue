@@ -40,20 +40,19 @@ export default {
         .catch(() => {
             this.showAlert("Impossible de se connecter à internet !")
         })
-        .then(() => Promise.all(
-            [
+        .then(() => Promise.all([
                 UserData.getFromServer(),
                 UserData.loadCache()
             ])
         )
         .then(() => {
-             // async but do not await (bg task)
+            // async functions, but Do NOT await (background tasks)
             UserData.checkForDBUpdate();
             UserData.tryUploadingPendingDiscoveries();
         })
         .then(() => this.$router.replace("/tabs/discovery-of-the-day"))
-        .catch(() => {
-            throw new Error("Could not retrieve user data")
+        .catch((err) => {
+            throw new Error(`Could not retrieve user data (${err})`)
         })
     },
 

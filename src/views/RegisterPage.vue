@@ -160,8 +160,7 @@ export default {
                 filePermStatus.publicStorage !== "granted" ||
                 locationPermStatus.location !== "granted") {
 
-                const router = useRouter();
-                if (router) router.replace("/permission-denied");
+                this.$router.replace("/permission-denied");
             }
         }
     }

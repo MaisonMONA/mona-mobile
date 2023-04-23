@@ -54,7 +54,8 @@ export abstract class Database {
         // Request request was made successfully
         if (response.ok) {
             content = await response.text();
-            this.insertNewElements(JSON.parse(content).data)
+            this.insertNewElements(JSON.parse(content).data);
+            console.log(`${this.type} db: successfully populated (from server).`);
         } else {
             return Promise.reject();
         }
@@ -84,9 +85,7 @@ export abstract class Database {
             recursive: true
         })
 
-        .then(() => console.log(`${this.type} db: successfully populated (from server).`))
-
-        UserData.setDBLastUpdate(this.type, new Date());
+        .then(() => UserData.setDBLastUpdate(this.type, new Date()));
     }
 
     public static getFromId(id: number): Discovery | null {

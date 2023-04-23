@@ -37,7 +37,7 @@ const downloadImage = async (id: number | string, type: string, filename: string
         data: base64Data,
         directory: Directory.Data,
         recursive: true
-    });
+    }).catch((erro) => {console.log(erro)});
 
     // TODO: create a thumbnail with lower resolution (maybe using the sharp npm package?)
 
@@ -49,7 +49,7 @@ export default {
     async takePicture(): Promise<Photo | null> {
         try {
             return await Camera.getPhoto({
-                quality: 95,
+                quality: 85,
                 correctOrientation: true,
                 allowEditing: false,
                 resultType: CameraResultType.Uri
@@ -149,17 +149,17 @@ export default {
 
     getDiscovery(id: number, type: number | string) {
         switch (type) {
-            case "artwork": case "artworks": case 0: {
+            case "artwork": case "artworks": case DiscoveryEnum.ARTWORK: {
                 return ArtworkDatabase.getFromId(id);
             }
-            case "place": case "places": case 1: {
+            case "place": case "places": case DiscoveryEnum.PLACE: {
                 return PlaceDatabase.getFromId(id);
             }
-            case "heritage": case "heritages": case 2: {
+            case "heritage": case "heritages": case DiscoveryEnum.HERITAGE: {
                 return HeritageDatabase.getFromId(id);
             }
             default:
-                throw new Error("Invalid type");
+                throw new Error(`Invalid type "${type}"`);
         }
     },
 
@@ -168,13 +168,12 @@ export default {
         const type = feature.get("dType");
 
         let status;
-        if (UserData.isCollected(id, type)) {
+        if (UserData.isCollected(id, type))
             status = "collected";
-        } else if (UserData.isTargeted(id, type)) {
+        else if (UserData.isTargeted(id, type))
             status = "targeted"
-        } else {
+        else
             status = "default";
-        }
 
         const style = new Style({
             image: new Icon({
@@ -197,10 +196,12 @@ export default {
 
         const parsed = await response.json();
 
-        // Add each discovery to collected
+        // Add each discovery as collected
         for (const element of parsed) {
-            const discovery = this.getDiscovery(parseInt(element.artwork_id || element.place_id || element.heritage_id), type);
-            if (!discovery) throw new Error("This discovery does not exist.");
+            const id = parseInt(element.artwork_id || element.place_id || element.heritage_id);
+            const discovery = this.getDiscovery(id, type);
+            if (!discovery)
+                throw new Error(`Discovery (${type} ${id}) does not exist in DB.`);
 
             const rating = element.rating ? element.rating : null;
             const comment = element.comment ? element.comment : null;

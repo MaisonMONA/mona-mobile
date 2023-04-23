@@ -72,8 +72,12 @@ span.separatingBar {
 }
 
 #dProduced, #dDimensions, #dMaterials, #dTechniques, #dDescription {
-    font-size: 12px;
+    font-size: 14px;
     color: gray;
     margin: 5px 0;
     line-height: 20px;
+}
+
+#dProduced {
+    font-size: 15px;
 }

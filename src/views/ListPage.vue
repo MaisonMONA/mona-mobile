@@ -25,7 +25,7 @@
                 <ion-infinite-scroll @ionInfinite="pullDiscoveries">
                     <ion-infinite-scroll-content></ion-infinite-scroll-content>
                 </ion-infinite-scroll>
-                <p class="bottom-text">🤔?</p>
+                <p class="bottom-text">{{ discoveries.length }} résultats</p>
             </div>
 
             <div class="filters-panel">
@@ -48,7 +48,7 @@
                                     <ion-avatar>
                                         <img :src="require('@/assets/drawable/medals/place.png')">
                                     </ion-avatar>
-                                    <p>Oeuvres</p>
+                                    <p>Patrimoines</p>
                                 </div>
                             </ion-col>
                             <ion-col size="3">
@@ -56,7 +56,7 @@
                                     <ion-avatar>
                                         <img :src="require('@/assets/drawable/medals/heritage.png')">
                                     </ion-avatar>
-                                    <p>Oeuvres</p>
+                                    <p>Lieux</p>
                                 </div>
                             </ion-col>
                         </ion-row>
@@ -97,7 +97,7 @@ export default {
     methods: {
         pullDiscoveries(event) {
             const subset = UserData.getSortedDiscoveries().filter((elm) => {
-                return elm.getTitle().toLowerCase().includes(this.currentFilter.toLowerCase())
+                return elm.getTitle().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').includes(this.currentFilter.toLowerCase())
             }).slice(this.offset, this.offset + 50);
 
             this.discoveries = this.discoveries.concat(subset)
@@ -110,8 +110,8 @@ export default {
 
         openDetails(discovery) {
             let type;
-            if (discovery.dType === "artwork") type = 0;
-            else if (discovery.dType === "place") type = 1;
+            if (discovery.dType === "artwork")         type = 0;
+            else if (discovery.dType === "place")      type = 1;
             else /* (discovery.dType == "heritage") */ type = 2;
 
             this.$router.push(`/discovery-details/${type}/${discovery.id}`);
@@ -120,7 +120,7 @@ export default {
         triggerTextFilter(event) {
             if (event.detail && event.detail.value === this.currentFilter) return;
 
-            this.currentFilter = event.detail.value.trim();
+            this.currentFilter = event.detail.value.trim().normalize('NFD').replace(/\p{Diacritic}/gu, '');
             this.offset = 0;
             this.discoveries = [];
             this.pullDiscoveries(null);
@@ -186,24 +186,17 @@ p.bottom-text {
     font-family: 'Gotham Rounded Light', sans-serif;
 }
 
-ion-button {
+.filters-button {
     text-transform: none;
     color: black;
     position: relative;
     left: 49%;
     transform: translateX(-50%);
-}
-
-ion-button ion-icon {
-    margin-right: 6px;
-}
-
-.filters-button {
-    /*font-size: 20px;*/
     --border-width: 0;
 }
 
 .filters-button ion-icon {
+    margin-right: 6px;
     font-size: 20px;
 }
 

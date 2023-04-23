@@ -11,7 +11,7 @@ export class RNG {
     private readonly c: number;
     private readonly m: number;
 
-    constructor(seed=Math.round(Math.random() * 42), a=1103515245, c=12345, m=2**31) {
+    constructor(seed=Math.round(Date.now()), a=1103515245, c=12345, m=2**31) {
         /**
          * Create a RNG using the given parameters.
          *

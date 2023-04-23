@@ -106,7 +106,7 @@ export default {
                 // Use default thumbnail
                 return require("@/assets/drawable/photo_placeholder.jpg");
             } else {
-                // Load the thumbnail
+                // TODO use thumbnail
                 // const thumbnail_path = "thumbnails/" + imagepath.split('/').at(-1);
 
                 Filesystem.readFile({
@@ -222,10 +222,10 @@ p {
     position: fixed;
     z-index: 2;
     right: 10px;
+    color: #7F7F7F;
     bottom: 10px;
     --background: var(--toolbar-purple);
     --background-activated: lightgrey;
-    color: grey;
     width: 14vw;
     height: 14vw;
     font-size: 10px;
