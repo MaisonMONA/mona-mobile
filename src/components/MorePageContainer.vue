@@ -29,6 +29,12 @@
                         <ion-icon :icon="arrowForward" slot="end"></ion-icon>
                     </ion-item>
                 </ion-nav-link>
+                <ion-nav-link router-direction="forward" :component="logout">
+                    <ion-item>
+                        <ion-label>Se déconnecter</ion-label>
+                        <ion-icon :icon="arrowForward" slot="end"></ion-icon>
+                    </ion-item>
+                </ion-nav-link>
             </ion-list>
         </ion-content>
     </ion-page>
@@ -40,6 +46,7 @@ import { UserData } from "@/internal/databases/UserData";
 import AboutContainer from "@/components/AboutContainer.vue";
 import { arrowForward } from "ionicons/icons";
 import WhoWeAreContainer from "@/components/WhoWeAreContainer.vue";
+import LogoutContainer from "@/components/LogoutContainer.vue";
 
 export default {
     name: "MorePageContainer",
@@ -51,6 +58,7 @@ export default {
         return {
             about: AboutContainer,
             whoweare: WhoWeAreContainer,
+            logout: LogoutContainer,
         }
     },
 
