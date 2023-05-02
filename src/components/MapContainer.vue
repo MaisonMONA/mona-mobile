@@ -138,7 +138,7 @@ export default {
         showPins(discoveries=[]) {
             const pinsLayer = new VectorLayer({
                 source: new VectorSource(),
-                style: Utils.styleFunction
+                style: Utils.pinStyleFunction
             });
 
             if (discoveries.length > 0) {

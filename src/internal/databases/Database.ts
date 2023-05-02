@@ -5,7 +5,7 @@ import Globals from "@/internal/Globals";
 import { UserData } from "@/internal/databases/UserData";
 
 export abstract class Database {
-    protected static data: Array<Discovery>;
+    protected static data: Discovery[];
     protected static path: string;
     protected static type: string;
 
@@ -40,12 +40,14 @@ export abstract class Database {
     }
 
     private static async populateFromServer(): Promise<void> {
-        let response, content;
+        let response, content, url;
+        if (this.type == "artworks") url = Globals.apiRoutes.artworks.download;
+        else if (this.type == "places") url = Globals.apiRoutes.places.download;
+        else if (this.type == "heritages") url = Globals.apiRoutes.heritages.download;
+        else /* (this.type == "badges") */ url = Globals.apiRoutes.artworks.download;
+
         try {
-            if (this.type == "artworks") response = await fetch(Globals.apiRoutes.artworks.download);
-            else if (this.type == "places") response = await fetch(Globals.apiRoutes.places.download);
-            else if (this.type == "heritages") response = await fetch(Globals.apiRoutes.heritages.download);
-            else /* (this.type == "badges") */ response = await fetch(Globals.apiRoutes.artworks.download);
+            response = await fetch(url);
         } catch (e) {
             console.log("Could not fetch data from server.");
             return Promise.reject();
@@ -63,10 +65,10 @@ export abstract class Database {
 
     public static insertNewElements(elements: any) {
         for (const element of elements) {
-            const newDiscovery = this.createSingleElement(element)
+            const newDiscovery = this.createSingleElement(element);
 
-            if (this.getFromId(newDiscovery.id) == null) {
-                // If it exists we remove the old one before
+            if (this.getFromId(newDiscovery.id) != null) {
+                // If it exists we remove the old item before
                 this.data = this.data.filter((elm: Discovery) => elm.id != newDiscovery.id)
             }
 
@@ -103,15 +105,7 @@ export abstract class Database {
     }
 
     public static containsId(id: number): boolean {
-        let i = Math.min(id, this.data.length) - 1;
-
-        for (; i >= 0; i--) {
-            if (this.data[i].id == id) {
-                return true;
-            }
-        }
-
-        return false;
+        return this.getFromId(id) != null;
     }
 
     public static getRandomItem(seed=Date.now()): Discovery {
@@ -120,7 +114,7 @@ export abstract class Database {
         return this.data[id];
     }
 
-    public static getSubset(a?: number, b?: number): Array<Discovery> {
+    public static getSubset(a?: number, b?: number): Discovery[] {
         if (a == undefined)
             return this.data;
 

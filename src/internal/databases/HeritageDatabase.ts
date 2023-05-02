@@ -3,7 +3,7 @@ import { Database } from "@/internal/databases/Database";
 
 
 export class HeritageDatabase extends Database {
-    protected static data: Array<Heritage> = [];
+    protected static data: Heritage[] = [];
     protected static path = "appdata/heritages.json";
     protected static type = "heritages";
 

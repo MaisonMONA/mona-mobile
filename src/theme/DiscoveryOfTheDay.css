@@ -15,7 +15,7 @@ ion-button {
     --border-radius: 15px;
 }
 
-#discovery-title {
+.title {
     font-size: 6vw;
     font-weight: 600;
 }
@@ -28,12 +28,12 @@ span.separating-bar {
     border-bottom: 4px solid var(--blue-powder);
 }
 
-#discovery-artist, #discovery-usages {
+.subtitle.one {
     font-size: 5vw;
-    font-weight: 500;
+    font-weight: 400;
 }
 
-#discovery-category, #discovery-borough {
+.subtitle.two {
     margin-top: 2vw;
     font-size: 4vw;
 }

@@ -49,7 +49,7 @@ export default {
     async takePicture(): Promise<Photo | null> {
         try {
             return await Camera.getPhoto({
-                quality: 85,
+                quality: 50,  // TODO: increase this number when the server will accept bigger files
                 correctOrientation: true,
                 allowEditing: false,
                 resultType: CameraResultType.Uri
@@ -163,7 +163,7 @@ export default {
         }
     },
 
-    styleFunction(feature: Feature) {
+    pinStyleFunction(feature: Feature) {
         const id = feature.get("id");
         const type = feature.get("dType");
 

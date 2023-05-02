@@ -3,7 +3,7 @@ import { Database } from "@/internal/databases/Database";
 import { ArtworkFactory } from "@/internal/Factories";
 
 export class ArtworkDatabase extends Database {
-    protected static data: Array<Artwork> = [];
+    protected static data: Artwork[] = [];
     protected static path = "appdata/artworks.json";
     protected static type = "artworks";
 

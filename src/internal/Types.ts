@@ -8,8 +8,8 @@ export enum DiscoveryEnum {
 export abstract class Discovery {
     public abstract id: number;
     public abstract dType: string;
-    public isTargeted  = false;
-    public isCollected = false;
+    public isTargeted  = false;  // TODO delete attribute after checking safety
+    public isCollected = false;  // TODO delete attribute after checking safety
 
     public abstract getTitle(): string;
 
@@ -47,14 +47,14 @@ export class Artist {
 
 export class Artwork extends Discovery {
     constructor(artwork: {
-        id: number, artists: Array<Artist> | null,
+        id: number, artists: Artist[] | null,
         produced_at: string | null, territory: string,
         location: { lat: number, lng: number },
         title: { fr: string | null, en: string | null },
-        materials:  { fr: Array<string>, en: Array<string> } | null,
-        dimensions: { fr: Array<string>, en: Array<string> } | null,
-        categories: { fr: Array<string>, en: Array<string> } | null,
-        techniques: { fr: Array<string>, en: Array<string> } | null,
+        materials:  { fr: string[], en: string[] } | null,
+        dimensions: { fr: string[], en: string[] } | null,
+        categories: { fr: string[], en: string[] } | null,
+        techniques: { fr: string[], en: string[] } | null,
         directions: { fr: string | null, en: string | null } | null
     }) {
         super();
@@ -73,39 +73,25 @@ export class Artwork extends Discovery {
     dType = "artwork";
     id: number;
     title: { fr: string | null, en: string | null };
-    artists: Array<Artist> | null;
+    artists: Artist[] | null;
     location: { lat: number, lng: number };
     produced_at: string | null;
     territory: string;
-    materials: { fr: Array<string>, en: Array<string> } | null;
-    dimensions: { fr: Array<string>, en: Array<string> } | null;
-    categories: { fr: Array<string>, en: Array<string> } | null;
-    techniques: { fr: Array<string>, en: Array<string> } | null;
+    materials: { fr: string[], en: string[] } | null;
+    dimensions: { fr: string[], en: string[] } | null;
+    categories: { fr: string[], en: string[] } | null;
+    techniques: { fr: string[], en: string[] } | null;
     directions: { fr: string | null, en: string | null } | null;
 
     public getTitle(): string {
-        /* Uncomment this part to enable title normalization (untitled discoveries are all named "(non titré)") */
-        // const title = this.title.fr || this.title.en;
-        // if (!title || ["sans titre", "non titré", "untitled"].includes(title.toLowerCase())) {
-        //     return "(non titré)";
-        // }
-        //
-        // return title;
         return this.title.fr || this.title.en || "(non titré)";
     }
 
     public getArtists(): string {
-        let artistsStr = '';
-        if (this.artists != undefined) {
-            for (let i = 0; i < this.artists.length; i++) {
-                artistsStr = this.artists[i].name;
+        if (this.artists != undefined)
+            return this.artists.map((artist) => artist.name).join(", ");
 
-                if (i != this.artists.length - 1)
-                    artistsStr += ', ';
-            }
-        }
-
-        return artistsStr;
+        return '';
     }
 
     public getCategories(lang='fr'): string {
@@ -119,16 +105,16 @@ export class Artwork extends Discovery {
     }
 
     public getDirections(): string | null {
-        if (this.directions)  // `direction` can be null
-            return this.directions.fr || this.directions.en || 'Emplacement inconnu';  // In case both `fr` and `en` are null
+        if (this.directions)  // `direction` can also be null
+            return this.directions.fr || this.directions.en || "Emplacement inconnu";  // In case both `fr` and `en` are null
 
-        return 'Emplacement inconnu';
+        return "Emplacement inconnu";
     }
 }
 
 export class Place extends Discovery {
     constructor(place: {
-        id: number, title: string, usages: { fr: Array<string>, en: Array<string> },
+        id: number, title: string, usages: { fr: string[], en: string[] },
         borough: string, territory: string, description: string | null,
         location: { lat: number, lng: number }, address: string
     }) {
@@ -147,7 +133,7 @@ export class Place extends Discovery {
     id: number;
     title: string;
     location: { lat: number, lng: number };
-    usages: { fr: Array<string>; en: Array<string>; };
+    usages: { fr: string[]; en: string[]; };
     borough: string;
     description: string | null;
     territory: string;
@@ -178,9 +164,9 @@ export class Heritage extends Discovery {
         id: number, title: string, territory: string,
         produced_at: string | null, description: string | null,
         location: { lat: number, lng: number }, status: string,
-        borough: string, synthesis: null, "sous-usages": Array<string>,
-        subUses: Array<string>, functions: { fr: Array<string>, en: Array<string> },
-        addresses: Array<string>
+        borough: string, synthesis: null, "sous-usages": string[],
+        subUses: string[], functions: { fr: string[], en: string[] },
+        addresses: string[]
     }) {
         super();
         this.id          = heritage.id;
@@ -205,11 +191,11 @@ export class Heritage extends Discovery {
     produced_at: string | null;
     description: string | null;
     location: { lat: number, lng: number };
-    functions: { fr: Array<string>, en: Array<string> };
+    functions: { fr: string[], en: string[] };
     status: string;
     synthesis: null;
-    subUses: Array<string>;
-    addresses: Array<string>;
+    subUses: string[];
+    addresses: string[];
 
     public getTitle(): string {
         return this.title;

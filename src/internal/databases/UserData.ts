@@ -22,7 +22,7 @@ export class UserData {
     // of discoveries. It's also useful for drawing pins on the map, to avoid
     // doing it type by type and have some pin colors completely hidden because
     // they were added first. It also gives an feeling of random.
-    private static sortedDiscoveries: Array<Discovery> = [];
+    private static sortedDiscoveries: Discovery[] = [];
 
     public static async populate() {
         if (this.data) return;  // Do not populate twice
@@ -297,7 +297,7 @@ export class UserData {
     }
 
     public static addCollected(collectable: Discovery, path: string | null, rating: number | null, comment: string | null) {
-        const insertFirst = (element: any, list: Array<any>) => {
+        const insertFirst = (element: any, list: any[]) => {
             /* Only inserts if the element is not in `list` */
             if (list.find((it: any) => it.id === item.id) !== -1)
                 return [ element, ...list ];
@@ -322,18 +322,18 @@ export class UserData {
     }
 
     public static editCollected(type: number | string, newData: Review) {
-        let list: Array<Review>;
+        let list: Review[];
         if (type == "artwork" || type == "artworks" || type == DiscoveryEnum.ARTWORK)
             list = this.data.collected.artworks;
         else if (type == "place" || type == "places" || type == DiscoveryEnum.PLACE)
             list = this.data.collected.places;
-        else if (type == "heritage" || type == "heritage" || type == DiscoveryEnum.HERITAGE)
+        else if (type == "heritage" || type == "heritages" || type == DiscoveryEnum.HERITAGE)
             list = this.data.collected.heritages;
         else if (type == "badge" || type == "badges"|| type == DiscoveryEnum.BADGE)
             list = this.data.collected.badges;
         else throw new Error("Invalid collectable type " + type);  // Not a valid type
 
-        // Replace the corresponding collected with the new one
+        // Replace the old collectable with the new one
         for (const [index, collected] of list.entries()) {
             if (collected.id == newData.id) {
                 list[index] = newData;

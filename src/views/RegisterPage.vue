@@ -59,7 +59,6 @@ import Globals from "@/internal/Globals";
 import { Filesystem } from "@capacitor/filesystem";
 import { Camera } from "@capacitor/camera";
 import { Geolocation } from "@capacitor/geolocation";
-import { useRouter } from "vue-router";
 
 
 export default {
@@ -77,9 +76,9 @@ export default {
         } else if (UserData.getToken() !== '') {
             // If user is logged in, redirect immediately
             this.$router.replace("/loading");
+        } else {
+            await this.checkPermissions();
         }
-
-        await this.checkPermissions();
     },
 
     methods: {

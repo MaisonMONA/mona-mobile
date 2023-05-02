@@ -3,7 +3,7 @@ import {Artist, Artwork, Place} from "@/internal/Types";
 export class ArtworkFactory {
     static createArtwork(artwork: any) {
         // Creating Artist list
-        const artists: Array<Artist> = [];
+        const artists: Artist[] = [];
         if (artwork.artists) {
             for (const artist of artwork.artists) {
                 artists.push(new Artist(artist.id, artist.name))
@@ -21,8 +21,8 @@ export class PlaceFactory {
         // The server sends a list of objects but we store an object of lists (for coherence with the rest)
         if (place.usages instanceof Array) {
             // Creating usages list
-            const usagesFr: Array<string> = [];
-            const usagesEn: Array<string> = [];
+            const usagesFr: string[] = [];
+            const usagesEn: string[] = [];
 
             for (const usage of place.usages) {
                 usagesFr.push(usage.fr);

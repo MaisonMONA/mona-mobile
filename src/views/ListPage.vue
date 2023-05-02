@@ -28,7 +28,7 @@
                 <p class="bottom-text">{{ discoveries.length }} résultats</p>
             </div>
 
-            <div class="filters-panel">
+            <div class="filters-panel shown">
                 <div class="panel-header">
                     <p>Filtres</p>
                 </div>
@@ -128,8 +128,8 @@ export default {
 
         showFiltersPanel() {
             // TODO: finish panel and uncomment these lines
-            // const panel = document.querySelector("div.filters-panel");
-            // if (panel) panel.classList.add("shown");
+            const panel = document.querySelector("div.filters-panel");
+            if (panel) panel.classList.add("shown");
         }
     }
 }
@@ -193,6 +193,7 @@ p.bottom-text {
     left: 49%;
     transform: translateX(-50%);
     --border-width: 0;
+    --background: transparent;
 }
 
 .filters-button ion-icon {

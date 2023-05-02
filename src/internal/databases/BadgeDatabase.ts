@@ -3,7 +3,7 @@ import { Database } from "@/internal/databases/Database";
 
 
 export class BadgeDatabase extends Database {
-    protected static data: Array<Badge> = [];
+    protected static data: Badge[] = [];
     protected static path = "appdata/badges.json";
     protected static type = "badges"
 
