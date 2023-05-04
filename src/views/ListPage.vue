@@ -17,7 +17,7 @@
                 <ion-list :inset="true" lines="none">
                     <ion-item v-for="discovery of discoveries" :key="discovery" @click="openDetails(discovery)">
                         <ion-avatar slot="start">
-                            <img :src="require(`@/assets/drawable/medals/${ discovery.dType }.png`)" alt="">
+                            <img :src="getDiscoveryMedalIcon(discovery)" alt="">
                         </ion-avatar>
                         <ion-label>{{ discovery.getTitle() }}</ion-label>
                     </ion-item>
@@ -28,7 +28,7 @@
                 <p class="bottom-text">{{ discoveries.length }} résultats</p>
             </div>
 
-            <div class="filters-panel shown">
+            <div class="filters-panel">
                 <div class="panel-header">
                     <p>Filtres</p>
                 </div>
@@ -38,15 +38,15 @@
                             <ion-col size="3">
                                 <div class="filter-category">
                                     <ion-avatar>
-                                        <img :src="require('@/assets/drawable/medals/artwork.png')">
+                                        <img :src="require('@/assets/drawable/medals/artwork/default.svg')">
                                     </ion-avatar>
-                                    <p>Oeuvres</p>
+                                    <p>Œuvres</p>
                                 </div>
                             </ion-col>
                             <ion-col size="3">
                                 <div class="filter-category">
                                     <ion-avatar>
-                                        <img :src="require('@/assets/drawable/medals/place.png')">
+                                        <img :src="require('@/assets/drawable/medals/place/default.svg')">
                                     </ion-avatar>
                                     <p>Patrimoines</p>
                                 </div>
@@ -54,7 +54,7 @@
                             <ion-col size="3">
                                 <div class="filter-category">
                                     <ion-avatar>
-                                        <img :src="require('@/assets/drawable/medals/heritage.png')">
+                                        <img :src="require('@/assets/drawable/medals/heritage/default.svg')">
                                     </ion-avatar>
                                     <p>Lieux</p>
                                 </div>
@@ -130,6 +130,17 @@ export default {
             // TODO: finish panel and uncomment these lines
             const panel = document.querySelector("div.filters-panel");
             if (panel) panel.classList.add("shown");
+        },
+
+        getDiscoveryMedalIcon(discovery) {
+            if (UserData.isCollected(discovery.id, discovery.dType))
+                return require(`@/assets/drawable/medals/${ discovery.dType }/collected.svg`);
+
+            else if (UserData.isTargeted(discovery.id, discovery.dType))
+                return require(`@/assets/drawable/medals/${ discovery.dType }/targeted.svg`);
+
+            else
+                return require(`@/assets/drawable/medals/${ discovery.dType }/default.svg`);
         }
     }
 }
@@ -246,7 +257,7 @@ ion-col {
     height: 15vw;
 }
 
-ion-avatar {
+.filter-category ion-avatar {
     margin: 0;
     padding: 0;
 }
@@ -255,6 +266,7 @@ ion-avatar {
     text-align: center;
     margin: 0;
     padding: 0;
+    font-size: 4vw;
 }
 
 ion-col img {
