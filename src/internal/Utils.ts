@@ -210,7 +210,9 @@ export default {
             if (element.photo) {
                 const filename = element.photo.split('/').at(-1);
 
-                imagepath = await downloadImage(element.artwork_id || element.place_id || element.heritage_id, type, filename);
+                if (filename.split('.').length > 1)
+                    // Only download the file if its name is valid (ie the file isn't a PHP temp file)
+                    imagepath = await downloadImage(element.artwork_id || element.place_id || element.heritage_id, type, filename);
             }
 
             UserData.addCollected(discovery, imagepath, rating, comment);
