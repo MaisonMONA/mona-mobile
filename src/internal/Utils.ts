@@ -49,7 +49,7 @@ export default {
     async takePicture(): Promise<Photo | null> {
         try {
             return await Camera.getPhoto({
-                quality: 50,  // TODO: increase this number when the server will accept bigger files
+                quality: 30,  // TODO: increase this number when the server will accept bigger files
                 correctOrientation: true,
                 allowEditing: false,
                 resultType: CameraResultType.Uri
