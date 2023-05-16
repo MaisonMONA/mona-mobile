@@ -1,72 +1,55 @@
-# Pour les sucesseur de developpement android
-## Pour commencer
+# MONA Ionic/Vue.js
+## Setup
 ### Environnement à installer/télécharger
-*Ceci ne sont que des recommandatations, mais ils sont fortement suggérer*
-1. Webstorm (IDE puisssant gratuit avec un compte étudiant)
-   2. Sonarlint (plugin de webstorm qui assure un code de qualité)
-3. ```npm i -g @ionic/cli``` pour installer Ionic
-4. Node.js
-5. Android studio
+*Ceci ne sont que des recommandations, mais elles sont fortement suggérées*
+* Utiliser l'environnement de code Webstorm (IDE puissant, gratuit avec un compte étudiant)
+  * Y associer le plugin Sonarlint pour garantir une meilleure qualité de code
+* Android studio
+* `npm i -g @ionic/cli` pour installer Ionic, puis `npm install` dans le répertoire pour installer les plugins
+
 
 ## Pour tester
 ### Sur desktop
-Pour tester l'application sur votre ordinateur, il est **important** de commenter
-les lignes demandant les permission de caméra et de localisation. 
+Exécuter `ionic serve` à la racine pour lancer la version test dans le navigateur. Par défaut, l'application est servie
+sur [localhost au port 8100](http://localhost:8100/). Ne pas oublier [d'activer l'affichage en mode téléphone dans les dev
+tools](https://developer.chrome.com/docs/devtools/device-mode/) ! Je conseille de choisir le cadre du Samsung Galaxy S8+
+pour travailler, parce qu'il est le juste milieu entre le ratio 9/20 (nouveaux appareils) et le 9/16 (anciens).
 
-Ensuite, sur la ligne de commande, taper ```ionic serve``` (plus d'instruction dans la section *Instruction* qui suive)
-#### Codes à commenter obligatoirement
-Pour ce faire, dans "src/views/TutorialPage.vue", ces extraits de lignes sont à commenter. 
+Actuellement, le navigateur ne prend pas en charge les demandes de permissions Android (GPS, caméra, stockage). Pour
+pouvoir passer l'étape du tutoriel, il faut donc commenter les lignes qui gèrent cela quand on teste en live :
 
-```vue
+Fichier : [`src/views/TutorialPage.vue`](blob/main/src/views/TutorialPage.vue), lignes 44 à 64. 
+```ts
 // Ask for permissions
-/*
 const cameraPermStatus = await Camera.requestPermissions();
 const filePermStatus   = await Filesystem.requestPermissions();
 
 let locationPermStatus;
 try {
-locationPermStatus = await Geolocation.requestPermissions();
+    locationPermStatus = await Geolocation.requestPermissions();
 } catch (err) {
-locationPermStatus = "disabled"
+    locationPermStatus = "disabled"
 }
 
 if (cameraPermStatus.camera === "granted" && filePermStatus.publicStorage === "granted" &&
-( locationPermStatus === "disabled"         ||
-locationPermStatus.location === "granted" ||
-locationPermStatus.coarseLocation === "granted" )
+      (locationPermStatus === "disabled"         ||
+       locationPermStatus.location === "granted" ||
+       locationPermStatus.coarseLocation === "granted")
 ) {
-*/
-
-UserData.setSeenTutorial(true);
-this.$router.replace("/register");
-
-/*
+    UserData.setSeenTutorial(true);        // NE PAS COMMENTER CETTE LIGNE
+    this.$router.replace("/register");     // NE PAS COMMENTER CETTE LIGNE
 } else {
-this.$router.replace("/permission-denied")
-}*/
-```
-De l'extrait ci-haut, seule cette partie ci-dessous sont à décommenter.
-```vue
-UserData.setSeenTutorial(true);
-this.$router.replace("/register");
+    this.$router.replace("/permission-denied")
+}
 ```
 
-Dans "src/views/RegisterPage.vue", cet ligne doit également être commenté.
-```vue
-/*await this.checkPermissions();*/
-```
-#### Instructions 
-1. Commenter le code (section "Codes à commenter obligatoirement" ci-haut)
-2. Écrire la commande ```ionic serve``` sur une ligne de commande
-3. Cliquer sur le lien ressemblant à "http://localhost" apparaissant après la compilation de l'app
-3. *(pas obligatoire)* Toggle l'application sous forme "android" en faisant 
-un right click -> inspect -> toogle device toolbar
-   4. "toogle device toolbar" est un icône en haut, à côté de "element"
+### Déployer dans le Google Play Store
+1. (réactiver les lignes demandant les permissions dans `TutorialPage.vue`) 
+2. Exécuter `ionic cap build android` à la racine, ce qui va lancer Android Studio (sinon, le lancer manuellement)
+3. Récupérer les clefs  JKS dans le Google Docs dédié.
+4. Aller dans `build.gradle (Module :app)` et augmenter `versionCode` de 1, augmenter aussi `versionName` si besoin
+5. Build > Generate Signed Bundle / APK > Android App Bundle > Utiliser les clefs et mots de passe du Google Docs.
+6. Déposer le fichier AAB sur le Google Play Store (en test interne ou en produciton selon le type de MàJ).
 
-### Google play store: intern testing
-#### Instructions
-1. ```ionic cap build android``` sur la ligne de commande
-   2. Cela va lancer l'application Android studio
-3. Chercher "mona keys"
-4. Version app ++
-5. Dans google play store, drag and drop le file APK généré
+⚠️ Si l'on veut juste tester la version actuelle sur son propre téléphone (et pas faire de release), ne pas augmenter le
+`versionCode` et générer un APK (pas un bundle). N'importe quel Android peut alors installer depuis cet APK.
