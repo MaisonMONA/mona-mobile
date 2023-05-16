@@ -23,6 +23,15 @@ const convertBlobToBase64 = (blob: Blob) => new Promise((resolve, reject) => {
 
 
 const downloadImage = async (id: number | string, type: string, filename: string) => {
+    /**
+     * Download the image posted by the current user (identification with their token).
+     *
+     * @param id - ID of the discovery
+     * @param type - type of the discovery (singular, ie: 'artwork')
+     * @param filename - name to give to the downloaded image
+     * @return path of the image in Directory.Data
+     */
+
     const blob = await fetch(Globals.apiRoutes.getPhotos + `?discovery_id=${id}&type=${type}`, {
         headers: {
             "Authorization": "Bearer " + UserData.getToken()
@@ -37,7 +46,9 @@ const downloadImage = async (id: number | string, type: string, filename: string
         data: base64Data,
         directory: Directory.Data,
         recursive: true
-    }).catch((erro) => {console.log(erro)});
+    }).catch((err) => {
+        throw new Error(`Could not write downloaded image ${err}`);
+    });
 
     // TODO: create a thumbnail with lower resolution (maybe using the sharp npm package?)
 
@@ -47,6 +58,13 @@ const downloadImage = async (id: number | string, type: string, filename: string
 
 export default {
     async takePicture(): Promise<Photo | null> {
+        /**
+         * Takes a pucture from the phone camera using its default
+         * interface.
+         *
+         * @return a Photo object, or null if no photo were taken
+         */
+
         try {
             return await Camera.getPhoto({
                 quality: 30,  // TODO: increase this number when the server will accept bigger files
@@ -61,21 +79,21 @@ export default {
 
     async savePicture(img: Photo): Promise<string> {
         /**
-         * Attempts to store the image in storage.
+         * Attempts to store the image in storage
          *
-         * Resources used:
-         *  - https://devdactic.com/ionic-image-upload-capacitor
-         *
-         *  @param img - Photo file
-         *  @return the name of the file, if created
+         *  @param img - Photo file (probably from `takePicture`)
+         *  @return the name of the created file's name
          */
-        if (!img.webPath) throw new Error("Invalid webpath");
+
+        if (!img.webPath)
+            throw new Error("Invalid webpath");
 
         const blob = await fetch(img.webPath).then(res => res.blob());
         const base64Data = await convertBlobToBase64(blob) as string;
 
+        // Generating unique file name
         const random = new RNG();
-        const filename = `${random.randomString(32)}.${img.format}`;
+        const filename = random.randomString(32) + '.' + img.format;
 
         await Filesystem.writeFile({
             path: "img/" + filename,
@@ -89,12 +107,8 @@ export default {
 
     async sendPictureAndDetails(id: number, type: number | string) {
         /**
-         * Attempts to upload the collected discovery to the server. If
-         * the upload is successful, removes the item from pending uploads.
-         *
-         * Resources used:
-         *  - https://devdactic.com/ionic-image-upload-capacitor
-         *  - https://github.com/ionic-team/capacitor/issues/833
+         * Attempts to upload the collected discovery to the server. If the
+         * upload is successful, removes the item from the user's pending uploads.
          *
          * @param id - ID of the discovery to be uploaded
          * @param type - type of the discovery to be uploaded
@@ -109,6 +123,7 @@ export default {
         const base64Res = await fetch(`data:image/${imagepath.split('.')[1]};base64,${image.data}`);
         const blob = await base64Res.blob();
 
+        // Creating form for the POST request
         const formData = new FormData();
         formData.append("id", id.toString());
         formData.append("comment", comment);
@@ -116,11 +131,11 @@ export default {
         formData.append("photo", blob);
 
         let url;
-        if (type == "artwork" || type == "artworks" || type == DiscoveryEnum.ARTWORK)
+        if (type === "artwork" || type === "artworks" || type === DiscoveryEnum.ARTWORK)
             url = Globals.apiRoutes.artworks.upload;
-        else if (type == "place" || type == "places" || type == DiscoveryEnum.PLACE)
+        else if (type === "place" || type === "places" || type === DiscoveryEnum.PLACE)
             url = Globals.apiRoutes.places.upload;
-        else if (type == "heritage" || type == "heritages" || type == DiscoveryEnum.HERITAGE)
+        else if (type === "heritage" || type === "heritages" || type === DiscoveryEnum.HERITAGE)
             url = Globals.apiRoutes.heritages.upload;
         else throw new Error("Invalid type");
 
@@ -148,6 +163,15 @@ export default {
     },
 
     getDiscovery(id: number, type: number | string) {
+        /**
+         * Simple utility function that returns the discovery associated
+         * with ID with type being flexible.
+         *
+         * @param id - the ID of the discovery
+         * @param type - the type of the discovery
+         * @return a Discovery object (Artwork, Place, Heritage)
+         */
+
         switch (type) {
             case "artwork": case "artworks": case DiscoveryEnum.ARTWORK: {
                 return ArtworkDatabase.getFromId(id);
@@ -164,6 +188,14 @@ export default {
     },
 
     pinStyleFunction(feature: Feature) {
+        /**
+         * Style function for OSM Features (used for pins on the map).
+         * Not supposed to be called manually, but rather assigned or referenced.
+         *
+         * @param feature - the pin feature
+         * @return a new style
+         */
+
         const id = feature.get("id");
         const type = feature.get("dType");
 
@@ -179,7 +211,7 @@ export default {
             image: new Icon({
                 anchor: [0.5, 1],
                 src: require(`@/assets/drawable/pins/${type}/${status}.png`),
-                scale: 0.5
+                scale: 0.65,
             })
         });
 
@@ -187,6 +219,14 @@ export default {
     },
 
     async fetchUserDataOnEndpoint(url: string, type: string) {
+        /**
+         * Download the user's collection on the given endpoint, including the
+         * photos they've taken.
+         *
+         * @param url - endpoint (ie: endpoint for heritage)
+         * @param type - the endpoint type (ie: 'heritage'), used to interact with DBs.
+         */
+
         const response = await fetch(url, {
             method: "GET",
             headers: {
