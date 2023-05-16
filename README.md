@@ -7,6 +7,11 @@
 * Android studio
 * `npm i -g @ionic/cli` pour installer Ionic, puis `npm install` dans le répertoire pour installer les plugins
 
+De manière générale, essayer de suivre un style de code cohérent et consistant (espace entre les opérateurs, sauts de
+lignes pour aérer et regrouper des lignes entre elles ; en cas de doute, aller voir les stylesguides d'Airbnb ou de
+Google). La lisibilité du code est importante, n'hésitez pas non plus à corriger ce que vous trouvez.
+**Tant que possible, préférez le Typescript au Javascript.**
+
 
 ## Pour tester
 ### Sur desktop
