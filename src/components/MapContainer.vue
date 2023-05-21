@@ -80,11 +80,17 @@ export default {
             ]
         });
 
+
         let discovery = null;
+        if(this.$route.query.discovery){
+            //this.locateFromDiscoveryDetailsPage(this.$route.query.discovery);
+            discovery = this.$route.query.discovery
+        }
         if (this.$route.query.type && this.$route.query.id) {
             discovery = Utils.getDiscovery(parseInt(this.$route.query.id), this.$route.query.type)
             setTimeout(() => this.focusDiscovery(discovery), 250);
         }
+
 
         return {
             mainMap: null,
@@ -291,7 +297,18 @@ export default {
                 zoom: Math.max(mapView.getZoom(), 14.25),
                 easing: easeOut
             });
+        },
+        locateFromDiscoveryDetailsPage(discovery){
+            const mapView = this.mainMap.getView();
+
+            mapView.animate({
+                center: [ discovery.location.lng, discovery.location.lat ],
+                duration: 200,
+                zoom: Math.max(mapView.getZoom(), 14.25),
+                easing: easeOut
+            });
         }
+
     },
 };
 </script>

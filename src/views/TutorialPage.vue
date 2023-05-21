@@ -40,7 +40,7 @@ export default {
                     this.$router.replace(this.$route.query.callbackurl);
                     return;
                 }
-
+/*
                 // Ask for permissions
                 const cameraPermStatus = await Camera.requestPermissions();
                 const filePermStatus   = await Filesystem.requestPermissions();
@@ -56,12 +56,12 @@ export default {
                       ( locationPermStatus === "disabled"         ||
                         locationPermStatus.location === "granted" ||
                         locationPermStatus.coarseLocation === "granted" )
-                ) {
+                ) {*/
                     UserData.setSeenTutorial(true);
-                    this.$router.replace("/register");
+                    this.$router.replace("/register");/*
                 } else {
                     this.$router.replace("/permission-denied")
-                }
+                }*/
             }
         }
     }

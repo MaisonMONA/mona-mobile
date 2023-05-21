@@ -22,7 +22,7 @@
                 </ion-button>
 
                 <!-- "SEE ON MAP" BUTTON -->
-                <ion-button class="discovery-button" id="seeOnMapButton" fill="solid" :to="{ name: '/tabs/map', params: { discovery } }" router-link="/tabs/map" router-direction="forward">
+                <ion-button class="discovery-button" id="seeOnMapButton" fill="solid" :to="{ name: '/tabs/map', params: { discovery:discovery } }" router-link="/tabs/map" router-direction="forward">
                     <ion-icon id="mapIcon" :icon="customMapIcon"></ion-icon>
                 </ion-button>
 
