@@ -119,7 +119,7 @@ export default {
 
     methods: {
         myMap() {
-            useGeographic();
+            //useGeographic();
             this.mainMap = new Map({
                 // Hiding attribution (yes it's immoral)
                 controls: defaultControls({ attribution: false }),
