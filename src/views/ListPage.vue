@@ -30,7 +30,10 @@
 
             <div class="filters-panel">
                 <div class="panel-header">
+
                     <p>Filtres</p>
+                    <ion-icon :src="close"></ion-icon>
+
                 </div>
                 <div class="panel-content">
                     <ion-grid>
@@ -71,7 +74,7 @@
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonLabel, IonItem, IonAvatar,
          IonInfiniteScroll, IonInfiniteScrollContent, IonSearchbar, IonIcon, IonButton, IonGrid,
          IonRow, IonCol } from "@ionic/vue";
-import { filterOutline } from "ionicons/icons";
+import { filterOutline, close } from "ionicons/icons";
 import { UserData } from "@/internal/databases/UserData";
 
 export default {
@@ -79,6 +82,11 @@ export default {
     components: {
         IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonLabel, IonItem, IonAvatar,
         IonInfiniteScroll, IonInfiniteScrollContent, IonSearchbar, IonIcon, IonButton, IonGrid, IonRow, IonCol
+    },
+    setup(){
+        return {
+            close
+        }
     },
 
     data() {
