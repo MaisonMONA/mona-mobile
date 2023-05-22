@@ -103,18 +103,14 @@ export default {
     created() {
         this.$watch(
             () => this.$route.params,
-            //() => console.log(this.$route.query.id),
             () => {
                 if (this.$route.query.type && this.$route.query.id) {
-                    console.log("here")
                     const discovery = Utils.getDiscovery(parseInt(this.$route.query.id), this.$route.query.type);
-                    console.log(discovery.location.lng);
                     this.focusDiscovery(discovery);
-                    console.log("finish")}},
+                    }
+                },
         )
-
-        this.smt(); //TODO: have a better name
-        console.log("outside")
+        this.renderMap();
     },
 
     mounted() {
@@ -123,7 +119,7 @@ export default {
 
     methods: {
         myMap() {
-            //useGeographic();
+            useGeographic();
             this.mainMap = new Map({
                 // Hiding attribution (yes it's immoral)
                 controls: defaultControls({ attribution: false }),
@@ -146,9 +142,8 @@ export default {
             this.showPins();
             this.showLocation();
         },
-        smt(){
+        renderMap(){
             this.myMap();
-
             const route = useRoute();
             const dType = route.params.dType;
             const id = route.params.id;
@@ -156,6 +151,7 @@ export default {
                 const discovery = Utils.getDiscovery(parseInt(id.toString()), dType.toString());
                 this.focusDiscovery(discovery);
             }
+
         },
         showPins(discoveries=[]) {
             const pinsLayer = new VectorLayer({
@@ -313,23 +309,7 @@ export default {
                 zoom: Math.max(mapView.getZoom(), 14.25),
                 easing: easeOut
             });
-        },
-        locateFromDiscoveryDetailsPage(discovery, map=this.mainMap){
-            const mapCenter = map.getView().getCenter();
-            const transitionDuration = 200;
-            if (mapCenter[0] !== discovery.location.lng || mapCenter[1] !== discovery.location.lat) {
-                const currentZoom = map.getView().getZoom();
-
-                map.getView().animate({
-                    center: [ discovery.location.lng, discovery.location.lat ],
-                    duration: transitionDuration,
-                    zoom: Math.max(currentZoom, 14.25),
-                    easing: easeOut
-                });
-
-            }
         }
-
     },
 };
 </script>
