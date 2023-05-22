@@ -80,11 +80,14 @@ export default {
             ]
         });
 
+
         let discovery = null;
+
         if (this.$route.query.type && this.$route.query.id) {
             discovery = Utils.getDiscovery(parseInt(this.$route.query.id), this.$route.query.type)
             setTimeout(() => this.focusDiscovery(discovery), 250);
         }
+
 
         return {
             mainMap: null,
@@ -97,16 +100,21 @@ export default {
         }
     },
 
+    created() {
+        this.$watch(
+            () => this.$route.params,
+            () => {
+                if (this.$route.query.type && this.$route.query.id) {
+                    const discovery = Utils.getDiscovery(parseInt(this.$route.query.id), this.$route.query.type);
+                    this.focusDiscovery(discovery);
+                    }
+                },
+        )
+        this.renderMap();
+    },
+
     mounted() {
         this.myMap();
-
-        const route = useRoute();
-        const dType = route.params.dType;
-        const id = route.params.id;
-        if (dType && id) {
-            const discovery = Utils.getDiscovery(parseInt(id.toString()), dType.toString());
-            this.focusDiscovery(discovery);
-        }
     },
 
     methods: {
@@ -134,7 +142,17 @@ export default {
             this.showPins();
             this.showLocation();
         },
+        renderMap(){
+            this.myMap();
+            const route = useRoute();
+            const dType = route.params.dType;
+            const id = route.params.id;
+            if (dType && id) {
+                const discovery = Utils.getDiscovery(parseInt(id.toString()), dType.toString());
+                this.focusDiscovery(discovery);
+            }
 
+        },
         showPins(discoveries=[]) {
             const pinsLayer = new VectorLayer({
                 source: new VectorSource(),

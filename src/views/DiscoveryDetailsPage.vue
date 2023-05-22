@@ -22,7 +22,7 @@
                 </ion-button>
 
                 <!-- "SEE ON MAP" BUTTON -->
-                <ion-button class="discovery-button" id="seeOnMapButton" fill="solid" :to="{ name: '/tabs/map', params: { discovery } }" router-link="/tabs/map" router-direction="forward">
+                <ion-button class="discovery-button" id="seeOnMapButton" fill="solid" @click="activateMap([discovery.lng, discovery.lat])">
                     <ion-icon id="mapIcon" :icon="customMapIcon"></ion-icon>
                 </ion-button>
 
@@ -245,6 +245,17 @@ export default {
         showImg() {
             // TODO
         },
+        activateMap() {
+            const mapInstructions = {
+                path: "/tabs/map/",
+                query: {
+                    type: this.discovery.dType,
+                    id: this.discovery.id
+                }
+            };
+
+            this.$router.push(mapInstructions);
+        }
     }
 }
 </script>
