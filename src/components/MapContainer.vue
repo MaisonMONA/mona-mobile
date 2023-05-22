@@ -109,13 +109,16 @@ export default {
                     console.log("here")
                     const discovery = Utils.getDiscovery(parseInt(this.$route.query.id), this.$route.query.type);
                     console.log(discovery.location.lng);
-                    this.myMap();
                     this.focusDiscovery(discovery);
                     console.log("finish")}},
         )
 
         this.smt(); //TODO: have a better name
         console.log("outside")
+    },
+
+    mounted() {
+        this.myMap();
     },
 
     methods: {
