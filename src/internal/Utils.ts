@@ -211,7 +211,7 @@ export default {
             image: new Icon({
                 anchor: [0.5, 1],
                 src: require(`@/assets/drawable/pins/${type}/${status}.png`),
-                scale: 0.65,
+                scale: 0.5,
             })
         });
 
@@ -223,7 +223,7 @@ export default {
          * Download the user's collection on the given endpoint, including the
          * photos they've taken.
          *
-         * @param url - endpoint (ie: endpoint for heritage)
+         * @param url - endpoint (ie: url for the heritage endpoint)
          * @param type - the endpoint type (ie: 'heritage'), used to interact with DBs.
          */
 
