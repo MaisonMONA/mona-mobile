@@ -82,10 +82,7 @@ export default {
 
 
         let discovery = null;
-        if(this.$route.query.discovery){
-            //this.locateFromDiscoveryDetailsPage(this.$route.query.discovery);
-            discovery = this.$route.query.discovery
-        }
+
         if (this.$route.query.type && this.$route.query.id) {
             discovery = Utils.getDiscovery(parseInt(this.$route.query.id), this.$route.query.type)
             setTimeout(() => this.focusDiscovery(discovery), 250);
@@ -103,21 +100,27 @@ export default {
         }
     },
 
-    mounted() {
-        this.myMap();
+    created() {
+        this.$watch(
+            () => this.$route.params,
+            //() => console.log(this.$route.query.id),
+            () => {
+                if (this.$route.query.type && this.$route.query.id) {
+                    console.log("here")
+                    const discovery = Utils.getDiscovery(parseInt(this.$route.query.id), this.$route.query.type);
+                    console.log(discovery.location.lng);
+                    this.myMap();
+                    this.focusDiscovery(discovery);
+                    console.log("finish")}},
+        )
 
-        const route = useRoute();
-        const dType = route.params.dType;
-        const id = route.params.id;
-        if (dType && id) {
-            const discovery = Utils.getDiscovery(parseInt(id.toString()), dType.toString());
-            this.focusDiscovery(discovery);
-        }
+        this.smt(); //TODO: have a better name
+        console.log("outside")
     },
 
     methods: {
         myMap() {
-            useGeographic();
+            //useGeographic();
             this.mainMap = new Map({
                 // Hiding attribution (yes it's immoral)
                 controls: defaultControls({ attribution: false }),
@@ -140,7 +143,17 @@ export default {
             this.showPins();
             this.showLocation();
         },
+        smt(){
+            this.myMap();
 
+            const route = useRoute();
+            const dType = route.params.dType;
+            const id = route.params.id;
+            if (dType && id) {
+                const discovery = Utils.getDiscovery(parseInt(id.toString()), dType.toString());
+                this.focusDiscovery(discovery);
+            }
+        },
         showPins(discoveries=[]) {
             const pinsLayer = new VectorLayer({
                 source: new VectorSource(),
@@ -298,15 +311,20 @@ export default {
                 easing: easeOut
             });
         },
-        locateFromDiscoveryDetailsPage(discovery){
-            const mapView = this.mainMap.getView();
+        locateFromDiscoveryDetailsPage(discovery, map=this.mainMap){
+            const mapCenter = map.getView().getCenter();
+            const transitionDuration = 200;
+            if (mapCenter[0] !== discovery.location.lng || mapCenter[1] !== discovery.location.lat) {
+                const currentZoom = map.getView().getZoom();
 
-            mapView.animate({
-                center: [ discovery.location.lng, discovery.location.lat ],
-                duration: 200,
-                zoom: Math.max(mapView.getZoom(), 14.25),
-                easing: easeOut
-            });
+                map.getView().animate({
+                    center: [ discovery.location.lng, discovery.location.lat ],
+                    duration: transitionDuration,
+                    zoom: Math.max(currentZoom, 14.25),
+                    easing: easeOut
+                });
+
+            }
         }
 
     },
