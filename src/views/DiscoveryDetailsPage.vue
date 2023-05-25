@@ -65,6 +65,11 @@
                         <p v-if="discovery.description != null" id="dDescription">{{ discovery.synthesis }}</p>
                     </div>
 
+                    <div class="comment-dateCreation">
+                        <p id="comment">{{ showCommentDateCreation() }}</p>
+
+                    </div>
+
                 </div>
             </div>
         </ion-content>
@@ -140,7 +145,7 @@ export default {
                     directory: Directory.Data
                 })
                 .then(async (image) => {
-                    const base64Result = await fetch(`data:image/${ userData.imagepath.split('.')[1] };base64,${ image.data }`);
+                    const base64Result = await fetch(`data:image/${ userData.imagepath.split('.')[1] };base64,${ image.data }`)
                     const url = await base64Result.blob().then((blob) => URL.createObjectURL(blob));
                     const userImg = document.getElementById("userPhoto");
                     const defaultImg = document.getElementById("defaultPhoto");
@@ -255,6 +260,16 @@ export default {
             };
 
             this.$router.push(mapInstructions);
+        },
+
+        showCommentDateCreation(userComment) {
+            const commentDiv = document.querySelector("div.comment-dateCreation")
+            const userData = UserData.getCollected(this.discovery.id, this.discovery.dType)
+            if(userData) {
+                if (commentDiv) commentDiv.classList.add("show")
+                return userData.comment
+            }
+
         }
     }
 }
