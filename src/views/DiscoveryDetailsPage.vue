@@ -37,6 +37,11 @@
                     <!-- IF THE DISCOVERY IS AN ARTWORK -->
                     <div v-if="dType === DiscoveryEnum.ARTWORK" id="dDetails">
                         <p id="dTitle">{{ discovery.getTitle() }}</p>
+                        <ul id="dRating">
+                            <li :key="st" v-for="st in this.showRating()">
+                                <ion-icon size="large" :icon="star"></ion-icon>
+                            </li>
+                        </ul>
                         <span class="separatingBar"></span>
                         <p id="dArtist">{{ discovery.getArtists() }}</p>
                         <p v-if="discovery.categories != null" id="dCategories">{{ discovery.getCategories() }}</p>
@@ -49,6 +54,11 @@
                     <!-- ELSE IF IT'S A PLACE -->
                     <div v-else-if="dType === DiscoveryEnum.PLACE" id="dDetails">
                         <p id="dTitle">{{ discovery.getTitle() }}</p>
+                        <ul id="dRating">
+                            <li :key="st" v-for="st in this.showRating()">
+                                <ion-icon size="large" :icon="star"></ion-icon>
+                            </li>
+                        </ul>
                         <span class="separatingBar"></span>
                         <p id="dUsages">{{ discovery.getUsages() }}</p>
                         <p id="dBorough">{{ discovery.getBorough() }} • {{ discovery.getAddress() }}</p>
@@ -58,11 +68,21 @@
                     <!-- ELSE (IT'S A HERITAGE) -->
                     <div v-else id="dDetails">
                         <p id="dTitle">{{ discovery.getTitle() }}</p>
+                        <ul id="dRating">
+                            <li :key="st" v-for="st in this.showRating()">
+                                <ion-icon size="large" :icon="star"></ion-icon>
+                            </li>
+                        </ul>
                         <span class="separatingBar"></span>
                         <p id="dUsages">{{ discovery.getUsages() }}</p>
                         <p id="dBorough">{{ discovery.getBorough() }} • {{ discovery.getAddress() }}</p>
                         <p v-if="discovery.produced_at != null" id="dProduced">{{ discovery.produced_at }}</p>
                         <p v-if="discovery.description != null" id="dDescription">{{ discovery.synthesis }}</p>
+                    </div>
+
+                    <div class="comment-dateCreation">
+                        <p id="comment">{{ showComment() }}</p>
+
                     </div>
 
                 </div>
@@ -77,7 +97,7 @@ import {
     IonBackButton, IonButton, IonButtons, IonContent, IonFabButton,
     IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, IonImg, toastController
 } from '@ionic/vue';
-import { cameraOutline, mapOutline } from "ionicons/icons";
+import { cameraOutline, star, mapOutline } from "ionicons/icons";
 import { useRoute } from "vue-router";
 
 import { DiscoveryEnum } from "@/internal/Types";
@@ -103,7 +123,7 @@ export default {
 
     data() {
         return {
-            cameraOutline, customMapIcon,
+            cameraOutline, customMapIcon, star,
             customTargetIcon: targetIconWhite  // May be overriden during mount
         }
     },
@@ -140,7 +160,7 @@ export default {
                     directory: Directory.Data
                 })
                 .then(async (image) => {
-                    const base64Result = await fetch(`data:image/${ userData.imagepath.split('.')[1] };base64,${ image.data }`);
+                    const base64Result = await fetch(`data:image/${ userData.imagepath.split('.')[1] };base64,${ image.data }`)
                     const url = await base64Result.blob().then((blob) => URL.createObjectURL(blob));
                     const userImg = document.getElementById("userPhoto");
                     const defaultImg = document.getElementById("defaultPhoto");
@@ -255,6 +275,16 @@ export default {
             };
 
             this.$router.push(mapInstructions);
+        },
+
+        showComment() {
+            const userData = UserData.getCollected(this.discovery.id, this.discovery.dType)
+            if(userData) return userData.comment
+        },
+
+        showRating(){
+            const userData = UserData.getCollected(this.discovery.id, this.discovery.dType)
+            if(userData) return userData.rating
         }
     }
 }
@@ -281,5 +311,18 @@ ion-back-button {
     object-fit: cover;
     height: 100%;
     width: 100%
+}
+
+
+ion-icon {
+    color: var(--mona-yellow)
+}
+
+li {
+    display: inline-block;
+}
+
+ul {
+    padding: 0;
 }
 </style>
