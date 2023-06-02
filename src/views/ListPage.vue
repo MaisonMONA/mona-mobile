@@ -154,9 +154,9 @@ export default {
 
         showFiltersPanel() {
             // TODO: finish panel and uncomment these lines
-            const panel = document.querySelector("div.filters-panel");
-            panel.hidden = false;
-            if (panel) panel.classList.add("shown");
+            //const panel = document.querySelector("div.filters-panel");
+            //panel.hidden = false;
+            //if (panel) panel.classList.add("shown");
         },
 
         getDiscoveryMedalIcon(discovery) {
