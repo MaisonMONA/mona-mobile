@@ -19,7 +19,7 @@
                         <ion-avatar slot="start">
                             <img :src="getDiscoveryMedalIcon(discovery)" alt="">
                         </ion-avatar>
-                        <ion-label position="fixed">{{showDistance(discovery)}} km</ion-label>
+                        <ion-label id="distance" position="fixed">{{showDistance(discovery)}} km</ion-label>
                         <ion-label id="title">{{ discovery.getTitle() }}</ion-label>
                     </ion-item>
                 </ion-list>
@@ -43,12 +43,12 @@
                         <ion-row class="directive">Trier par</ion-row>
                         <ion-row id="trier-par">
                             <ion-col size="4">Distance
-                                <ion-button class="trier" fill="clear">
+                                <ion-button class="trier" fill="clear" @click="trierDistance()">
                                     <ion-icon :src="radioButtonOffOutline"></ion-icon>
                                 </ion-button>
                             </ion-col>
                             <ion-col size="4">A-Z
-                                <ion-button class="trier" fill="clear">
+                                <ion-button class="trier" fill="clear" @click="trierAlphabetique">
                                     <ion-icon :src="radioButtonOnOutline" color="dark"></ion-icon>
                                 </ion-button>
                             </ion-col>
@@ -199,6 +199,12 @@ export default {
         closeFilter() {
             const panel = document.querySelector("div.filters-panel");
             if (panel) panel.hidden = true
+        },
+        trierAlphabetique(){
+            return
+        },
+        trierDistance(){
+            return
         }
     }
 }
@@ -242,6 +248,10 @@ ion-avatar img {
     margin-top: 5px;
     max-width: 8vw;
     max-height: 8vw;
+}
+
+ion-avatar {
+    margin-right: 0;
 }
 ion-row{
     margin: 5%;
@@ -371,6 +381,10 @@ ion-col img {
 }
 #title {
     font-weight: bold;
+}
+#distance {
+    font-size: small;
+
 }
 
 /** {*/
