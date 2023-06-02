@@ -15,7 +15,7 @@
                     Filtrer
                 </ion-button>
                 <ion-list :inset="true" lines="none">
-                    <ion-item v-for="discovery of discoveries" :key="discovery" @click="openDetails(discovery)">
+                    <ion-item id="list" v-for="discovery of discoveries" :key="discovery" @click="openDetails(discovery)">
                         <ion-avatar slot="start">
                             <img :src="getDiscoveryMedalIcon(discovery)" alt="">
                         </ion-avatar>
@@ -30,24 +30,41 @@
             </div>
 
             <div class="filters-panel">
-                <div class="panel-header">
-
-                    <p>Filtres</p>
-                    <ion-icon :src="close"></ion-icon>
-
+                <div id="panel-heading">
+                    <div class="panel-header">
+                        <p>Filtres</p>
+                    </div>
+                    <ion-button fill="clear" color="dark">
+                        <ion-icon id="icon-header" :src="close" color="black"></ion-icon>
+                    </ion-button>
                 </div>
                 <div class="panel-content">
                     <ion-grid>
+                        <ion-row class="directive">Trier par</ion-row>
+                        <ion-row id="trier-par">
+                            <ion-col size="4">Distance
+                                <ion-button class="trier" fill="clear">
+                                    <ion-icon :src="radioButtonOffOutline"></ion-icon>
+                                </ion-button>
+                            </ion-col>
+                            <ion-col size="4">A-Z
+                                <ion-button class="trier" fill="clear">
+                                    <ion-icon :src="radioButtonOnOutline" color="dark"></ion-icon>
+                                </ion-button>
+                            </ion-col>
+                        </ion-row>
+                        <ion-row class="directive">Filter par</ion-row>
                         <ion-row class="ion-justify-content-around">
-                            <ion-col size="3">
+                            <ion-col class="place" size="3">
                                 <div class="filter-category">
+
                                     <ion-avatar>
                                         <img :src="require('@/assets/drawable/medals/artwork/default.svg')">
                                     </ion-avatar>
                                     <p>Œuvres</p>
                                 </div>
                             </ion-col>
-                            <ion-col size="3">
+                            <ion-col class="place" size="3">
                                 <div class="filter-category">
                                     <ion-avatar>
                                         <img :src="require('@/assets/drawable/medals/place/default.svg')">
@@ -55,7 +72,7 @@
                                     <p>Patrimoines</p>
                                 </div>
                             </ion-col>
-                            <ion-col size="3">
+                            <ion-col class="place" size="3">
                                 <div class="filter-category">
                                     <ion-avatar>
                                         <img :src="require('@/assets/drawable/medals/heritage/default.svg')">
@@ -75,7 +92,7 @@
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonLabel, IonItem, IonAvatar,
          IonInfiniteScroll, IonInfiniteScrollContent, IonSearchbar, IonIcon, IonButton, IonGrid,
          IonRow, IonCol } from "@ionic/vue";
-import { filterOutline, close } from "ionicons/icons";
+import { filterOutline, close, radioButtonOffOutline, radioButtonOnOutline} from "ionicons/icons";
 import { UserData } from "@/internal/databases/UserData";
 
 export default {
@@ -86,7 +103,7 @@ export default {
     },
     setup(){
         return {
-            close
+            close, radioButtonOffOutline, radioButtonOnOutline
         }
     },
 
@@ -205,11 +222,12 @@ ion-list {
     background: #F3F2F7;
 }
 
-ion-item {
+#list {
     border: 5px solid #F3F2F7;
     border-radius: 15px;
     --min-height: 15vw;
 }
+
 
 ion-label {
     padding-left: 15px;
@@ -220,7 +238,9 @@ ion-avatar img {
     max-width: 8vw;
     max-height: 8vw;
 }
-
+ion-row{
+    margin: 5%;
+}
 ion-searchbar {
     padding-left: 21px;
     padding-right: 21px;
@@ -251,7 +271,7 @@ p.bottom-text {
 .filters-panel {
     position: fixed;
     width: 100%;
-    height: 60%;
+    height: 30%;
     bottom: -60%;
     background: #E0DFE4;
     transition: all 0.4s cubic-bezier(0, .8, .2, 1)
@@ -267,17 +287,37 @@ p.bottom-text {
 }
 
 .filters-panel .panel-header {
-    text-align: center;
+
     font-weight: bold;
     font-family: 'Gotham Rounded Light', sans-serif;
     width: 100%;
-    height: 10%;
+    height: 20%;
 }
 
 .panel-header p {
+    text-align: center;
+    font-size: larger;
+}
+
+.filter-category p {
+    font-size: medium;
+}
+#icon-header ion-icon{
+    align-content: center;
     position: relative;
     top: 50%;
     transform: translateY(-50%);
+
+}
+#panel-heading {
+    display: flex;
+}
+
+.trier {
+    border-radius: 100%;
+    color: black;
+    padding: 0;
+    margin: 0;
 }
 
 .panel-content {
@@ -287,15 +327,16 @@ p.bottom-text {
     background: white;
 }
 
-ion-col {
+.place{
     border: 1px solid var(--button-outline-grey);
     border-radius: 10px;
     height: 15vw;
 }
 
 .filter-category ion-avatar {
-    margin: 0;
+    margin: auto;
     padding: 0;
+
 }
 
 .filter-category {
@@ -310,7 +351,19 @@ ion-col img {
     height: 5vw;
     margin: auto;
 }
+.directive {
+    color: grey;
+    margin: auto;
+    padding-left: 1%;
+}
+#trier-par {
+    padding-left: 1%;
+    margin: auto;
+}
 
+#trier-par ion-col {
+    padding: 0;
+}
 #title {
     font-weight: bold;
 }
