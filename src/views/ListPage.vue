@@ -34,8 +34,8 @@
                     <div class="panel-header">
                         <p>Filtres</p>
                     </div>
-                    <ion-button fill="clear" color="dark">
-                        <ion-icon id="icon-header" :src="close" color="black"></ion-icon>
+                    <ion-button fill="clear" color="dark" @click="closeFilter()">
+                        <ion-icon id="icon-header" :src="close" color="black" ></ion-icon>
                     </ion-button>
                 </div>
                 <div class="panel-content">
@@ -155,6 +155,7 @@ export default {
         showFiltersPanel() {
             // TODO: finish panel and uncomment these lines
             const panel = document.querySelector("div.filters-panel");
+            panel.hidden = false;
             if (panel) panel.classList.add("shown");
         },
 
@@ -194,6 +195,10 @@ export default {
         //inspire de https://stackoverflow.com/questions/33429136/round-to-3-decimal-points-in-javascript-jquery
         roundDown(number){ //up to 3 decimal
             return Math.round(number * 1000) / 1000
+        },
+        closeFilter() {
+            const panel = document.querySelector("div.filters-panel");
+            if (panel) panel.hidden = true
         }
     }
 }
