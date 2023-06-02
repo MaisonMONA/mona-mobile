@@ -106,9 +106,9 @@ export class Artwork extends Discovery {
 
     public getDirections(): string | null {
         if (this.directions)  // `direction` can also be null
-            return this.directions.fr || this.directions.en || "Emplacement inconnu";  // In case both `fr` and `en` are null
+            return this.directions.fr || this.directions.en ;  // In case both `fr` and `en` are null
 
-        return "Emplacement inconnu";
+        return null;
     }
 }
 
@@ -201,19 +201,19 @@ export class Heritage extends Discovery {
         return this.title;
     }
 
-    public getBorough(): string {
-        return this.borough || "Quartier inconnu";
+    public getBorough(): string{
+        return this.borough;
     }
 
     public getUsages(): string {
-        return this.subUses.join(', ') || "Utilisations inconnues";
+        return this.subUses.join(', ') ;
     }
 
-    public getAddress(): string {
+    public getAddress(): string | null {
         if (this.addresses.length > 0)
             return this.addresses[0];
         else
-            return 'Adresse inconnue'
+            return null
     }
 }
 

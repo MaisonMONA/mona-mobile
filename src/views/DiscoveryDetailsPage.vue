@@ -45,7 +45,17 @@
                         <span class="separatingBar"></span>
                         <p id="dArtist">{{ discovery.getArtists() }}</p>
                         <p v-if="discovery.categories != null" id="dCategories">{{ discovery.getCategories() }}</p>
-                        <p v-if="discovery.produced_at != null" id="dProduced">{{ discovery.produced_at }} • {{ discovery.getDirections() }}</p>
+
+                        <div v-if="discovery.produced_at != null && discovery.getDirections() != null">
+                            <p>{{ discovery.produced_at }} • {{ discovery.getDirections() }}</p>
+                        </div>
+                        <div v-else-if="discovery.produced_at != null">
+                            <p id="dProduced">{{ discovery.produced_at }}</p>
+                        </div>
+                        <div v-else>
+                            <p id="dProduced">{{discovery.getDirections() }}</p>
+                        </div>
+
                         <p v-if="discovery.dimensions != null" id="dDimensions">{{ discovery.dimensions.fr[0].replaceAll('x', '×') }}</p>
                         <p v-if="discovery.materials != null" id="dMaterials">{{ discovery.materials.fr.join(', ') }}</p>
                         <p v-if="discovery.techniques != null" id="dTechniques">{{ discovery.techniques.fr.join(', ') }}</p>
@@ -61,7 +71,17 @@
                         </ul>
                         <span class="separatingBar"></span>
                         <p id="dUsages">{{ discovery.getUsages() }}</p>
-                        <p id="dBorough">{{ discovery.getBorough() }} • {{ discovery.getAddress() }}</p>
+
+                        <div v-if="discovery.getBorough() !== '' && discovery.getAddress() != null">
+                            <p id="dBorough">{{ discovery.getBorough() }} • {{ discovery.getAddress() }}</p>
+                        </div>
+                        <div v-else-if="discovery.getBorough() !== ''">
+                            <p id="dBorough">{{ discovery.getBorough() }}</p>
+                        </div>
+                        <div v-else>
+                            <p id="dBorough">{{discovery.getAddress()}}</p>
+                        </div>
+
                         <p v-if="discovery.description != null" id="dDescription">{{ discovery.description }}</p>
                     </div>
 
@@ -75,13 +95,23 @@
                         </ul>
                         <span class="separatingBar"></span>
                         <p id="dUsages">{{ discovery.getUsages() }}</p>
-                        <p id="dBorough">{{ discovery.getBorough() }} • {{ discovery.getAddress() }}</p>
+
+                        <div v-if="discovery.getBorough() !== '' && discovery.getAddress() != null">
+                            <p id="dBorough">{{ discovery.getBorough() }} • {{ discovery.getAddress() }}</p>
+                        </div>
+                        <div v-else-if="discovery.getBorough() !== ''">
+                            <p id="dBorough">{{ discovery.getBorough() }}</p>
+                        </div>
+                        <div v-else>
+                            <p id="dBorough">{{discovery.getAddress()}}</p>
+                        </div>
+
                         <p v-if="discovery.produced_at != null" id="dProduced">{{ discovery.produced_at }}</p>
                         <p v-if="discovery.description != null" id="dDescription">{{ discovery.synthesis }}</p>
                     </div>
 
                     <div class="comment-dateCreation">
-                        <p id="comment">{{ showComment() }}</p>
+                        <p id="comment">{{this.showComment() }}</p>
 
                     </div>
 
@@ -123,7 +153,7 @@ export default {
 
     data() {
         return {
-            cameraOutline, customMapIcon, star,
+            cameraOutline, customMapIcon, star, UserData,
             customTargetIcon: targetIconWhite  // May be overriden during mount
         }
     },
