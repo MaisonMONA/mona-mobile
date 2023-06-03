@@ -154,8 +154,8 @@ export class Place extends Discovery {
         return this.borough;
     }
 
-    public getAddress(): string {
-        return this.address;
+    public getAddress(): string | null {
+        return this.address || null;
     }
 }
 
