@@ -10,10 +10,10 @@
             <div class="main-content">
                 <p id="tab-title">Liste des découvertes à faire</p>
                 <ion-searchbar show-clear-button="always" placeholder="Chercher" :debounce="500" @ionChange="triggerTextFilter"></ion-searchbar>
-               <!-- <ion-button class="filters-button" shape="round" fill="outline" @click="showFiltersPanel">
+                <ion-button id="open-modal" class="filters-button" shape="round" fill="outline" @click="showFiltersPanel">
                     <ion-icon :icon="filterOutline"></ion-icon>
                     Filtrer
-                </ion-button> -->
+                </ion-button>
                 <ion-list :inset="true" lines="none">
                     <ion-item id="list" v-for="discovery of discoveries" :key="discovery" @click="openDetails(discovery)">
                         <ion-avatar slot="start">
@@ -29,81 +29,86 @@
                 <p class="bottom-text">{{ discoveries.length }} résultats</p>
             </div>
 
-            <div class="filters-panel">
-                <div id="panel-heading">
-                    <div class="panel-header">
-                        <p>Filtres</p>
-                    </div>
-                    <ion-button fill="clear" color="dark" @click="closeFilter()">
-                        <ion-icon id="icon-header" :src="close" color="black" ></ion-icon>
-                    </ion-button>
-                </div>
-                <div class="panel-content">
-                    <ion-grid>
-                        <ion-row class="directive">Trier par</ion-row>
-                        <ion-row id="trier-par">
-                            <ion-col size="4">Distance
-                                <ion-button class="trier" fill="clear" @click="trierDistance()">
-                                    <ion-icon :src="radioButtonOffOutline"></ion-icon>
-                                </ion-button>
-                            </ion-col>
-                            <ion-col size="4">A-Z
-                                <ion-button class="trier" fill="clear" @click="trierAlphabetique">
-                                    <ion-icon :src="radioButtonOnOutline" color="dark"></ion-icon>
-                                </ion-button>
-                            </ion-col>
-                        </ion-row>
-                        <ion-row class="directive">Filter par</ion-row>
-                        <ion-row class="ion-justify-content-around">
-                            <ion-col class="place" size="3">
-                                <div class="filter-category">
-
-                                    <ion-avatar>
-                                        <img :src="require('@/assets/drawable/medals/artwork/default.svg')">
-                                    </ion-avatar>
-                                    <p>Œuvres</p>
-                                </div>
-                            </ion-col>
-                            <ion-col class="place" size="3">
-                                <div class="filter-category">
-                                    <ion-avatar>
-                                        <img :src="require('@/assets/drawable/medals/place/default.svg')">
-                                    </ion-avatar>
-                                    <p>Patrimoines</p>
-                                </div>
-                            </ion-col>
-                            <ion-col class="place" size="3">
-                                <div class="filter-category">
-                                    <ion-avatar>
-                                        <img :src="require('@/assets/drawable/medals/heritage/default.svg')">
-                                    </ion-avatar>
-                                    <p>Lieux</p>
-                                </div>
-                            </ion-col>
-                        </ion-row>
-                    </ion-grid>
-                </div>
-            </div>
+            <ion-modal ref="modal" trigger="open-modal" :initial-breakpoint="0.5" :breakpoints="[0, 0.25, 0.5]">
+                    <ion-content>
+                        <ion-toolbar id="modal-header">
+                                <ion-icon class="modal-icon" size="medium" slot="start" :src="optionsOutline"></ion-icon>
+                                <ion-text id="modal-heading"> <p>Filtres</p></ion-text>
+                                <ion-icon class="modal-icon" size="medium" slot="end" :src="close" @click="dismiss()"></ion-icon>
+                        </ion-toolbar>
+                        <ion-list lines="none">
+                            <ion-item>
+                                <ion-text color="black">Trier par</ion-text>
+                            </ion-item>
+                            <ion-row>
+                                <ion-radio-group id="modal-trier" value="custom-checked">
+                                    <ion-col size="4">
+                                        <ion-text>Distance</ion-text>
+                                    </ion-col >
+                                    <ion-col size="4">
+                                        <ion-radio @click="trierDistance()" value="custom"></ion-radio>
+                                    </ion-col>
+                                    <ion-col size="4">
+                                        <ion-text>A-Z</ion-text>
+                                    </ion-col>
+                                    <ion-col size="4">
+                                        <ion-radio @click="trierAlphabetique()" value="custom-checked"></ion-radio>
+                                    </ion-col>
+                                </ion-radio-group>
+                            </ion-row>
+                            <ion-item>
+                                <ion-text color="black">Filtrer par</ion-text>
+                            </ion-item>
+                            <ion-row class="ion-justify-content-between">
+                                <ion-col class="place" size="3" >
+                                    <div class="filter-category">
+                                        <ion-avatar>
+                                            <img :src="require('@/assets/drawable/medals/artwork/default.svg')">
+                                        </ion-avatar>
+                                        <ion-text>Œuvres</ion-text>
+                                    </div>
+                                </ion-col>
+                                <ion-col class="place" size="4">
+                                    <div class="filter-category">
+                                        <ion-avatar>
+                                            <img :src="require('@/assets/drawable/medals/place/default.svg')">
+                                        </ion-avatar>
+                                        <ion-text>Patrimoines</ion-text>
+                                    </div>
+                                </ion-col>
+                                <ion-col class="place" size="3">
+                                    <div class="filter-category">
+                                        <ion-avatar>
+                                            <img :src="require('@/assets/drawable/medals/heritage/default.svg')">
+                                        </ion-avatar>
+                                        <ion-text>Lieux</ion-text>
+                                    </div>
+                                </ion-col>
+                            </ion-row>
+                        </ion-list>
+                    </ion-content>
+            </ion-modal>
         </ion-content>
     </ion-page>
 </template>
 
 <script>
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonLabel, IonItem, IonAvatar,
-         IonInfiniteScroll, IonInfiniteScrollContent, IonSearchbar, IonIcon, IonButton, IonGrid,
-         IonRow, IonCol } from "@ionic/vue";
-import { filterOutline, close, radioButtonOffOutline, radioButtonOnOutline} from "ionicons/icons";
+         IonInfiniteScroll, IonInfiniteScrollContent, IonSearchbar, IonIcon, IonButton, IonModal,  IonRadio, IonRadioGroup,
+        } from "@ionic/vue";
+import { filterOutline, close, optionsOutline} from "ionicons/icons";
 import { UserData } from "@/internal/databases/UserData";
 
 export default {
     name: "ListPage",
     components: {
         IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonLabel, IonItem, IonAvatar,
-        IonInfiniteScroll, IonInfiniteScrollContent, IonSearchbar, IonIcon, IonButton, IonGrid, IonRow, IonCol
+        IonInfiniteScroll, IonInfiniteScrollContent, IonSearchbar, IonIcon, IonButton, IonModal,  IonRadio, IonRadioGroup,
+
     },
     setup(){
         return {
-            close, radioButtonOffOutline, radioButtonOnOutline
+            close, optionsOutline
         }
     },
 
@@ -204,7 +209,10 @@ export default {
         },
         trierDistance(){
             return
-        }
+        },
+        dismiss() {
+            this.$refs.modal.$el.dismiss();
+        },
     }
 }
 </script>
@@ -282,102 +290,6 @@ p.bottom-text {
     font-size: 20px;
 }
 
-.filters-panel {
-    position: fixed;
-    width: 100%;
-    height: 30%;
-    bottom: -60%;
-    background: #E0DFE4;
-    transition: all 0.4s cubic-bezier(0, .8, .2, 1)
-}
-
-.filters-panel.shown {
-    bottom: 0;
-}
-
-.filters-panel, .panel-header {
-    padding: 0;
-    margin: 0;
-}
-
-.filters-panel .panel-header {
-
-    font-weight: bold;
-    font-family: 'Gotham Rounded Light', sans-serif;
-    width: 100%;
-    height: 20%;
-}
-
-.panel-header p {
-    text-align: center;
-    font-size: larger;
-}
-
-.filter-category p {
-    font-size: medium;
-}
-#icon-header ion-icon{
-    align-content: center;
-    position: relative;
-    top: 50%;
-    transform: translateY(-50%);
-
-}
-#panel-heading {
-    display: flex;
-}
-
-.trier {
-    border-radius: 100%;
-    color: black;
-    padding: 0;
-    margin: 0;
-}
-
-.panel-content {
-    height: 90%;
-    width: 100%;
-    /*position: relative;*/
-    background: white;
-}
-
-.place{
-    border: 1px solid var(--button-outline-grey);
-    border-radius: 10px;
-    height: 15vw;
-}
-
-.filter-category ion-avatar {
-    margin: auto;
-    padding: 0;
-
-}
-
-.filter-category {
-    text-align: center;
-    margin: 0;
-    padding: 0;
-    font-size: 4vw;
-}
-
-ion-col img {
-    width: 5vw;
-    height: 5vw;
-    margin: auto;
-}
-.directive {
-    color: grey;
-    margin: auto;
-    padding-left: 1%;
-}
-#trier-par {
-    padding-left: 1%;
-    margin: auto;
-}
-
-#trier-par ion-col {
-    padding: 0;
-}
 #title {
     font-weight: bold;
 }
@@ -385,6 +297,62 @@ ion-col img {
     font-size: small;
 
 }
+ion-col img {
+    width: 5vw;
+    height: 5vw;
+    margin: auto;
+}
+
+.place{
+    border: 1px solid black;
+    border-radius: 10px;
+    height: 15vw;
+    width: auto;
+}
+
+.filter-category ion-avatar {
+    margin: auto;
+    height: 5vw;
+}
+
+.filter-category {
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    width: auto;
+}
+
+ion-radio {
+    --border-radius: 100%;
+    --inner-border-radius: 100%;
+
+    --color: black;
+    --color-checked: black;
+}
+#modal-header {
+    font-weight: bold;
+    font-family: 'Gotham Roundedight', sans-serif;
+}
+ion-modal ion-toolbar {
+    --background: grey;
+    --color: black;
+}
+ion-modal {
+    --border-radius: 16px;
+    --box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+#modal-heading p {
+    text-align: center;
+    font-size: large;
+}
+
+.modal-icon {
+    margin: 2%;
+    padding: 2%;
+}
+
+
 
 /** {*/
 /*    border: 1px solid rgba(0, 0, 0, 0.3);*/
