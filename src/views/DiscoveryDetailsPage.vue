@@ -127,7 +127,7 @@ import {
     IonBackButton, IonButton, IonButtons, IonContent, IonFabButton,
     IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, IonImg, toastController
 } from '@ionic/vue';
-import { cameraOutline, star, mapOutline } from "ionicons/icons";
+import { cameraOutline, star } from "ionicons/icons";
 import { useRoute } from "vue-router";
 
 import { DiscoveryEnum } from "@/internal/Types";
@@ -164,15 +164,7 @@ export default {
         type = parseInt(type.toString() || '-1');
         id = parseInt(id.toString() || '-1');
 
-        let discovery;
-        if (type === DiscoveryEnum.ARTWORK)
-            discovery = ArtworkDatabase.getFromId(parseInt(id));
-        else if (type === DiscoveryEnum.PLACE)
-            discovery = PlaceDatabase.getFromId(parseInt(id));
-        else if (type === DiscoveryEnum.HERITAGE)
-            discovery = HeritageDatabase.getFromId(parseInt(id));
-        else
-            throw new Error("Invalid type");
+        const discovery = Utils.getDiscovery(id, type);
 
         return {
             dType: type,
@@ -184,25 +176,25 @@ export default {
         const userData = UserData.getCollected(this.discovery.id, this.discovery.dType);
 
         if (userData) {
-            if (userData.imagepath) {
+            if (userData.filename) {
                 Filesystem.readFile({
-                    path: userData.imagepath,
+                    path: "img/" + userData.filename,
                     directory: Directory.Data
                 })
-                    .then(async (image) => {
-                        const base64Result = await fetch(`data:image/${ userData.imagepath.split('.')[1] };base64,${ image.data }`);
-                        const url = await base64Result.blob().then((blob) => URL.createObjectURL(blob));
-                        const userImg = document.getElementById("userPhoto");
-                        const defaultImg = document.getElementById("defaultPhoto");
+                .then(async (image) => {
+                    const base64Result = await fetch(`data:image/${ userData.filename.split('.').at(-1) };base64,${ image.data }`)
+                    const url = await base64Result.blob().then((blob) => URL.createObjectURL(blob));
+                    const userImg = document.getElementById("userPhoto");
+                    const defaultImg = document.getElementById("defaultPhoto");
 
-                        defaultImg.style.display = "none";
-                        userImg.style.display = "block";
-                        userImg.src = url;
+                    defaultImg.style.display = "none";
+                    userImg.style.display = "block";
+                    userImg.src = url;
 
-                        // Enable image opening
-                        // TODO uncomment line below after implementing showImg
-                        // userImg.onclick = this.showImg;
-                    });
+                    // Enable image opening
+                    // TODO uncomment line below after implementing showImg
+                    // userImg.onclick = this.showImg;
+                });
             }
 
             // Hiding buttons

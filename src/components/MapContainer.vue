@@ -107,8 +107,8 @@ export default {
                 if (this.$route.query.type && this.$route.query.id) {
                     const discovery = Utils.getDiscovery(parseInt(this.$route.query.id), this.$route.query.type);
                     this.focusDiscovery(discovery);
-                    }
-                },
+                }
+            },
         )
         this.renderMap();
     },

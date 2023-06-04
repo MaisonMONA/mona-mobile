@@ -52,10 +52,10 @@ export default {
             const id = this.$route.query.id;
             const type = this.$route.query.type;
 
-            const { imagepath } = UserData.getCollected(parseInt(id), type);
+            const { filename } = UserData.getCollected(parseInt(id), type);
             const comment = document.getElementById("input").value;
 
-            UserData.editCollected(type, { id: parseInt(id), dType: type, imagepath, rating: this.givenRating, comment });
+            UserData.editCollected(type, { id: parseInt(id), dType: type, filename, rating: this.givenRating, comment });
             Utils.sendPictureAndDetails(id, type);
 
             // Redirect to the previous page

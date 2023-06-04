@@ -53,9 +53,9 @@ export default {
                 }
 
                 if (cameraPermStatus.camera === "granted" && filePermStatus.publicStorage === "granted" &&
-                      ( locationPermStatus === "disabled"         ||
-                        locationPermStatus.location === "granted" ||
-                        locationPermStatus.coarseLocation === "granted" )
+                      (locationPermStatus === "disabled"         ||
+                       locationPermStatus.location === "granted" ||
+                       locationPermStatus.coarseLocation === "granted")
                 ) {
                     UserData.setSeenTutorial(true);
                     this.$router.replace("/register");
