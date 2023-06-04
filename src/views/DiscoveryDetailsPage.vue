@@ -153,7 +153,7 @@ export default {
 
     data() {
         return {
-            cameraOutline, customMapIcon, star, UserData,
+            cameraOutline, customMapIcon, star,
             customTargetIcon: targetIconWhite  // May be overriden during mount
         }
     },

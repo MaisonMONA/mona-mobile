@@ -10,16 +10,16 @@
             <div class="main-content">
                 <p id="tab-title">Liste des découvertes à faire</p>
                 <ion-searchbar show-clear-button="always" placeholder="Chercher" :debounce="500" @ionChange="triggerTextFilter"></ion-searchbar>
-                <ion-button class="filters-button" shape="round" fill="outline" @click="showFiltersPanel">
+               <!-- <ion-button class="filters-button" shape="round" fill="outline" @click="showFiltersPanel">
                     <ion-icon :icon="filterOutline"></ion-icon>
                     Filtrer
-                </ion-button>
+                </ion-button> -->
                 <ion-list :inset="true" lines="none">
                     <ion-item id="list" v-for="discovery of discoveries" :key="discovery" @click="openDetails(discovery)">
                         <ion-avatar slot="start">
                             <img :src="getDiscoveryMedalIcon(discovery)" alt="">
                         </ion-avatar>
-                        <ion-label id="distance" position="fixed">{{showDistance(discovery)}} km</ion-label>
+                        <ion-label id="distance" position="fixed">{{showDistance(discovery)}}</ion-label>
                         <ion-label id="title">{{ discovery.getTitle() }}</ion-label>
                     </ion-item>
                 </ion-list>
@@ -184,17 +184,16 @@ export default {
             const a = Math.sin(delta_phi/2.0)** 2 + Math.cos(phi1) * Math.cos(phi2) * Math.sin(delta_lambda/2.0)**2
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt((1-a)))
             const meters = R * c
-            const km = meters / 1000.0
-            return this.roundDown(km)
+            const km = meters / 1000
+            if (km > 1) {
+                return Math.round(km) + " km"
+            }
+            return Math.round(meters) + " m"
         },
         //source: https://www.w3resource.com/javascript-exercises/javascript-math-exercise-33.php
         degrees2radians(degrees){
             const pi = Math.PI;
             return degrees * (pi/180);
-        },
-        //inspire de https://stackoverflow.com/questions/33429136/round-to-3-decimal-points-in-javascript-jquery
-        roundDown(number){ //up to 3 decimal
-            return Math.round(number * 1000) / 1000
         },
         closeFilter() {
             const panel = document.querySelector("div.filters-panel");
