@@ -344,7 +344,7 @@ export class UserData {
         }
 
         // Collected not found, throw error
-        throw new Error("Invalid (id, type) pair (object does not exist)");
+        throw new Error("Invalid (id, type) pair : object does not exist.");
     }
 
     public static getCollected(id: number, type: number | string): Review {

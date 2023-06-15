@@ -225,8 +225,14 @@ p {
     --background-activated: lightgrey;
     width: 14vw;
     height: 14vw;
-    font-size: 10px;
+    font-size: 12px;
+    font-weight: normal;
     --border-radius: 15px;
+}
+
+#refresh-button ion-icon {
+    font-size: 32px;
+    color: grey;
 }
 
 #show-badges-button {

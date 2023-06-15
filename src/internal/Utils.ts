@@ -3,7 +3,7 @@ import { Directory, Filesystem } from "@capacitor/filesystem";
 import Feature from "ol/Feature";
 import { Icon, Style } from "ol/style";
 
-import { DiscoveryEnum } from "@/internal/Types";
+import { Discovery, DiscoveryEnum } from "@/internal/Types";
 import { RNG } from "@/internal/RNG";
 import { UserData } from "@/internal/databases/UserData";
 import { ArtworkDatabase } from "@/internal/databases/ArtworkDatabase";
@@ -175,6 +175,8 @@ export default {
          */
         const { filename, rating, comment } = UserData.getCollected(id, type);
 
+        console.log(filename, rating, comment);
+
         const image = await Filesystem.readFile({
             path: "img/" + filename,
             directory: Directory.Data,
@@ -212,7 +214,7 @@ export default {
                 UserData.removePendingUpload(id, type);
             } else {
                 response.json().then((json) => {
-                    console.log(`UPLOAD ERR: code ${response.status}, ${JSON.stringify(json)}`);
+                    console.log(`UPLOAD ERR: code ${response.status}, content: ${JSON.stringify(json)}`);
                 })
             }
         })
@@ -222,7 +224,7 @@ export default {
         });
     },
 
-    getDiscovery(id: number, type: number | string) {
+    getDiscovery(id: number, type: number | string): Discovery | null {
         /**
          * Simple utility function that returns the discovery associated
          * with ID with type being flexible.

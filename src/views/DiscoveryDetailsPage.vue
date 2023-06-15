@@ -16,6 +16,7 @@
                     <ion-img id="defaultPhoto" :src="require('@/assets/drawable/mona_logo_med.png')"></ion-img>
                     <ion-img id="userPhoto"></ion-img>
                 </div>
+
                 <!-- PHOTO BUTTON -->
                 <ion-button class="discovery-button" id="photoButton" fill="solid" @click="activateCamera">
                     <ion-icon id="cameraIcon" :icon="cameraOutline"></ion-icon>
@@ -33,88 +34,42 @@
             </div>
 
             <div class="discoveryDetailsContainer">
-                <div class="discoveryDetailsContent">
-                    <!-- IF THE DISCOVERY IS AN ARTWORK -->
-                    <div v-if="dType === DiscoveryEnum.ARTWORK" id="dDetails">
-                        <p id="dTitle">{{ discovery.getTitle() }}</p>
-                        <ul id="dRating">
-                            <li :key="st" v-for="st in this.showRating()">
+                <div class="discoverydetails">
+                    <p class="details title">{{ discovery.getTitle() }}</p>
+
+                    <div v-if="isCollected" class="user-review">
+                        <!-- A rating of 0 means the user didn't rate the discovery (min val is 1) -->
+                        <ul v-if="this.getRating() > 0" id="dRating">
+                            <li :key="st" v-for="st in this.getRating()">
                                 <ion-icon size="large" :icon="star"></ion-icon>
                             </li>
-                        </ul>
-                        <span class="separatingBar"></span>
-                        <p id="dArtist">{{ discovery.getArtists() }}</p>
-                        <p v-if="discovery.categories != null" id="dCategories">{{ discovery.getCategories() }}</p>
-
-                        <div v-if="discovery.produced_at != null && discovery.getDirections() != null">
-                            <p>{{ discovery.produced_at }} • {{ discovery.getDirections() }}</p>
-                        </div>
-                        <div v-else-if="discovery.produced_at != null">
-                            <p id="dProduced">{{ discovery.produced_at }}</p>
-                        </div>
-                        <div v-else>
-                            <p id="dProduced">{{discovery.getDirections() }}</p>
-                        </div>
-
-                        <p v-if="discovery.dimensions != null" id="dDimensions">{{ discovery.dimensions.fr[0].replaceAll('x', '×') }}</p>
-                        <p v-if="discovery.materials != null" id="dMaterials">{{ discovery.materials.fr.join(', ') }}</p>
-                        <p v-if="discovery.techniques != null" id="dTechniques">{{ discovery.techniques.fr.join(', ') }}</p>
-                    </div>
-
-                    <!-- ELSE IF IT'S A PLACE -->
-                    <div v-else-if="dType === DiscoveryEnum.PLACE" id="dDetails">
-                        <p id="dTitle">{{ discovery.getTitle() }}</p>
-                        <ul id="dRating">
-                            <li :key="st" v-for="st in this.showRating()">
-                                <ion-icon size="large" :icon="star"></ion-icon>
+                            <li :key="nostar" v-for="nostar in (5 - this.getRating())">
+                                <ion-icon size="large" :icon="starOutline"></ion-icon>
                             </li>
                         </ul>
-                        <span class="separatingBar"></span>
-                        <p id="dUsages">{{ discovery.getUsages() }}</p>
 
-                        <div v-if="discovery.getBorough() !== '' && discovery.getAddress() != null">
-                            <p id="dBorough">{{ discovery.getBorough() }} • {{ discovery.getAddress() }}</p>
-                        </div>
-                        <div v-else-if="discovery.getBorough() !== ''">
-                            <p id="dBorough">{{ discovery.getBorough() }}</p>
-                        </div>
-                        <div v-else>
-                            <p id="dBorough">{{discovery.getAddress()}}</p>
-                        </div>
-
-                        <p v-if="discovery.description != null" id="dDescription">{{ discovery.description }}</p>
+                        <p v-if="this.getComment()">Commentaire : {{ this.getComment() }}</p>
                     </div>
 
-                    <!-- ELSE (IT'S A HERITAGE) -->
-                    <div v-else id="dDetails">
-                        <p id="dTitle">{{ discovery.getTitle() }}</p>
-                        <ul id="dRating">
-                            <li :key="st" v-for="st in this.showRating()">
-                                <ion-icon size="large" :icon="star"></ion-icon>
-                            </li>
-                        </ul>
-                        <span class="separatingBar"></span>
-                        <p id="dUsages">{{ discovery.getUsages() }}</p>
+                    <span class="separating-bar"></span>
 
-                        <div v-if="discovery.getBorough() !== '' && discovery.getAddress() != null">
-                            <p id="dBorough">{{ discovery.getBorough() }} • {{ discovery.getAddress() }}</p>
-                        </div>
-                        <div v-else-if="discovery.getBorough() !== ''">
-                            <p id="dBorough">{{ discovery.getBorough() }}</p>
-                        </div>
-                        <div v-else>
-                            <p id="dBorough">{{discovery.getAddress()}}</p>
-                        </div>
+                    <!-- Artists or usages -->
+                    <p class="details one">{{ details1 }}</p>
 
-                        <p v-if="discovery.produced_at != null" id="dProduced">{{ discovery.produced_at }}</p>
-                        <p v-if="discovery.description != null" id="dDescription">{{ discovery.synthesis }}</p>
-                    </div>
+                    <!-- Categories or borough -->
+                    <p class="details two">{{ details2 }}</p>
 
-                    <div class="comment-dateCreation">
-                        <p id="comment">{{this.showComment() }}</p>
+                    <!-- Production date -->
+                    <p class="details production-date">{{ productionDate }}</p>
 
-                    </div>
+                    <!-- Directions or description -->
+                    <p class="details three">{{ details3 }}</p>
 
+                    <template v-if="isArtwork">
+                        <p class="details four">{{ details4 }}</p> <!-- Artwork dimensions -->
+                        <p class="details five">{{ details5 }}</p> <!-- Artwork materials -->
+                        <p class="details six" >{{ details6 }}</p> <!-- Artwork techniques -->
+                    </template>
                 </div>
             </div>
         </ion-content>
@@ -127,13 +82,10 @@ import {
     IonBackButton, IonButton, IonButtons, IonContent, IonFabButton,
     IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, IonImg, toastController
 } from '@ionic/vue';
-import { cameraOutline, star } from "ionicons/icons";
+import { cameraOutline, star, starOutline } from "ionicons/icons";
 import { useRoute } from "vue-router";
 
 import { DiscoveryEnum } from "@/internal/Types";
-import { ArtworkDatabase } from "@/internal/databases/ArtworkDatabase";
-import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
-import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
 import { UserData } from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
 import { Directory, Filesystem } from "@capacitor/filesystem";
@@ -152,9 +104,43 @@ export default {
     },
 
     data() {
+        let isArtwork, productionDate, details1, details2, details3, details4, details5, details6;
+        if (this.discovery.dType === "artwork") {
+            isArtwork = true;
+
+            details1 = this.discovery.getArtists();
+            details2 = this.discovery.getCategories();
+            details3 = this.discovery.getDirections();
+            details4 = this.discovery.getDimensions();
+            details5 = this.discovery.getMaterials();
+            details6 = this.discovery.getTechniques();
+
+            productionDate = this.discovery.produced_at;
+        } else {
+            isArtwork = false;
+
+            details1 = this.discovery.getUsages();
+            details2 = [this.discovery.getBorough(), this.discovery.getAddress()].filter(elm => elm).join(' • ');
+            details3 = this.discovery.description;
+            details4 = '';
+            details5 = '';
+            details6 = '';
+
+            if (this.discovery.dType === "heritage")
+                productionDate = this.discovery.produced_at;
+            else
+                productionDate = '';
+        }
+
         return {
-            cameraOutline, customMapIcon, star,
-            customTargetIcon: targetIconWhite  // May be overriden during mount
+            cameraOutline, customMapIcon, star, starOutline,
+            customTargetIcon: targetIconWhite,  // May be overridden during mount
+
+            isCollected: UserData.isCollected(this.discovery.id, this.discovery.dType),
+
+            isArtwork,
+            productionDate,
+            details1, details2, details3, details4, details5, details6,
         }
     },
 
@@ -219,8 +205,8 @@ export default {
         else
             barColor = "#C0C4E4"  // Blue powder
 
-        const separatingBar = document.querySelector("span.separatingBar");
-        separatingBar.style.borderColor = barColor;
+        const separatingBar = document.querySelector("span.separating-bar");
+        if (separatingBar) separatingBar.style.borderColor = barColor;
     },
 
     methods: {
@@ -247,7 +233,7 @@ export default {
             userImg.onclick = this.showImg;
 
             const filename = await Utils.savePicture(img);
-            UserData.addCollected(this.discovery, "img/" + filename, null, null);
+            UserData.addCollected(this.discovery, filename, null, null);
             UserData.addPendingUpload(this.discovery.id, this.discovery.dType);
 
             const redirection = {
@@ -287,6 +273,7 @@ export default {
         showImg() {
             // TODO
         },
+
         activateMap() {
             const mapInstructions = {
                 path: "/tabs/map/",
@@ -299,21 +286,114 @@ export default {
             this.$router.push(mapInstructions);
         },
 
-        showComment() {
-            const userData = UserData.getCollected(this.discovery.id, this.discovery.dType)
-            if(userData) return userData.comment
+        getComment() {
+            const userData = UserData.getCollected(this.discovery.id, this.discovery.dType);
+            return userData.comment;
         },
 
-        showRating(){
-            const userData = UserData.getCollected(this.discovery.id, this.discovery.dType)
-            if(userData) return userData.rating
+        getRating() {
+            const userData = UserData.getCollected(this.discovery.id, this.discovery.dType);
+            return userData.rating;
         }
     }
 }
 </script>
 
 <style scoped>
-@import url("@/theme/DiscoveryDetails.css");
+.discoveryPhotoContainer {
+    width: 100%;
+    height: 50%;
+    background: var(--blue-powder);
+}
+
+#photoButton, #seeOnMapButton {
+    position: absolute;
+    width: 35%;
+    top: 35%;
+    height: 80px;
+    outline-color: white;
+    --border-color: white;
+    color: white;
+}
+
+ion-button ion-icon {
+    font-weight: 100;
+    font-size: 45px;
+    --ionicon-stroke-width: 20;
+    color: black;
+}
+
+ion-button {
+    --border-radius: 15px;
+    --background: white;
+}
+
+#photoButton {
+    left: 10%;
+}
+
+#seeOnMapButton {
+    right: 10%;
+}
+
+#targetButton {
+    transform-origin: center;
+    position: absolute;
+    right: 5%;
+    top: 50%;
+}
+
+#targetIcon {
+    font-size: 30px;
+}
+
+.discoverydetails {
+    margin: 5% 5% 30px 5%;
+    font-family: 'OpenSans', sans-serif;
+}
+
+.details.title {
+    font-size: 25px;
+    font-style: italic;
+    font-weight: 600;
+}
+
+p.details {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.details.one {
+    font-size: 20px;
+    font-weight: 300;
+    margin: 20px 0 0 0;
+}
+
+.details.two {
+    font-size: 16px;
+}
+
+.details.three, .four, .five, .six {
+    font-size: 14px;
+    color: gray;
+    margin: 5px 0;
+    line-height: 20px;
+}
+
+.details.production-date {
+    font-size: 15px;
+}
+
+span.separating-bar {
+    padding: 0 25vw 0 0;
+    border-bottom: 5px solid var(--blue-powder);
+}
+
+.user-review p {
+    margin: 0;
+    font-size: 14px;
+}
+
 ion-back-button {
     color: black;
 }
@@ -336,15 +416,16 @@ ion-back-button {
 }
 
 
-ion-icon {
-    color: var(--mona-yellow)
+#dRating ion-icon {
+    color: var(--mona-yellow);
+}
+
+ul {
+    margin: 0;
+    padding: 0;
 }
 
 li {
     display: inline-block;
-}
-
-ul {
-    padding: 0;
 }
 </style>

@@ -48,6 +48,7 @@ export default {
         updateRating(rating) {
             this.givenRating = rating;
         },
+
         submitDiscovery() {
             const id = this.$route.query.id;
             const type = this.$route.query.type;
