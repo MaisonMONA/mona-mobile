@@ -15,11 +15,11 @@
                     Filtrer
                 </ion-button>
                 <ion-list :inset="true" lines="none">
-                    <ion-item id="list" v-for="discovery of discoveries" :key="discovery" @click="openDetails(discovery)">
+                    <ion-item id="list" v-for="discovery of trierListe(true)" :key="discovery" @click="openDetails(discovery)">
                         <ion-avatar slot="start">
                             <img :src="getDiscoveryMedalIcon(discovery)" alt="">
                         </ion-avatar>
-                        <ion-label id="distance" position="fixed">{{showDistance(discovery)}}</ion-label>
+                        <ion-label id="distance" position="fixed">{{discovery.distance}} km</ion-label>
                         <ion-label id="title">{{ discovery.getTitle() }}</ion-label>
                     </ion-item>
                 </ion-list>
@@ -28,8 +28,8 @@
                 </ion-infinite-scroll>
                 <p class="bottom-text">{{ discoveries.length }} résultats</p>
             </div>
-
-            <ion-modal ref="modal" trigger="open-modal" :initial-breakpoint="0.5" :breakpoints="[0, 0.25, 0.5]">
+<!-- Décommenter une fois l'implémentation du filtre soit finie
+            <ion-modal ref="modal" trigger="open-modal" :initial-breakpoint="0.25" :breakpoints="[0, 0.25]">
                     <ion-content>
                         <ion-toolbar id="modal-header">
                                 <ion-icon class="modal-icon" size="medium" slot="start" :src="optionsOutline"></ion-icon>
@@ -88,13 +88,14 @@
                         </ion-list>
                     </ion-content>
             </ion-modal>
+            -->
         </ion-content>
     </ion-page>
 </template>
 
 <script>
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonLabel, IonItem, IonAvatar,
-         IonInfiniteScroll, IonInfiniteScrollContent, IonSearchbar, IonIcon, IonButton, IonModal,  IonRadio, IonRadioGroup,
+         IonInfiniteScroll, IonInfiniteScrollContent, IonSearchbar, IonIcon, IonButton,// IonModal,  IonRadio, IonRadioGroup,
         } from "@ionic/vue";
 import { filterOutline, close, optionsOutline} from "ionicons/icons";
 import { UserData } from "@/internal/databases/UserData";
@@ -103,7 +104,7 @@ export default {
     name: "ListPage",
     components: {
         IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonLabel, IonItem, IonAvatar,
-        IonInfiniteScroll, IonInfiniteScrollContent, IonSearchbar, IonIcon, IonButton, IonModal,  IonRadio, IonRadioGroup,
+        IonInfiniteScroll, IonInfiniteScrollContent, IonSearchbar, IonIcon, IonButton, //IonModal,  IonRadio, IonRadioGroup,
 
     },
     setup(){
@@ -157,13 +158,6 @@ export default {
             this.pullDiscoveries(null);
         },
 
-        showFiltersPanel() {
-            // TODO: finish panel and uncomment these lines
-            //const panel = document.querySelector("div.filters-panel");
-            //panel.hidden = false;
-            //if (panel) panel.classList.add("shown");
-        },
-
         getDiscoveryMedalIcon(discovery) {
             if (UserData.isCollected(discovery.id, discovery.dType))
                 return require(`@/assets/drawable/medals/${ discovery.dType }/collected.svg`);
@@ -190,6 +184,9 @@ export default {
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt((1-a)))
             const meters = R * c
             const km = meters / 1000
+            if (discovery.dType === "heritage"){
+                console.log(discovery.distance)
+            }
             if (km > 1) {
                 return Math.round(km) + " km"
             }
@@ -200,15 +197,16 @@ export default {
             const pi = Math.PI;
             return degrees * (pi/180);
         },
-        closeFilter() {
-            const panel = document.querySelector("div.filters-panel");
-            if (panel) panel.hidden = true
-        },
-        trierAlphabetique(){
-            return
-        },
-        trierDistance(){
-            return
+
+        trierListe(sortByDistance){
+            let discoveriesSortByDistance = [];
+            if (sortByDistance){
+                discoveriesSortByDistance = this.discoveries;
+                discoveriesSortByDistance.sort((a , b) => {
+                    return a.distance - b.distance
+                });
+            }
+            return this.discoveries
         },
         dismiss() {
             this.$refs.modal.$el.dismiss();
