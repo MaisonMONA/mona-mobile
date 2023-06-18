@@ -15,11 +15,11 @@
                     Filtrer
                 </ion-button>
                 <ion-list :inset="true" lines="none">
-                    <ion-item id="list" v-for="discovery of trierListe(true)" :key="discovery" @click="openDetails(discovery)">
+                    <ion-item id="list" v-for="discovery of discoveriesSortByDistance" :key="discovery" @click="openDetails(discovery)">
                         <ion-avatar slot="start">
                             <img :src="getDiscoveryMedalIcon(discovery)" alt="">
                         </ion-avatar>
-                        <ion-label id="distance" position="fixed">{{discovery.distance}} km</ion-label>
+                        <ion-label id="distance" position="fixed">{{showDistance(discovery)}}</ion-label>
                         <ion-label id="title">{{ discovery.getTitle() }}</ion-label>
                     </ion-item>
                 </ion-list>
@@ -118,12 +118,17 @@ export default {
             filterOutline,  // Icon
             discoveries: [],
             offset: 0,
-            currentFilter: ''
+            currentFilter: '',
+            discoveriesSortByDistance: [],
+
+
         }
     },
 
     beforeMount() {
-        this.pullDiscoveries(null);
+        //this.pullDiscoveries(null);
+        this.trierListeParDistance(null);
+
     },
 
     methods: {
@@ -154,8 +159,10 @@ export default {
 
             this.currentFilter = event.detail.value.trim().normalize('NFD').replace(/\p{Diacritic}/gu, '');
             this.offset = 0;
-            this.discoveries = [];
-            this.pullDiscoveries(null);
+            //this.discoveries = [];
+           // this.pullDiscoveries(null);
+            this.discoveriesSortByDistance = [];
+            this.trierListeParDistance(null);
         },
 
         getDiscoveryMedalIcon(discovery) {
@@ -184,9 +191,6 @@ export default {
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt((1-a)))
             const meters = R * c
             const km = meters / 1000
-            if (discovery.dType === "heritage"){
-                console.log(discovery.distance)
-            }
             if (km > 1) {
                 return Math.round(km) + " km"
             }
@@ -197,16 +201,20 @@ export default {
             const pi = Math.PI;
             return degrees * (pi/180);
         },
+        trierListeParDistance(event){
 
-        trierListe(sortByDistance){
-            let discoveriesSortByDistance = [];
-            if (sortByDistance){
-                discoveriesSortByDistance = this.discoveries;
-                discoveriesSortByDistance.sort((a , b) => {
-                    return a.distance - b.distance
-                });
-            }
-            return this.discoveries
+            const subset = UserData.getSortedDiscoveriesDistance().filter((elm) => {
+                return elm.getTitle().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').includes(this.currentFilter.toLowerCase())
+            }).slice(this.offset, this.offset + 50);
+
+            console.log("in listPage")
+            console.log(subset)
+            this.discoveriesSortByDistance = this.discoveriesSortByDistance.concat(subset)
+
+            if (event)  // Send a signal when the user reaches the bottom
+                event.target.complete();
+
+            this.offset += 50;
         },
         dismiss() {
             this.$refs.modal.$el.dismiss();

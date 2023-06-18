@@ -1,5 +1,3 @@
-import {UserData} from "@/internal/databases/UserData";
-
 export enum DiscoveryEnum {
     ARTWORK,
     PLACE,
@@ -12,10 +10,13 @@ export abstract class Discovery {
     public abstract dType: string;
     public isTargeted  = false;  // TODO delete attribute after checking safety
     public isCollected = false;  // TODO delete attribute after checking safety
-
     public abstract getTitle(): string;
 
+
     // All code below for inheritance
+    public getLocation():  { lat: number, lng: number } {
+        return {lat:0,lng:0};
+    }
     public getArtists(): string {
         return '';
     }
@@ -58,7 +59,6 @@ export class Artwork extends Discovery {
         categories: { fr: string[], en: string[] } | null,
         techniques: { fr: string[], en: string[] } | null,
         directions: { fr: string | null, en: string | null } | null
-        distance: number;
     }) {
         super();
         this.id          = artwork.id;
@@ -72,7 +72,6 @@ export class Artwork extends Discovery {
         this.categories  = artwork.categories;
         this.techniques  = artwork.techniques;
         this.directions  = artwork.directions;
-        this.distance = distance(artwork.location);
     }
     dType = "artwork";
     id: number;
@@ -86,7 +85,10 @@ export class Artwork extends Discovery {
     categories: { fr: string[], en: string[] } | null;
     techniques: { fr: string[], en: string[] } | null;
     directions: { fr: string | null, en: string | null } | null;
-    distance: number;
+
+    public getLocation(): { lat: number; lng: number } {
+        return this.location;
+    }
 
     public getTitle(): string {
         return this.title.fr || this.title.en || "(non titré)";
@@ -122,7 +124,6 @@ export class Place extends Discovery {
         id: number, title: string, usages: { fr: string[], en: string[] },
         borough: string, territory: string, description: string | null,
         location: { lat: number, lng: number }, address: string
-        distance: number;
     }) {
         super();
         this.id          = place.id;
@@ -133,7 +134,6 @@ export class Place extends Discovery {
         this.description = place.description;
         this.territory   = place.territory;
         this.address     = place.address;
-        this.distance    = distance(place.location);
     }
 
     dType = "place";
@@ -145,7 +145,10 @@ export class Place extends Discovery {
     description: string | null;
     territory: string;
     address: string;
-    distance: number;
+
+    public getLocation(): { lat: number; lng: number }  {
+        return this.location;
+    }
 
     public getTitle(): string {
         return this.title;
@@ -175,7 +178,6 @@ export class Heritage extends Discovery {
         borough: string, synthesis: null, "sous-usages": string[],
         subUses: string[], functions: { fr: string[], en: string[] },
         addresses: string[],
-        distance: number
     }) {
         super();
         this.id          = heritage.id;
@@ -190,7 +192,6 @@ export class Heritage extends Discovery {
         this.borough     = heritage.borough;
         this.territory   = heritage.territory;
         this.addresses   = heritage.addresses;
-        this.distance    = distance(heritage.location);
     }
 
     dType = "heritage";
@@ -206,8 +207,10 @@ export class Heritage extends Discovery {
     synthesis: null;
     subUses: string[];
     addresses: string[];
-    distance: number
 
+    public getLocation(): { lat: number; lng: number } {
+        return this.location;
+    }
     public getTitle(): string {
         return this.title;
     }
@@ -267,29 +270,4 @@ export class Badge extends Discovery {
     public getTitle(): string {
         return this.title;
     }
-}
-
-function distance(discoveryLocation: { lat: number; lng: number }): number {
-    const lat1 = discoveryLocation.lat
-    const lat2 = UserData.getLocation()[1]
-    const lng1 = discoveryLocation.lng
-    const lng2 = UserData.getLocation()[0]
-    const R = 6371000 //radius of Earth in m
-    const phi1 = degrees2radians(lat1)
-    const phi2 = degrees2radians(lat2)
-    const delta_phi = degrees2radians(lat2 - lat1)
-    const delta_lambda = degrees2radians(lng2 - lng1)
-    const a = Math.sin(delta_phi/2.0)** 2 + Math.cos(phi1) * Math.cos(phi2) * Math.sin(delta_lambda/2.0)**2
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt((1-a)))
-    const meters = R * c
-    const km = meters / 1000
-    return roundDown(km)
-
-}
-function degrees2radians(degrees: number): number{
-    const pi = Math.PI;
-    return degrees * (pi/180);
-}
-function roundDown(number: number): number{ //up to 3 decimal
-    return Math.round(number * 1000) / 1000
 }

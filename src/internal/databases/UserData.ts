@@ -1,5 +1,5 @@
 import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
-import { Discovery, DiscoveryEnum, Heritage } from "@/internal/Types";
+import {Artwork, Discovery, DiscoveryEnum, Heritage, Place} from "@/internal/Types";
 import Utils from "@/internal/Utils";
 import Globals from "@/internal/Globals";
 import { Geolocation } from "@capacitor/geolocation";
@@ -16,6 +16,7 @@ export class UserData {
     private static cachePath = "discoveries_sorted.json"
     private static type = "preferences";
 
+
     // The point of the attribute below is to have a full, sorted list of all
     // discoveries no matter their type. It makes some things easier, for
     // example the List tab, in order to have a alphabetically pre-sorted list
@@ -23,6 +24,7 @@ export class UserData {
     // doing it type by type and have some pin colors completely hidden because
     // they were added first. It also gives an feeling of random.
     private static sortedDiscoveries: Discovery[] = [];
+    private static sortedDiscoveriesDistance:  Discovery[] = [];
 
     public static async populate() {
         if (this.data) return;  // Do not populate twice
@@ -142,9 +144,49 @@ export class UserData {
         } catch (err) {
             console.log("Failed to load cache, building it.");
             await this.buildCache();
+            await this.sortByDistance();
+
         }
     }
 
+    public static async sortByDistance() {
+        this.sortedDiscoveriesDistance = ArtworkDatabase.getSubset(0, ArtworkDatabase.getSize());
+        this.sortedDiscoveriesDistance = this.sortedDiscoveriesDistance.concat(PlaceDatabase.getSubset(0, PlaceDatabase.getSize()));
+        this.sortedDiscoveriesDistance = this.sortedDiscoveriesDistance.concat(HeritageDatabase.getSubset(0, HeritageDatabase.getSize()));
+        const lat2 = UserData.getLocation()[1];
+        const lng2 = UserData.getLocation()[0]
+        this.sortedDiscoveriesDistance.sort((a, b) => {
+            return this.calculateDistance(a, lat2, lng2) - this.calculateDistance(b, lat2, lng2);
+        });
+
+    }
+    public static getSortedDiscoveriesDistance(sliceA?: number, sliceB?: number) {
+        return this.sortedDiscoveriesDistance.slice(sliceA || 0, sliceB || Infinity)
+    }
+    public static calculateDistance(discovery:Discovery, lat2:number, lng2:number){ //lng , lt
+        const lat1 = discovery.getLocation().lat
+        //const lat2 = UserData.getLocation()[1]
+        const lng1 = discovery.getLocation().lng
+        //const lng2 = UserData.getLocation()[0]
+        const R = 6371000 //radius of Earth in m
+        const phi1 = this.degrees2radians(lat1)
+        const phi2 = this.degrees2radians(lat2)
+        const delta_phi = this.degrees2radians(lat2 - lat1)
+        const delta_lambda = this.degrees2radians(lng2 - lng1)
+        const a = Math.sin(delta_phi/2.0)** 2 + Math.cos(phi1) * Math.cos(phi2) * Math.sin(delta_lambda/2.0)**2
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt((1-a)))
+        const meters = R * c
+        const km = meters / 1000
+        return this.roundDown(km)
+    }
+    //source: https://www.w3resource.com/javascript-exercises/javascript-math-exercise-33.php
+   public static degrees2radians(degrees: number){
+        const pi = Math.PI;
+        return degrees * (pi/180);
+    }
+    public static roundDown(number:number){ //up to 3 decimal
+        return Math.round(number * 1000) / 1000
+    }
     private static async buildCache() {
         this.sortedDiscoveries = ArtworkDatabase.getSubset(0, ArtworkDatabase.getSize());
         this.sortedDiscoveries = this.sortedDiscoveries.concat(PlaceDatabase.getSubset(0, PlaceDatabase.getSize()));
@@ -212,8 +254,15 @@ export class UserData {
             }
         }
 
-        if (hasFoundUpdate)  // Rebuild cache when any DB is updated
+        if (hasFoundUpdate) {  // Rebuild cache when any DB is updated
+            console.log("Sorting discoveries alphabetically")
             await this.buildCache();
+            console.log("Done sorting discoveries alphabetically")
+            console.log("Sorting discoveries by distance")
+            await this.sortByDistance();
+            console.log("Done sorting discoveries by distance")
+            console.log(this.getSortedDiscoveriesDistance(0, 10))
+        }
     }
 
     public static setDBLastUpdate(type: string, date: Date) {
