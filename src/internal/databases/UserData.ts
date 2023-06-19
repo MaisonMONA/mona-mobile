@@ -7,6 +7,7 @@ import { ArtworkDatabase } from "@/internal/databases/ArtworkDatabase";
 import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
 import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
 import { ArtworkFactory, PlaceFactory } from "@/internal/Factories";
+import {Distance} from "@/internal/Distance";
 
 type Review = {id: number, dType: string, imagepath: string, rating: number, comment: string};
 
@@ -156,36 +157,12 @@ export class UserData {
         const lat2 = UserData.getLocation()[1];
         const lng2 = UserData.getLocation()[0]
         this.sortedDiscoveriesDistance.sort((a, b) => {
-            return this.calculateDistance(a, lat2, lng2) - this.calculateDistance(b, lat2, lng2);
+            return Distance.calculateDistance(a, lat2, lng2) - Distance.calculateDistance(b, lat2, lng2);
         });
 
     }
     public static getSortedDiscoveriesDistance(sliceA?: number, sliceB?: number) {
         return this.sortedDiscoveriesDistance.slice(sliceA || 0, sliceB || Infinity)
-    }
-    public static calculateDistance(discovery:Discovery, lat2:number, lng2:number){ //lng , lt
-        const lat1 = discovery.getLocation().lat
-        //const lat2 = UserData.getLocation()[1]
-        const lng1 = discovery.getLocation().lng
-        //const lng2 = UserData.getLocation()[0]
-        const R = 6371000 //radius of Earth in m
-        const phi1 = this.degrees2radians(lat1)
-        const phi2 = this.degrees2radians(lat2)
-        const delta_phi = this.degrees2radians(lat2 - lat1)
-        const delta_lambda = this.degrees2radians(lng2 - lng1)
-        const a = Math.sin(delta_phi/2.0)** 2 + Math.cos(phi1) * Math.cos(phi2) * Math.sin(delta_lambda/2.0)**2
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt((1-a)))
-        const meters = R * c
-        const km = meters / 1000
-        return this.roundDown(km)
-    }
-    //source: https://www.w3resource.com/javascript-exercises/javascript-math-exercise-33.php
-   public static degrees2radians(degrees: number){
-        const pi = Math.PI;
-        return degrees * (pi/180);
-    }
-    public static roundDown(number:number){ //up to 3 decimal
-        return Math.round(number * 1000) / 1000
     }
     private static async buildCache() {
         this.sortedDiscoveries = ArtworkDatabase.getSubset(0, ArtworkDatabase.getSize());
@@ -261,7 +238,7 @@ export class UserData {
             console.log("Sorting discoveries by distance")
             await this.sortByDistance();
             console.log("Done sorting discoveries by distance")
-            console.log(this.getSortedDiscoveriesDistance(0, 10))
+            console.log(this.getSortedDiscoveriesDistance(0, 100))
         }
     }
 
