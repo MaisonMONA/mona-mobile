@@ -14,7 +14,7 @@
                     <ion-icon :icon="filterOutline"></ion-icon>
                     Filtrer
                 </ion-button>
-                <ion-list :inset="true" lines="none">
+                <ion-list :inset="true" lines="none" :key="componentKey">
                     <ion-item id="list" v-for="discovery of discoveriesSortByDistance" :key="discovery" @click="openDetails(discovery)">
                         <ion-avatar slot="start">
                             <img :src="getDiscoveryMedalIcon(discovery)" alt="">
@@ -23,7 +23,7 @@
                         <ion-label id="title">{{ discovery.getTitle() }}</ion-label>
                     </ion-item>
                 </ion-list>
-                <ion-infinite-scroll @ionInfinite="pullDiscoveriesSortByDistance">
+                <ion-infinite-scroll @ionInfinite="pullDiscoveriesSortByDistance" :key="componentKey">
                     <ion-infinite-scroll-content></ion-infinite-scroll-content>
                 </ion-infinite-scroll>
                 <p class="bottom-text">{{ discoveriesSortByDistance.length }} résultats</p>
@@ -89,6 +89,9 @@
                     </ion-content>
             </ion-modal>
             -->
+            <ion-button @click="refreshPage" id="refresh-button">
+                <ion-icon :icon="syncCircleIcon"></ion-icon>
+            </ion-button>
         </ion-content>
     </ion-page>
 </template>
@@ -97,7 +100,7 @@
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonLabel, IonItem, IonAvatar,
          IonInfiniteScroll, IonInfiniteScrollContent, IonSearchbar, IonIcon, IonButton,// IonModal,  IonRadio, IonRadioGroup,
         } from "@ionic/vue";
-import { filterOutline, close, optionsOutline} from "ionicons/icons";
+import { filterOutline, close, optionsOutline, reload} from "ionicons/icons";
 import { UserData } from "@/internal/databases/UserData";
 import {Distance} from "../internal/Distance";
 
@@ -128,6 +131,8 @@ export default {
             discoveriesSortByDistance: [],
             lat2 : UserData.getLocation()[1],
             lng2 : UserData.getLocation()[0],
+            syncCircleIcon: reload,
+            componentKey: 0,
 
 
         }
@@ -136,17 +141,6 @@ export default {
     beforeMount() {
         this.pullDiscoveriesSortByDistance(null);
 
-    },
-
-    created() {
-        this.$watch(
-            () => UserData.getLocation(),
-            () => {
-                UserData.sortByDistance();
-                this.lat2 = UserData.getLocation()[1];
-                this.lng2 = UserData.getLocation()[0];
-            }
-        )
     },
 
     methods: {
@@ -208,6 +202,15 @@ export default {
 
         dismiss() {
             this.$refs.modal.$el.dismiss();
+        },
+        forceRerender() {
+            this.componentKey += 1;
+        },
+        refreshPage() {
+            UserData.sortByDistance();
+            this.offset = 0;
+            this.pullDiscoveriesSortByDistance(null);
+            this.forceRerender();
         },
     }
 }
@@ -348,6 +351,19 @@ ion-modal {
     padding: 2%;
 }
 
+#refresh-button {
+    position: fixed;
+    z-index: 2;
+    right: 10px;
+    color: #7F7F7F;
+    bottom: 10px;
+    --background: var(--toolbar-purple);
+    --background-activated: lightgrey;
+    width: 14vw;
+    height: 14vw;
+    font-size: 10px;
+    --border-radius: 15px;
+}
 
 
 /** {*/

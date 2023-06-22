@@ -150,7 +150,7 @@ export class UserData {
         }
     }
 
-    public static async sortByDistance() {
+    public static sortByDistance() {
         this.sortedDiscoveriesDistance = ArtworkDatabase.getSubset(0, ArtworkDatabase.getSize());
         this.sortedDiscoveriesDistance = this.sortedDiscoveriesDistance.concat(PlaceDatabase.getSubset(0, PlaceDatabase.getSize()));
         this.sortedDiscoveriesDistance = this.sortedDiscoveriesDistance.concat(HeritageDatabase.getSubset(0, HeritageDatabase.getSize()));
@@ -238,7 +238,6 @@ export class UserData {
             console.log("Sorting discoveries by distance")
             await this.sortByDistance();
             console.log("Done sorting discoveries by distance")
-            console.log(this.getSortedDiscoveriesDistance(0, 100))
         }
     }
 
