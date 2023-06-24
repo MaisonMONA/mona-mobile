@@ -40,28 +40,28 @@ export default {
                     this.$router.replace(this.$route.query.callbackurl);
                     return;
                 }
-
-                // Ask for permissions
-                const cameraPermStatus = await Camera.requestPermissions();
-                const filePermStatus   = await Filesystem.requestPermissions();
-
-                let locationPermStatus;
-                try {
-                    locationPermStatus = await Geolocation.requestPermissions();
-                } catch (err) {
-                    locationPermStatus = "disabled"
-                }
-
-                if (cameraPermStatus.camera === "granted" && filePermStatus.publicStorage === "granted" &&
-                      ( locationPermStatus === "disabled"         ||
-                        locationPermStatus.location === "granted" ||
-                        locationPermStatus.coarseLocation === "granted" )
-                ) {
+                //
+                // // Ask for permissions
+                // const cameraPermStatus = await Camera.requestPermissions();
+                // const filePermStatus   = await Filesystem.requestPermissions();
+                //
+                // let locationPermStatus;
+                // try {
+                //     locationPermStatus = await Geolocation.requestPermissions();
+                // } catch (err) {
+                //     locationPermStatus = "disabled"
+                // }
+                //
+                // if (cameraPermStatus.camera === "granted" && filePermStatus.publicStorage === "granted" &&
+                //       (locationPermStatus === "disabled"         ||
+                //        locationPermStatus.location === "granted" ||
+                //        locationPermStatus.coarseLocation === "granted")
+                // ) {
                     UserData.setSeenTutorial(true);
                     this.$router.replace("/register");
-                } else {
-                    this.$router.replace("/permission-denied")
-                }
+                // } else {
+                //     this.$router.replace("/permission-denied")
+                // }
             }
         }
     }

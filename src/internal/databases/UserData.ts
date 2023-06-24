@@ -9,7 +9,7 @@ import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
 import { ArtworkFactory, PlaceFactory } from "@/internal/Factories";
 import {Distance} from "@/internal/Distance";
 
-type Review = {id: number, dType: string, imagepath: string, rating: number, comment: string};
+type Review = {id: number, dType: string, filename: string, rating: number, comment: string};
 
 export class UserData {
     private static data: any = null;
@@ -80,7 +80,7 @@ export class UserData {
                 accuracy: 5
             },
             collected: {
-                // To be filled with { id:, imagepath:, rating:, comment: }
+                // To be filled with { id:, filename:, rating:, comment: }
                 artworks: [],
                 places: [],
                 heritages: [],
@@ -321,7 +321,7 @@ export class UserData {
         this.data.mapFocus.active = params.active;
     }
 
-    public static addCollected(collectable: Discovery, path: string | null, rating: number | null, comment: string | null) {
+    public static addCollected(collectable: Discovery, filename: string | null, rating: number | null, comment: string | null) {
         const insertFirst = (element: any, list: any[]) => {
             /* Only inserts if the element is not in `list` */
             if (list.find((it: any) => it.id === item.id) !== -1)
@@ -332,7 +332,7 @@ export class UserData {
         const item = {
             id: collectable.id,
             dType: collectable.dType,
-            imagepath: path,
+            filename: filename,
             rating: rating,
             comment: comment,
         };
@@ -369,7 +369,7 @@ export class UserData {
         }
 
         // Collected not found, throw error
-        throw new Error("Invalid (id, type) pair (object does not exist)");
+        throw new Error("Invalid (id, type) pair : object does not exist.");
     }
 
     public static getCollected(id: number, type: number | string): Review {

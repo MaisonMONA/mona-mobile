@@ -46,11 +46,11 @@ export default {
             ])
         )
         .then(() => {
-            // async functions, but Do NOT await (background tasks)
+            // async functions, but DO NOT await (background tasks)
             UserData.checkForDBUpdate();
             UserData.tryUploadingPendingDiscoveries();
         })
-        .then(() => this.$router.replace("/tabs/discovery-of-the-day"))
+        .then(() => this.$router.replace("/tabs/map"))
         .catch((err) => {
             throw new Error(`Could not retrieve user data (${err})`)
         })

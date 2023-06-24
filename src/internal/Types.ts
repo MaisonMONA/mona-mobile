@@ -8,8 +8,9 @@ export enum DiscoveryEnum {
 export abstract class Discovery {
     public abstract id: number;
     public abstract dType: string;
-    public isTargeted  = false;  // TODO delete attribute after checking safety
-    public isCollected = false;  // TODO delete attribute after checking safety
+    public isTargeted  = false;  // TODO delete attribute after safety check
+    public isCollected = false;  // TODO delete attribute after safety check
+
     public abstract getTitle(): string;
 
 
@@ -102,20 +103,46 @@ export class Artwork extends Discovery {
     }
 
     public getCategories(lang='fr'): string {
-        if (!this.categories) return '';
+        if (this.categories == null) return '';
 
-        if (lang == 'fr') {
+        if (lang == 'fr')
             return this.categories.fr.join(', ');
-        } else {
+        else
             return this.categories.en.join(', ');
-        }
     }
 
-    public getDirections(): string | null {
+    public getDirections(): string {
         if (this.directions)  // `direction` can also be null
-            return this.directions.fr || this.directions.en ;  // In case both `fr` and `en` are null
+            return this.directions.fr || this.directions.en || '';  // In case both `fr` and `en` are null
 
-        return null;
+        return '';
+    }
+
+    public getDimensions(lang='fr'): string {
+        if (this.dimensions == null) return '';
+
+        if (lang == 'fr')
+            return this.dimensions.fr[0].replaceAll('x', '×');
+        else
+            return this.dimensions.en[0].replaceAll('x', '×');
+    }
+
+    public getMaterials(lang='fr'): string {
+        if (this.materials == null) return '';
+
+        if (lang == 'fr')
+            return this.materials.fr.join(', ');
+        else
+            return this.materials.en.join(', ');
+    }
+
+    public getTechniques(lang='fr'): string {
+        if (this.techniques == null) return '';
+
+        if (lang == 'fr')
+            return this.techniques.fr.join(', ');
+        else
+            return this.techniques.en.join(', ');
     }
 }
 

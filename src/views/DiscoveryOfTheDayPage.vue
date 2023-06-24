@@ -204,9 +204,134 @@ export default {
 }
 </script>
 
-<style>
-@import url("@/theme/DiscoveryOfTheDay.css");
+<style scoped>
+@import url("@/theme/GlobalStyle.css");
 @import url("ol/ol.css");
+
+* {
+    font-family: 'OpenSans', sans-serif;
+    box-sizing: content-box;
+}
+
+ion-button ion-icon {
+    font-weight: 100;
+    font-size: 50px;
+    --ionicon-stroke-width: 20;
+}
+
+ion-button {
+    --border-radius: 15px;
+}
+
+.title {
+    font-size: 6vw;
+    font-weight: 600;
+}
+
+span.separating-bar {
+    margin-top: 2vw;
+    margin-bottom: 2vw;
+    display: block;
+    width: 20vw;
+    border-bottom: 4px solid var(--blue-powder);
+}
+
+.subtitle.one {
+    font-size: 5vw;
+    font-weight: 400;
+}
+
+.subtitle.two {
+    margin-top: 2vw;
+    font-size: 4vw;
+}
+
+div, p {
+    margin: 0;
+    padding: 0;
+}
+
+.page-header {
+    position: relative;
+    height: 25%;
+    background: var(--blue-powder);
+}
+
+.page-body-background {
+    height: 70%;
+    background: var(--blue-powder);
+    border: 0;
+}
+
+.page-body {
+    height: 100%;
+    background: white;
+    border-radius: 25px 25px 0 0;
+    padding: 5%;
+    border: 0;
+}
+
+#headerIcon {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    left: 25%;
+    top: 50%;
+    color: white;
+    font-size: 80px;
+    --ionicon-stroke-width: 20;
+}
+
+.page-header p {
+    margin: 0;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    left: 60%;
+    top: 50%;
+    color: white;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+#mapContainer {
+    position: absolute;
+    bottom: 12.5%;
+    left: 5%;
+    width: 90%;
+    height: 15%;
+    overflow: hidden;
+    border-radius: 20px;
+    border: 1px solid var(--button-outline-grey);
+}
+
+#cameraButton, #infoButton {
+    position: absolute;
+    justify-content: center;
+    bottom: 30%;
+    height: 15%;
+    --border-color: var(--button-outline-grey);
+    --border-width: 1px;
+    --background: white;
+    --background-activated: white;
+    color: black;
+    width: 42%;
+    transition: color 0.2s cubic-bezier(.3, .9, .9, .9), --border-color 0.2s cubic-bezier(.3, .9, .9, .9);
+}
+
+#cameraButton:active {
+    color: var(--button-activated);
+}
+
+#infoButton:active {
+    color: var(--button-activated);
+}
+
+#cameraButton {
+    left: 5%;
+}
+
+#infoButton {
+    right: 5%;
+}
 
 ion-header {
     margin: 0;

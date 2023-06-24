@@ -101,20 +101,17 @@ export default {
         },
 
         getPhotoThumbnail(id, dType) {
-            const { imagepath } = UserData.getCollected(id, dType);
-            if (imagepath == null) {
+            const { filename } = UserData.getCollected(id, dType);
+            if (filename == null) {
                 // Use default thumbnail
                 return require("@/assets/drawable/photo_placeholder.jpg");
             } else {
-                // TODO use thumbnail
-                // const thumbnail_path = "thumbnails/" + imagepath.split('/').at(-1);
-
                 Filesystem.readFile({
-                    path: imagepath,
+                    path: "thumbnail/" + filename,
                     directory: Directory.Data
                 })
                 .then(async (image) => {
-                    const base64Res = await fetch(`data:image/${imagepath.split('.')[1]};base64,${image.data}`);
+                    const base64Res = await fetch(`data:image/${ filename.split('.').at(-1) };base64,${ image.data }`);
                     const blob = await base64Res.blob();
 
                     const url = URL.createObjectURL(blob);
@@ -228,8 +225,14 @@ p {
     --background-activated: lightgrey;
     width: 14vw;
     height: 14vw;
-    font-size: 10px;
+    font-size: 12px;
+    font-weight: normal;
     --border-radius: 15px;
+}
+
+#refresh-button ion-icon {
+    font-size: 32px;
+    color: grey;
 }
 
 #show-badges-button {
@@ -244,5 +247,9 @@ p {
     font-size: 16px;
     --padding-end: 25px;
     --padding-start: 25px;
+}
+
+img {
+    width: 100%;
 }
 </style>

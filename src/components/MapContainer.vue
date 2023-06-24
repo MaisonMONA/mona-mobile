@@ -107,8 +107,8 @@ export default {
                 if (this.$route.query.type && this.$route.query.id) {
                     const discovery = Utils.getDiscovery(parseInt(this.$route.query.id), this.$route.query.type);
                     this.focusDiscovery(discovery);
-                    }
-                },
+                }
+            },
         )
         this.renderMap();
     },
@@ -142,6 +142,7 @@ export default {
             this.showPins();
             this.showLocation();
         },
+
         renderMap(){
             this.myMap();
             const route = useRoute();
@@ -151,8 +152,8 @@ export default {
                 const discovery = Utils.getDiscovery(parseInt(id.toString()), dType.toString());
                 this.focusDiscovery(discovery);
             }
-
         },
+
         showPins(discoveries=[]) {
             const pinsLayer = new VectorLayer({
                 source: new VectorSource(),
@@ -160,8 +161,10 @@ export default {
             });
 
             if (discoveries.length > 0) {
+                // Show a subset of discoveries (used with filters)
                 insertAllPins(pinsLayer, discoveries);
             } else {
+                // Show all discoveries
                 insertAllPins(pinsLayer, UserData.getSortedDiscoveries());
             }
 
@@ -173,7 +176,7 @@ export default {
                 source: new VectorSource(),
                 style: new Style({
                     image: new Icon({
-                        anchor: [0.5, 0.5],
+                        anchor: [ 0.5, 0.5 ],
                         src: require(`@/assets/drawable/pins/location.png`),
                     })
                 }),
