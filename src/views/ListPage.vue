@@ -10,16 +10,16 @@
             <div class="main-content">
                 <p id="tab-title">Liste des découvertes à faire</p>
                 <ion-searchbar show-clear-button="always" placeholder="Chercher" :debounce="500" @ionChange="triggerTextFilter"></ion-searchbar>
-                <ion-button id="open-modal" class="filters-button" shape="round" fill="outline" @click="showFiltersPanel">
+                <!--<ion-button id="open-modal" class="filters-button" shape="round" fill="outline" @click="showFiltersPanel">
                     <ion-icon :icon="filterOutline"></ion-icon>
                     Filtrer
-                </ion-button>
+                </ion-button>-->
                 <ion-list :inset="true" lines="none" :key="componentKey">
                     <ion-item id="list" v-for="discovery of discoveriesSortByDistance" :key="discovery" @click="openDetails(discovery)">
                         <ion-avatar slot="start">
                             <img :src="getDiscoveryMedalIcon(discovery)" alt="">
                         </ion-avatar>
-                        <ion-label id="distance" position="fixed">{{Distance.distance2string(Distance.calculateDistance(discovery, this.lat2, this.lng2))}}</ion-label>
+                        <ion-label id="distance" position="fixed" >{{Distance.distance2string(Distance.calculateDistance(discovery, lat2, lng2))}}</ion-label>
                         <ion-label id="title">{{ discovery.getTitle() }}</ion-label>
                     </ion-item>
                 </ion-list>
@@ -89,6 +89,9 @@
                     </ion-content>
             </ion-modal>
             -->
+            <ion-refresher slot="fixed" @ion-refresh="refreshPage">
+                <ion-refresher-content></ion-refresher-content>
+            </ion-refresher>
             <ion-button @click="refreshPage" id="refresh-button">
                 <ion-icon :icon="syncCircleIcon"></ion-icon>
             </ion-button>
@@ -97,9 +100,10 @@
 </template>
 
 <script>
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonLabel, IonItem, IonAvatar,
-         IonInfiniteScroll, IonInfiniteScrollContent, IonSearchbar, IonIcon, IonButton,// IonModal,  IonRadio, IonRadioGroup,
-        } from "@ionic/vue";
+import {
+    IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonLabel, IonItem, IonAvatar,
+    IonInfiniteScroll, IonInfiniteScrollContent, IonSearchbar, IonIcon, IonButton, IonRefresherContent, IonRefresher,// IonModal,  IonRadio, IonRadioGroup,
+} from "@ionic/vue";
 import { filterOutline, close, optionsOutline, reload} from "ionicons/icons";
 import { UserData } from "@/internal/databases/UserData";
 import {Distance} from "../internal/Distance";
@@ -112,8 +116,9 @@ export default {
         }
     },
     components: {
+        IonRefresher, IonRefresherContent,
         IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonLabel, IonItem, IonAvatar,
-        IonInfiniteScroll, IonInfiniteScrollContent, IonSearchbar, IonIcon, IonButton, //IonModal,  IonRadio, IonRadioGroup,
+         IonSearchbar, IonInfiniteScroll, IonInfiniteScrollContent, IonIcon, IonButton//IonModal,  IonRadio, IonRadioGroup,
 
     },
     setup(){
@@ -206,11 +211,18 @@ export default {
         forceRerender() {
             this.componentKey += 1;
         },
-        refreshPage() {
-            UserData.sortByDistance();
+        refreshPage(event) {
+            this.discoveriesSortByDistance = [];
+            this.lat2 = UserData.getLocation()[1];
+            this.lng2 = UserData.getLocation()[0];
             this.offset = 0;
+
+            UserData.sortByDistance();
             this.pullDiscoveriesSortByDistance(null);
             this.forceRerender();
+
+            if (event && event.target && event.target.complete)  // Signal
+                event.target.complete();
         },
     }
 }
