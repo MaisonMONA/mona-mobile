@@ -1,5 +1,5 @@
 import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
-import { Discovery, DiscoveryEnum, Heritage } from "@/internal/Types";
+import {Artwork, Discovery, DiscoveryEnum, Heritage, Place} from "@/internal/Types";
 import Utils from "@/internal/Utils";
 import Globals from "@/internal/Globals";
 import { Geolocation } from "@capacitor/geolocation";
@@ -7,6 +7,7 @@ import { ArtworkDatabase } from "@/internal/databases/ArtworkDatabase";
 import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
 import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
 import { ArtworkFactory, PlaceFactory } from "@/internal/Factories";
+import {Distance} from "@/internal/Distance";
 
 type Review = {id: number, dType: string, filename: string, rating: number, comment: string};
 
@@ -16,6 +17,7 @@ export class UserData {
     private static cachePath = "discoveries_sorted.json"
     private static type = "preferences";
 
+
     // The point of the attribute below is to have a full, sorted list of all
     // discoveries no matter their type. It makes some things easier, for
     // example the List tab, in order to have a alphabetically pre-sorted list
@@ -23,6 +25,7 @@ export class UserData {
     // doing it type by type and have some pin colors completely hidden because
     // they were added first. It also gives an feeling of random.
     private static sortedDiscoveries: Discovery[] = [];
+    private static sortedDiscoveriesDistance:  Discovery[] = [];
 
     public static async populate() {
         if (this.data) return;  // Do not populate twice
@@ -142,9 +145,25 @@ export class UserData {
         } catch (err) {
             console.log("Failed to load cache, building it.");
             await this.buildCache();
+            await this.sortByDistance();
+
         }
     }
 
+    public static sortByDistance() {
+        this.sortedDiscoveriesDistance = ArtworkDatabase.getSubset(0, ArtworkDatabase.getSize());
+        this.sortedDiscoveriesDistance = this.sortedDiscoveriesDistance.concat(PlaceDatabase.getSubset(0, PlaceDatabase.getSize()));
+        this.sortedDiscoveriesDistance = this.sortedDiscoveriesDistance.concat(HeritageDatabase.getSubset(0, HeritageDatabase.getSize()));
+        const lat2 = UserData.getLocation()[1];
+        const lng2 = UserData.getLocation()[0]
+        this.sortedDiscoveriesDistance.sort((a, b) => {
+            return Distance.calculateDistance(a, lat2, lng2) - Distance.calculateDistance(b, lat2, lng2);
+        });
+
+    }
+    public static getSortedDiscoveriesDistance(sliceA?: number, sliceB?: number) {
+        return this.sortedDiscoveriesDistance.slice(sliceA || 0, sliceB || Infinity)
+    }
     private static async buildCache() {
         this.sortedDiscoveries = ArtworkDatabase.getSubset(0, ArtworkDatabase.getSize());
         this.sortedDiscoveries = this.sortedDiscoveries.concat(PlaceDatabase.getSubset(0, PlaceDatabase.getSize()));
@@ -212,8 +231,14 @@ export class UserData {
             }
         }
 
-        if (hasFoundUpdate)  // Rebuild cache when any DB is updated
+        if (hasFoundUpdate) {  // Rebuild cache when any DB is updated
+            console.log("Sorting discoveries alphabetically")
             await this.buildCache();
+            console.log("Done sorting discoveries alphabetically")
+            console.log("Sorting discoveries by distance")
+            await this.sortByDistance();
+            console.log("Done sorting discoveries by distance")
+        }
     }
 
     public static setDBLastUpdate(type: string, date: Date) {
