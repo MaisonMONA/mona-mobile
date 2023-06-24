@@ -237,6 +237,7 @@ export default {
 
 #tab-title {
     padding-top: 24px;
+    margin-top: 0;
     margin-left: 21px;
     font-family: 'Gotham Rounded Light', sans-serif;
     font-size: 5.5vw;
@@ -373,10 +374,15 @@ ion-modal {
     --background-activated: lightgrey;
     width: 14vw;
     height: 14vw;
-    font-size: 10px;
+    font-size: 12px;
+    font-weight: normal;
     --border-radius: 15px;
 }
 
+#refresh-button ion-icon {
+    font-size: 32px;
+    color: grey;
+}
 
 /** {*/
 /*    border: 1px solid rgba(0, 0, 0, 0.3);*/
