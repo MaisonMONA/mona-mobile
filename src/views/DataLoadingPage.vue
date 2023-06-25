@@ -33,7 +33,6 @@ export default {
         /* Initializing all databases */
         Promise.all([
             ArtworkDatabase.populate(),
-            //ArtworkDatabase.populateFromServer(), TODO: avoir un booleen updateAllArtwork pour update une seule fois Artwork dans UserData.resetPreferences et faire comme la fonction UserDate.setDBLastUpdate pour mettre updateAllArtwork à false
             PlaceDatabase.populate(),
             HeritageDatabase.populate(),
             BadgeDatabase.populate(),

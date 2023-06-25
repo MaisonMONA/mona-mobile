@@ -1,5 +1,5 @@
 import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
-import {Artwork, Discovery, DiscoveryEnum, Heritage, Place} from "@/internal/Types";
+import {Discovery, DiscoveryEnum, Heritage} from "@/internal/Types";
 import Utils from "@/internal/Utils";
 import Globals from "@/internal/Globals";
 import { Geolocation } from "@capacitor/geolocation";
@@ -107,7 +107,6 @@ export class UserData {
 
         this.updateFile();
     }
-
     public static async getFromServer() {
         if (this.data.collectedWereFetched)
             return;  // Skip fetching the user's photos if it was done already
@@ -145,7 +144,7 @@ export class UserData {
         } catch (err) {
             console.log("Failed to load cache, building it.");
             await this.buildCache();
-            await this.sortByDistance();
+            this.sortByDistance();
 
         }
     }
@@ -236,7 +235,7 @@ export class UserData {
             await this.buildCache();
             console.log("Done sorting discoveries alphabetically")
             console.log("Sorting discoveries by distance")
-            await this.sortByDistance();
+            this.sortByDistance();
             console.log("Done sorting discoveries by distance")
         }
     }

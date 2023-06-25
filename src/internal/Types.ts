@@ -95,8 +95,6 @@ export class Artwork extends Discovery {
     }
     public getAccessibilities(lang: 'fr'): string  {
         if (this.accessibilities) {
-            console.log(this.accessibilities)
-
             if (lang == 'fr')
                 return this.accessibilities.fr.join(', ');
             else
