@@ -65,6 +65,8 @@
                     <!-- Directions or description -->
                     <p class="details three">{{ details3 }}</p>
 
+                    <p class="details accessibilities">{{accessibilities}}</p>
+
                     <template v-if="isArtwork">
                         <p class="details four">{{ details4 }}</p> <!-- Artwork dimensions -->
                         <p class="details five">{{ details5 }}</p> <!-- Artwork materials -->
@@ -104,7 +106,7 @@ export default {
     },
 
     data() {
-        let isArtwork, productionDate, details1, details2, details3, details4, details5, details6;
+        let isArtwork, productionDate, details1, details2, details3, details4, details5, details6, accessibilities;
         if (this.discovery.dType === "artwork") {
             isArtwork = true;
 
@@ -114,6 +116,8 @@ export default {
             details4 = this.discovery.getDimensions();
             details5 = this.discovery.getMaterials();
             details6 = this.discovery.getTechniques();
+            accessibilities = this.discovery.getAccessibilities();
+            console.log(accessibilities);
 
             productionDate = this.discovery.produced_at;
         } else {
@@ -140,6 +144,7 @@ export default {
 
             isArtwork,
             productionDate,
+            accessibilities,
             details1, details2, details3, details4, details5, details6,
         }
     },
@@ -373,7 +378,7 @@ p.details {
     font-size: 16px;
 }
 
-.details.three, .four, .five, .six {
+.details.three, .four, .five, .six .accessibilities{
     font-size: 14px;
     color: gray;
     margin: 5px 0;
