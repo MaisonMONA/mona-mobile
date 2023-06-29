@@ -54,6 +54,7 @@ export class Artwork extends Discovery {
         id: number, artists: Artist[] | null,
         produced_at: string | null, territory: string,
         location: { lat: number, lng: number },
+        owner: string | null, borough: string,
         title: { fr: string | null, en: string | null },
         materials:  { fr: string[], en: string[] } | null,
         dimensions: { fr: string[], en: string[] } | null,
@@ -73,7 +74,10 @@ export class Artwork extends Discovery {
         this.categories  = artwork.categories;
         this.techniques  = artwork.techniques;
         this.directions  = artwork.directions;
+        this.owner       = artwork.owner;
+        this.borough     = artwork.borough;
     }
+
     dType = "artwork";
     id: number;
     title: { fr: string | null, en: string | null };
@@ -86,6 +90,8 @@ export class Artwork extends Discovery {
     categories: { fr: string[], en: string[] } | null;
     techniques: { fr: string[], en: string[] } | null;
     directions: { fr: string | null, en: string | null } | null;
+    owner: string | null;
+    borough: string;
 
     public getLocation(): { lat: number; lng: number } {
         return this.location;
@@ -242,7 +248,7 @@ export class Heritage extends Discovery {
         return this.title;
     }
 
-    public getBorough(): string{
+    public getBorough(): string {
         return this.borough;
     }
 
@@ -254,13 +260,13 @@ export class Heritage extends Discovery {
         if (this.addresses.length > 0)
             return this.addresses[0];
         else
-            return null
+            return null;
     }
 }
 
 export class Badge extends Discovery {
     constructor(badge: {
-        id: number, title: string, requiredCount: number,
+        id: number, title: string, required_count: number,
         description: { fr: string, en: string },
         notification: { fr: string, en: string },
         badgeable: { type: string, name: string },
@@ -269,7 +275,7 @@ export class Badge extends Discovery {
         super();
         this.id            = badge.id;
         this.title         = badge.title;
-        this.requiredCount = badge.requiredCount;
+        this.requiredCount = badge.required_count;
         this.description   = badge.description;
         this.notification  = badge.notification;
         this.badgeable     = badge.badgeable;
