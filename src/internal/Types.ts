@@ -13,7 +13,11 @@ export abstract class Discovery {
 
     public abstract getTitle(): string;
 
+
     // All code below for inheritance
+    public getLocation():  { lat: number, lng: number } {
+        return {lat:0,lng:0};
+    }
     public getArtists(): string {
         return '';
     }
@@ -73,6 +77,7 @@ export class Artwork extends Discovery {
         this.owner       = artwork.owner;
         this.borough     = artwork.borough;
     }
+
     dType = "artwork";
     id: number;
     title: { fr: string | null, en: string | null };
@@ -87,6 +92,10 @@ export class Artwork extends Discovery {
     directions: { fr: string | null, en: string | null } | null;
     owner: string | null;
     borough: string;
+
+    public getLocation(): { lat: number; lng: number } {
+        return this.location;
+    }
 
     public getTitle(): string {
         return this.title.fr || this.title.en || "(non titré)";
@@ -170,6 +179,10 @@ export class Place extends Discovery {
     territory: string;
     address: string;
 
+    public getLocation(): { lat: number; lng: number }  {
+        return this.location;
+    }
+
     public getTitle(): string {
         return this.title;
     }
@@ -197,7 +210,7 @@ export class Heritage extends Discovery {
         location: { lat: number, lng: number }, status: string,
         borough: string, synthesis: null, "sous-usages": string[],
         subUses: string[], functions: { fr: string[], en: string[] },
-        addresses: string[]
+        addresses: string[],
     }) {
         super();
         this.id          = heritage.id;
@@ -228,6 +241,9 @@ export class Heritage extends Discovery {
     subUses: string[];
     addresses: string[];
 
+    public getLocation(): { lat: number; lng: number } {
+        return this.location;
+    }
     public getTitle(): string {
         return this.title;
     }
