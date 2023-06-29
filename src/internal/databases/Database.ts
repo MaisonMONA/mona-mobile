@@ -44,7 +44,7 @@ export abstract class Database {
         if (this.type == "artworks") url = Globals.apiRoutes.artworks.download;
         else if (this.type == "places") url = Globals.apiRoutes.places.download;
         else if (this.type == "heritages") url = Globals.apiRoutes.heritages.download;
-        else /* (this.type == "badges") */ url = Globals.apiRoutes.artworks.download;
+        else /* (this.type == "badges") */ url = Globals.apiRoutes.badges.download;
 
         try {
             response = await fetch(url);

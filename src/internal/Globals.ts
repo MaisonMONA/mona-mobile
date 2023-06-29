@@ -18,7 +18,6 @@ export default {
         },
         "badges": {
             download: "https://picasso.iro.umontreal.ca/~mona/api/v3/badges",
-            upload: "https://picasso.iro.umontreal.ca/~mona/api/v3/user/badges",
         },
         "register": "https://picasso.iro.umontreal.ca/~mona/api/v3/register",
         "login": "https://picasso.iro.umontreal.ca/~mona/api/v3/login",
