@@ -10,12 +10,12 @@
             <div class="main-content">
                 <p id="tab-title">Liste des découvertes à faire</p>
                 <ion-searchbar show-clear-button="always" placeholder="Chercher" :debounce="500" @ionChange="triggerTextFilter"></ion-searchbar>
-                <!--<ion-button id="open-modal" class="filters-button" shape="round" fill="outline" @click="showFiltersPanel">
+                <ion-button id="open-modal" class="filters-button" shape="round" fill="outline">
                     <ion-icon :icon="filterOutline"></ion-icon>
                     Filtrer
-                </ion-button>-->
+                </ion-button>
                 <ion-list :inset="true" lines="none" :key="componentKey">
-                    <ion-item id="list" v-for="discovery of discoveriesSortByDistance" :key="discovery" @click="openDetails(discovery)">
+                    <ion-item id="list" v-for="discovery of getDiscoveries()" :key="discovery" @click="openDetails(discovery)">
                         <ion-avatar slot="start">
                             <img :src="getDiscoveryMedalIcon(discovery)" alt="">
                         </ion-avatar>
@@ -23,13 +23,13 @@
                         <ion-label id="title">{{ discovery.getTitle() }}</ion-label>
                     </ion-item>
                 </ion-list>
-                <ion-infinite-scroll @ionInfinite="pullDiscoveriesSortByDistance" :key="componentKey">
+                <ion-infinite-scroll @ionInfinite="pullDiscoveries" :key="componentKey">
                     <ion-infinite-scroll-content></ion-infinite-scroll-content>
                 </ion-infinite-scroll>
-                <p class="bottom-text">{{ discoveriesSortByDistance.length }} résultats</p>
+                <p class="bottom-text">{{ getDiscoveries().length }} résultats</p>
             </div>
-<!-- Décommenter une fois l'implémentation du filtre soit finie
-            <ion-modal ref="modal" trigger="open-modal" :initial-breakpoint="0.25" :breakpoints="[0, 0.25]">
+
+            <ion-modal ref="modal" trigger="open-modal" :initial-breakpoint="0.50" :breakpoints="[0, 0.25, 0.50]">
                     <ion-content>
                         <ion-toolbar id="modal-header">
                                 <ion-icon class="modal-icon" size="medium" slot="start" :src="optionsOutline"></ion-icon>
@@ -46,13 +46,13 @@
                                         <ion-text>Distance</ion-text>
                                     </ion-col >
                                     <ion-col size="4">
-                                        <ion-radio @click="trierDistance()" value="custom"></ion-radio>
+                                        <ion-radio @click="this.isDiscoveriesAZ(false)" value="custom-checked"></ion-radio>
                                     </ion-col>
                                     <ion-col size="4">
                                         <ion-text>A-Z</ion-text>
                                     </ion-col>
                                     <ion-col size="4">
-                                        <ion-radio @click="trierAlphabetique()" value="custom-checked"></ion-radio>
+                                        <ion-radio @click="this.isDiscoveriesAZ(true)" value="custom"></ion-radio>
                                     </ion-col>
                                 </ion-radio-group>
                             </ion-row>
@@ -88,7 +88,6 @@
                         </ion-list>
                     </ion-content>
             </ion-modal>
-            -->
             <ion-refresher slot="fixed" @ion-refresh="refreshPage">
                 <ion-refresher-content></ion-refresher-content>
             </ion-refresher>
@@ -102,7 +101,7 @@
 <script>
 import {
     IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonLabel, IonItem, IonAvatar,
-    IonInfiniteScroll, IonInfiniteScrollContent, IonSearchbar, IonIcon, IonButton, IonRefresherContent, IonRefresher,// IonModal,  IonRadio, IonRadioGroup,
+    IonInfiniteScroll, IonInfiniteScrollContent, IonSearchbar, IonIcon, IonButton, IonRefresherContent, IonRefresher, IonModal,  IonRadio, IonRadioGroup,
 } from "@ionic/vue";
 import { filterOutline, close, optionsOutline, reload} from "ionicons/icons";
 import { UserData } from "@/internal/databases/UserData";
@@ -118,7 +117,7 @@ export default {
     components: {
         IonRefresher, IonRefresherContent,
         IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonLabel, IonItem, IonAvatar,
-         IonSearchbar, IonInfiniteScroll, IonInfiniteScrollContent, IonIcon, IonButton//IonModal,  IonRadio, IonRadioGroup,
+         IonSearchbar, IonInfiniteScroll, IonInfiniteScrollContent, IonIcon, IonButton, IonModal,  IonRadio, IonRadioGroup,
 
     },
     setup(){
@@ -130,7 +129,7 @@ export default {
     data() {
         return {
             filterOutline,  // Icon
-            discoveries: [],
+            discoveriesAZ: [],
             offset: 0,
             currentFilter: '',
             discoveriesSortByDistance: [],
@@ -138,23 +137,53 @@ export default {
             lng2 : UserData.getLocation()[0],
             syncCircleIcon: reload,
             componentKey: 0,
-
+            decouverteDistance: true,
+            decouverteAZ: false,
+            decouverteArtwork: false,
+            decouverteHeritage: false,
+            decouvertePlace: false,
 
         }
     },
 
     beforeMount() {
-        this.pullDiscoveriesSortByDistance(null);
+        this.pullDiscoveriesAZ(null);
+        this.offset = 0;
+        this.pullDiscoveriesSortByDistance(null)
 
     },
 
     methods: {
+        pullDiscoveries(event) {
+            if (this.decouverteDistance)
+                this.pullDiscoveriesSortByDistance(event)
+            else if (this.decouverteAZ)
+                this.pullDiscoveriesAZ(event)
+        },
+        isDiscoveriesAZ(trierAZ){
+            if (trierAZ){
+                this.decouverteAZ = true
+                this.decouverteDistance = false
+            }
+            else {
+                this.decouverteAZ = false
+                this.decouverteDistance = true
+            }
+            this.forceRerender()
+        },
+
+        getDiscoveries(){
+            if (this.decouverteDistance)
+                return this.discoveriesSortByDistance
+            else if (this.decouverteAZ)
+                return this.discoveriesAZ
+        },
         pullDiscoveriesAZ(event) {
             const subset = UserData.getSortedDiscoveries().filter((elm) => {
                 return elm.getTitle().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').includes(this.currentFilter.toLowerCase())
             }).slice(this.offset, this.offset + 50);
 
-            this.discoveries = this.discoveries.concat(subset)
+            this.discoveriesAZ = this.discoveriesAZ.concat(subset)
 
             if (event)  // Send a signal when the user reaches the bottom
                 event.target.complete();
@@ -188,10 +217,16 @@ export default {
 
             this.currentFilter = event.detail.value.trim().normalize('NFD').replace(/\p{Diacritic}/gu, '');
             this.offset = 0;
-            //this.discoveries = [];
-            //this.pullDiscoveries(null);
-            this.discoveriesSortByDistance = [];
-            this.pullDiscoveriesSortByDistance(null);
+
+            if (this.decouverteAZ){
+                this.discoveriesAZ = [];
+                this.pullDiscoveriesAZ(null);
+            }
+            else {
+                this.discoveriesSortByDistance = [];
+                this.pullDiscoveriesSortByDistance(null);
+            }
+
         },
 
         getDiscoveryMedalIcon(discovery) {
@@ -212,13 +247,17 @@ export default {
             this.componentKey += 1;
         },
         refreshPage(event) {
-            this.discoveriesSortByDistance = [];
+
             this.lat2 = UserData.getLocation()[1];
             this.lng2 = UserData.getLocation()[0];
             this.offset = 0;
 
-            UserData.sortByDistance();
-            this.pullDiscoveriesSortByDistance(null);
+            if(this.decouverteDistance) {
+                this.discoveriesSortByDistance = [];
+                UserData.sortByDistance();
+                this.pullDiscoveriesSortByDistance(null);
+            }
+
             this.forceRerender();
 
             if (event && event.target && event.target.complete)  // Signal
@@ -236,6 +275,7 @@ export default {
 }
 
 #tab-title {
+    margin-top: 0;
     padding-top: 24px;
     margin-top: 0;
     margin-left: 21px;
@@ -341,6 +381,8 @@ ion-radio {
     --color: black;
     --color-checked: black;
 }
+
+
 #modal-header {
     font-weight: bold;
     font-family: 'Gotham Roundedight', sans-serif;
@@ -378,7 +420,6 @@ ion-modal {
     font-weight: normal;
     --border-radius: 15px;
 }
-
 #refresh-button ion-icon {
     font-size: 32px;
     color: grey;
