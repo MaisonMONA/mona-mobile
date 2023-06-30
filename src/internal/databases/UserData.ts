@@ -1,5 +1,5 @@
 import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
-import {Artwork, Discovery, DiscoveryEnum, Heritage, Place} from "@/internal/Types";
+import {Discovery, DiscoveryEnum, Heritage} from "@/internal/Types";
 import Utils from "@/internal/Utils";
 import Globals from "@/internal/Globals";
 import { Geolocation } from "@capacitor/geolocation";
