@@ -36,32 +36,70 @@
                                 <ion-text id="modal-heading"> <p>Filtres</p></ion-text>
                                 <ion-icon class="modal-icon" size="medium" slot="end" :src="close" @click="dismiss()"></ion-icon>
                         </ion-toolbar>
+
+                        <ion-list-header>
+                            <ion-label>Trier par</ion-label>
+                        </ion-list-header>
+
+                        <ion-radio-group :value=this.getTrierPar() v-model.lazy="choixTrie" :on-ion-change="test(event)">
+                            <ion-row>
+                                <ion-col>
+                                    <ion-item>
+                                        <ion-label>Distance</ion-label>
+                                        <ion-radio slot="end" value="Distance" ></ion-radio>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col>
+                                    <ion-item>
+                                        <ion-label>AZ</ion-label>
+                                        <ion-radio slot="end" value="AZ"></ion-radio>
+                                    </ion-item>
+                                </ion-col>
+                            </ion-row>
+                        </ion-radio-group>
+
+                        <ion-list-header>
+                            <ion-label>Filtrer par</ion-label>
+                        </ion-list-header>
+
+                        <ion-row class="ion-justify-content-between">
+                            <ion-col class="place" size="3" @click="this.selected" id="artwork">
+                                <div class="filter-category">
+                                    <ion-avatar>
+                                        <img :src="require('@/assets/drawable/medals/artwork/default.svg')">
+                                    </ion-avatar>
+                                    <ion-text id="artworkText">Œuvres</ion-text>
+                                </div>
+                            </ion-col>
+                            <ion-col class="place" size="4">
+                                <div class="filter-category">
+                                    <ion-avatar>
+                                        <img :src="require('@/assets/drawable/medals/place/default.svg')">
+                                    </ion-avatar>
+                                    <ion-text>Patrimoines</ion-text>
+                                </div>
+                            </ion-col>
+                            <ion-col class="place" size="3">
+                                <div class="filter-category">
+                                    <ion-avatar>
+                                        <img :src="require('@/assets/drawable/medals/heritage/default.svg')">
+                                    </ion-avatar>
+                                    <ion-text>Lieux</ion-text>
+                                </div>
+                            </ion-col>
+                        </ion-row>
+                        <!--
                         <ion-list lines="none">
                             <ion-item>
                                 <ion-text color="black">Trier par</ion-text>
                             </ion-item>
-                            <ion-row>
-                                <ion-radio-group id="modal-trier" value="custom-checked">
-                                    <ion-col size="4">
-                                        <ion-text>Distance</ion-text>
-                                    </ion-col >
-                                    <ion-col size="4">
-                                        <ion-radio @click="this.isDiscoveriesAZ(false)" value="custom-checked"></ion-radio>
-                                    </ion-col>
-                                    <ion-col size="4">
-                                        <ion-text>A-Z</ion-text>
-                                    </ion-col>
-                                    <ion-col size="4">
-                                        <ion-radio @click="this.isDiscoveriesAZ(true)" value="custom"></ion-radio>
-                                    </ion-col>
-                                </ion-radio-group>
-                            </ion-row>
+
                             <ion-item>
                                 <ion-text color="black">Filtrer par</ion-text>
                             </ion-item>
                             <ion-row class="ion-justify-content-between">
                                 <ion-col class="place" size="3" >
-                                    <div class="filter-category">
+                                    <div class="filter-category" @click="this.selected" id="artwork">
                                         <ion-avatar>
                                             <img :src="require('@/assets/drawable/medals/artwork/default.svg')">
                                         </ion-avatar>
@@ -85,7 +123,7 @@
                                     </div>
                                 </ion-col>
                             </ion-row>
-                        </ion-list>
+                        </ion-list>-->
                     </ion-content>
             </ion-modal>
             <ion-refresher slot="fixed" @ion-refresh="refreshPage">
@@ -137,11 +175,11 @@ export default {
             lng2 : UserData.getLocation()[0],
             syncCircleIcon: reload,
             componentKey: 0,
-            decouverteDistance: true,
-            decouverteAZ: false,
             decouverteArtwork: false,
             decouverteHeritage: false,
             decouvertePlace: false,
+            discoveriesArtwork: [],
+            choixTrie: "Distance",
 
         }
     },
@@ -155,28 +193,40 @@ export default {
 
     methods: {
         pullDiscoveries(event) {
-            if (this.decouverteDistance)
+            if (this.choixTrie === "Distance")
                 this.pullDiscoveriesSortByDistance(event)
-            else if (this.decouverteAZ)
+            else if (this.choix === "AZ")
                 this.pullDiscoveriesAZ(event)
         },
-        isDiscoveriesAZ(trierAZ){
-            if (trierAZ){
-                this.decouverteAZ = true
-                this.decouverteDistance = false
-            }
-            else {
-                this.decouverteAZ = false
-                this.decouverteDistance = true
-            }
-            this.forceRerender()
+        test() {
+            console.log(this.choixTrie);
+
         },
 
+        getTrierPar() {
+            return this.choixTrie
+        },
         getDiscoveries(){
-            if (this.decouverteDistance)
-                return this.discoveriesSortByDistance
-            else if (this.decouverteAZ)
-                return this.discoveriesAZ
+            let now = []
+            if (this.choixTrie === "Distance")
+                now =  this.discoveriesSortByDistance
+            else if (this.choixTrie === "AZ")
+                now = this.discoveriesAZ
+
+            /*if (this.decouverteArtwork){
+                for (const discovery of now){
+                    if (discovery.dType === "artwork")
+                        //console.log(discovery)
+                        this.discoveriesArtwork.push(discovery);
+                }
+                //console.log(this.discoveriesArtwork)
+                now = this.discoveriesArtwork
+
+            }*/
+
+            //console.log(this.decouverteArtwork)
+            //console.log(now)
+            return now
         },
         pullDiscoveriesAZ(event) {
             const subset = UserData.getSortedDiscoveries().filter((elm) => {
@@ -263,6 +313,20 @@ export default {
             if (event && event.target && event.target.complete)  // Signal
                 event.target.complete();
         },
+        selected() {
+            if (this.decouverteArtwork){
+                this.decouverteArtwork = false
+                document.getElementById("artwork").style.backgroundColor = "transparent"
+                document.getElementById("artworkText").style.color = "black"
+
+            }
+            else {
+                this.decouverteArtwork = true
+                document.getElementById("artwork").style.backgroundColor = "grey"
+                document.getElementById("artworkText").style.color = "white"
+            }
+            this.forceRerender()
+        }
     }
 }
 </script>
