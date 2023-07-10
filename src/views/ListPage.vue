@@ -46,13 +46,13 @@
                                 <ion-col>
                                     <ion-item>
                                         <ion-label>Distance</ion-label>
-                                        <ion-radio slot="end" value="Distance" ></ion-radio>
+                                        <ion-radio class="trier" slot="end" value="Distance" ></ion-radio>
                                     </ion-item>
                                 </ion-col>
                                 <ion-col>
                                     <ion-item>
                                         <ion-label>AZ</ion-label>
-                                        <ion-radio slot="end" value="AZ"></ion-radio>
+                                        <ion-radio class="trier" slot="end" value="AZ"></ion-radio>
                                     </ion-item>
                                 </ion-col>
                             </ion-row>
@@ -62,68 +62,35 @@
                             <ion-label>Filtrer par</ion-label>
                         </ion-list-header>
 
-                        <ion-row class="ion-justify-content-between">
-                            <ion-col class="place" size="3" @click="this.selected" id="artwork">
-                                <div class="filter-category">
-                                    <ion-avatar>
-                                        <img :src="require('@/assets/drawable/medals/artwork/default.svg')">
-                                    </ion-avatar>
-                                    <ion-text id="artworkText">Œuvres</ion-text>
-                                </div>
-                            </ion-col>
-                            <ion-col class="place" size="4">
-                                <div class="filter-category">
-                                    <ion-avatar>
-                                        <img :src="require('@/assets/drawable/medals/place/default.svg')">
-                                    </ion-avatar>
-                                    <ion-text>Patrimoines</ion-text>
-                                </div>
-                            </ion-col>
-                            <ion-col class="place" size="3">
-                                <div class="filter-category">
-                                    <ion-avatar>
-                                        <img :src="require('@/assets/drawable/medals/heritage/default.svg')">
-                                    </ion-avatar>
-                                    <ion-text>Lieux</ion-text>
-                                </div>
-                            </ion-col>
-                        </ion-row>
-                        <!--
-                        <ion-list lines="none">
-                            <ion-item>
-                                <ion-text color="black">Trier par</ion-text>
-                            </ion-item>
 
-                            <ion-item>
-                                <ion-text color="black">Filtrer par</ion-text>
-                            </ion-item>
                             <ion-row class="ion-justify-content-between">
-                                <ion-col class="place" size="3" >
-                                    <div class="filter-category" @click="this.selected" id="artwork">
+                                <ion-col class="place" size="3" @click="this.selectedArtwork" id="artwork">
+                                    <div class="filter-category">
                                         <ion-avatar>
                                             <img :src="require('@/assets/drawable/medals/artwork/default.svg')">
                                         </ion-avatar>
-                                        <ion-text>Œuvres</ion-text>
+                                        <ion-text id="artworkText">Œuvres</ion-text>
+
                                     </div>
                                 </ion-col>
-                                <ion-col class="place" size="4">
-                                    <div class="filter-category">
-                                        <ion-avatar>
-                                            <img :src="require('@/assets/drawable/medals/place/default.svg')">
-                                        </ion-avatar>
-                                        <ion-text>Patrimoines</ion-text>
-                                    </div>
-                                </ion-col>
-                                <ion-col class="place" size="3">
+                                <ion-col class="place" size="4" @click="this.selectedHeritage" id="heritage">
                                     <div class="filter-category">
                                         <ion-avatar>
                                             <img :src="require('@/assets/drawable/medals/heritage/default.svg')">
                                         </ion-avatar>
-                                        <ion-text>Lieux</ion-text>
+                                        <ion-text id="heritageText">Patrimoines</ion-text>
+                                    </div>
+                                </ion-col>
+                                <ion-col class="place" size="3" @click="this.selectedPlace" id="place">
+                                    <div class="filter-category">
+                                        <ion-avatar>
+                                            <img :src="require('@/assets/drawable/medals/place/default.svg')">
+                                        </ion-avatar>
+                                        <ion-text id="placeText">Lieux</ion-text>
                                     </div>
                                 </ion-col>
                             </ion-row>
-                        </ion-list>-->
+
                     </ion-content>
             </ion-modal>
             <ion-refresher slot="fixed" @ion-refresh="refreshPage">
@@ -195,7 +162,7 @@ export default {
         pullDiscoveries(event) {
             if (this.choixTrie === "Distance")
                 this.pullDiscoveriesSortByDistance(event)
-            else if (this.choix === "AZ")
+            else if (this.choixTrie === "AZ")
                 this.pullDiscoveriesAZ(event)
         },
         test() {
@@ -213,19 +180,25 @@ export default {
             else if (this.choixTrie === "AZ")
                 now = this.discoveriesAZ
 
-            /*if (this.decouverteArtwork){
-                for (const discovery of now){
-                    if (discovery.dType === "artwork")
-                        //console.log(discovery)
-                        this.discoveriesArtwork.push(discovery);
-                }
-                //console.log(this.discoveriesArtwork)
-                now = this.discoveriesArtwork
+            console.log("artwork :" + this.decouverteArtwork)
+            console.log("heritage :"  + this.decouverteHeritage)
+            console.log("place :" + this.decouvertePlace)
+            console.log(now)
+            let temp
+            if (this.decouverteArtwork){
+                temp = now.filter(discovery => discovery.dType === "artwork")
+            }
+            if (this.decouvertePlace){
+                console.log("yes")
+                temp = now.filter(discovery => discovery.dType === "place")
+                console.log(temp)
+            }
+            if (this.decouverteHeritage){
+                temp = now.filter(discovery => discovery.dType === "heritage")
+            }
 
-            }*/
-
-            //console.log(this.decouverteArtwork)
-            //console.log(now)
+            if (Array.isArray(temp) && temp.length)
+                return temp
             return now
         },
         pullDiscoveriesAZ(event) {
@@ -268,7 +241,7 @@ export default {
             this.currentFilter = event.detail.value.trim().normalize('NFD').replace(/\p{Diacritic}/gu, '');
             this.offset = 0;
 
-            if (this.decouverteAZ){
+            if (this.choixTrie === "AZ"){
                 this.discoveriesAZ = [];
                 this.pullDiscoveriesAZ(null);
             }
@@ -313,7 +286,7 @@ export default {
             if (event && event.target && event.target.complete)  // Signal
                 event.target.complete();
         },
-        selected() {
+        selectedArtwork() {
             if (this.decouverteArtwork){
                 this.decouverteArtwork = false
                 document.getElementById("artwork").style.backgroundColor = "transparent"
@@ -324,6 +297,37 @@ export default {
                 this.decouverteArtwork = true
                 document.getElementById("artwork").style.backgroundColor = "grey"
                 document.getElementById("artworkText").style.color = "white"
+            }
+
+            this.forceRerender()
+
+        },
+        selectedPlace(){
+
+            if (this.decouvertePlace){
+                this.decouvertePlace = false
+                document.getElementById("place").style.backgroundColor = "transparent"
+                document.getElementById("placeText").style.color = "black"
+
+            }
+            else {
+                this.decouvertePlace = true
+                document.getElementById("place").style.backgroundColor = "grey"
+                document.getElementById("placeText").style.color = "white"
+            }
+            this.forceRerender()
+        },
+        selectedHeritage() {
+            if (this.decouverteHeritage){
+                this.decouverteHeritage = false
+                document.getElementById("heritage").style.backgroundColor = "transparent"
+                document.getElementById("heritageText").style.color = "black"
+
+            }
+            else {
+                this.decouverteHeritage = true
+                document.getElementById("heritage").style.backgroundColor = "grey"
+                document.getElementById("heritageText").style.color = "white"
             }
             this.forceRerender()
         }
@@ -437,7 +441,7 @@ ion-col img {
     width: auto;
 }
 
-ion-radio {
+.trier {
     --border-radius: 100%;
     --inner-border-radius: 100%;
 
