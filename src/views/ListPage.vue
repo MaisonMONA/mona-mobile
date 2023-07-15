@@ -41,18 +41,18 @@
                             <ion-label>Trier par</ion-label>
                         </ion-list-header>
 
-                        <ion-radio-group :value=this.getTrierPar() v-model.lazy="choixTrie" :on-ion-change="test(event)">
+                        <ion-radio-group :value=this.getTrierPar() v-model.lazy="choixTrie">
                             <ion-row>
                                 <ion-col>
                                     <ion-item>
                                         <ion-label>Distance</ion-label>
-                                        <ion-radio class="trier" slot="end" value="Distance" ></ion-radio>
+                                        <ion-radio class="trier" mode="md" slot="end" value="Distance" ></ion-radio>
                                     </ion-item>
                                 </ion-col>
                                 <ion-col>
                                     <ion-item>
                                         <ion-label>AZ</ion-label>
-                                        <ion-radio class="trier" slot="end" value="AZ"></ion-radio>
+                                        <ion-radio class="trier"  mode="md" slot="end" value="AZ"></ion-radio>
                                     </ion-item>
                                 </ion-col>
                             </ion-row>
@@ -64,7 +64,7 @@
 
 
                             <ion-row class="ion-justify-content-between">
-                                <ion-col class="place" size="3" @click="this.selectedArtwork" id="artwork">
+                                <ion-col class="filtre" size="3" @click="this.selectedArtwork" id="artwork" :style="getStyle">
                                     <div class="filter-category">
                                         <ion-avatar>
                                             <img :src="require('@/assets/drawable/medals/artwork/default.svg')">
@@ -73,7 +73,7 @@
 
                                     </div>
                                 </ion-col>
-                                <ion-col class="place" size="4" @click="this.selectedHeritage" id="heritage">
+                                <ion-col class="filtre" size="4" @click="this.selectedHeritage" id="heritage" :style="getStyle">
                                     <div class="filter-category">
                                         <ion-avatar>
                                             <img :src="require('@/assets/drawable/medals/heritage/default.svg')">
@@ -81,7 +81,7 @@
                                         <ion-text id="heritageText">Patrimoines</ion-text>
                                     </div>
                                 </ion-col>
-                                <ion-col class="place" size="3" @click="this.selectedPlace" id="place">
+                                <ion-col class="filtre" size="3" @click="this.selectedPlace" id="place" :style="getStyle">
                                     <div class="filter-category">
                                         <ion-avatar>
                                             <img :src="require('@/assets/drawable/medals/place/default.svg')">
@@ -165,11 +165,6 @@ export default {
             else if (this.choixTrie === "AZ")
                 this.pullDiscoveriesAZ(event)
         },
-        test() {
-            console.log(this.choixTrie);
-
-        },
-
         getTrierPar() {
             return this.choixTrie
         },
@@ -381,7 +376,8 @@ ion-avatar {
     margin-right: 0;
 }
 ion-row{
-    margin: 5%;
+    margin-left: 5%;
+    margin-right: 5%;
 }
 ion-searchbar {
     padding-left: 21px;
@@ -423,7 +419,7 @@ ion-col img {
     margin: auto;
 }
 
-.place{
+.filtre{
     border: 1px solid black;
     border-radius: 10px;
     height: 15vw;
