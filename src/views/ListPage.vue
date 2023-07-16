@@ -29,7 +29,7 @@
                 <p class="bottom-text">{{ getDiscoveries().length }} résultats</p>
             </div>
 
-            <ion-modal ref="modal" trigger="open-modal" :initial-breakpoint="0.50" :breakpoints="[0, 0.25, 0.50]">
+            <ion-modal ref="modal" trigger="open-modal" :initial-breakpoint="0.40" :breakpoints="[0, 0.20, 0.40]">
                     <ion-content>
                         <ion-toolbar id="modal-header">
                                 <ion-icon class="modal-icon" size="medium" slot="start" :src="optionsOutline"></ion-icon>
@@ -41,7 +41,7 @@
                             <ion-label>Trier par</ion-label>
                         </ion-list-header>
 
-                        <ion-radio-group :value=this.getTrierPar() v-model.lazy="choixTrie">
+                        <ion-radio-group :value=this.getTrierPar() v-model="choixTrie">
                             <ion-row>
                                 <ion-col>
                                     <ion-item>
@@ -64,29 +64,35 @@
 
 
                             <ion-row class="ion-justify-content-between">
-                                <ion-col class="filtre" size="3" @click="this.selectedArtwork" id="artwork" :style="getStyle">
+                                <ion-col class="filtre" size="3"
+                                         @click="this.selectedDiscovery('decouverteArtwork', 'filtreArtworkBackgroundColor', 'filtreArtworkColor')"
+                                         :style="{color: filtreArtworkColor, backgroundColor: filtreArtworkBackgroundColor}" >
                                     <div class="filter-category">
                                         <ion-avatar>
                                             <img :src="require('@/assets/drawable/medals/artwork/default.svg')">
                                         </ion-avatar>
-                                        <ion-text id="artworkText">Œuvres</ion-text>
+                                        <ion-text>Œuvres</ion-text>
 
                                     </div>
                                 </ion-col>
-                                <ion-col class="filtre" size="4" @click="this.selectedHeritage" id="heritage" :style="getStyle">
+                                <ion-col class="filtre" size="4"
+                                         @click="this.selectedDiscovery('decouverteHeritage', 'filtreHeritageBackgroundColor', 'filtreHeritageColor')"
+                                         :style="{color: filtreHeritageColor, backgroundColor: filtreHeritageBackgroundColor}">
                                     <div class="filter-category">
                                         <ion-avatar>
                                             <img :src="require('@/assets/drawable/medals/heritage/default.svg')">
                                         </ion-avatar>
-                                        <ion-text id="heritageText">Patrimoines</ion-text>
+                                        <ion-text>Patrimoines</ion-text>
                                     </div>
                                 </ion-col>
-                                <ion-col class="filtre" size="3" @click="this.selectedPlace" id="place" :style="getStyle">
+                                <ion-col class="filtre" size="3"
+                                         @click="this.selectedDiscovery('decouvertePlace', 'filtrePlaceBackgroundColor', 'filtrePlaceColor')"
+                                         :style="{color: filtrePlaceColor, backgroundColor: filtrePlaceBackgroundColor}">
                                     <div class="filter-category">
                                         <ion-avatar>
                                             <img :src="require('@/assets/drawable/medals/place/default.svg')">
                                         </ion-avatar>
-                                        <ion-text id="placeText">Lieux</ion-text>
+                                        <ion-text>Lieux</ion-text>
                                     </div>
                                 </ion-col>
                             </ion-row>
@@ -112,6 +118,7 @@ import { filterOutline, close, optionsOutline, reload} from "ionicons/icons";
 import { UserData } from "@/internal/databases/UserData";
 import {Distance} from "../internal/Distance";
 
+
 export default {
     name: "ListPage",
     computed: {
@@ -133,87 +140,117 @@ export default {
 
     data() {
         return {
-            filterOutline,  // Icon
-            discoveriesAZ: [],
             offset: 0,
             currentFilter: '',
-            discoveriesSortByDistance: [],
             lat2 : UserData.getLocation()[1],
             lng2 : UserData.getLocation()[0],
-            syncCircleIcon: reload,
             componentKey: 0,
+
+            // Icon
+            filterOutline,
+            syncCircleIcon: reload,
+
+            //Discoveries
+            completeDiscoveriesAZ: [],
+            completeDiscoveriesDistance: [],
+            discoveriesSortByAZ: [],
+            discoveriesSortByDistance: [],
+            discoveriesSortByPlaceAZ: [],
+            discoveriesSortByPlaceDistance: [],
+            discoveriesSortByHeritage: [],
+            discoveriesSortByArtwork: [],
+
+            //Certains variables sont des objets afin de passer par référence à previouslySelected
+            //https://javascript.info/object-copy#:~:text=When%20an%20object%20variable%20is,object%20itself%20is%20not%20duplicated.&text=Now%20we%20have%20two%20variables,two%20variables%20that%20reference%20it.
+            //Filtrer
             decouverteArtwork: false,
-            decouverteHeritage: false,
+            decouverteHeritage:  false,
             decouvertePlace: false,
-            discoveriesArtwork: [],
+
+
+            //Trier
             choixTrie: "Distance",
 
+            //CSS
+            filtreArtworkColor:'black',
+            filtreArtworkBackgroundColor: 'transparent',
+            filtreHeritageColor: 'black',
+            filtreHeritageBackgroundColor: 'transparent',
+            filtrePlaceColor: 'black',
+            filtrePlaceBackgroundColor: 'transparent',
         }
     },
 
     beforeMount() {
-        this.pullDiscoveriesAZ(null);
-        this.offset = 0;
-        this.pullDiscoveriesSortByDistance(null)
-
+        this.completeDiscoveriesDistance = UserData.getSortedDiscoveriesDistance().filter((elm) => {
+            return elm.getTitle().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').includes(this.currentFilter.toLowerCase())
+        })
+        this.completeDiscoveriesAZ = UserData.getSortedDiscoveriesAZ().filter((elm) => {
+            return elm.getTitle().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').includes(this.currentFilter.toLowerCase())
+        })
+        this.pullDiscoveriesTrier(null, 'completeDiscoveriesDistance', 'discoveriesSortByDistance', '')
+        this.offset = 0
+        this.pullDiscoveriesTrier(null, 'completeDiscoveriesAZ', 'discoveriesSortByAZ', '')
+        this.offset = 0
+        this.pullDiscoveriesTrier(null, 'completeDiscoveriesDistance', 'discoveriesSortByPlaceDistance', 'place' )
+        this.offset = 0
+        this.pullDiscoveriesTrier(null, 'completeDiscoveriesAZ', 'discoveriesSortByPlaceAZ', 'place' )
     },
 
     methods: {
         pullDiscoveries(event) {
             if (this.choixTrie === "Distance")
-                this.pullDiscoveriesSortByDistance(event)
+                if (this.decouvertePlace){
+                    this.decouvertePlaceDistance = []
+                    this.pullDiscoveriesTrier(event, 'completeDiscoveriesDistance', 'discoveriesSortByPlaceDistance', 'place')
+                }
+                else
+                    this.pullDiscoveriesTrier(event, 'completeDiscoveriesDistance', 'discoveriesSortByDistance', '')
             else if (this.choixTrie === "AZ")
-                this.pullDiscoveriesAZ(event)
+                if (this.decouvertePlace){
+                    this.decouvertePlaceAZ = []
+                    this.pullDiscoveriesTrier(event, 'completeDiscoveriesAZ', 'discoveriesSortByPlaceAZ', 'place')
+                }else
+                    this.pullDiscoveriesTrier(event, 'completeDiscoveriesAZ', 'discoveriesSortByAZ', '')
+
         },
         getTrierPar() {
             return this.choixTrie
         },
         getDiscoveries(){
             let now = []
-            if (this.choixTrie === "Distance")
+            if (this.choixTrie === "Distance"){
                 now =  this.discoveriesSortByDistance
-            else if (this.choixTrie === "AZ")
-                now = this.discoveriesAZ
+            }
+            else if (this.choixTrie === "AZ"){
+                now = this.discoveriesSortByAZ
+            }
 
-            console.log("artwork :" + this.decouverteArtwork)
-            console.log("heritage :"  + this.decouverteHeritage)
-            console.log("place :" + this.decouvertePlace)
-            console.log(now)
-            let temp
             if (this.decouverteArtwork){
-                temp = now.filter(discovery => discovery.dType === "artwork")
+                now = now.filter(discovery => discovery.dType === "artwork")
             }
             if (this.decouvertePlace){
-                console.log("yes")
-                temp = now.filter(discovery => discovery.dType === "place")
-                console.log(temp)
+                if (this.choixTrie === "Distance") {
+                    now = this.discoveriesSortByPlaceDistance
+                }else if (this.choixTrie === "AZ"){
+                    now = this.discoveriesSortByPlaceAZ
+                }
             }
             if (this.decouverteHeritage){
-                temp = now.filter(discovery => discovery.dType === "heritage")
+                now = now.filter(discovery => discovery.dType === "heritage")
             }
 
-            if (Array.isArray(temp) && temp.length)
-                return temp
             return now
         },
-        pullDiscoveriesAZ(event) {
-            const subset = UserData.getSortedDiscoveries().filter((elm) => {
-                return elm.getTitle().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').includes(this.currentFilter.toLowerCase())
-            }).slice(this.offset, this.offset + 50);
 
-            this.discoveriesAZ = this.discoveriesAZ.concat(subset)
-
-            if (event)  // Send a signal when the user reaches the bottom
-                event.target.complete();
-
-            this.offset += 50;
-        },
-        pullDiscoveriesSortByDistance(event) {
-            const subset = UserData.getSortedDiscoveriesDistance().filter((elm) => {
-                return elm.getTitle().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').includes(this.currentFilter.toLowerCase())
-            }).slice(this.offset, this.offset + 50);
-
-            this.discoveriesSortByDistance = this.discoveriesSortByDistance.concat(subset)
+        pullDiscoveriesTrier(event, completeDiscoveries, subsetDiscoveries, filterBy) {
+            let subset
+            if (filterBy){
+                subset = this[completeDiscoveries].filter(discovery => discovery.dType === filterBy).slice(this.offset, this.offset + 50)
+            }
+            else
+                subset = this[completeDiscoveries].slice(this.offset, this.offset + 50);
+            this[subsetDiscoveries] = this[subsetDiscoveries].concat(subset)
 
             if (event)  // Send a signal when the user reaches the bottom
                 event.target.complete();
@@ -237,12 +274,12 @@ export default {
             this.offset = 0;
 
             if (this.choixTrie === "AZ"){
-                this.discoveriesAZ = [];
-                this.pullDiscoveriesAZ(null);
+                this.discoveriesSortByAZ = [];
+                this.pullDiscoveriesTrier(event, 'completeDiscoveriesAZ', 'discoveriesSortByAZ', '');
             }
             else {
                 this.discoveriesSortByDistance = [];
-                this.pullDiscoveriesSortByDistance(null);
+                this.pullDiscoveriesTrier(event, 'completeDiscoveriesDistance', 'discoveriesSortByDistance', '');
             }
 
         },
@@ -270,10 +307,13 @@ export default {
             this.lng2 = UserData.getLocation()[0];
             this.offset = 0;
 
-            if(this.decouverteDistance) {
+            if(this.choixTrie === "Distance") {
                 this.discoveriesSortByDistance = [];
                 UserData.sortByDistance();
-                this.pullDiscoveriesSortByDistance(null);
+                this.completeDiscoveriesDistance = UserData.getSortedDiscoveriesDistance().filter((elm) => {
+                    return elm.getTitle().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').includes(this.currentFilter.toLowerCase())
+                })
+                this.pullDiscoveriesTrier(event, 'completeDiscoveriesDistance', 'discoveriesSortByDistance', '');
             }
 
             this.forceRerender();
@@ -281,51 +321,20 @@ export default {
             if (event && event.target && event.target.complete)  // Signal
                 event.target.complete();
         },
-        selectedArtwork() {
-            if (this.decouverteArtwork){
-                this.decouverteArtwork = false
-                document.getElementById("artwork").style.backgroundColor = "transparent"
-                document.getElementById("artworkText").style.color = "black"
+        selectedDiscovery(typeDiscovery, backgroundColorID, colorID) {
 
+            if (!this[typeDiscovery]){
+                this[backgroundColorID] = "grey"
+                this[colorID] = "white"
             }
             else {
-                this.decouverteArtwork = true
-                document.getElementById("artwork").style.backgroundColor = "grey"
-                document.getElementById("artworkText").style.color = "white"
+                this[backgroundColorID] = "transparent"
+                this[colorID] = "black"
             }
-
+            this[typeDiscovery] = !this[typeDiscovery]
             this.forceRerender()
 
         },
-        selectedPlace(){
-
-            if (this.decouvertePlace){
-                this.decouvertePlace = false
-                document.getElementById("place").style.backgroundColor = "transparent"
-                document.getElementById("placeText").style.color = "black"
-
-            }
-            else {
-                this.decouvertePlace = true
-                document.getElementById("place").style.backgroundColor = "grey"
-                document.getElementById("placeText").style.color = "white"
-            }
-            this.forceRerender()
-        },
-        selectedHeritage() {
-            if (this.decouverteHeritage){
-                this.decouverteHeritage = false
-                document.getElementById("heritage").style.backgroundColor = "transparent"
-                document.getElementById("heritageText").style.color = "black"
-
-            }
-            else {
-                this.decouverteHeritage = true
-                document.getElementById("heritage").style.backgroundColor = "grey"
-                document.getElementById("heritageText").style.color = "white"
-            }
-            this.forceRerender()
-        }
     }
 }
 </script>
@@ -486,6 +495,7 @@ ion-modal {
     font-size: 32px;
     color: grey;
 }
+
 
 /** {*/
 /*    border: 1px solid rgba(0, 0, 0, 0.3);*/
