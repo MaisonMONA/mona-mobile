@@ -196,7 +196,7 @@ export class UserData {
         });
     }
 
-    public static getSortedDiscoveries(sliceA?: number, sliceB?: number) {
+    public static getSortedDiscoveriesAZ(sliceA?: number, sliceB?: number) {
         return this.sortedDiscoveries.slice(sliceA || 0, sliceB || Infinity)
     }
 

@@ -165,7 +165,7 @@ export default {
                 insertAllPins(pinsLayer, discoveries);
             } else {
                 // Show all discoveries
-                insertAllPins(pinsLayer, UserData.getSortedDiscoveries());
+                insertAllPins(pinsLayer, UserData.getSortedDiscoveriesAZ());
             }
 
             this.mainMap.addLayer(pinsLayer);
