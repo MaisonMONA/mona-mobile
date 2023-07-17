@@ -157,8 +157,11 @@ export default {
             discoveriesSortByDistance: [],
             discoveriesSortByPlaceAZ: [],
             discoveriesSortByPlaceDistance: [],
-            discoveriesSortByHeritage: [],
-            discoveriesSortByArtwork: [],
+            discoveriesSortByHeritageAZ: [],
+            discoveriesSortByHeritageDistance: [],
+            discoveriesSortByArtworkAZ: [],
+            discoveriesSortByArtworkDistance: [],
+
 
             //Certains variables sont des objets afin de passer par référence à previouslySelected
             //https://javascript.info/object-copy#:~:text=When%20an%20object%20variable%20is,object%20itself%20is%20not%20duplicated.&text=Now%20we%20have%20two%20variables,two%20variables%20that%20reference%20it.
@@ -166,7 +169,6 @@ export default {
             decouverteArtwork: false,
             decouverteHeritage:  false,
             decouvertePlace: false,
-
 
             //Trier
             choixTrie: "Distance",
@@ -182,12 +184,8 @@ export default {
     },
 
     beforeMount() {
-        this.completeDiscoveriesDistance = UserData.getSortedDiscoveriesDistance().filter((elm) => {
-            return elm.getTitle().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').includes(this.currentFilter.toLowerCase())
-        })
-        this.completeDiscoveriesAZ = UserData.getSortedDiscoveriesAZ().filter((elm) => {
-            return elm.getTitle().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').includes(this.currentFilter.toLowerCase())
-        })
+        this.completeDiscoveriesDistance = UserData.getSortedDiscoveriesDistance()
+        this.completeDiscoveriesAZ = UserData.getSortedDiscoveriesAZ()
         this.pullDiscoveriesTrier(null, 'completeDiscoveriesDistance', 'discoveriesSortByDistance', '')
         this.offset = 0
         this.pullDiscoveriesTrier(null, 'completeDiscoveriesAZ', 'discoveriesSortByAZ', '')
@@ -195,21 +193,36 @@ export default {
         this.pullDiscoveriesTrier(null, 'completeDiscoveriesDistance', 'discoveriesSortByPlaceDistance', 'place' )
         this.offset = 0
         this.pullDiscoveriesTrier(null, 'completeDiscoveriesAZ', 'discoveriesSortByPlaceAZ', 'place' )
+        this.offset = 0
+        this.pullDiscoveriesTrier(null, 'completeDiscoveriesDistance', 'discoveriesSortByArtworkDistance', 'artwork')
+        this.offset = 0
+        this.pullDiscoveriesTrier(null, 'completeDiscoveriesAZ', 'discoveriesSortByArtworkAZ', 'artwork')
+        this.offset = 0
+        this.pullDiscoveriesTrier(null, 'completeDiscoveriesDistance', 'discoveriesSortByHeritageDistance', 'heritage')
+        this.offset = 0
+        this.pullDiscoveriesTrier(null, 'completeDiscoveriesAZ', 'discoveriesSortByHeritageAZ', 'heritage')
+
     },
 
     methods: {
         pullDiscoveries(event) {
             if (this.choixTrie === "Distance")
                 if (this.decouvertePlace){
-                    this.decouvertePlaceDistance = []
                     this.pullDiscoveriesTrier(event, 'completeDiscoveriesDistance', 'discoveriesSortByPlaceDistance', 'place')
+                }else if (this.decouverteArtwork){
+                    this.pullDiscoveriesTrier(event, 'completeDiscoveriesDistance', 'discoveriesSortByArtworkDistance', 'artwork')
+                }else if (this.decouverteHeritage){
+                    this.pullDiscoveriesTrier(event, 'completeDiscoveriesDistance', 'discoveriesSortByHeritageDistance', 'heritage')
                 }
                 else
                     this.pullDiscoveriesTrier(event, 'completeDiscoveriesDistance', 'discoveriesSortByDistance', '')
             else if (this.choixTrie === "AZ")
                 if (this.decouvertePlace){
-                    this.decouvertePlaceAZ = []
                     this.pullDiscoveriesTrier(event, 'completeDiscoveriesAZ', 'discoveriesSortByPlaceAZ', 'place')
+                }else if (this.decouverteArtwork){
+                    this.pullDiscoveriesTrier(event, 'completeDiscoveriesAZ', 'discoveriesSortByArtworkAZ', 'artwork')
+                }else if (this.decouverteHeritage){
+                    this.pullDiscoveriesTrier(event, 'completeDiscoveriesAZ', 'discoveriesSortByHeritageAZ', 'heritage')
                 }else
                     this.pullDiscoveriesTrier(event, 'completeDiscoveriesAZ', 'discoveriesSortByAZ', '')
 
@@ -227,7 +240,11 @@ export default {
             }
 
             if (this.decouverteArtwork){
-                now = now.filter(discovery => discovery.dType === "artwork")
+                if (this.choixTrie === "Distance")
+                    now = this.discoveriesSortByArtworkDistance
+                else if (this.choixTrie === "AZ")
+                    now = this.discoveriesSortByArtworkAZ
+                //now = now.filter(discovery => discovery.dType === "artwork")
             }
             if (this.decouvertePlace){
                 if (this.choixTrie === "Distance") {
@@ -237,7 +254,11 @@ export default {
                 }
             }
             if (this.decouverteHeritage){
-                now = now.filter(discovery => discovery.dType === "heritage")
+                if (this.choixTrie === "Distance")
+                    now = this.discoveriesSortByHeritageDistance
+                else if (this.choixTrie === "AZ")
+                    now = this.discoveriesSortByHeritageAZ
+                //now = now.filter(discovery => discovery.dType === "heritage")
             }
 
             return now
@@ -246,13 +267,18 @@ export default {
         pullDiscoveriesTrier(event, completeDiscoveries, subsetDiscoveries, filterBy) {
             let subset
             if (filterBy){
-                subset = this[completeDiscoveries].filter(discovery => discovery.dType === filterBy).slice(this.offset, this.offset + 50)
+                subset = this[completeDiscoveries].filter((elm) => {
+                    return elm.getTitle().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').includes(this.currentFilter.toLowerCase())
+                }).filter(discovery => discovery.dType === filterBy).slice(this.offset, this.offset + 50)
             }
             else
-                subset = this[completeDiscoveries].slice(this.offset, this.offset + 50);
+                subset = this[completeDiscoveries].filter((elm) => {
+                    return elm.getTitle().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').includes(this.currentFilter.toLowerCase())
+                }).slice(this.offset, this.offset + 50);
+
             this[subsetDiscoveries] = this[subsetDiscoveries].concat(subset)
 
-            if (event)  // Send a signal when the user reaches the bottom
+            if (event && event.target && event.target.complete) // Send a signal when the user reaches the bottom
                 event.target.complete();
 
             this.offset += 50;
@@ -274,12 +300,33 @@ export default {
             this.offset = 0;
 
             if (this.choixTrie === "AZ"){
-                this.discoveriesSortByAZ = [];
-                this.pullDiscoveriesTrier(event, 'completeDiscoveriesAZ', 'discoveriesSortByAZ', '');
+                if (this.decouvertePlace){
+                    this.discoveriesSortByPlaceAZ = []
+                    this.pullDiscoveriesTrier(event, 'completeDiscoveriesAZ', 'discoveriesSortByPlaceAZ', 'place')
+                }else if (this.decouverteArtwork){
+                    this.discoveriesSortByArtworkAZ =[]
+                    this.pullDiscoveriesTrier(event, 'completeDiscoveriesAZ', 'discoveriesSortByArtworkAZ', 'artwork')
+                }else if (this.decouverteHeritage){
+                    this.discoveriesSortByHeritageAZ = []
+                    this.pullDiscoveriesTrier(event, 'completeDiscoveriesAZ', 'discoveriesSortByHeritageAZ', 'heritage')
+                }else
+                    this.discoveriesSortByAZ = []
+                    this.pullDiscoveriesTrier(event, 'completeDiscoveriesAZ', 'discoveriesSortByAZ', '')
             }
-            else {
-                this.discoveriesSortByDistance = [];
-                this.pullDiscoveriesTrier(event, 'completeDiscoveriesDistance', 'discoveriesSortByDistance', '');
+            else if (this.choixTrie === "Distance"){
+                if (this.decouvertePlace){
+                    this.discoveriesSortByPlaceDistance = []
+                    this.pullDiscoveriesTrier(event, 'completeDiscoveriesDistance', 'discoveriesSortByPlaceDistance', 'place')
+                }else if (this.decouverteArtwork){
+                    this.discoveriesSortByArtworkDistance = []
+                    this.pullDiscoveriesTrier(event, 'completeDiscoveriesDistance', 'discoveriesSortByArtworkDistance', 'artwork')
+                }else if (this.decouverteHeritage){
+                    this.discoveriesSortByHeritageDistance = []
+                    this.pullDiscoveriesTrier(event, 'completeDiscoveriesDistance', 'discoveriesSortByHeritageDistance', 'heritage')
+                }
+                else
+                    this.discoveriesSortByDistance = [];
+                    this.pullDiscoveriesTrier(event, 'completeDiscoveriesDistance', 'discoveriesSortByDistance', '')
             }
 
         },
@@ -322,15 +369,29 @@ export default {
                 event.target.complete();
         },
         selectedDiscovery(typeDiscovery, backgroundColorID, colorID) {
+            const decouverte = ['decouverteHeritage', 'decouverteArtwork', 'decouvertePlace']
+            const backgroundColor = ['filtreHeritageBackgroundColor', 'filtreArtworkBackgroundColor', 'filtrePlaceBackgroundColor']
+            const color = ['filtreHeritageColor', 'filtreArtworkColor' , 'filtrePlaceColor']
 
             if (!this[typeDiscovery]){
                 this[backgroundColorID] = "grey"
                 this[colorID] = "white"
             }
-            else {
+            else if(this[typeDiscovery]){
                 this[backgroundColorID] = "transparent"
                 this[colorID] = "black"
             }
+
+            for (let i = 0; i < 4; i ++){
+                if ((decouverte[i] !== typeDiscovery) ){
+                    if (this[decouverte[i]] === true){
+                        this[backgroundColor[i]] = "transparent"
+                        this[color[i]] = "black"
+                        this[decouverte[i]] = !this[decouverte[i]]
+                    }
+                }
+            }
+
             this[typeDiscovery] = !this[typeDiscovery]
             this.forceRerender()
 
@@ -495,9 +556,4 @@ ion-modal {
     font-size: 32px;
     color: grey;
 }
-
-
-/** {*/
-/*    border: 1px solid rgba(0, 0, 0, 0.3);*/
-/*}*/
 </style>
