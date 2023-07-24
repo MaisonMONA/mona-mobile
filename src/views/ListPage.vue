@@ -574,4 +574,10 @@ ion-modal {
     font-size: 32px;
     color: grey;
 }
+
+
+/** {*/
+/*    border: 1px solid rgba(0, 0, 0, 0.3);*/
+/*}*/
+
 </style>

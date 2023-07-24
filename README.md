@@ -58,3 +58,6 @@ if (cameraPermStatus.camera === "granted" && filePermStatus.publicStorage === "g
 
 ⚠️ Si l'on veut juste tester la version actuelle sur son propre téléphone (et pas faire de release), ne pas augmenter le
 `versionCode` et générer un APK (pas un bundle). N'importe quel Android peut alors installer depuis cet APK.
+
+## Accessibilité
+❗ Il est important d'appliquer les bonnes pratiques énumérées [ici](https://ionic.io/docs/accessibility) pour rendre l'application accessible.
