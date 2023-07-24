@@ -60,7 +60,8 @@ export class Artwork extends Discovery {
         dimensions: { fr: string[], en: string[] } | null,
         categories: { fr: string[], en: string[] } | null,
         techniques: { fr: string[], en: string[] } | null,
-        directions: { fr: string | null, en: string | null } | null
+        directions: { fr: string | null, en: string | null } | null,
+        accessibilities: { fr: string[] , en: string[]  } | null
     }) {
         super();
         this.id          = artwork.id;
@@ -76,6 +77,7 @@ export class Artwork extends Discovery {
         this.directions  = artwork.directions;
         this.owner       = artwork.owner;
         this.borough     = artwork.borough;
+        this.accessibilities = artwork.accessibilities;
     }
 
     dType = "artwork";
@@ -92,11 +94,22 @@ export class Artwork extends Discovery {
     directions: { fr: string | null, en: string | null } | null;
     owner: string | null;
     borough: string;
+    accessibilities: { fr: string[] , en: string[] } | null;
 
     public getLocation(): { lat: number; lng: number } {
         return this.location;
     }
+    public getAccessibilities(lang: 'fr'): string  {
+        if (this.accessibilities) {
+            if (lang == 'fr')
+                return this.accessibilities.fr.join(', ');
+            else
+                return this.accessibilities.en.join(', ');
+        }
+        console.log(this.accessibilities)
 
+        return '';
+    }
     public getTitle(): string {
         return this.title.fr || this.title.en || "(non titré)";
     }
