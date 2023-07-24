@@ -42,6 +42,7 @@
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonInput, IonButton } from "@ionic/vue";
 import { UserData } from "@/internal/databases/UserData";
 import Globals from "@/internal/Globals";
+import {Database} from "@/internal/databases/Database";
 
 
 export default {
@@ -57,6 +58,7 @@ export default {
                 this.$router.replace("/loading");
             }
         })
+        Database.initilizePopulateDatabase()
     },
 
     methods: {

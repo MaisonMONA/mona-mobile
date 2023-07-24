@@ -8,12 +8,63 @@ export abstract class Database {
     protected static data: Discovery[];
     protected static path: string;
     protected static type: string;
+    private static pathPopulateDataBase: "appdata/populateDataBase.json"
+    private static dataPopulateDataBase: any = null;
+    public static resetPreferences(){
+        this.dataPopulateDataBase = {
+            updateOneTime : {
+                artworks: true,
+                places: true,
+                heritages: true,
+                badges: true,
+            }
+        }
+        this.updateFile();
 
+    }
+    private static updateFile() {
+        Filesystem.writeFile({
+            path: this.pathPopulateDataBase,
+            data: JSON.stringify(this.dataPopulateDataBase),
+            directory: Directory.Data,
+            encoding: Encoding.UTF8,
+            recursive: true,
+        })
+            .catch((err) => {
+                console.error(`Failed to update populate database file (${err})`);
+            })
+    }
+    public static async initilizePopulateDatabase(){
+        try {
+            const content = await Filesystem.readFile({
+                path: this.pathPopulateDataBase,
+                directory: Directory.Data,
+                encoding: Encoding.UTF8
+            })
+
+            this.dataPopulateDataBase = JSON.parse(content.data);
+
+            console.log("successfully read file \"populate database\"");
+        } catch (err) {
+            console.log(`error when parsing data (${err}).`);
+            // Default user data
+            this.resetPreferences();
+        }
+    }
+    public static async populate(){
+        if (this.dataPopulateDataBase.updateOneTime[this.type]){
+            await this.populateFromServer()
+            this.dataPopulateDataBase.updateOneTime[this.type] = false
+            this.updateFile()
+        } else {
+            await this.populateLocal()
+        }
+    }
     protected static createSingleElement(element: any) {
         return element;
     }
 
-    public static async populate(): Promise<void> {
+    public static async populateLocal(): Promise<void> {
         // Do not reload all data if it exists already
         if (this.data.length > 0) return;
 

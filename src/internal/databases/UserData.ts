@@ -8,6 +8,7 @@ import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
 import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
 import { ArtworkFactory, PlaceFactory } from "@/internal/Factories";
 import {Distance} from "@/internal/Distance";
+import {BadgeDatabase} from "@/internal/databases/BadgeDatabase";
 
 type Review = {id: number, dType: string, filename: string, rating: number, comment: string};
 
@@ -131,7 +132,7 @@ export class UserData {
                 directory: Directory.Cache,
                 encoding: Encoding.UTF8
             });
-
+            console.log(BadgeDatabase.getSubset(0,BadgeDatabase.getSize()))
             const parsed = JSON.parse(content.data);
             this.sortedDiscoveries = parsed.map((discovery: any) => {
                 if (discovery.dType === "artwork")

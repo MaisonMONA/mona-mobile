@@ -116,7 +116,8 @@ export default {
             details4 = this.discovery.getDimensions();
             details5 = this.discovery.getMaterials();
             details6 = this.discovery.getTechniques();
-            accessibilities = "Accessibilité : " + this.discovery.getAccessibilities("fr");
+            if (this.discovery.getAccessibilities("fr"))
+                accessibilities = "Accessibilité : " + this.discovery.getAccessibilities("fr");
 
             productionDate = this.discovery.produced_at;
         } else {

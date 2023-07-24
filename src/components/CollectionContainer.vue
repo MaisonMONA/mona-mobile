@@ -15,12 +15,12 @@
             <ion-button @click="refreshPage" id="refresh-button">
                 <ion-icon :icon="syncCircleIcon"></ion-icon>
             </ion-button>
-            <!--
+
             <ion-nav-link router-direction="forward" :component="BadgesContainer">
                 <ion-button id="show-badges-button">
                     Badges
                 </ion-button>
-            </ion-nav-link>-->
+            </ion-nav-link>
 
             <div class="collection-header">
                 <ion-icon id="collection-icon" :icon="customCollectionIcon"></ion-icon>
@@ -53,7 +53,7 @@
 <script>
 import { reload } from "ionicons/icons";
 import { UserData } from '@/internal/databases/UserData';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, //IonNavLink,
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonNavLink,
          IonGrid, IonRow, IonCol, IonIcon, IonButton, IonRefresher, IonRefresherContent } from '@ionic/vue';
 import Utils from "@/internal/Utils";
 import customCollectionIcon from "@/assets/drawable/icons/collection_white.svg"
@@ -64,7 +64,7 @@ export default {
     name: "CollectionContainer",
     components: {
         IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonIcon, IonButton,
-        IonRefresher, IonRefresherContent //IonNavLink,
+        IonRefresher, IonRefresherContent, IonNavLink,
     },
 
     setup() {

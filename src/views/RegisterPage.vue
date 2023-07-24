@@ -59,6 +59,7 @@ import Globals from "@/internal/Globals";
 import { Filesystem } from "@capacitor/filesystem";
 import { Camera } from "@capacitor/camera";
 import { Geolocation } from "@capacitor/geolocation";
+import {Database} from "@/internal/databases/Database";
 
 
 export default {
@@ -69,7 +70,7 @@ export default {
 
     async beforeMount() {
         await UserData.populate();
-
+        await Database.initilizePopulateDatabase();
         if (!UserData.hasSeenTutorial()) {
             // Show tutorial on first time
             this.$router.replace("/tutorial");
