@@ -16,6 +16,7 @@
                 <ion-icon :icon="syncCircleIcon"></ion-icon>
             </ion-button>
 
+            <!--TODO: use ion-segment-->
             <ion-nav-link router-direction="forward" :component="BadgesContainer">
                 <ion-button id="show-badges-button">
                     Badges

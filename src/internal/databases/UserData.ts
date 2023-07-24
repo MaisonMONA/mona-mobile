@@ -132,7 +132,6 @@ export class UserData {
                 directory: Directory.Cache,
                 encoding: Encoding.UTF8
             });
-            console.log(BadgeDatabase.getSubset(0,BadgeDatabase.getSize()))
             const parsed = JSON.parse(content.data);
             this.sortedDiscoveries = parsed.map((discovery: any) => {
                 if (discovery.dType === "artwork")

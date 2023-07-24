@@ -10,7 +10,15 @@
 
     <ion-content>
         <div class="main-container">
-            <h1>Coming soon</h1>
+            <h1>Badges</h1>
+                <img alt="count 1" src="@/assets/drawable/badges/count/locked/count1.svg" />
+
+            <h1>Catégories</h1>
+                <img alt="Murale" src="@/assets/drawable/badges/category/locked/Murale.svg" />
+
+            <h1>Quartier</h1>
+            <img alt="LaSalle" src="@/assets/drawable/badges/borough/locked/LaSalle.svg" />
+
         </div>
     </ion-content>
 </template>
@@ -21,7 +29,7 @@ import { IonHeader, IonContent, IonToolbar, IonButtons, IonBackButton, IonTitle 
 export default {
     name: "BadgesContainer",
     components: {
-        IonHeader, IonContent, IonToolbar, IonButtons, IonBackButton, IonTitle
+        IonHeader, IonContent, IonToolbar, IonButtons, IonBackButton, IonTitle,
     }
 }
 </script>
