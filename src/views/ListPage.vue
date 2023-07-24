@@ -37,68 +37,60 @@
                                 <ion-icon class="modal-icon" size="medium" slot="end" :src="close" @click="dismiss()"></ion-icon>
                         </ion-toolbar>
 
-                        <ion-list-header>
+                        <div class="titreTrier">
                             <ion-label>Trier par</ion-label>
-                        </ion-list-header>
+                        </div>
 
-                        <ion-radio-group :value=this.getTrierPar() v-model="choixTrie">
-                            <ion-row>
-                                <ion-col>
-                                    <ion-item>
-                                        <ion-label>Distance</ion-label>
-                                        <ion-radio class="trier" mode="md" slot="end" value="Distance" ></ion-radio>
-                                    </ion-item>
-                                </ion-col>
-                                <ion-col>
-                                    <ion-item>
-                                        <ion-label>AZ</ion-label>
-                                        <ion-radio class="trier"  mode="md" slot="end" value="AZ"></ion-radio>
-                                    </ion-item>
-                                </ion-col>
-                            </ion-row>
-                        </ion-radio-group>
+                        <div id="trierParRadioGroup">
+                            <ion-radio-group :value=this.getTrierPar() v-model="choixTrie">
+                                <ion-label class="trierDistance">Distance</ion-label>
+                                <ion-radio  mode="md" slot="end" value="Distance" ></ion-radio>
 
-                        <ion-list-header>
+                                <ion-label class="trierAZ">AZ</ion-label>
+                                <ion-radio  mode="md" slot="end" value="AZ"></ion-radio>
+                            </ion-radio-group>
+                        </div>
+
+                        <div class="titreTrier">
                             <ion-label>Filtrer par</ion-label>
-                        </ion-list-header>
+                        </div>
 
+                        <ion-row class="ion-justify-content-between">
+                            <ion-col class="filtre" size="3"
+                                     @click="this.selectedDiscovery('decouverteArtwork', 'filtreArtworkBackgroundColor', 'filtreArtworkColor')"
+                                     :style="{color: filtreArtworkColor, backgroundColor: filtreArtworkBackgroundColor}" >
+                                <div class="filter-category">
+                                    <ion-avatar>
+                                        <img :src="require('@/assets/drawable/medals/artwork/default.svg')">
+                                    </ion-avatar>
+                                    <ion-text>Œuvres</ion-text>
 
-                            <ion-row class="ion-justify-content-between">
-                                <ion-col class="filtre" size="3"
-                                         @click="this.selectedDiscovery('decouverteArtwork', 'filtreArtworkBackgroundColor', 'filtreArtworkColor')"
-                                         :style="{color: filtreArtworkColor, backgroundColor: filtreArtworkBackgroundColor}" >
-                                    <div class="filter-category">
-                                        <ion-avatar>
-                                            <img :src="require('@/assets/drawable/medals/artwork/default.svg')">
-                                        </ion-avatar>
-                                        <ion-text>Œuvres</ion-text>
-
-                                    </div>
-                                </ion-col>
-                                <ion-col class="filtre" size="4"
-                                         @click="this.selectedDiscovery('decouverteHeritage', 'filtreHeritageBackgroundColor', 'filtreHeritageColor')"
-                                         :style="{color: filtreHeritageColor, backgroundColor: filtreHeritageBackgroundColor}">
-                                    <div class="filter-category">
-                                        <ion-avatar>
-                                            <img :src="require('@/assets/drawable/medals/heritage/default.svg')">
-                                        </ion-avatar>
-                                        <ion-text>Patrimoines</ion-text>
-                                    </div>
-                                </ion-col>
-                                <ion-col class="filtre" size="3"
-                                         @click="this.selectedDiscovery('decouvertePlace', 'filtrePlaceBackgroundColor', 'filtrePlaceColor')"
-                                         :style="{color: filtrePlaceColor, backgroundColor: filtrePlaceBackgroundColor}">
-                                    <div class="filter-category">
-                                        <ion-avatar>
-                                            <img :src="require('@/assets/drawable/medals/place/default.svg')">
-                                        </ion-avatar>
-                                        <ion-text>Lieux</ion-text>
-                                    </div>
-                                </ion-col>
-                            </ion-row>
-
+                                </div>
+                            </ion-col>
+                            <ion-col class="filtre" size="4"
+                                     @click="this.selectedDiscovery('decouverteHeritage', 'filtreHeritageBackgroundColor', 'filtreHeritageColor')"
+                                     :style="{color: filtreHeritageColor, backgroundColor: filtreHeritageBackgroundColor}">
+                                <div class="filter-category">
+                                    <ion-avatar>
+                                        <img :src="require('@/assets/drawable/medals/heritage/default.svg')">
+                                    </ion-avatar>
+                                    <ion-text>Patrimoines</ion-text>
+                                </div>
+                            </ion-col>
+                            <ion-col class="filtre" size="3"
+                                     @click="this.selectedDiscovery('decouvertePlace', 'filtrePlaceBackgroundColor', 'filtrePlaceColor')"
+                                     :style="{color: filtrePlaceColor, backgroundColor: filtrePlaceBackgroundColor}">
+                                <div class="filter-category">
+                                    <ion-avatar>
+                                        <img :src="require('@/assets/drawable/medals/place/default.svg')">
+                                    </ion-avatar>
+                                    <ion-text>Lieux</ion-text>
+                                </div>
+                            </ion-col>
+                        </ion-row>
                     </ion-content>
             </ion-modal>
+
             <ion-refresher slot="fixed" @ion-refresh="refreshPage">
                 <ion-refresher-content></ion-refresher-content>
             </ion-refresher>
@@ -374,8 +366,8 @@ export default {
             const color = ['filtreHeritageColor', 'filtreArtworkColor' , 'filtrePlaceColor']
 
             if (!this[typeDiscovery]){
-                this[backgroundColorID] = "grey"
-                this[colorID] = "white"
+                this[backgroundColorID] = "#E0DFE4"
+                this[colorID] = "black"
             }
             else if(this[typeDiscovery]){
                 this[backgroundColorID] = "transparent"
@@ -446,8 +438,11 @@ ion-avatar {
     margin-right: 0;
 }
 ion-row{
-    margin-left: 5%;
-    margin-right: 5%;
+    margin: 5%;
+}
+ion-col{
+    margin-top: 2%;
+    margin-bottom: 2%;
 }
 ion-searchbar {
     padding-left: 21px;
@@ -508,21 +503,42 @@ ion-col img {
     width: auto;
 }
 
-.trier {
+.titreTrier {
+    margin-top: 5%; margin-bottom: 2%; color: #48474B
+}
+
+.trierDistance {
+    padding-right: 5%;
+    padding-left: 0;
+}
+
+.trierAZ {
+    padding-right: 5%;
+}
+
+#trierParRadioGroup {
+    margin: 5%;
+}
+
+ion-radio-group {
+    padding-top: 2%;
+    padding-bottom: 2%;
+}
+
+ion-radio {
     --border-radius: 100%;
     --inner-border-radius: 100%;
 
-    --color: black;
+    --color: #ddd;
     --color-checked: black;
 }
-
 
 #modal-header {
     font-weight: bold;
     font-family: 'Gotham Roundedight', sans-serif;
 }
 ion-modal ion-toolbar {
-    --background: grey;
+    --background: #E0DFE4;
     --color: black;
 }
 ion-modal {
