@@ -6,8 +6,8 @@ android {
         applicationId "com.maison.mona"
         minSdkVersion 26
         targetSdkVersion 31
-        versionCode 67
-        versionName "3.0.1"
+        versionCode 689
+        versionName "3.1.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
