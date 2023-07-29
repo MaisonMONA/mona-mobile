@@ -9,7 +9,14 @@
     </ion-header>
 
     <ion-content>
-        <ion-input label="Nom d'utilisateur" label-placement="floating" fill="outline" placeholder="Enter text"></ion-input>
+        <ion-list>
+            <ion-item>
+                <ion-input label="Nom d'utilisateur" labelPlacement="stacked" placeholder="Enter text"></ion-input>
+
+
+            </ion-item>
+        </ion-list>
+
         <ion-input label="Courriel" label-placement="floating" fill="outline" placeholder="Enter text"></ion-input>
         <ion-input label="Mot de passe" label-placement="floating" fill="outline" placeholder="Enter text"></ion-input>
 
