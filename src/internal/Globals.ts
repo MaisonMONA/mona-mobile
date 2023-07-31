@@ -21,6 +21,13 @@ export default {
         },
         "register": "https://picasso.iro.umontreal.ca/~mona/api/v3/register",
         "login": "https://picasso.iro.umontreal.ca/~mona/api/v3/login",
-        "getPhotos": "https://picasso.iro.umontreal.ca/~mona/api/v3/user/photo"
+        "getPhotos": "https://picasso.iro.umontreal.ca/~mona/api/v3/user/photo",
+        "user": "https://picasso.iro.umontreal.ca/~mona/api/v3/user",
+        "update": {
+            password: "https://picasso.iro.umontreal.ca/~mona/api/v3/user/updatePassword",
+            email: "https://picasso.iro.umontreal.ca/~mona/api/v3/user/updateEmail",
+            username: "https://picasso.iro.umontreal.ca/~mona/api/v3/user/updateUsername"
+        },
+        "resetPassword": "https://picasso.iro.umontreal.ca/~mona/api/v3/user/updateEmail"
     },
 }

@@ -8,7 +8,7 @@ import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
 import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
 import { ArtworkFactory, PlaceFactory } from "@/internal/Factories";
 import {Distance} from "@/internal/Distance";
-import {BadgeDatabase} from "@/internal/databases/BadgeDatabase";
+//import {BadgeDatabase} from "@/internal/databases/BadgeDatabase";
 
 type Review = {id: number, dType: string, filename: string, rating: number, comment: string};
 
