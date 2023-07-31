@@ -103,7 +103,7 @@
 
 <script>
 import {
-    IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonLabel, IonItem, IonAvatar,
+    IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonLabel, IonItem, IonAvatar, IonRow, IonCol, IonText,
     IonInfiniteScroll, IonInfiniteScrollContent, IonSearchbar, IonIcon, IonButton, IonRefresherContent, IonRefresher, IonModal,  IonRadio, IonRadioGroup,
 } from "@ionic/vue";
 import { filterOutline, close, optionsOutline, reload} from "ionicons/icons";
@@ -120,7 +120,7 @@ export default {
     },
     components: {
         IonRefresher, IonRefresherContent,
-        IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonLabel, IonItem, IonAvatar,
+        IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonLabel, IonItem, IonAvatar, IonRow, IonCol, IonText,
          IonSearchbar, IonInfiniteScroll, IonInfiniteScrollContent, IonIcon, IonButton, IonModal,  IonRadio, IonRadioGroup,
 
     },

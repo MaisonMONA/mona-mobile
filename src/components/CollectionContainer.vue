@@ -1,60 +1,33 @@
 <template>
-    <ion-page>
+      <ion-refresher slot="fixed" @ion-refresh="refreshPage">
+          <ion-refresher-content></ion-refresher-content>
+      </ion-refresher>
 
-        <ion-header>
-            <ion-toolbar>
-                <ion-title>MONA</ion-title>
-            </ion-toolbar>
-        </ion-header>
+      <ion-button @click="refreshPage" id="refresh-button">
+          <ion-icon :icon="syncCircleIcon"></ion-icon>
+      </ion-button>
 
-        <ion-content :fullscreen="true">
-            <ion-refresher slot="fixed" @ion-refresh="refreshPage">
-                <ion-refresher-content></ion-refresher-content>
-            </ion-refresher>
+      <div class="collection-content" >
+          <ion-grid >
+              <ion-row class="ion-justify-content-around">
+                  <ion-col v-for="item in collected" :key="item" size="5.5" @click="openDetails(item)">
+                      <div class="img-card">
+                          <img :id="`user-photo-${item.id}-${item.dType}`" :src="getPhotoThumbnail(item.id, item.dType)"/>
+                          <div class="title-holder">
+                              <p>{{ formatTitle(getDiscovery(item.id, item.dType)) }}</p>
+                          </div>
+                      </div>
+                  </ion-col>
+              </ion-row>
+          </ion-grid>
+      </div>
 
-            <ion-button @click="refreshPage" id="refresh-button">
-                <ion-icon :icon="syncCircleIcon"></ion-icon>
-            </ion-button>
-
-            <!--TODO: use ion-segment-->
-            <ion-nav-link router-direction="forward" :component="BadgesContainer">
-                <ion-button id="show-badges-button">
-                    Badges
-                </ion-button>
-            </ion-nav-link>
-
-            <div class="collection-header">
-                <ion-icon id="collection-icon" :icon="customCollectionIcon"></ion-icon>
-                <p id="collected-count">{{ collected.length > 0 ? collected.length : '' }}</p>
-                <p>
-                    {{ collected.length > 0 ? 'D' : "Aucune d" }}écouverte{{ collected.length > 0 ? 's' : ''}}
-                    <br>
-                    collectionnée{{ collected.length > 0 ? 's' : ''}}
-                </p>
-            </div>
-            <div class="collection-content">
-                <p id="your-collection">Votre collection</p>
-                <ion-grid>
-                    <ion-row class="ion-justify-content-around">
-                        <ion-col v-for="item in collected" :key="item" size="5.5" @click="openDetails(item)">
-                            <div class="img-card">
-                                <img :id="`user-photo-${item.id}-${item.dType}`" :src="getPhotoThumbnail(item.id, item.dType)"/>
-                                <div class="title-holder">
-                                    <p>{{ formatTitle(getDiscovery(item.id, item.dType)) }}</p>
-                                </div>
-                            </div>
-                        </ion-col>
-                    </ion-row>
-                </ion-grid>
-            </div>
-        </ion-content>
-    </ion-page>
 </template>
 
 <script>
 import { reload } from "ionicons/icons";
 import { UserData } from '@/internal/databases/UserData';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonNavLink,
+import {
          IonGrid, IonRow, IonCol, IonIcon, IonButton, IonRefresher, IonRefresherContent } from '@ionic/vue';
 import Utils from "@/internal/Utils";
 import customCollectionIcon from "@/assets/drawable/icons/collection_white.svg"
@@ -64,8 +37,8 @@ import BadgesContainer from "@/components/BadgesContainer.vue";
 export default {
     name: "CollectionContainer",
     components: {
-        IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonIcon, IonButton,
-        IonRefresher, IonRefresherContent, IonNavLink,
+         IonGrid, IonRow, IonCol, IonIcon, IonButton,
+        IonRefresher, IonRefresherContent,
     },
 
     setup() {
