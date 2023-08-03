@@ -163,6 +163,9 @@ export class Artwork extends Discovery {
         else
             return this.techniques.en.join(', ');
     }
+    public getBorough(): string {
+        return this.borough;
+    }
 }
 
 export class Place extends Discovery {
@@ -288,7 +291,7 @@ export class Badge extends Discovery {
         super();
         this.id            = badge.id;
         this.title         = badge.title;
-        this.requiredCount = badge.required_count;
+        this.required_count = badge.required_count;
         this.description   = badge.description;
         this.notification  = badge.notification;
         this.badgeable     = badge.badgeable;
@@ -298,7 +301,7 @@ export class Badge extends Discovery {
     dType = "badge";
     id: number;
     title: string;
-    requiredCount: number;
+    required_count: number;
     description: {
         fr: string,
         en: string
