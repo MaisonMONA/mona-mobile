@@ -2,13 +2,13 @@
         <div class="main-container">
             <div style="display: flex; justify-content: space-between; align-items: center">
                 <h1 style="margin-top: 0">Badges</h1>
-                <span>1/22</span>
+                <span>{{  nbrCountUnlocked + '/'+countCollected.length }}</span>
             </div>
 
             <ion-segment :scrollable="true" >
-                <div v-for="elem in countCollected" :key="elem" id="badgeContainer" class="ion-margin-end border ion-padding">
-                        <img :alt="elem.message" :src="getImgUrl(elem.src)" style="width: 70%"/>
-                        <span style="white-space: normal; margin-top: 2%"> {{elem.requireCount}} </span>
+                <div v-for="elem in countCollected" :key="elem" class="badgeContainer ion-margin-end border ion-padding">
+                        <img :alt="elem.message" :src="getImgUrl(elem.src)" style="max-width: none"/>
+                        <span style="margin-top: 2%; font-size: small"> {{elem.title}} </span>
                 </div>
             </ion-segment>
 
@@ -18,9 +18,9 @@
                     <img :alt="elem.message" :src="getImgUrl(elem.src)" />
                 </ion-col>
                 <ion-col>
-                    <div id="container_progression">
-                        <ion-label>{{elem.requireCount}}</ion-label>
-                        <div id="progressBar" class="ion-margin-top">
+                    <div class="container_progression">
+                        <ion-label>{{elem.title}}</ion-label>
+                        <div class="progressBar ion-margin-top">
                             <span class="ion-margin-end">{{ elem.count + '/' + elem.requireCount }}</span>
                             <ion-progress-bar :value="(elem.count / elem.requireCount).toFixed(2)"></ion-progress-bar>
                         </div>
@@ -34,9 +34,9 @@
                     <img :alt="elem.message" :src="getImgUrl(elem.src)" />
                 </ion-col>
                 <ion-col>
-                    <div id="container_progression">
-                        <ion-label>{{elem.requireCount}}</ion-label>
-                        <div id="progressBar" class="ion-margin-top">
+                    <div class="container_progression">
+                        <ion-label >{{elem.title}}</ion-label>
+                        <div class="progressBar ion-margin-top">
                             <span class="ion-margin-end">{{ elem.count + '/' + elem.requireCount }}</span>
                             <ion-progress-bar :value="(elem.count / elem.requireCount).toFixed(2)"></ion-progress-bar>
                         </div>
@@ -63,16 +63,10 @@ export default {
         this.userCollection = UserData.getCollectedChronologically()
         this.badgeTotal = BadgeDatabase.getSubset(0, BadgeDatabase.getSize())
         this.count = BadgeDatabase.getSubset(0,9)
-        console.log("userCollection:")
-        console.log((this.userCollection))
-        console.log("badgeCollection:")
-        console.log(this.badgeTotal)
         this.countBadge()
         this.boroughBadge()
-        console.log("borough:")
-        console.log(this.borough)
     },
-    data() { //TODO: manque 11, 12, 15, 17,18,19,23
+    data() {
         return {
             userCollection: [],
             badgeTotal: [],
@@ -84,7 +78,8 @@ export default {
                         requireCount: BadgeDatabase.getFromId(20).required_count,
                         count: 0,
                         src: "drawable/badges/borough/locked/20.svg",
-                        message: BadgeDatabase.getFromId(20).description.fr
+                        message: BadgeDatabase.getFromId(20).description.fr,
+                        title: BadgeDatabase.getFromId(20).title.fr,
                     },
                     22 : {
                         notification: BadgeDatabase.getFromId(22).notification.fr,
@@ -92,7 +87,8 @@ export default {
                         requireCount: BadgeDatabase.getFromId(22).required_count,
                         count: 0,
                         src: "drawable/badges/borough/locked/22.svg",
-                        message: BadgeDatabase.getFromId(22).description.fr
+                        message: BadgeDatabase.getFromId(22).description.fr,
+                        title: BadgeDatabase.getFromId(22).title.fr,
                     },
                     14 : {
                         notification: BadgeDatabase.getFromId(14).notification.fr,
@@ -100,7 +96,8 @@ export default {
                         requireCount: BadgeDatabase.getFromId(14).required_count,
                         count: 0,
                         src: "drawable/badges/borough/locked/14.svg",
-                        message: BadgeDatabase.getFromId(14).description.fr
+                        message: BadgeDatabase.getFromId(14).description.fr,
+                        title: BadgeDatabase.getFromId(14).title.fr,
                     },
                     21 : {
                         notification: BadgeDatabase.getFromId(21).notification.fr,
@@ -108,7 +105,8 @@ export default {
                         requireCount: BadgeDatabase.getFromId(21).required_count,
                         count: 0,
                         src: "drawable/badges/borough/locked/21.svg",
-                        message: BadgeDatabase.getFromId(21).description.fr
+                        message: BadgeDatabase.getFromId(21).description.fr,
+                        title: "LaSalle"
                     },
                     16 : {
                         notification: BadgeDatabase.getFromId(16).notification.fr,
@@ -116,7 +114,8 @@ export default {
                         requireCount: BadgeDatabase.getFromId(16).required_count,
                         count: 0,
                         src: "drawable/badges/borough/locked/16.svg",
-                        message: BadgeDatabase.getFromId(16).description.fr
+                        message: BadgeDatabase.getFromId(16).description.fr,
+                        title: BadgeDatabase.getFromId(16).title.fr,
                     },
                     13 : {
                         notification: BadgeDatabase.getFromId(13).notification.fr,
@@ -124,40 +123,44 @@ export default {
                         requireCount: BadgeDatabase.getFromId(13).required_count,
                         count: 0,
                         src: "drawable/badges/borough/locked/13.svg",
-                        message: BadgeDatabase.getFromId(13).description.fr
+                        message: BadgeDatabase.getFromId(13).description.fr,
+                        title: BadgeDatabase.getFromId(13).title.fr,
                     },
                     /*
                     27 : {
-                        notification: BadgeDatabase.getFromId(27).notification.fr,
-                        description: BadgeDatabase.getFromId(27).description.fr,
-                        requireCount: BadgeDatabase.getFromId(27).required_count,
+                        notification: BadgeDatabase.getFromId(27].notification.fr,
+                        description: BadgeDatabase.getFromId(27].description.fr,
+                        requireCount: BadgeDatabase.getFromId(27].required_count,
                         count: 0,
                         src: "drawable/badges/borough/locked/27.svg",
-                        message: BadgeDatabase.getFromId(27).description.fr
+                        message: BadgeDatabase.getFromId(27].description.fr
                     },
+                    10 : {
+                        notification: BadgeDatabase.getFromId(10].notification.fr,
+                        description: BadgeDatabase.getFromId(10].description.fr,
+                        requireCount: BadgeDatabase.getFromId(10].required_count,
+                        count: 0,
+                        src: "drawable/badges/borough/locked/10.svg",
+                        message: BadgeDatabase.getFromId(10].description.fr
+                    },*/
                     19 : {
                         notification: BadgeDatabase.getFromId(19).notification.fr,
                         description: BadgeDatabase.getFromId(19).description.fr,
                         requireCount: BadgeDatabase.getFromId(19).required_count,
                         count: 0,
                         src: "drawable/badges/borough/locked/19.svg",
-                        message: BadgeDatabase.getFromId(19).description.fr
+                        message: BadgeDatabase.getFromId(19).description.fr,
+                        title: BadgeDatabase.getFromId(19).title.fr,
                     },
-                    10 : {
-                        notification: BadgeDatabase.getFromId(10).notification.fr,
-                        description: BadgeDatabase.getFromId(10).description.fr,
-                        requireCount: BadgeDatabase.getFromId(10).required_count,
-                        count: 0,
-                        src: "drawable/badges/borough/locked/10.svg",
-                        message: BadgeDatabase.getFromId(10).description.fr
-                    },
+
                     17 : {
                         notification: BadgeDatabase.getFromId(17).notification.fr,
                         description: BadgeDatabase.getFromId(17).description.fr,
                         requireCount: BadgeDatabase.getFromId(17).required_count,
                         count: 0,
                         src: "drawable/badges/borough/locked/17.svg",
-                        message: BadgeDatabase.getFromId(17).description.fr
+                        message: BadgeDatabase.getFromId(17).description.fr,
+                        title: BadgeDatabase.getFromId(1).title.fr,
                     },
                     18 : {
                         notification: BadgeDatabase.getFromId(18).notification.fr,
@@ -165,7 +168,8 @@ export default {
                         requireCount: BadgeDatabase.getFromId(18).required_count,
                         count: 0,
                         src: "drawable/badges/borough/locked/18.svg",
-                        message: BadgeDatabase.getFromId(18).description.fr
+                        message: BadgeDatabase.getFromId(18).description.fr,
+                        title: BadgeDatabase.getFromId(18).title.fr,
                     },
                     12 : {
                         notification: BadgeDatabase.getFromId(12).notification.fr,
@@ -173,7 +177,8 @@ export default {
                         requireCount: BadgeDatabase.getFromId(12).required_count,
                         count: 0,
                         src: "drawable/badges/borough/locked/12.svg",
-                        message: BadgeDatabase.getFromId(12).description.fr
+                        message: BadgeDatabase.getFromId(12).description.fr,
+                        title: BadgeDatabase.getFromId(12).title.fr,
                     },
                     15 : {
                         notification: BadgeDatabase.getFromId(15).notification.fr,
@@ -181,7 +186,8 @@ export default {
                         requireCount: BadgeDatabase.getFromId(15).required_count,
                         count: 0,
                         src: "drawable/badges/borough/locked/15.svg",
-                        message: BadgeDatabase.getFromId(15).description.fr
+                        message: BadgeDatabase.getFromId(15).description.fr,
+                        title: BadgeDatabase.getFromId(15).title.fr,
                     },
                     11 : {
                         notification: BadgeDatabase.getFromId(11).notification.fr,
@@ -189,8 +195,9 @@ export default {
                         requireCount: BadgeDatabase.getFromId(11).required_count,
                         count: 0,
                         src: "drawable/badges/borough/locked/11.svg",
-                        message: BadgeDatabase.getFromId(11).description.fr
-                    },*/
+                        message: BadgeDatabase.getFromId(11).description.fr,
+                        title: BadgeDatabase.getFromId(11).title.fr,
+                    },
                 },
             category: {
                 26: {
@@ -199,7 +206,9 @@ export default {
                     requireCount: BadgeDatabase.getFromId(26).required_count,
                     count: 0,
                     src: "drawable/badges/category/locked/26.svg",
-                    message: BadgeDatabase.getFromId(26).description.fr
+                    message: BadgeDatabase.getFromId(26).description.fr,
+                    dType: 'places',
+                    title: BadgeDatabase.getFromId(26).title.fr,
                 },
                 28: {
                     notification: BadgeDatabase.getFromId(28).notification.fr,
@@ -207,7 +216,9 @@ export default {
                     requireCount: BadgeDatabase.getFromId(28).required_count,
                     count: 0,
                     src: "drawable/badges/category/locked/28.svg",
-                    message: BadgeDatabase.getFromId(28).description.fr
+                    message: BadgeDatabase.getFromId(28).description.fr,
+                    dType: 'heritage',
+                    title: BadgeDatabase.getFromId(28).title.fr,
                 },
                 24: {
                     notification: BadgeDatabase.getFromId(24).notification.fr,
@@ -215,7 +226,9 @@ export default {
                     requireCount: BadgeDatabase.getFromId(24).required_count,
                     count: 0,
                     src: "drawable/badges/category/locked/24.svg",
-                    message: BadgeDatabase.getFromId(24).description.fr
+                    message: BadgeDatabase.getFromId(24).description.fr,
+                    dType: 'artwork',
+                    title: BadgeDatabase.getFromId(24).title.fr,
                 },
                 25: {
                     notification: BadgeDatabase.getFromId(25).notification.fr,
@@ -223,11 +236,14 @@ export default {
                     requireCount: BadgeDatabase.getFromId(25).required_count,
                     count: 0,
                     src: "drawable/badges/category/locked/25.svg",
-                    message: BadgeDatabase.getFromId(25).description.fr
+                    message: BadgeDatabase.getFromId(25).description.fr,
+                    dType: 'artwork',
+                    title: BadgeDatabase.getFromId(25).title.fr,
                 },
             },
+            nbrCountUnlocked : 0,
             count: [],
-            countCollected: []
+            countCollected: [],
         }
     },
     methods: {
@@ -237,46 +253,72 @@ export default {
 
             for (const element of this.count) {
                 if (element.required_count <= this.userCollection.length) {
+                    this.nbrCountUnlocked += 1
                     this.countCollected.push({
                         src: pathUnlocked + element.id + '.svg',
                         message: element.notification.fr,
-                        requireCount: element.required_count
+                        requireCount: element.required_count,
+                        title: element.title.fr
                     })
                 } else {
                     this.countCollected.push({
                         src: pathLocked + element.id + '.svg',
                         message: element.description.fr,
-                        requireCount: element.required_count})
+                        requireCount: element.required_count,
+                        title: element.title.fr
+                    })
                 }
             }
         },
         boroughBadge() {
-            const pathLocked = "drawable/badges/borough/locked/"
-            const pathUnlocked = "drawable/badges/borough/unlocked/"
-
-            for (const element of this.userCollection) {
-                for(const e of this.badgeTotal){
-                    if (e.title.fr === Utils.getDiscovery(element.id, element.dType).getBorough()){
-                        if (e.id in this.borough){
+            const boroughUnlocked = "drawable/badges/borough/unlocked/"
+            let countHeritage = 0;
+            let countPlaces = 0;
+            let countArtwork = 0;
+            for(const element of this.userCollection) {
+                for (const e of this.badgeTotal) {
+                    if (e.title.fr === Utils.getDiscovery(element.id, element.dType).getBorough()) {
+                        if (e.id in this.borough) {
                             if (this.borough[e.id].count === 0)
                                 this.borough[e.id].count = 1
                             else if (this.borough[e.id].count < this.borough[e.id].requireCount)
-                                this.borough[e.id].count ++
+                                this.borough[e.id].count++
 
-                            if (this.borough[e.id].count === this.borough[e.id].requireCount){
-                                this.borough[e.id].src = pathUnlocked + e.id + '.svg'
+                            if (this.borough[e.id].count === this.borough[e.id].requireCount) {
+                                this.borough[e.id].src = boroughUnlocked + e.id + '.svg'
                                 this.borough[e.id].message = this.borough[e.id].notification
                             }
                         }
-
                     }
                 }
+                if (element.dType === 'places')
+                    countPlaces += 1
+                else if (element.dType === 'heritage')
+                    countHeritage += 1
+                else if (element.dType === 'artwork')
+                    countArtwork +=1
             }
+            this.categoryBadge(countPlaces, countHeritage, countArtwork)
 
         },
-        categoryBadge() {
-            const pathLocked = "drawable/badges/category/locked/"
+        categoryBadge(countPlaces, countHeritage, countArtwork) {
+
+            this.category['26'].count = countPlaces
+            this.category['28'].count = countHeritage
+            this.category['24'].count = countArtwork
+            this.category['25'].count = countArtwork
+            this.verifyCategoryBadge('26')
+            this.verifyCategoryBadge('28')
+            this.verifyCategoryBadge('24')
+            this.verifyCategoryBadge('25')
+
+        },
+        verifyCategoryBadge(id){
             const pathUnlocked = "drawable/badges/category/unlocked/"
+            if (this.category[id].count >= this.category[id].requireCount) {
+                this.category[id].src = pathUnlocked + id + '.svg'
+                this.category[id].message = this.category[id].notification
+            }
         },
         owernerBadge() {
             const pathLocked = "drawable/badges/owner/locked/"
@@ -324,24 +366,24 @@ a {
     border-width: 1.4px
 }
 
-#container_progression{
+.container_progression{
     position:absolute; top: 50%;
     transform: translateY(-50%);
     width: 95%;
 }
 
-#progressBar {
+.progressBar {
     display: flex;
     flex-direction: row;
     justify-content:space-between;
     align-items: center
 }
-#badgeContainer {
+.badgeContainer {
     display: flex;
     flex-direction: column;
-    width: 25%;
+    width: 100%;
     justify-content: center;
     align-items: center;
-
+    padding: 1%
 }
 </style>
