@@ -13,6 +13,10 @@ export default {
                 path: "appdata/preferences.json",
                 directory: Directory.Data
             }),
+            Filesystem.deleteFile(({
+                path: "appdata/populateDataBase.json",
+                directory: Directory.Data
+            })),
             Filesystem.deleteFile({
                 path: "appdata/artworks.json",
                 directory: Directory.Data

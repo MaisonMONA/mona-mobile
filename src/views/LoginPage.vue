@@ -52,13 +52,14 @@ export default {
     },
 
     beforeMount() {
+        Database.initilizePopulateDatabase()
         UserData.populate()
         .then(() => {
             if (UserData.getToken() !== '') {  // User is logged in, redirect
                 this.$router.replace("/loading");
             }
         })
-        Database.initilizePopulateDatabase()
+
     },
 
     methods: {
