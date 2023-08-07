@@ -6,7 +6,7 @@
             </div>
 
             <ion-segment :scrollable="true" >
-                <div v-for="elem in countCollected" :key="elem" class="badgeContainer ion-margin-end border ion-padding">
+                <div v-for="elem in countCollected" :key="elem" class="badgeContainer ion-margin-end border ion-padding" @click="openDetails(elem.id, elem.message,'1','count')">
                         <img :alt="elem.message" :src="getImgUrl(elem.src)" style="max-width: none"/>
                         <span style="margin-top: 2%; font-size: small"> {{elem.title}} </span>
                 </div>
@@ -255,6 +255,7 @@ export default {
                 if (element.required_count <= this.userCollection.length) {
                     this.nbrCountUnlocked += 1
                     this.countCollected.push({
+                        id: element.id,
                         src: pathUnlocked + element.id + '.svg',
                         message: element.notification.fr,
                         requireCount: element.required_count,
@@ -262,6 +263,7 @@ export default {
                     })
                 } else {
                     this.countCollected.push({
+                        id: element.id,
                         src: pathLocked + element.id + '.svg',
                         message: element.description.fr,
                         requireCount: element.required_count,
@@ -326,6 +328,9 @@ export default {
         },
         getImgUrl(badgeURL) {
             return require('../assets/'+badgeURL)
+        },
+        openDetails(badgeID, badgeMessage, badgeCount, badgeType) {
+            this.$router.push(`/badge-details/${badgeID}/${badgeMessage}/${badgeCount}/${badgeType}`);
         }
     }
 
