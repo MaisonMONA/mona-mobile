@@ -106,8 +106,6 @@ export class Artwork extends Discovery {
             else
                 return this.accessibilities.en.join(', ');
         }
-        console.log(this.accessibilities)
-
         return '';
     }
     public getTitle(): string {
@@ -165,6 +163,9 @@ export class Artwork extends Discovery {
     }
     public getBorough(): string {
         return this.borough;
+    }
+    public getOwner(): string | null {
+        return this.owner;
     }
 }
 

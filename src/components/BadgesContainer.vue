@@ -126,23 +126,6 @@ export default {
                         message: BadgeDatabase.getFromId(13).description.fr,
                         title: BadgeDatabase.getFromId(13).title.fr,
                     },
-                    /*
-                    27 : {
-                        notification: BadgeDatabase.getFromId(27].notification.fr,
-                        description: BadgeDatabase.getFromId(27].description.fr,
-                        requireCount: BadgeDatabase.getFromId(27].required_count,
-                        count: 0,
-                        src: "drawable/badges/borough/locked/27.svg",
-                        message: BadgeDatabase.getFromId(27].description.fr
-                    },
-                    10 : {
-                        notification: BadgeDatabase.getFromId(10].notification.fr,
-                        description: BadgeDatabase.getFromId(10].description.fr,
-                        requireCount: BadgeDatabase.getFromId(10].required_count,
-                        count: 0,
-                        src: "drawable/badges/borough/locked/10.svg",
-                        message: BadgeDatabase.getFromId(10].description.fr
-                    },*/
                     19 : {
                         notification: BadgeDatabase.getFromId(19).notification.fr,
                         description: BadgeDatabase.getFromId(19).description.fr,
@@ -241,6 +224,26 @@ export default {
                     title: BadgeDatabase.getFromId(25).title.fr,
                 },
             },
+            owner: {
+                27 : {
+                    notification: BadgeDatabase.getFromId(27).notification.fr,
+                    description: BadgeDatabase.getFromId(27).description.fr,
+                    requireCount: BadgeDatabase.getFromId(27).required_count,
+                    count: 0,
+                    src: "drawable/badges/owner/locked/27.svg",
+                    message: BadgeDatabase.getFromId(27).description.fr,
+                    title: BadgeDatabase.getFromId(27).title.fr
+                },
+                10 : {
+                    notification: BadgeDatabase.getFromId(10).notification.fr,
+                    description: BadgeDatabase.getFromId(10).description.fr,
+                    requireCount: BadgeDatabase.getFromId(10).required_count,
+                    count: 0,
+                    src: "drawable/badges/owner/locked/10.svg",
+                    message: BadgeDatabase.getFromId(10).description.fr,
+                    title: "Université de Montreal"
+                }
+            },
             nbrCountUnlocked : 0,
             count: [],
             countCollected: [],
@@ -274,6 +277,7 @@ export default {
         },
         boroughBadge() {
             const boroughUnlocked = "drawable/badges/borough/unlocked/"
+            const ownerUnlocked = "drawable/badges/owner/unlocked/"
             let countHeritage = 0;
             let countPlaces = 0;
             let countArtwork = 0;
@@ -281,12 +285,9 @@ export default {
                 for (const e of this.badgeTotal) {
                     if (e.title.fr === Utils.getDiscovery(element.id, element.dType).getBorough()) {
                         if (e.id in this.borough) {
-                            if (this.borough[e.id].count === 0)
-                                this.borough[e.id].count = 1
-                            else if (this.borough[e.id].count < this.borough[e.id].requireCount)
-                                this.borough[e.id].count++
-
-                            if (this.borough[e.id].count === this.borough[e.id].requireCount) {
+                            if (this.borough[e.id].count < this.borough[e.id].requireCount)
+                                this.borough[e.id].count += 1
+                            else if (this.borough[e.id].count === this.borough[e.id].requireCount) {
                                 this.borough[e.id].src = boroughUnlocked + e.id + '.svg'
                                 this.borough[e.id].message = this.borough[e.id].notification
                             }
@@ -297,10 +298,28 @@ export default {
                     countPlaces += 1
                 else if (element.dType === 'heritage')
                     countHeritage += 1
-                else if (element.dType === 'artwork')
+                else if (element.dType === 'artwork'){
                     countArtwork +=1
+                    for (const o in this.owner){
+                        if(this.owner[o].title == Utils.getDiscovery(element.id, element.dType).getOwner()){
+                            console.log("dans if")
+                            if (this.owner[o].count < this.owner[o].requireCount){
+                                this.owner[o].count += 1
+                            }
+                            else if (this.owner[o].count === this.owner[o].requireCount) {
+                                this.owner[o].src = ownerUnlocked + o + '.svg'
+                                this.owner[o].message = this.owner[o].notification
+                            }
+                        }
+
+                    }
+                }
+
+
             }
             this.categoryBadge(countPlaces, countHeritage, countArtwork)
+            console.log(this.owner)
+            Object.assign(this.borough, this.owner)
 
         },
         categoryBadge(countPlaces, countHeritage, countArtwork) {
@@ -386,7 +405,7 @@ a {
 .badgeContainer {
     display: flex;
     flex-direction: column;
-    width: 100%;
+    min-width: 25%;
     justify-content: center;
     align-items: center;
     padding: 1%
