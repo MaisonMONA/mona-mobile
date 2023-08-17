@@ -171,34 +171,22 @@ export default {
                 sortByDistance: [],
                 type: 'place'
             },
-
             //Trier
             choixTrie: "Distance",
-
-
-
         }
     },
 
     beforeMount() {
         this.completeDiscoveriesDistance = UserData.getSortedDiscoveriesDistance()
         this.completeDiscoveriesAZ = UserData.getSortedDiscoveriesAZ()
-        this.pullDiscoveriesTrier(null, false, null)
-        this.offset = 0
-        this.pullDiscoveriesTrier(null,  true, null)
-        this.offset = 0
-        this.pullDiscoveriesTrier(null, false, this.place )
-        this.offset = 0
-        this.pullDiscoveriesTrier(null, true, this.place)
-        this.offset = 0
-        this.pullDiscoveriesTrier(null, false, this.artwork)
-        this.offset = 0
-        this.pullDiscoveriesTrier(null, true, this.artwork)
-        this.offset = 0
-        this.pullDiscoveriesTrier(null, false, this.heritage)
-        this.offset = 0
-        this.pullDiscoveriesTrier(null, true, this.heritage)
+        const discoveries = [null, this.place, this.artwork, this.heritage]
 
+        for (const discovery of discoveries) {
+            for (let i = 0; i < 2; i++) {
+                this.pullDiscoveriesTrier(null, i, discovery)
+                this.offset = 0
+            }
+        }
     },
 
     methods: {
@@ -229,6 +217,7 @@ export default {
         },
         getDiscoveries(){
             let now = []
+            const discoveries = [this.place, this.artwork, this.heritage]
 
             if (this.choixTrie === "Distance"){
                 now =  this.discoveriesSortByDistance
@@ -236,26 +225,17 @@ export default {
             else if (this.choixTrie === "AZ"){
                 now = this.discoveriesSortByAZ
             }
+            for (const discovery of discoveries) {
+                if (discovery.selected) {
+                    if (this.choixTrie === "Distance")
+                        now = discovery.sortByDistance
+                    else if (this.choixTrie === "AZ")
+                        now = discovery.sortByAZ
 
-            if (this.artwork.selected){
-                if (this.choixTrie === "Distance")
-                    now = this.artwork.sortByDistance
-                else if (this.choixTrie === "AZ")
-                    now = this.artwork.sortByAZ
-            }
-            if (this.place.selected){
-                if (this.choixTrie === "Distance") {
-                    now = this.place.sortByDistance
-                }else if (this.choixTrie === "AZ"){
-                    now = this.place.sortByAZ
+                    break
                 }
             }
-            if (this.heritage.selected){
-                if (this.choixTrie === "Distance")
-                    now = this.heritage.sortByDistance
-                else if (this.choixTrie === "AZ")
-                    now = this.heritage.sortByAZ
-            }
+
             return now
         },
 
@@ -263,19 +243,19 @@ export default {
             let subset
             const type = typeDiscovery ? typeDiscovery.type: ''
             const completeDiscoveries = sortByAZ ? "completeDiscoveriesAZ" : "completeDiscoveriesDistance"
-            const discoverySortBy = sortByAZ ? "sortByAZ" : "sortByDistance"
-            const noFilter = sortByAZ ? 'discoveriesSortByAZ' : 'discoveriesSortByDistance'
+            const sortBy = sortByAZ ? "sortByAZ" : "sortByDistance"
+            const discoverySort = sortByAZ ? 'discoveriesSortByAZ' : 'discoveriesSortByDistance'
             if (typeDiscovery){
                 subset = this[completeDiscoveries].filter((elm) => {
                     return elm.getTitle().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').includes(this.currentFilter.toLowerCase())
                 }).filter(discovery => discovery.dType === type).slice(this.offset, this.offset + 50)
-                typeDiscovery[discoverySortBy] = typeDiscovery[discoverySortBy].concat(subset)
+                typeDiscovery[sortBy] = typeDiscovery[sortBy].concat(subset)
             }
             else {
                 subset = this[completeDiscoveries].filter((elm) => {
                     return elm.getTitle().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').includes(this.currentFilter.toLowerCase())
                 }).slice(this.offset, this.offset + 50);
-                this[noFilter] = this[noFilter].concat(subset)
+                this[discoverySort] = this[discoverySort].concat(subset)
             }
 
             if (event && event.target && event.target.complete) // Send a signal when the user reaches the bottom
