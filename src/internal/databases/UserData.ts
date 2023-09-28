@@ -38,7 +38,9 @@ export class UserData {
                 encoding: Encoding.UTF8
             })
 
-            this.data = JSON.parse(content.data);
+            if (typeof content.data === "string") {
+                this.data = JSON.parse(content.data);
+            }
 
             console.log(this.type + " db: successfully populated database.");
         } catch (err) {
@@ -133,15 +135,18 @@ export class UserData {
                 encoding: Encoding.UTF8
             });
 
-            const parsed = JSON.parse(content.data);
-            this.sortedDiscoveries = parsed.map((discovery: any) => {
-                if (discovery.dType === "artwork")
-                    return ArtworkFactory.createArtwork(discovery);
-                else if (discovery.dType === "place")
-                    return PlaceFactory.createPlace(discovery);
-                else
-                    return new Heritage(discovery);
-            });
+            if (typeof content.data === "string") {
+                const parsed = JSON.parse(content.data);
+                this.sortedDiscoveries = parsed.map((discovery: any) => {
+                    if (discovery.dType === "artwork")
+                        return ArtworkFactory.createArtwork(discovery);
+                    else if (discovery.dType === "place")
+                        return PlaceFactory.createPlace(discovery);
+                    else
+                        return new Heritage(discovery);
+                });
+            }
+
         } catch (err) {
             console.log("Failed to load cache, building it.");
             await this.buildCache();
