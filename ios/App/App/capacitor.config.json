@@ -1,0 +1,6 @@
+{
+	"appId": "com.mona.starter",
+	"appName": "MONA",
+	"webDir": "dist",
+	"bundledWebRuntime": false
+}
