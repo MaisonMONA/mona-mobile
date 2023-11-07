@@ -59,6 +59,7 @@
                             <ion-col class="filtre" size="3"
                                      @click="this.selectedDiscovery('decouverteArtwork', 'filtreArtworkBackgroundColor', 'filtreArtworkColor')"
                                      :style="{color: filtreArtworkColor, backgroundColor: filtreArtworkBackgroundColor}" >
+
                                 <div class="filter-category">
                                     <ion-avatar>
                                         <img :src="require('@/assets/drawable/medals/artwork/default.svg')">
@@ -70,6 +71,7 @@
                             <ion-col class="filtre" size="4"
                                      @click="this.selectedDiscovery('decouverteHeritage', 'filtreHeritageBackgroundColor', 'filtreHeritageColor')"
                                      :style="{color: filtreHeritageColor, backgroundColor: filtreHeritageBackgroundColor}">
+
                                 <div class="filter-category">
                                     <ion-avatar>
                                         <img :src="require('@/assets/drawable/medals/heritage/default.svg')">
@@ -360,6 +362,7 @@ export default {
             if (event && event.target && event.target.complete)  // Signal
                 event.target.complete();
         },
+
         selectedDiscovery(typeDiscovery, backgroundColorID, colorID) {
             const decouverte = ['decouverteHeritage', 'decouverteArtwork', 'decouvertePlace']
             const backgroundColor = ['filtreHeritageBackgroundColor', 'filtreArtworkBackgroundColor', 'filtrePlaceBackgroundColor']
@@ -574,10 +577,5 @@ ion-modal {
     font-size: 32px;
     color: grey;
 }
-
-
-/** {*/
-/*    border: 1px solid rgba(0, 0, 0, 0.3);*/
-/*}*/
 
 </style>

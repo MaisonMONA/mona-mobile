@@ -175,8 +175,6 @@ export default {
          */
         const { filename, rating, comment } = UserData.getCollected(id, type);
 
-        console.log(filename, rating, comment);
-
         const image = await Filesystem.readFile({
             path: "img/" + filename,
             directory: Directory.Data,

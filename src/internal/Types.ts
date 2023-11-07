@@ -106,8 +106,6 @@ export class Artwork extends Discovery {
             else
                 return this.accessibilities.en.join(', ');
         }
-        console.log(this.accessibilities)
-
         return '';
     }
     public getTitle(): string {
@@ -162,6 +160,12 @@ export class Artwork extends Discovery {
             return this.techniques.fr.join(', ');
         else
             return this.techniques.en.join(', ');
+    }
+    public getBorough(): string {
+        return this.borough;
+    }
+    public getOwner(): string | null {
+        return this.owner;
     }
 }
 
@@ -288,7 +292,7 @@ export class Badge extends Discovery {
         super();
         this.id            = badge.id;
         this.title         = badge.title;
-        this.requiredCount = badge.required_count;
+        this.required_count = badge.required_count;
         this.description   = badge.description;
         this.notification  = badge.notification;
         this.badgeable     = badge.badgeable;
@@ -298,7 +302,7 @@ export class Badge extends Discovery {
     dType = "badge";
     id: number;
     title: string;
-    requiredCount: number;
+    required_count: number;
     description: {
         fr: string,
         en: string

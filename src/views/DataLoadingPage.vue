@@ -21,6 +21,7 @@ import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
 import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
 import { BadgeDatabase } from "@/internal/databases/BadgeDatabase";
 import { UserData } from "@/internal/databases/UserData";
+import {Database} from "@/internal/databases/Database";
 
 
 export default {
@@ -32,10 +33,14 @@ export default {
     mounted() {
         /* Initializing all databases */
         Promise.all([
+
+
             ArtworkDatabase.populate(),
             PlaceDatabase.populate(),
             HeritageDatabase.populate(),
             BadgeDatabase.populate(),
+
+
         ])
         .catch(() => {
             this.showAlert("Impossible de se connecter à internet !")

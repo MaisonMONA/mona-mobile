@@ -24,7 +24,7 @@ export abstract class Database {
     }
     private static updateFile() {
         Filesystem.writeFile({
-            path: this.pathPopulateDataBase,
+            path: "appdata/populateDataBase.json",
             data: JSON.stringify(this.dataPopulateDataBase),
             directory: Directory.Data,
             encoding: Encoding.UTF8,
@@ -37,14 +37,17 @@ export abstract class Database {
     public static async initilizePopulateDatabase(){
         try {
             const content = await Filesystem.readFile({
-                path: this.pathPopulateDataBase,
+                path: "appdata/populateDataBase.json",
                 directory: Directory.Data,
                 encoding: Encoding.UTF8
             })
 
-            this.dataPopulateDataBase = JSON.parse(content.data);
+            if (typeof content.data === "string") {
+                this.dataPopulateDataBase = JSON.parse(content.data);
+            }
 
             console.log("successfully read file \"populate database\"");
+
         } catch (err) {
             console.log(`error when parsing data (${err}).`);
             // Default user data
@@ -78,11 +81,14 @@ export abstract class Database {
                 encoding: Encoding.UTF8
             });
 
-            const parsed = JSON.parse(content.data);
-            for (const element of parsed) {
-            // for (const element of parsed.data) {
-                this.data.push(this.createSingleElement(element));
+            if (typeof content.data === "string") {
+                const parsed = JSON.parse(content.data);
+                for (const element of parsed) {
+                    // for (const element of parsed.data) {
+                    this.data.push(this.createSingleElement(element));
+                }
             }
+
 
             console.log(`${this.type} db: successfully populated (locally).`);
         } catch (err) {

@@ -9,7 +9,6 @@
     </ion-header>
 
     <ion-content>
-
         <div class="ion-margin">
 
                 <ion-input
@@ -57,6 +56,7 @@
 
 
 <script>
+
 import {IonBackButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, IonToast, IonInput, IonAlert,
 
 } from "@ionic/vue";
@@ -165,6 +165,7 @@ a {
     text-decoration: none;
     font-weight: normal;
 }
+
 span.ion-text-left {
     margin-right: auto;
 }
@@ -174,4 +175,5 @@ ion-input {
     --placeholder-font-style: normal;
     margin-bottom: 5%;
 }
+
 </style>

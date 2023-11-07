@@ -120,6 +120,7 @@ export default {
                 accessibilities = "Accessibilité : " + this.discovery.getAccessibilities("fr");
 
             productionDate = this.discovery.produced_at;
+            console.log(this.discovery.getOwner())
         } else {
             isArtwork = false;
 
@@ -378,7 +379,7 @@ p.details {
     font-size: 16px;
 }
 
-.details.three, .four, .five, .six .accessibilities{
+.details.three, .four, .five, .six, .accessibilities{
     font-size: 14px;
     color: gray;
     margin: 5px 0;
