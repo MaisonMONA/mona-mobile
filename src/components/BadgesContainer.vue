@@ -5,12 +5,18 @@
                 <span>{{  nbrCountUnlocked + '/'+countCollected.length }}</span>
             </div>
 
-            <ion-segment :scrollable="true" >
-                <div v-for="elem in countCollected" :key="elem" class="badgeContainer ion-margin-end border ion-padding" @click="openDetails(elem.id, elem.message,'1','count')">
-                        <img :alt="elem.message" :src="getImgUrl(elem.src)" style="max-width: none"/>
-                        <span style="margin-top: 2%; font-size: small"> {{elem.title}} </span>
-                </div>
-            </ion-segment>
+          <swiper :slides-per-view="3" :spaceBetween="10">
+            <swiper-slide
+                v-for="elem in countCollected"
+                :key="elem"
+                class="badgeContainer ion-margin-end border ion-padding"
+                @click="openDetails(elem.id, elem.message,'1','count')"
+                style=" height: 100%"
+            >
+              <img :alt="elem.message" :src="getImgUrl(elem.src)" style="max-width: none"/>
+              <span style="margin-top: 2%; font-size: small"> {{elem.title}} </span>
+            </swiper-slide>
+          </swiper>
 
             <h1>Catégories</h1>
             <ion-row v-for="elem in category" :key="elem" class="ion-margin-bottom ion-margin-top border">
@@ -49,15 +55,20 @@
 
 <script>
 
-import {IonSegment, IonLabel, IonProgressBar, IonRow, IonCol} from "@ionic/vue";
+import {IonLabel, IonProgressBar, IonRow, IonCol} from "@ionic/vue";
 import {BadgeDatabase} from "@/internal/databases/BadgeDatabase";
 import {UserData} from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
 
+import { Swiper, SwiperSlide } from 'swiper/vue';
+import 'swiper/css';
+import '@ionic/vue/css/ionic-swiper.css';
+
 export default {
     name: "BadgesContainer",
     components: {
-        IonSegment, IonLabel, IonProgressBar, IonRow, IonCol
+         IonLabel, IonProgressBar, IonRow, IonCol,  Swiper,
+      SwiperSlide,
     },
     beforeMount() {
         this.userCollection = UserData.getCollectedChronologically()
@@ -409,5 +420,8 @@ a {
     justify-content: center;
     align-items: center;
     padding: 1%
+}
+.swiper .swiper-slide {
+  height: auto !important;
 }
 </style>
