@@ -73,6 +73,9 @@ export default {
     beforeMount() {
         this.userCollection = UserData.getCollectedChronologically()
         this.badgeTotal = BadgeDatabase.getSubset(0, BadgeDatabase.getSize())
+      console.log(UserData.getCollected(1041, "artwork" ))
+      console.log(this.userCollection)
+        console.log(this.badgeTotal)
         this.count = BadgeDatabase.getSubset(0,9)
         this.countBadge()
         this.boroughBadge()
