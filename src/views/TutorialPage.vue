@@ -59,7 +59,6 @@ export default {
                     UserData.setSeenTutorial(true);
                     this.$router.replace("/register");
                 } else {
-
                      this.$router.replace("/permission-denied")
                 }
             }
