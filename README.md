@@ -62,5 +62,11 @@ Si vous trouvez un bug ou avez une suggestion, veuillez créer une nouvelle issu
 
 
 # Contact
-Par courriel, à info@monamontreal.org 
+Par courriel, à info@monamontreal.org
+
+Par [Element](https://matrix.to/#/!XOqqdZkRaYkVJVZVaG:matrix.org?via=matrix.org)
+
+# Licence
+
+Mona-Mobile est disponible sous la licence MIT. Consultez le fichier LICENSE pour plus d'informations.
 
