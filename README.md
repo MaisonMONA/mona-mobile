@@ -1,4 +1,4 @@
-# Mona
+# MONA
 <a href="https://play.google.com/store/apps/details?id=com.maison.mona&hl=en&gl=US"><img src="https://github.com/MaisonMONA/mona-mobile/assets/81833136/c000e2e5-5e27-4cd4-8f55-97b76efd98c7" alt="Télécharger l'app Google Play" width="150px"></a> <a href="https://apps.apple.com/ca/app/mona/id1462822498?l=fr-CA?l=fr"><img src="https://github.com/MaisonMONA/mona-mobile/assets/81833136/d9cec61e-689a-4fe6-a92b-45ac640d5245" alt="Télécharger l'app Apple Store" width="150px"></a>
 
 MONA est une application mobile gratuite, qui invite à la découverte de l'art et des lieux culturels au Québec.
@@ -68,5 +68,5 @@ Par [Element](https://matrix.to/#/!XOqqdZkRaYkVJVZVaG:matrix.org?via=matrix.org)
 
 # Licence
 
-Mona-Mobile est disponible sous la licence MIT. Consultez le fichier LICENSE pour plus d'informations.
+MONA-Mobile est disponible sous la licence MIT. Consultez le fichier LICENSE pour plus d'informations.
 
