@@ -28,6 +28,5 @@ export default {
             email: "https://picasso.iro.umontreal.ca/~mona/api/v3/user/updateEmail",
             username: "https://picasso.iro.umontreal.ca/~mona/api/v3/user/updateUsername"
         },
-        "resetPassword": "https://picasso.iro.umontreal.ca/~mona/api/v3/user/updateEmail"
     },
 }
