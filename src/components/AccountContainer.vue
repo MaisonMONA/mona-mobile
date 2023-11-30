@@ -10,45 +10,57 @@
 
     <ion-content>
         <div class="ion-margin">
+          <!--TODO: trouver pourquoi ionChange ne fait rien-->
+          <ion-input
+              fill="outline"
+              color="dark"
+              type="text"
+              @ionBlur="updateUsername($event)"
+              label="Nom d'utilisateur"
+              label-placement="floating"
+              :value="username"
+              v-model="username">
+          </ion-input>
 
-                <ion-input
-                    fill="outline" color="dark" @ionFocus="show = true" label="Nom d'utilisateur"
-                    label-placement="floating" :placeholder="UserData.getUsername()" >
-                </ion-input>
-                <!--<ion-icon :name="pencil" color="black" style="background-color: red; color: black" size="large"></ion-icon>-->
+          <ion-input
+              fill="outline"
+              color="dark"
+              @ionBlur="updateEmail($event)"
+              label="Courriel"
+              label-placement="floating"
+              :value="email"
+              v-model="email"
+              type="email">
+          </ion-input>
 
-            <ion-input fill="outline" color="dark" @ionFocus="show = true" :clear-input="true"  label="Courriel"
-                       label-placement="floating" placeholder="" type="email">
-
-            </ion-input>
-
-            <ion-input fill="outline" color="dark" @ionFocus="show = true" :clear-input="true"  label="Mot de passe"
-                       label-placement="floating" placeholder="" :readonly="true" type="password"
-                       @click="setOpenPassword(true)">
+            <ion-input
+                fill="outline"
+                color="dark"
+                @ionFocus="alertSetOpen(true)"
+                label="Mot de passe"
+                label-placement="floating"
+                placeholder=""
+                readonly="true"
+                type="password">
             </ion-input>
 
             <ion-alert
-                :is-open="isOpenPassword"
-                trigger="present-alert"
+                :is-open="alertIsOpen"
                 header="Modifier votre mot de passe"
                 :buttons="alertButtons"
                 :inputs="alertInputs"
+                class="custom-alert"
+                @didDismiss=alertSetOpen(false)
             ></ion-alert>
 
-
-        <div v-if="show">
-            <ion-button expand="block" @clik="show = false" color="tertiary">Confirmer</ion-button>
-            <ion-button expand="block" color="danger" @clik="show = false">Annuler</ion-button>
-        </div>
-
-        <ion-toast
-            :is-open="isOpen"
-            message="Votre mot de passe a été modifié avec succès"
-            position="bottom"
-            :duration="5000"
-            @didDismiss="setOpen(false)"
-            :icon="pencil"
-        ></ion-toast>
+          <ion-toast
+              :is-open="toastIsopen"
+              :message="toastMessage"
+              position="bottom"
+              :duration="5000"
+              :icon="toastIcon"
+              @didDismiss="toastSetOpen(false)"
+          ></ion-toast>
         </div>
     </ion-content>
 </template>
@@ -57,12 +69,10 @@
 
 <script>
 
-import {IonBackButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, IonToast, IonInput, IonAlert,
-
-} from "@ionic/vue";
+import {IonBackButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, IonToast, IonInput, IonAlert} from "@ionic/vue";
 import {UserData} from "@/internal/databases/UserData";
-import {ref} from "vue";
-import { checkmarkDoneOutline, pencil} from 'ionicons/icons';
+import { checkmarkDoneOutline, checkmarkOutline, closeOutline} from 'ionicons/icons';
+import Globals from "@/internal/Globals";
 export default {
     name: "AboutContainer",
     computed: {
@@ -71,70 +81,182 @@ export default {
         }
     },
     components: {
-        IonHeader, IonContent, IonToolbar, IonButtons, IonBackButton, IonTitle, IonToast, IonInput, IonAlert
+        IonHeader, IonContent, IonToolbar, IonButtons, IonBackButton, IonTitle, IonToast, IonInput, IonAlert,
     },
-    data() {
+    created() {
+      //TODO: faire ca dans pinia
+      //notamment en allant chercher le token du local storage, puis faire un fetch pour obtenir tous les info necessaire.
+      fetch(Globals.apiRoutes.user, {
+        method: "GET",
+        headers: {Authorization: `Bearer ${UserData.getToken()}`}
+      }).then(async (response) => {
+        const parsed = await response.json()
+        if (response.ok) {
+          this.email = parsed.email
+        }
+      }).catch((e) => {
+        console.log(e)
+      })
+    },
+  data() {
         return {
-            show: false,
-
-        }
-    },
-    setup() {
-        const isOpen = ref(false);
-        const isOpenPassword = ref(false);
-        const setOpenPassword = (state) =>  {
-            isOpenPassword.value = state;
-        }
-        const setOpen = (state) =>  {
-            isOpen.value = state;
-        }
-        const alertButtons = [
-            {
-                text: 'Cancel',
+            username: UserData.getUsername(),
+            email:"", //TODO UserData.getEmail(),
+            password: "",
+            passwordConfirmation: "",
+            //Alert
+            alertIsOpen: false,
+            alertButtons: [
+              {
+                text: 'Annuler',
                 role: 'cancel',
                 cssClass: 'alert-button-cancel',
                 handler: () => {
-                    setOpenPassword(false)
-                    console.log('Alert canceled');
+                  console.log('Alert canceled');
                 },
-            },
-            {
-                text: 'OK',
+              },
+              {
+                text: 'Confirmer',
                 role: 'confirm',
                 cssClass: 'alert-button-cancel',
-                handler: () => {
-                    setOpenPassword(false)
-                    setOpen(true)
-                   console.log(alertInputs[0].name);
-                    console.log('Alert confirmed');
+                handler: (value) => {
+                  this.password = value.nouveau
+                  this.passwordConfirmation = value.confirmation
+                  this.updatePassword()
+                  console.log('Alert confirmed');
                 },
-            },
-        ];
-        const alertInputs = [
-            {
-                name: 'ancien',
-                placeholder: 'Votre ancien mot de passe',
-                type: 'password',
-            },
-            {
-                name: 'nouveau,',
+              },
+            ],
+            alertInputs: [
+              {
+                name: 'nouveau',
                 placeholder: 'Votre nouveau mot de passe',
                 type: 'password',
-            },
-            {
+              },
+              {
                 name: 'confirmation',
                 placeholder: 'Entrer à nouveau le mot de passe',
                 type: 'password',
-            }
-        ];
-
-        return {
-            alertButtons, alertInputs, isOpen , setOpen, checkmarkDoneOutline, setOpenPassword, isOpenPassword,
-            pencil
+              }
+            ],
+            //Toast
+            toastMessage: "",
+            toastIsopen: false,
+            toastIcon: checkmarkOutline,
+        }
+    },
+    setup() {
+        return {closeOutline, checkmarkOutline , checkmarkDoneOutline,
         };
     },
     methods: {
+      updateUsername() {
+        const formData = new FormData();
+        formData.append("new_username", this.username)
 
+        fetch(Globals.apiRoutes.update.username, {
+          method: "POST",
+          headers: {Authorization: 'Bearer ' + UserData.getToken()},
+          body: formData
+        }).then(async (response) => {
+                const parsed = await response.json()
+                if (response.ok) {
+                  if (!parsed.token){
+                    console.log("server error")
+                  }
+                  UserData.setToken(parsed.token)
+                  UserData.setUsername(this.username)
+                  this.toast("success", "username")
+                  //TODO mettre username reactif avec pinia
+                } else {
+                  //TODO émettre un message detaillé de l'erreur
+                  this.toast("error", "username")
+                }
+              }).catch((e) => {
+                console.log(e)
+              })
+
+      },
+
+      updateEmail() {
+        const formData = new FormData();
+        formData.append("new_email", this.email)
+
+        fetch(Globals.apiRoutes.update.email, {
+          method: "POST",
+          headers: {Authorization: 'Bearer ' + UserData.getToken()},
+          body: formData
+        }).then(async (response) => {
+          const parsed = await response.json()
+          if (response.ok) {
+            if (!parsed.token){
+              console.log("server error")
+            }
+            UserData.setToken(parsed.token)
+            //TODO UserData.setEmail(this.email)
+            this.toast("success", "email")
+          } else {
+            //TODO émettre un message detaillé de l'erreur
+            this.toast("error", "email")
+          }
+        }).catch((e) => {
+          console.log(e)
+        })
+      },
+      updatePassword(){
+        const formData = new FormData();
+        formData.append("new_password", this.password)
+        formData.append("new_password_confirmation", this.passwordConfirmation)
+
+        fetch(Globals.apiRoutes.update.password, {
+          method: "POST",
+          headers: {Authorization: 'Bearer ' + UserData.getToken()},
+          body: formData
+        }).then(async (response) => {
+          const parsed = await response.json()
+          if (response.ok) {
+            if (!parsed.token){
+              console.log("server error")
+            }
+            UserData.setToken(parsed.token)
+            this.toast("success", "password")
+          } else {
+            //TODO émettre un message detaillé de l'erreur
+            this.toast("error", "password")
+          }
+        }).catch((e) => {
+          console.log(e)
+        })
+      },
+      alertSetOpen(state) {
+        this.alertIsOpen = state;
+      },
+      toastSetOpen(state)  {
+        this.toastIsopen = state;
+      },
+      toastPersonnalizeMessageIcon(result, word){
+        if (result === "success"){
+          this.toastMessage = "Le "+ word + " a été modifié avec succés"
+          this.toastIcon = checkmarkDoneOutline
+        } else {
+          this.toastMessage = "Le " + word + "n'a pas pu être modifié"
+          this.toastIcon = closeOutline
+        }
+      },
+      toast(result, category){
+        switch (category){
+          case "username":
+            this.toastPersonnalizeMessageIcon(result, "nom d'utilisateur")
+            break
+          case "email":
+            this.toastPersonnalizeMessageIcon(result, "courriel")
+            break
+          case "password":
+            this.toastPersonnalizeMessageIcon(result, "mot de passe")
+            break
+        }
+        this.toastSetOpen(true)
+      }
     }
 }
 </script>

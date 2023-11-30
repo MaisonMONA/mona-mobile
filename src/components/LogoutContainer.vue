@@ -18,7 +18,7 @@
                 Votre nom d'utilisateur est :
             </p>
             <p class="username-container bold">
-                {{ username }}
+                {{ UserData.getUsername() }}
             </p>
             <div class="button-div">
                 <ion-button color="success" class="go-back bold" @click="goBack">
@@ -40,6 +40,11 @@ import { UserData } from "@/internal/databases/UserData";
 
 export default {
     name: "LogoutContainer",
+  computed: {
+    UserData() {
+      return UserData
+    }
+  },
     components: {
         IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonContent, IonButton
     },

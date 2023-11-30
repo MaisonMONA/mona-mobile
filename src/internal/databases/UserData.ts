@@ -265,7 +265,12 @@ export class UserData {
             }
         }
     }
-
+    // public static setEmail(email: string) {
+        //TODO: créer un champ email dans data
+        //this.data.email = email;
+    //     console.log("email assigned")
+    //     return "email assigned"
+    // }
     public static setUsername(username: string) {
         this.data.username = username;
         this.updateFile();

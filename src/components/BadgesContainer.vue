@@ -351,10 +351,10 @@ export default {
                 this.category[id].message = this.category[id].notification
             }
         },
-        owernerBadge() {
-            const pathLocked = "drawable/badges/owner/locked/"
-            const pathUnlocked = "drawable/badges/owner/unlocked/"
-        },
+        // owernerBadge() {
+        //     const pathLocked = "drawable/badges/owner/locked/"
+        //     const pathUnlocked = "drawable/badges/owner/unlocked/"
+        // },
         getImgUrl(badgeURL) {
             return require('../assets/'+badgeURL)
         },
