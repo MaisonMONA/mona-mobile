@@ -40,9 +40,9 @@ export default {
                     this.$router.replace(this.$route.query.callbackurl);
                     return;
                 }
-                // Ask for permissions
-                const cameraPermStatus = await Camera.requestPermissions();
-                const filePermStatus   = await Filesystem.requestPermissions();
+                        // Ask for permissions
+                    const cameraPermStatus = await Camera.requestPermissions();
+                    const filePermStatus   = await Filesystem.requestPermissions();
 
                 let locationPermStatus;
                 try {
@@ -61,10 +61,12 @@ export default {
                 } else {
                      this.$router.replace("/permission-denied")
                 }
+
             }
         }
     }
 }
+
 </script>
 
 <style scoped>

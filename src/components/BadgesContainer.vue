@@ -54,7 +54,6 @@
 </template>
 
 <script>
-
 import {IonLabel, IonProgressBar, IonRow, IonCol} from "@ionic/vue";
 import {BadgeDatabase} from "@/internal/databases/BadgeDatabase";
 import {UserData} from "@/internal/databases/UserData";
@@ -409,7 +408,6 @@ a {
     transform: translateY(-50%);
     width: 95%;
 }
-
 .progressBar {
     display: flex;
     flex-direction: row;

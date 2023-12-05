@@ -11,6 +11,12 @@
                 <p>{{ username }}</p>
             </div>
             <ion-list lines="inset">
+                <ion-nav-link router-direction="forward" :component="account">
+                    <ion-item>
+                        <ion-label>Compte</ion-label>
+                        <ion-icon :icon="arrowForward" slot="end"></ion-icon>
+                    </ion-item>
+                </ion-nav-link>
                 <ion-nav-link @click="playTutorial">
                     <ion-item>
                         <ion-label>Tutoriel</ion-label>
@@ -47,6 +53,7 @@ import AboutContainer from "@/components/AboutContainer.vue";
 import { arrowForward } from "ionicons/icons";
 import WhoWeAreContainer from "@/components/WhoWeAreContainer.vue";
 import LogoutContainer from "@/components/LogoutContainer.vue";
+import AccountContainer from "@/components/AccountContainer.vue";
 
 export default {
     name: "MorePageContainer",
@@ -59,6 +66,7 @@ export default {
             about: AboutContainer,
             whoweare: WhoWeAreContainer,
             logout: LogoutContainer,
+            account: AccountContainer,
         }
     },
 

@@ -577,4 +577,5 @@ ion-modal {
     font-size: 32px;
     color: grey;
 }
+
 </style>
