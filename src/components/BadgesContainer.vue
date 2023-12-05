@@ -10,7 +10,6 @@
                 v-for="elem in countCollected"
                 :key="elem"
                 class="badgeContainer ion-margin-end border ion-padding"
-                @click="openDetails(elem.id, elem.message,'1','count')"
                 style=" height: 100%"
             >
               <img :alt="elem.message" :src="getImgUrl(elem.src)" style="max-width: none"/>
@@ -361,9 +360,9 @@ export default {
         getImgUrl(badgeURL) {
             return require('../assets/'+badgeURL)
         },
-        openDetails(badgeID, badgeMessage, badgeCount, badgeType) {
-            this.$router.push(`/badge-details/${badgeID}/${badgeMessage}/${badgeCount}/${badgeType}`);
-        }
+        // openDetails(badgeID, badgeMessage, badgeCount, badgeType) {
+        //     this.$router.push(`/badge-details/${badgeID}/${badgeMessage}/${badgeCount}/${badgeType}`);
+        // }
     }
 
 }

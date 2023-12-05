@@ -70,11 +70,11 @@ const routes: RouteRecordRaw[] = [
         path: '/permission-denied',
         component: () => import("@/views/PermissionDeniedPage.vue")
     },
-    {
-        path: '/badge-details/:id/:message/:count/:type',
-        name: 'badges-details',
-        component: () => import("@/views/BadgesDetailsPage.vue"),
-    }
+    // {
+    //     path: '/badge-details/:id/:message/:count/:type',
+    //     name: 'badges-details',
+    //     component: () => import("@/views/BadgesDetailsPage.vue"),
+    // }
 ]
 
 const router = createRouter({
