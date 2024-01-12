@@ -28,6 +28,21 @@ export class UserData {
     private static sortedDiscoveries: Discovery[] = [];
     private static sortedDiscoveriesDistance:  Discovery[] = [];
 
+    //TODO: remove this
+    // public static test(){
+    //     Filesystem.stat({
+    //         path: "appdata/preferences.json",
+    //         directory: Directory.Data
+    //     })
+    //         .then((res) => {
+    //             console.log(res)
+    //         })
+    //         .catch((err) => {
+    //             console.log(err)
+    //         })
+    //
+    // }
+
     public static async populate() {
         if (this.data) return;  // Do not populate twice
 
@@ -41,6 +56,8 @@ export class UserData {
 
             if (typeof content.data === "string") {
                 this.data = JSON.parse(content.data);
+                //TODO: remove this when badges are implemented
+                // console.log(this.data.collected.badges)
             }
 
             console.log(this.type + " db: successfully populated database.");

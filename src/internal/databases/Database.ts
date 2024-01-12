@@ -10,6 +10,21 @@ export abstract class Database {
     protected static type: string;
     private static pathPopulateDataBase: "appdata/populateDataBase.json"
     private static dataPopulateDataBase: any = null;
+
+    //TODO: remove this
+    // public static test(){
+    //     Filesystem.stat({
+    //         path: "appdata/populateDataBase.json",
+    //         directory: Directory.Data
+    //     })
+    //         .then((res) => {
+    //             console.log(res)
+    //         })
+    //         .catch((err) => {
+    //             console.log(err)
+    //         })
+    //
+    // }
     public static resetPreferences(){
         this.dataPopulateDataBase = {
             updateOneTime : {
@@ -17,7 +32,7 @@ export abstract class Database {
                 places: true,
                 heritages: true,
                 badges: true,
-            }
+            },
         }
         this.updateFile();
 
@@ -88,7 +103,8 @@ export abstract class Database {
                     this.data.push(this.createSingleElement(element));
                 }
             }
-
+            //TODO: remove this
+            // console.log(this.data)
 
             console.log(`${this.type} db: successfully populated (locally).`);
         } catch (err) {

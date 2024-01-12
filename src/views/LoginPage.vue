@@ -53,6 +53,7 @@ export default {
 
     beforeMount() {
         UserData.populate()
+        // UserData.test() //TODO: remove after testing
         Database.initilizePopulateDatabase()
         .then(() => {
             if (UserData.getToken() !== '') {  // User is logged in, redirect
