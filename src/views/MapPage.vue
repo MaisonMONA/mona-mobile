@@ -23,6 +23,7 @@ import {
 } from "@ionic/vue";
 import MapContainer from "@/components/MapContainer.vue";
 import { useBadgesCollections } from "@/stores/BadgesCollections";
+import { BadgeDatabase } from "@/internal/databases/BadgeDatabase";
 const badgesCollectionsStore = useBadgesCollections();
 export default {
   name: "MapPage",
@@ -35,12 +36,6 @@ export default {
     MapContainer,
   },
   created() {
-    //TODO: appeler une seule fois
-    //TODO: appeler la fonction pour récupérer les badges
-    console.log(badgesCollectionsStore.badgeCollected());
-    //TODO: appeler la fonction pour écrire les badges dans le local storage
-    console.log(badgesCollectionsStore.obtainedBadges);
-
     //TODO: écrire la fonction pour récupérer les badges dans le local storage
     //TODO: écrire la fonction qui modifie le state des badges -> NewCollection.newBadge()
   },

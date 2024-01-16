@@ -16,6 +16,7 @@ const ownerPathLocked = "drawable/badges/owner/locked/";
 
 const categoryPathUnlocked = "drawable/badges/category/unlocked/";
 const categoryPathLocked = "drawable/badges/category/locked/";
+
 export const useBadgesCollections = defineStore("badgesCollectionStore", {
   state: () => {
     return {
@@ -135,36 +136,40 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
             : tmpBoroughContainer.set(tmpBorough, 1);
         }
       }
+
       this.countCollection = this.countBadge();
       this.boroughCollection = this.boroughBadge(tmpBoroughContainer);
       this.categoryCollection = this.categoryBadge(tmpCategoryContainer);
       this.ownerCollection = this.ownerBadge(tmpOwnerContainer);
+
+      this.obtainedBadges = [
+        ...this.countCollection,
+        ...this.boroughCollection,
+        ...this.categoryCollection,
+        ...this.ownerCollection,
+      ];
+      this.obtainedBadges.map((badge: any) => {
+        UserData.addCollectedBadge(badge);
+      });
     },
     countBadge() {
-      let nbrCountUnlocked = 0;
       const countCollected = [];
       for (const element of this.badgesDB.count) {
         if (element?.required_count <= this.userCollection.length) {
-          nbrCountUnlocked += 1;
           countCollected.push({
             id: element.id,
             src: countPathUnlocked + element.id + ".svg",
+            notification: element?.notification.fr,
+            description: element?.description.fr,
             message: element?.notification.fr,
             requireCount: element?.required_count,
-            title: element?.title,
-          });
-          this.obtainedBadges.push(element);
-        } else {
-          countCollected.push({
-            id: element.id,
-            src: countPathLocked + element.id + ".svg",
-            message: element?.description.fr,
-            requireCount: element?.required_count,
-            title: element?.title,
+            title: element?.title.fr,
+            dType: "badge",
+            type: "count",
           });
         }
       }
-      return { nbrCountUnlocked, countCollected };
+      return countCollected;
     },
     boroughBadge(elements: Map<string, number>) {
       const boroughCollected = [];
@@ -174,7 +179,8 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
         const title = boroughElement?.getTitle();
         if (title) {
           if (elements.has(title)) {
-            boroughCollected.push({
+            const path = boroughCollected.push({
+              id: boroughElementID,
               notification: boroughElement?.notification.fr,
               description: boroughElement?.description.fr,
               requireCount: boroughElement?.required_count,
@@ -187,16 +193,8 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
               ),
               message: boroughElement?.description.fr,
               title: title,
-            });
-          } else {
-            boroughCollected.push({
-              notification: boroughElement?.notification.fr,
-              description: boroughElement?.description.fr,
-              requireCount: boroughElement?.required_count,
-              count: 0,
-              src: boroughPathLocked + boroughElementID + ".svg",
-              message: boroughElement?.description.fr,
-              title: title,
+              dType: "badge",
+              type: "borough",
             });
           }
         }
@@ -211,6 +209,7 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
         const categoryElement = BadgeDatabase.getFromId(categoryElementID);
         if (elements.has(categoryName)) {
           categoryCollected.push({
+            id: categoryElementID,
             notification: categoryElement?.notification.fr,
             description: categoryElement?.description.fr,
             requireCount: categoryElement?.required_count,
@@ -223,16 +222,8 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
             ),
             message: categoryElement?.description.fr,
             title: categoryElement?.title,
-          });
-        } else {
-          categoryCollected.push({
-            notification: categoryElement?.notification.fr,
-            description: categoryElement?.description.fr,
-            requireCount: categoryElement?.required_count,
-            count: 0,
-            src: boroughPathLocked + categoryElementID + ".svg",
-            message: categoryElement?.description.fr,
-            title: categoryElement?.title,
+            dType: "badge",
+            type: "category",
           });
         }
       }
@@ -246,6 +237,7 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
         const ownerElement = BadgeDatabase.getFromId(ownerElementID);
         if (elements.has(ownerName)) {
           ownerCollected.push({
+            id: ownerElementID,
             notification: ownerElement?.notification.fr,
             description: ownerElement?.description.fr,
             requireCount: ownerElement?.required_count,
@@ -258,16 +250,8 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
             ),
             message: ownerElement?.description.fr,
             title: ownerElement?.title,
-          });
-        } else {
-          ownerCollected.push({
-            notification: ownerElement?.notification.fr,
-            description: ownerElement?.description.fr,
-            requireCount: ownerElement?.required_count,
-            count: 0,
-            src: boroughPathLocked + ownerElementID + ".svg",
-            message: ownerElement?.description.fr,
-            title: ownerElement?.title,
+            dType: "badge",
+            type: "owner",
           });
         }
       }

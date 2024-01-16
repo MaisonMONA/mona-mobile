@@ -26,6 +26,8 @@ import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
 import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
 import { BadgeDatabase } from "@/internal/databases/BadgeDatabase";
 import { UserData } from "@/internal/databases/UserData";
+import { Database } from "@/internal/databases/Database";
+import { CollectedBadge } from "@/internal/CollectedBadge";
 // import {Database} from "@/internal/databases/Database";
 
 export default {
@@ -45,12 +47,16 @@ export default {
       PlaceDatabase.populate(),
       HeritageDatabase.populate(),
       BadgeDatabase.populate(),
-
-      //TODO: remove after testing
-      // BadgeDatabase.test(),
     ])
       .catch(() => {
         this.showAlert("Impossible de se connecter à internet !");
+      })
+      .then(() => {
+        // cache collected badges
+        if (Database.getBadgeCollection()) {
+          CollectedBadge.badgeCollected();
+          // Database.setBadgeCollection(false);
+        }
       })
       .then(() => Promise.all([UserData.getFromServer(), UserData.loadCache()]))
       .then(() => {
