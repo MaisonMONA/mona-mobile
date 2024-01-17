@@ -395,6 +395,9 @@ export class UserData {
   public static getCollectedBadges() {
     return this.data.collected.badges;
   }
+  public static getCollectedBadge(id: number) {
+    return this.data.collected.badges.find((badge: any) => badge.id == id);
+  }
   public static addCollectedBadge(badge: any) {
     const insertFirst = (element: any, list: any[]) => {
       /* Only inserts if the element is not in `list` */

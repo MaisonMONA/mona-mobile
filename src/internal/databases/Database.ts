@@ -1,6 +1,6 @@
 import { RNG } from "@/internal/RNG";
 import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
-import { Artwork, Discovery, Heritage, Place } from "@/internal/Types";
+import { Discovery } from "@/internal/Types";
 import Globals from "@/internal/Globals";
 import { UserData } from "@/internal/databases/UserData";
 

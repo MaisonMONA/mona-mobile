@@ -18,4 +18,12 @@ export const useBadgesDB = defineStore("badgesDB", {
       ]),
     };
   },
+  actions: {
+    getBadges() {
+      return BadgeDatabase.getSubset(0, BadgeDatabase.getSize());
+    },
+    getCount() {
+      return BadgeDatabase.getSubset(0, 9);
+    },
+  },
 });
