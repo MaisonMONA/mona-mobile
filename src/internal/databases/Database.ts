@@ -12,26 +12,23 @@ export abstract class Database {
 
   public static resetPreferences() {
     this.dataPopulateDataBase = {
-      updateOnce: {
+      updateOneTime: {
         artworks: true,
         places: true,
         heritages: true,
         badges: true,
-        badgesCollection: true,
       },
     };
     this.updateFile();
   }
-  public static getBadgeCollection() {
-    return this.dataPopulateDataBase.updateOnce.badgesCollection;
-  }
+
   public static setBadgeCollection(value: boolean) {
     this.dataPopulateDataBase.updateOnce.badgesCollection = value;
     this.updateFile();
   }
   private static updateFile() {
     Filesystem.writeFile({
-      path: "appdata/populateDataBaseAndBadge.json",
+      path: "appdata/populateDataBase.json",
       data: JSON.stringify(this.dataPopulateDataBase),
       directory: Directory.Data,
       encoding: Encoding.UTF8,
@@ -43,7 +40,7 @@ export abstract class Database {
   public static async initilizePopulateDatabase() {
     try {
       const content = await Filesystem.readFile({
-        path: "appdata/populateDataBaseAndBadge.json",
+        path: "appdata/populateDataBase.json",
         directory: Directory.Data,
         encoding: Encoding.UTF8,
       });
@@ -57,19 +54,12 @@ export abstract class Database {
       console.log(`error when parsing data (${err}).`);
       // Default user data
       this.resetPreferences();
-      await this.populate;
     }
   }
   public static async populate() {
-    if (this.dataPopulateDataBase.updateOnce[this.type]) {
+    if (this.dataPopulateDataBase.updateOneTime[this.type]) {
       await this.populateFromServer();
-      this.dataPopulateDataBase.updateOnce[this.type] = false;
-      Filesystem.deleteFile({
-        path: "appdata/populateDataBase.json",
-        directory: Directory.Data,
-      }).catch((err) => {
-        console.error(`Failed to delete populate database file (${err})`);
-      });
+      this.dataPopulateDataBase.updateOneTime[this.type] = false;
       this.updateFile();
     } else {
       await this.populateLocal();

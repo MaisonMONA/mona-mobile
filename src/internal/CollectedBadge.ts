@@ -24,7 +24,7 @@ export class CollectedBadge {
   private static categoryPathUnlocked = "drawable/badges/category/unlocked/";
   private static categoryPathLocked = "drawable/badges/category/locked/";
 
-  public static badgeCollected() {
+  public static collecteBadges() {
     const tmpBoroughContainer = new Map<string, number>();
     const tmpOwnerContainer = new Map<string, number>();
     const tmpCategoryContainer = new Map<string, number>();

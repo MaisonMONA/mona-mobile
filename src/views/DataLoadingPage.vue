@@ -26,9 +26,7 @@ import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
 import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
 import { BadgeDatabase } from "@/internal/databases/BadgeDatabase";
 import { UserData } from "@/internal/databases/UserData";
-import { Database } from "@/internal/databases/Database";
-import { CollectedBadge } from "@/internal/CollectedBadge";
-// import {Database} from "@/internal/databases/Database";
+import { UserBadges } from "@/internal/UserBadges";
 
 export default {
   name: "DataLoadingPage",
@@ -53,10 +51,7 @@ export default {
       })
       .then(() => {
         // cache collected badges
-        if (Database.getBadgeCollection()) {
-          CollectedBadge.badgeCollected();
-          // Database.setBadgeCollection(false);
-        }
+        UserBadges.populate();
       })
       .then(() => Promise.all([UserData.getFromServer(), UserData.loadCache()]))
       .then(() => {

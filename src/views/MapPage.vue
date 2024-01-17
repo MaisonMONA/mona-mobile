@@ -22,9 +22,6 @@ import {
   IonContent,
 } from "@ionic/vue";
 import MapContainer from "@/components/MapContainer.vue";
-import { useBadgesCollections } from "@/stores/BadgesCollections";
-import { BadgeDatabase } from "@/internal/databases/BadgeDatabase";
-const badgesCollectionsStore = useBadgesCollections();
 export default {
   name: "MapPage",
   components: {
@@ -34,10 +31,6 @@ export default {
     IonToolbar,
     IonTitle,
     MapContainer,
-  },
-  created() {
-    //TODO: écrire la fonction pour récupérer les badges dans le local storage
-    //TODO: écrire la fonction qui modifie le state des badges -> NewCollection.newBadge()
   },
 };
 </script>

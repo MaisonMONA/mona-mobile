@@ -392,6 +392,9 @@ export class UserData {
     this.data.mapFocus.active = params.active;
   }
 
+  public static getCollectedBadges() {
+    return this.data.collected.badges;
+  }
   public static addCollectedBadge(badge: any) {
     const insertFirst = (element: any, list: any[]) => {
       /* Only inserts if the element is not in `list` */

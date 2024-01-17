@@ -82,7 +82,9 @@ import Utils from "@/internal/Utils";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
 import "@ionic/vue/css/ionic-swiper.css";
+import { useBadgesCollections } from "@/stores/BadgesCollections";
 
+const badgesCollectionsStore = useBadgesCollections();
 export default {
   name: "BadgesContainer",
   components: {
@@ -104,6 +106,8 @@ export default {
     this.count = BadgeDatabase.getSubset(0, 9);
     this.countBadge();
     this.boroughBadge();
+    console.log(badgesCollectionsStore.userCollectedBadges);
+    console.log(badgesCollectionsStore.countCollection);
   },
   data() {
     return {
