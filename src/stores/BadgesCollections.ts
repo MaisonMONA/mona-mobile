@@ -60,43 +60,16 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
       ownerCollection: [] as any,
     };
   },
+  getters: {
+    getBoroughOwnerCollection(): any[] {
+      return this.boroughCollection.concat(this.ownerCollection);
+    },
+  },
 
   actions: {
-    //TODO: écrire la fonction pour récupérer les badges dans le local storage
     //TODO: écrire la fonction qui modifie le state des badges -> NewCollection.newBadge()
 
     badgeCollection() {
-      const tmpBoroughContainer = new Map<string, number>();
-      const tmpOwnerContainer = new Map<string, number>();
-      const tmpCategoryContainer = new Map<string, number>();
-      for (const collectedElement of this.userCollectedDiscovery) {
-        const element: Artwork | Place | Heritage | null = Utils.getDiscovery(
-          collectedElement.id,
-          collectedElement.dType
-        );
-        const tmpBorough = element?.getBorough();
-        const tmpOwner = element?.getOwner();
-        const tmpCategory = element?.dType;
-
-        if (tmpOwner) {
-          const tmpCount = tmpOwnerContainer.get(tmpOwner);
-          tmpCount
-            ? tmpOwnerContainer.set(tmpOwner, tmpCount + 1)
-            : tmpOwnerContainer.set(tmpOwner, 1);
-        }
-        if (tmpCategory) {
-          const tmpCount = tmpCategoryContainer.get(tmpCategory);
-          tmpCount
-            ? tmpCategoryContainer.set(tmpCategory, tmpCount + 1)
-            : tmpCategoryContainer.set(tmpCategory, 1);
-        }
-        if (tmpBorough) {
-          const tmpCount = tmpBoroughContainer.get(tmpBorough);
-          tmpCount
-            ? tmpBoroughContainer.set(tmpBorough, tmpCount + 1)
-            : tmpBoroughContainer.set(tmpBorough, 1);
-        }
-      }
       this.countBadge();
       this.boroughBadge();
       this.categoryBadge();
@@ -198,7 +171,77 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
       }
       this.ownerCollection = ownerCollected;
     },
-
+    newBadge(id: number, dType: string) {
+      this.badgeCollection();
+      console.log("new badge");
+      const element: Artwork | Place | Heritage | null = Utils.getDiscovery(
+        id,
+        dType
+      );
+      console.log(element);
+      console.log(this.userCollectedDiscovery);
+      console.log(this.userCollectedBadges);
+      const tmpBorough = element?.getBorough();
+      const tmpOwner = element?.getOwner();
+      const tmpCategory = element?.dType;
+      this.newBoroughBadge(tmpBorough);
+      this.newCategoryBadge(tmpCategory);
+      this.newOwnerBadge(tmpOwner);
+      this.newCountBadge();
+    },
+    newBoroughBadge(borough: string | undefined) {
+      if (borough) {
+        for (const elem of this.boroughCollection) {
+          if (elem.title === borough) {
+            elem.count++;
+            if (elem.count === elem.requireCount) {
+              elem.src = boroughPathUnlocked + elem.id + ".svg";
+              console.log("borough unlocked");
+              // UserData.addCollectedBadge(elem);
+            }
+          }
+        }
+      }
+    },
+    newCategoryBadge(category: string | undefined) {
+      if (category) {
+        for (const elem of this.categoryCollection) {
+          if (elem.title.en.toLowerCase() === category.toLowerCase()) {
+            elem.count++;
+            if (elem.count === elem.requireCount) {
+              elem.src = categoryPathUnlocked + elem.id + ".svg";
+              console.log("category unlocked");
+              // UserData.addCollectedBadge(elem);
+            }
+          }
+        }
+      }
+    },
+    newOwnerBadge(owner: string | null | undefined) {
+      if (owner) {
+        for (const elem of this.ownerCollection) {
+          if (elem.title.fr === owner) {
+            elem.count++;
+            if (elem.count === elem.requireCount) {
+              elem.src = ownerPathUnlocked + elem.id + ".svg";
+              console.log("owner unlocked");
+              // UserData.addCollectedBadge(elem);
+            }
+          }
+        }
+      }
+    },
+    newCountBadge() {
+      for (const elem of this.countCollection) {
+        if (elem.src.includes(countPathLocked)) {
+          if (elem.requireCount === this.userCollectedBadges.length + 1) {
+            elem.src = countPathUnlocked + elem.id + ".svg";
+            console.log("count unlocked");
+            // UserData.addCollectedBadge(elem);
+          }
+        }
+      }
+    },
     // newBadgeCompleted() {
     //   return (this.newBadgeAnimation = true);
     // },

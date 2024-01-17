@@ -1,15 +1,17 @@
-<template>
+<template v-if="badgesCollectionsStore.countCollection.length">
   <div class="main-container">
     <div
       style="display: flex; justify-content: space-between; align-items: center"
     >
       <h1 style="margin-top: 0">Badges</h1>
-      <span>{{ nbrCountUnlocked + "/" + countCollected.length }}</span>
+      <span>{{
+        nbrCountUnlocked + "/" + badgesCollectionsStore.countCollection.length
+      }}</span>
     </div>
 
     <swiper :slides-per-view="3" :spaceBetween="10">
       <swiper-slide
-        v-for="elem in countCollected"
+        v-for="elem in badgesCollectionsStore.countCollection"
         :key="elem"
         class="badgeContainer ion-margin-end border ion-padding"
         style="height: 100%"
@@ -25,7 +27,7 @@
 
     <h1>Catégories</h1>
     <ion-row
-      v-for="elem in category"
+      v-for="elem in badgesCollectionsStore.categoryCollection"
       :key="elem"
       class="ion-margin-bottom ion-margin-top border"
     >
@@ -49,7 +51,7 @@
 
     <h1>Quartier</h1>
     <ion-row
-      v-for="elem in borough"
+      v-for="elem in badgesCollectionsStore.getBoroughOwnerCollection"
       :key="elem"
       class="ion-margin-bottom ion-margin-top border"
     >
@@ -93,23 +95,14 @@ export default {
     Swiper,
     SwiperSlide,
   },
-  //todo: refactor
+  setup() {
+    return { badgesCollectionsStore };
+  },
   beforeMount() {
     badgesCollectionsStore.badgeCollection();
-    this.countCollected = badgesCollectionsStore.countCollection;
-    this.category = badgesCollectionsStore.categoryCollection;
     this.borough = badgesCollectionsStore.boroughCollection.concat(
       badgesCollectionsStore.ownerCollection
     );
-  },
-  data() {
-    return {
-      borough: [],
-      category: [],
-      owner: [],
-      count: [],
-      countCollected: [],
-    };
   },
   computed: {
     nbrCountUnlocked() {
