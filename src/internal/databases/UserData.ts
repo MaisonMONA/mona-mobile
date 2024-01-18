@@ -1,5 +1,5 @@
 import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
-import { Badge, Discovery, DiscoveryEnum, Heritage } from "@/internal/Types";
+import { Discovery, DiscoveryEnum, Heritage } from "@/internal/Types";
 import Utils from "@/internal/Utils";
 import Globals from "@/internal/Globals";
 import { Geolocation } from "@capacitor/geolocation";
@@ -8,7 +8,6 @@ import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
 import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
 import { ArtworkFactory, PlaceFactory } from "@/internal/Factories";
 import { Distance } from "@/internal/Distance";
-// import {BadgeDatabase} from "@/internal/databases/BadgeDatabase";
 
 type Review = {
   id: number;

@@ -39,10 +39,9 @@ import {
   IonItem,
 } from "@ionic/vue";
 import { starOutline, star, camera } from "ionicons/icons";
-
+import { useBadgesCollections } from "@/stores/BadgesCollections";
 import { UserData } from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
-import { useBadgesCollections } from "@/stores/BadgesCollections";
 
 const badgesCollectionsStore = useBadgesCollections();
 
@@ -75,15 +74,19 @@ export default {
     submitDiscovery() {
       const id = this.$route.query.id;
       const type = this.$route.query.type;
-      // TODO: Uncomment when the badge is dynamic
-      // const { filename } = UserData.getCollected(parseInt(id), type);
-      // const comment = document.getElementById("input").value;
-      //
-      // UserData.editCollected(type, { id: parseInt(id), dType: type, filename, rating: this.givenRating, comment });
-      // Utils.sendPictureAndDetails(id, type);
 
-      console.log(id);
-      console.log(type);
+      const { filename } = UserData.getCollected(parseInt(id), type);
+      const comment = document.getElementById("input").value;
+
+      UserData.editCollected(type, {
+        id: parseInt(id),
+        dType: type,
+        filename,
+        rating: this.givenRating,
+        comment,
+      });
+      Utils.sendPictureAndDetails(id, type);
+
       badgesCollectionsStore.newBadge(id, type);
       // Redirect to the previous page
       this.$router.go(-1);

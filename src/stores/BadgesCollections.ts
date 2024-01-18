@@ -4,7 +4,6 @@ import { useBadgesDB } from "@/stores/BadgesDB";
 import { UserData } from "@/internal/databases/UserData";
 import { BadgeDatabase } from "@/internal/databases/BadgeDatabase";
 import { Artwork, Heritage, Place } from "@/internal/Types";
-import { UserBadges } from "@/internal/UserBadges";
 
 const countPathLocked = "drawable/badges/count/locked/";
 const countPathUnlocked = "drawable/badges/count/unlocked/";
@@ -67,8 +66,6 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
   },
 
   actions: {
-    //TODO: écrire la fonction qui modifie le state des badges -> NewCollection.newBadge()
-
     badgeCollection() {
       this.countBadge();
       this.boroughBadge();
@@ -173,14 +170,10 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
     },
     newBadge(id: number, dType: string) {
       this.badgeCollection();
-      console.log("new badge");
       const element: Artwork | Place | Heritage | null = Utils.getDiscovery(
         id,
         dType
       );
-      console.log(element);
-      console.log(this.userCollectedDiscovery);
-      console.log(this.userCollectedBadges);
       const tmpBorough = element?.getBorough();
       const tmpOwner = element?.getOwner();
       const tmpCategory = element?.dType;
@@ -198,15 +191,13 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
               elem.src = boroughPathUnlocked + elem.id + ".svg";
               console.log("borough unlocked");
             }
-            // UserData.addCollectedBadge(elem);
+            UserData.addCollectedBadge(elem);
           }
         }
       }
     },
     newCategoryBadge(category: string | undefined) {
       if (category) {
-        console.log(category);
-        console.log(this.categoryCollection);
         for (const elem of this.categoryCollection) {
           if (elem.dType === category) {
             elem.count++;
@@ -214,15 +205,13 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
               elem.src = categoryPathUnlocked + elem.id + ".svg";
               console.log("category unlocked");
             }
-            // UserData.addCollectedBadge(elem);
+            UserData.addCollectedBadge(elem);
           }
         }
       }
     },
     newOwnerBadge(owner: string | null | undefined) {
       if (owner) {
-        console.log(owner);
-        console.log(this.ownerCollection);
         for (const elem of this.ownerCollection) {
           console.log(elem.title === owner);
           if (elem.title === owner) {
@@ -232,7 +221,7 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
               elem.src = ownerPathUnlocked + elem.id + ".svg";
               console.log("owner unlocked");
             }
-            // UserData.addCollectedBadge(elem);
+            UserData.addCollectedBadge(elem);
           }
         }
       }
@@ -243,7 +232,7 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
           if (elem.requireCount === this.userCollectedBadges.length + 1) {
             elem.src = countPathUnlocked + elem.id + ".svg";
             console.log("count unlocked");
-            // UserData.addCollectedBadge(elem);
+            UserData.addCollectedBadge(elem);
           }
         }
       }

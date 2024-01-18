@@ -28,6 +28,10 @@ export class CollectedBadge {
     const tmpBoroughContainer = new Map<string, number>();
     const tmpOwnerContainer = new Map<string, number>();
     const tmpCategoryContainer = new Map<string, number>();
+
+    this.badgesDB = useBadgesDB();
+    this.userCollection = UserData.getCollectedChronologically();
+
     for (const collectedElement of this.userCollection) {
       const element: Artwork | Place | Heritage | null = Utils.getDiscovery(
         collectedElement.id,
@@ -75,7 +79,7 @@ export class CollectedBadge {
 
   static countBadge() {
     const countCollected = [];
-    for (const element of this.badgesDB.count) {
+    for (const element of this.badgesDB.getCount()) {
       if (element?.required_count <= this.userCollection.length) {
         countCollected.push({
           id: element.id,

@@ -274,31 +274,31 @@ export default {
 
   methods: {
     async activateCamera() {
-      //TODO uncomment line below after implementing dynamic badges
-      // const img = await Utils.takePicture()
-      // if (img == null) return;  // User cancelled
-      //
-      // // Displaying photo in container
-      // const userImg = document.getElementById("userPhoto");
-      // const defaultImg = document.getElementById("defaultPhoto");
-      // defaultImg.style.display = "none";
-      // userImg.style.display = "block";
-      // userImg.src = img.webPath || '';
-      //
-      // // Hiding buttons
-      // const photoButton = document.getElementById("photoButton");
-      // const seeOnMapButton = document.getElementById("seeOnMapButton");
-      // if (photoButton && seeOnMapButton) {  // Same here
-      //     photoButton.style.display = "none";
-      //     seeOnMapButton.style.display = "none";
-      // }
-      //
-      // // Enable image opening
-      // userImg.onclick = this.showImg;
-      //
-      // const filename = await Utils.savePicture(img);
-      // UserData.addCollected(this.discovery, filename, null, null);
-      // UserData.addPendingUpload(this.discovery.id, this.discovery.dType);
+      const img = await Utils.takePicture();
+      if (img == null) return; // User cancelled
+
+      // Displaying photo in container
+      const userImg = document.getElementById("userPhoto");
+      const defaultImg = document.getElementById("defaultPhoto");
+      defaultImg.style.display = "none";
+      userImg.style.display = "block";
+      userImg.src = img.webPath || "";
+
+      // Hiding buttons
+      const photoButton = document.getElementById("photoButton");
+      const seeOnMapButton = document.getElementById("seeOnMapButton");
+      if (photoButton && seeOnMapButton) {
+        // Same here
+        photoButton.style.display = "none";
+        seeOnMapButton.style.display = "none";
+      }
+
+      // Enable image opening
+      userImg.onclick = this.showImg;
+
+      const filename = await Utils.savePicture(img);
+      UserData.addCollected(this.discovery, filename, null, null);
+      UserData.addPendingUpload(this.discovery.id, this.discovery.dType);
 
       const redirection = {
         path: "/discovery-review/",

@@ -49,12 +49,10 @@ export default {
       .catch(() => {
         this.showAlert("Impossible de se connecter à internet !");
       })
+      .then(() => Promise.all([UserData.getFromServer(), UserData.loadCache()]))
       .then(() => {
         // cache collected badges
         UserBadges.populate();
-      })
-      .then(() => Promise.all([UserData.getFromServer(), UserData.loadCache()]))
-      .then(() => {
         // async functions, but DO NOT await (background tasks)
         UserData.checkForDBUpdate();
         UserData.tryUploadingPendingDiscoveries();
