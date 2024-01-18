@@ -90,7 +90,7 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
             message: element?.notification.fr,
             requireCount: element?.required_count,
             title: element?.title.fr,
-            dType: "badge",
+            dType: null,
             type: "count",
           });
         }
@@ -115,7 +115,7 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
             src: boroughPathLocked + boroughElementID + ".svg",
             message: boroughElement?.description.fr,
             title: title,
-            dType: "badge",
+            dType: null,
             type: "borough",
           });
         }
@@ -140,7 +140,7 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
             src: categoryPathLocked + categoryElementID + ".svg",
             message: categoryElement?.description.fr,
             title: categoryElement?.title,
-            dType: "badge",
+            dType: this.badgesDB.category.get(categoryElementID),
             type: "category",
           });
         }
@@ -163,8 +163,8 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
             count: 0,
             src: ownerPathLocked + ownerElementID + ".svg",
             message: ownerElement?.description.fr,
-            title: ownerElement?.title,
-            dType: "badge",
+            title: this.badgesDB.owner.get(ownerElementID),
+            dType: null,
             type: "owner",
           });
         }
@@ -197,36 +197,42 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
             if (elem.count === elem.requireCount) {
               elem.src = boroughPathUnlocked + elem.id + ".svg";
               console.log("borough unlocked");
-              // UserData.addCollectedBadge(elem);
             }
+            // UserData.addCollectedBadge(elem);
           }
         }
       }
     },
     newCategoryBadge(category: string | undefined) {
       if (category) {
+        console.log(category);
+        console.log(this.categoryCollection);
         for (const elem of this.categoryCollection) {
-          if (elem.title.en.toLowerCase() === category.toLowerCase()) {
+          if (elem.dType === category) {
             elem.count++;
             if (elem.count === elem.requireCount) {
               elem.src = categoryPathUnlocked + elem.id + ".svg";
               console.log("category unlocked");
-              // UserData.addCollectedBadge(elem);
             }
+            // UserData.addCollectedBadge(elem);
           }
         }
       }
     },
     newOwnerBadge(owner: string | null | undefined) {
       if (owner) {
+        console.log(owner);
+        console.log(this.ownerCollection);
         for (const elem of this.ownerCollection) {
-          if (elem.title.fr === owner) {
+          console.log(elem.title === owner);
+          if (elem.title === owner) {
+            console.log("in if");
             elem.count++;
             if (elem.count === elem.requireCount) {
               elem.src = ownerPathUnlocked + elem.id + ".svg";
               console.log("owner unlocked");
-              // UserData.addCollectedBadge(elem);
             }
+            // UserData.addCollectedBadge(elem);
           }
         }
       }

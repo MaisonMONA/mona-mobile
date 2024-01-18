@@ -46,8 +46,6 @@ export class UserData {
 
       if (typeof content.data === "string") {
         this.data = JSON.parse(content.data);
-        //TODO: remove this when badges are implemented
-        // console.log(this.data.collected.badges)
       }
 
       console.log(this.type + " db: successfully populated database.");

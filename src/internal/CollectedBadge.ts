@@ -85,7 +85,7 @@ export class CollectedBadge {
           message: element?.notification.fr,
           requireCount: element?.required_count,
           title: element?.title.fr,
-          dType: "badge",
+          dType: null,
           type: "count",
         });
       }
@@ -115,7 +115,7 @@ export class CollectedBadge {
             ),
             message: boroughElement?.description.fr,
             title: title,
-            dType: "badge",
+            dType: null,
             type: "borough",
           });
         }
@@ -145,7 +145,7 @@ export class CollectedBadge {
           ),
           message: categoryElement?.description.fr,
           title: categoryElement?.title,
-          dType: "badge",
+          dType: this.badgesDB.category.get(categoryElementID),
           type: "category",
         });
       }
@@ -173,8 +173,8 @@ export class CollectedBadge {
             "owner"
           ),
           message: ownerElement?.description.fr,
-          title: ownerElement?.title,
-          dType: "badge",
+          title: this.badgesDB.owner.get(ownerElementID),
+          dType: null,
           type: "owner",
         });
       }
