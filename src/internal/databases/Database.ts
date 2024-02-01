@@ -27,11 +27,14 @@ export abstract class Database {
                 encoding: Encoding.UTF8
             });
 
-            const parsed = JSON.parse(content.data);
-            for (const element of parsed) {
-            // for (const element of parsed.data) {
-                this.data.push(this.createSingleElement(element));
+            if (typeof content.data === "string") {
+                const parsed = JSON.parse(content.data);
+                for (const element of parsed) {
+                    // for (const element of parsed.data) {
+                    this.data.push(this.createSingleElement(element));
+                }
             }
+
 
             console.log(`${this.type} db: successfully populated (locally).`);
         } catch (err) {
