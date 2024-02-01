@@ -13,8 +13,8 @@
           show-clear-button="always"
           placeholder="Chercher"
           :debounce="500"
-          @change="triggerTextFilter($event)"
-          v-model="search"
+          @ion-clear="triggerTextFilter('')"
+          @change="triggerTextFilter($event.target.value)"
         ></ion-searchbar>
         <ion-button
           id="open-modal"
@@ -95,16 +95,10 @@
             <ion-col
               class="filtre"
               size="3"
-              @click="
-                this.selectedDiscovery(
-                  'decouverteArtwork',
-                  'filtreArtworkBackgroundColor',
-                  'filtreArtworkColor'
-                )
-              "
+              @click="selectedDiscovery(artwork)"
               :style="{
-                color: filtreArtworkColor,
-                backgroundColor: filtreArtworkBackgroundColor,
+                color: artwork.color,
+                backgroundColor: artwork.backgroundColor,
               }"
             >
               <div class="filter-category">
@@ -121,16 +115,10 @@
             <ion-col
               class="filtre"
               size="4"
-              @click="
-                this.selectedDiscovery(
-                  'decouverteHeritage',
-                  'filtreHeritageBackgroundColor',
-                  'filtreHeritageColor'
-                )
-              "
+              @click="selectedDiscovery(heritage)"
               :style="{
-                color: filtreHeritageColor,
-                backgroundColor: filtreHeritageBackgroundColor,
+                color: heritage.color,
+                backgroundColor: heritage.backgroundColor,
               }"
             >
               <div class="filter-category">
@@ -147,16 +135,10 @@
             <ion-col
               class="filtre"
               size="3"
-              @click="
-                this.selectedDiscovery(
-                  'decouvertePlace',
-                  'filtrePlaceBackgroundColor',
-                  'filtrePlaceColor'
-                )
-              "
+              @click="selectedDiscovery(place)"
               :style="{
-                color: filtrePlaceColor,
-                backgroundColor: filtrePlaceBackgroundColor,
+                color: place.color,
+                backgroundColor: place.backgroundColor,
               }"
             >
               <div class="filter-category">
@@ -193,9 +175,6 @@ import {
   IonLabel,
   IonItem,
   IonAvatar,
-  IonRow,
-  IonCol,
-  IonText,
   IonInfiniteScroll,
   IonInfiniteScrollContent,
   IonSearchbar,
@@ -230,9 +209,6 @@ export default {
     IonLabel,
     IonItem,
     IonAvatar,
-    IonRow,
-    IonCol,
-    IonText,
     IonSearchbar,
     IonInfiniteScroll,
     IonInfiniteScrollContent,
@@ -257,7 +233,6 @@ export default {
       lng2: UserData.getLocation()[0],
       componentKey: 0,
 
-      search: "",
       // Icon
       filterOutline,
       syncCircleIcon: reload,
@@ -267,197 +242,102 @@ export default {
       completeDiscoveriesDistance: [],
       discoveriesSortByAZ: [],
       discoveriesSortByDistance: [],
-      discoveriesSortByPlaceAZ: [],
-      discoveriesSortByPlaceDistance: [],
-      discoveriesSortByHeritageAZ: [],
-      discoveriesSortByHeritageDistance: [],
-      discoveriesSortByArtworkAZ: [],
-      discoveriesSortByArtworkDistance: [],
-
-      //Certains variables sont des objets afin de passer par référence à previouslySelected
-      //https://javascript.info/object-copy#:~:text=When%20an%20object%20variable%20is,object%20itself%20is%20not%20duplicated.&text=Now%20we%20have%20two%20variables,two%20variables%20that%20reference%20it.
-      //Filtrer
-      decouverteArtwork: false,
-      decouverteHeritage: false,
-      decouvertePlace: false,
-
+      artwork: {
+        selected: false,
+        color: "black",
+        backgroundColor: "transparent",
+        sortByAZ: [],
+        sortByDistance: [],
+        type: "artwork",
+      },
+      heritage: {
+        selected: false,
+        color: "black",
+        backgroundColor: "transparent",
+        sortByAZ: [],
+        sortByDistance: [],
+        type: "heritage",
+      },
+      place: {
+        selected: false,
+        color: "black",
+        backgroundColor: "transparent",
+        sortByAZ: [],
+        sortByDistance: [],
+        type: "place",
+      },
       //Trier
       choixTrie: "Distance",
-
-      //CSS
-      filtreArtworkColor: "black",
-      filtreArtworkBackgroundColor: "transparent",
-      filtreHeritageColor: "black",
-      filtreHeritageBackgroundColor: "transparent",
-      filtrePlaceColor: "black",
-      filtrePlaceBackgroundColor: "transparent",
     };
   },
 
   beforeMount() {
     this.completeDiscoveriesDistance = UserData.getSortedDiscoveriesDistance();
     this.completeDiscoveriesAZ = UserData.getSortedDiscoveriesAZ();
-    this.pullDiscoveriesTrier(
-      null,
-      "completeDiscoveriesDistance",
-      "discoveriesSortByDistance",
-      ""
-    );
-    this.offset = 0;
-    this.pullDiscoveriesTrier(
-      null,
-      "completeDiscoveriesAZ",
-      "discoveriesSortByAZ",
-      ""
-    );
-    this.offset = 0;
-    this.pullDiscoveriesTrier(
-      null,
-      "completeDiscoveriesDistance",
-      "discoveriesSortByPlaceDistance",
-      "place"
-    );
-    this.offset = 0;
-    this.pullDiscoveriesTrier(
-      null,
-      "completeDiscoveriesAZ",
-      "discoveriesSortByPlaceAZ",
-      "place"
-    );
-    this.offset = 0;
-    this.pullDiscoveriesTrier(
-      null,
-      "completeDiscoveriesDistance",
-      "discoveriesSortByArtworkDistance",
-      "artwork"
-    );
-    this.offset = 0;
-    this.pullDiscoveriesTrier(
-      null,
-      "completeDiscoveriesAZ",
-      "discoveriesSortByArtworkAZ",
-      "artwork"
-    );
-    this.offset = 0;
-    this.pullDiscoveriesTrier(
-      null,
-      "completeDiscoveriesDistance",
-      "discoveriesSortByHeritageDistance",
-      "heritage"
-    );
-    this.offset = 0;
-    this.pullDiscoveriesTrier(
-      null,
-      "completeDiscoveriesAZ",
-      "discoveriesSortByHeritageAZ",
-      "heritage"
-    );
+    const discoveries = [null, this.place, this.artwork, this.heritage];
+
+    for (const discovery of discoveries) {
+      for (let i = 0; i < 2; i++) {
+        this.pullDiscoveriesTrier(null, i, discovery);
+        this.offset = 0;
+      }
+    }
   },
 
   methods: {
     pullDiscoveries(event) {
       if (this.choixTrie === "Distance")
-        if (this.decouvertePlace) {
-          this.pullDiscoveriesTrier(
-            event,
-            "completeDiscoveriesDistance",
-            "discoveriesSortByPlaceDistance",
-            "place"
-          );
-        } else if (this.decouverteArtwork) {
-          this.pullDiscoveriesTrier(
-            event,
-            "completeDiscoveriesDistance",
-            "discoveriesSortByArtworkDistance",
-            "artwork"
-          );
-        } else if (this.decouverteHeritage) {
-          this.pullDiscoveriesTrier(
-            event,
-            "completeDiscoveriesDistance",
-            "discoveriesSortByHeritageDistance",
-            "heritage"
-          );
-        } else
-          this.pullDiscoveriesTrier(
-            event,
-            "completeDiscoveriesDistance",
-            "discoveriesSortByDistance",
-            ""
-          );
+        if (this.place.selected) {
+          this.pullDiscoveriesTrier(event, false, this.place);
+        } else if (this.artwork.selected) {
+          this.pullDiscoveriesTrier(event, false, this.artwork);
+        } else if (this.heritage.selected) {
+          this.pullDiscoveriesTrier(event, false, this.heritage);
+        } else this.pullDiscoveriesTrier(event, false, null);
       else if (this.choixTrie === "AZ")
-        if (this.decouvertePlace) {
-          this.pullDiscoveriesTrier(
-            event,
-            "completeDiscoveriesAZ",
-            "discoveriesSortByPlaceAZ",
-            "place"
-          );
-        } else if (this.decouverteArtwork) {
-          this.pullDiscoveriesTrier(
-            event,
-            "completeDiscoveriesAZ",
-            "discoveriesSortByArtworkAZ",
-            "artwork"
-          );
-        } else if (this.decouverteHeritage) {
-          this.pullDiscoveriesTrier(
-            event,
-            "completeDiscoveriesAZ",
-            "discoveriesSortByHeritageAZ",
-            "heritage"
-          );
-        } else
-          this.pullDiscoveriesTrier(
-            event,
-            "completeDiscoveriesAZ",
-            "discoveriesSortByAZ",
-            ""
-          );
+        if (this.place.selected) {
+          this.pullDiscoveriesTrier(event, true, this.place);
+        } else if (this.artwork.selected) {
+          this.pullDiscoveriesTrier(event, true, this.artwork);
+        } else if (this.heritage.selected) {
+          this.pullDiscoveriesTrier(event, true, this.heritage);
+        } else this.pullDiscoveriesTrier(event, true, null);
     },
     getTrierPar() {
       return this.choixTrie;
     },
     getDiscoveries() {
       let now = [];
+      const discoveries = [this.place, this.artwork, this.heritage];
+
       if (this.choixTrie === "Distance") {
         now = this.discoveriesSortByDistance;
       } else if (this.choixTrie === "AZ") {
         now = this.discoveriesSortByAZ;
       }
+      for (const discovery of discoveries) {
+        if (discovery.selected) {
+          if (this.choixTrie === "Distance") now = discovery.sortByDistance;
+          else if (this.choixTrie === "AZ") now = discovery.sortByAZ;
 
-      if (this.decouverteArtwork) {
-        if (this.choixTrie === "Distance")
-          now = this.discoveriesSortByArtworkDistance;
-        else if (this.choixTrie === "AZ") now = this.discoveriesSortByArtworkAZ;
-        //now = now.filter(discovery => discovery.dType === "artwork")
-      }
-      if (this.decouvertePlace) {
-        if (this.choixTrie === "Distance") {
-          now = this.discoveriesSortByPlaceDistance;
-        } else if (this.choixTrie === "AZ") {
-          now = this.discoveriesSortByPlaceAZ;
+          break;
         }
-      }
-      if (this.decouverteHeritage) {
-        if (this.choixTrie === "Distance")
-          now = this.discoveriesSortByHeritageDistance;
-        else if (this.choixTrie === "AZ")
-          now = this.discoveriesSortByHeritageAZ;
-        //now = now.filter(discovery => discovery.dType === "heritage")
       }
 
       return now;
     },
 
-    pullDiscoveriesTrier(
-      event,
-      completeDiscoveries,
-      subsetDiscoveries,
-      filterBy
-    ) {
+    pullDiscoveriesTrier(event, sortByAZ, typeDiscovery) {
       let subset;
-      if (filterBy) {
+      const type = typeDiscovery ? typeDiscovery.type : "";
+      const completeDiscoveries = sortByAZ
+        ? "completeDiscoveriesAZ"
+        : "completeDiscoveriesDistance";
+      const sortBy = sortByAZ ? "sortByAZ" : "sortByDistance";
+      const discoverySort = sortByAZ
+        ? "discoveriesSortByAZ"
+        : "discoveriesSortByDistance";
+      if (typeDiscovery) {
         subset = this[completeDiscoveries]
           .filter((elm) => {
             return elm
@@ -467,9 +347,10 @@ export default {
               .replace(/\p{Diacritic}/gu, "")
               .includes(this.currentFilter.toLowerCase());
           })
-          .filter((discovery) => discovery.dType === filterBy)
+          .filter((discovery) => discovery.dType === type)
           .slice(this.offset, this.offset + 50);
-      } else
+        typeDiscovery[sortBy] = typeDiscovery[sortBy].concat(subset);
+      } else {
         subset = this[completeDiscoveries]
           .filter((elm) => {
             return elm
@@ -480,8 +361,8 @@ export default {
               .includes(this.currentFilter.toLowerCase());
           })
           .slice(this.offset, this.offset + 50);
-
-      this[subsetDiscoveries] = this[subsetDiscoveries].concat(subset);
+        this[discoverySort] = this[discoverySort].concat(subset);
+      }
 
       if (event && event.target && event.target.complete)
         // Send a signal when the user reaches the bottom
@@ -489,7 +370,6 @@ export default {
 
       this.offset += 50;
     },
-
     openDetails(discovery) {
       let type;
       if (discovery.dType === "artwork") type = 0;
@@ -499,79 +379,38 @@ export default {
       this.$router.push(`/discovery-details/${type}/${discovery.id}`);
     },
 
-    triggerTextFilter(event) {
-      if (this.search === this.currentFilter) return;
-
-      this.currentFilter = this.search
+    triggerTextFilter(searchText) {
+      this.currentFilter = searchText
         .trim()
         .normalize("NFD")
         .replace(/\p{Diacritic}/gu, "");
+
       this.offset = 0;
 
       if (this.choixTrie === "AZ") {
-        if (this.decouvertePlace) {
-          this.discoveriesSortByPlaceAZ = [];
-          this.pullDiscoveriesTrier(
-            event,
-            "completeDiscoveriesAZ",
-            "discoveriesSortByPlaceAZ",
-            "place"
-          );
-        } else if (this.decouverteArtwork) {
-          this.discoveriesSortByArtworkAZ = [];
-          this.pullDiscoveriesTrier(
-            event,
-            "completeDiscoveriesAZ",
-            "discoveriesSortByArtworkAZ",
-            "artwork"
-          );
-        } else if (this.decouverteHeritage) {
-          this.discoveriesSortByHeritageAZ = [];
-          this.pullDiscoveriesTrier(
-            event,
-            "completeDiscoveriesAZ",
-            "discoveriesSortByHeritageAZ",
-            "heritage"
-          );
+        if (this.place.selected) {
+          this.place.sortByAZ = [];
+          this.pullDiscoveriesTrier(searchText, true, this.place);
+        } else if (this.artwork.selected) {
+          this.artwork.sortByAZ = [];
+          this.pullDiscoveriesTrier(searchText, true, this.artwork);
+        } else if (this.heritage.selected) {
+          this.heritage.sortByAZ = [];
+          this.pullDiscoveriesTrier(searchText, true, this.heritage);
         } else this.discoveriesSortByAZ = [];
-        this.pullDiscoveriesTrier(
-          event,
-          "completeDiscoveriesAZ",
-          "discoveriesSortByAZ",
-          ""
-        );
+        this.pullDiscoveriesTrier(searchText, true, null);
       } else if (this.choixTrie === "Distance") {
-        if (this.decouvertePlace) {
-          this.discoveriesSortByPlaceDistance = [];
-          this.pullDiscoveriesTrier(
-            event,
-            "completeDiscoveriesDistance",
-            "discoveriesSortByPlaceDistance",
-            "place"
-          );
-        } else if (this.decouverteArtwork) {
-          this.discoveriesSortByArtworkDistance = [];
-          this.pullDiscoveriesTrier(
-            event,
-            "completeDiscoveriesDistance",
-            "discoveriesSortByArtworkDistance",
-            "artwork"
-          );
-        } else if (this.decouverteHeritage) {
-          this.discoveriesSortByHeritageDistance = [];
-          this.pullDiscoveriesTrier(
-            event,
-            "completeDiscoveriesDistance",
-            "discoveriesSortByHeritageDistance",
-            "heritage"
-          );
+        if (this.place.selected) {
+          this.place.sortByDistance = [];
+          this.pullDiscoveriesTrier(searchText, false, this.place);
+        } else if (this.artwork.selected) {
+          this.artwork.sortByDistance = [];
+          this.pullDiscoveriesTrier(searchText, false, this.artwork);
+        } else if (this.heritage.selected) {
+          this.heritage.sortByDistance = [];
+          this.pullDiscoveriesTrier(searchText, false, this.heritage);
         } else this.discoveriesSortByDistance = [];
-        this.pullDiscoveriesTrier(
-          event,
-          "completeDiscoveriesDistance",
-          "discoveriesSortByDistance",
-          ""
-        );
+        this.pullDiscoveriesTrier(searchText, false, null);
       }
     },
 
@@ -607,12 +446,7 @@ export default {
               .replace(/\p{Diacritic}/gu, "")
               .includes(this.currentFilter.toLowerCase());
           });
-        this.pullDiscoveriesTrier(
-          event,
-          "completeDiscoveriesDistance",
-          "discoveriesSortByDistance",
-          ""
-        );
+        this.pullDiscoveriesTrier(event, false, null);
       }
 
       this.forceRerender();
@@ -621,44 +455,26 @@ export default {
         // Signal
         event.target.complete();
     },
-
-    selectedDiscovery(typeDiscovery, backgroundColorID, colorID) {
-      const decouverte = [
-        "decouverteHeritage",
-        "decouverteArtwork",
-        "decouvertePlace",
-      ];
-      const backgroundColor = [
-        "filtreHeritageBackgroundColor",
-        "filtreArtworkBackgroundColor",
-        "filtrePlaceBackgroundColor",
-      ];
-      const color = [
-        "filtreHeritageColor",
-        "filtreArtworkColor",
-        "filtrePlaceColor",
-      ];
-
-      if (!this[typeDiscovery]) {
-        this[backgroundColorID] = "#E0DFE4";
-        this[colorID] = "black";
-      } else if (this[typeDiscovery]) {
-        this[backgroundColorID] = "transparent";
-        this[colorID] = "black";
+    selectedDiscovery(discovery) {
+      const typeDiscoveries = [this.artwork, this.heritage, this.place];
+      if (!discovery.selected) {
+        discovery.backgroundColor = "#E0DFE4";
+        discovery.color = "black";
+      } else if (discovery.selected) {
+        discovery.backgroundColor = "transparent";
+        discovery.color = "black";
       }
 
-      for (let i = 0; i < 4; i++) {
-        if (decouverte[i] !== typeDiscovery) {
-          if (this[decouverte[i]] === true) {
-            this[backgroundColor[i]] = "transparent";
-            this[color[i]] = "black";
-            this[decouverte[i]] = !this[decouverte[i]];
+      for (const typeDiscovery of typeDiscoveries) {
+        if (typeDiscovery !== discovery) {
+          if (typeDiscovery.selected === true) {
+            typeDiscovery.backgroundColor = "transparent";
+            typeDiscovery.color = "black";
+            typeDiscovery.selected = !typeDiscovery.selected;
           }
         }
       }
-
-      this[typeDiscovery] = !this[typeDiscovery];
-      this.forceRerender();
+      discovery.selected = !discovery.selected;
     },
   },
 };
@@ -843,8 +659,13 @@ ion-modal {
   font-weight: normal;
   --border-radius: 15px;
 }
+
 #refresh-button ion-icon {
   font-size: 32px;
   color: grey;
 }
+
+/** {*/
+/*    border: 1px solid rgba(0, 0, 0, 0.3);*/
+/*}*/
 </style>

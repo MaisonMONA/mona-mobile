@@ -1,0 +1,23 @@
+{
+  "images" : [
+    {
+      "filename" : "LaunchScreen - 640 px x 960 px - iPhone 4:4S.png",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "LaunchScreen - 640 px x 1136 px - iPhone 5:5C:5S.png",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "LaunchScreen - 750 px x 1334 px - iPhone 6:7:8.png",
+      "idiom" : "universal",
+      "scale" : "3x"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
