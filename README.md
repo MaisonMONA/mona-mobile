@@ -1,63 +1,72 @@
-# MONA Ionic/Vue.js
-## Setup
-### Environnement à installer/télécharger
-*Ceci ne sont que des recommandations, mais elles sont fortement suggérées*
-* Utiliser l'environnement de code Webstorm (IDE puissant, gratuit avec un compte étudiant)
-  * Y associer le plugin Sonarlint pour garantir une meilleure qualité de code
-* Android studio
-* `npm i -g @ionic/cli` pour installer Ionic, puis `npm install` dans le répertoire pour installer les plugins
+# MONA
+<a href="https://play.google.com/store/apps/details?id=com.maison.mona&hl=en&gl=US"><img src="https://github.com/MaisonMONA/mona-mobile/assets/81833136/c000e2e5-5e27-4cd4-8f55-97b76efd98c7" alt="Télécharger l'app Google Play" width="150px"></a> <a href="https://apps.apple.com/ca/app/mona/id1462822498?l=fr-CA?l=fr"><img src="https://github.com/MaisonMONA/mona-mobile/assets/81833136/d9cec61e-689a-4fe6-a92b-45ac640d5245" alt="Télécharger l'app Apple Store" width="150px"></a>
 
-De manière générale, essayer de suivre un style de code cohérent et consistant (espace entre les opérateurs, sauts de
-lignes pour aérer et regrouper des lignes entre elles ; en cas de doute, aller voir les styleguides
-[d'Airbnb](https://github.com/airbnb/javascript) ou de [Google](https://github.com/google/styleguide)). La lisibilité du code est importante, n'hésitez pas non plus à corriger ce que vous trouvez.
-**Tant que possible, préférez le Typescript au Javascript, y compris dans les pages Vue.**
+MONA est une application mobile gratuite, qui invite à la découverte de l'art et des lieux culturels au Québec.
+
+Structure de l'application :
+
+- Découverte du jour : suggestion de découverte aléatoire et quotidienne
+- Carte interactive : cartographie toutes les œuvres et indique les œuvres à proximité de l'utilisateur
+- Liste : pour explorer et découvrir l’ensemble de la collection MONA
+- Collection personnelle : constituée par toutes les œuvres que l’utilisateur·rice a vues et prises en photo
+- Plus : à propos, qui sommes-nous, comment ça marche
 
 
-## Pour tester
-### Sur desktop
-Exécuter `ionic serve` à la racine pour lancer la version test dans le navigateur. Par défaut, l'application est servie
-sur [localhost au port 8100](http://localhost:8100/). Ne pas oublier [d'activer l'affichage en mode téléphone dans les dev
-tools](https://developer.chrome.com/docs/devtools/device-mode/) ! Je conseille de choisir le cadre du Samsung Galaxy S8+
-pour travailler, parce qu'il est le juste milieu entre le ratio 9/20 (nouveaux appareils) et le 9/16 (anciens).
-
-Actuellement, le navigateur ne prend pas en charge les demandes de permissions Android (GPS, caméra, stockage). Pour
-pouvoir passer l'étape du tutoriel, il faut donc commenter les lignes qui gèrent cela quand on teste en live :
-
-Fichier : [`src/views/TutorialPage.vue`](blob/main/src/views/TutorialPage.vue), lignes 44 à 64. 
-```ts
-// Ask for permissions
-const cameraPermStatus = await Camera.requestPermissions();
-const filePermStatus   = await Filesystem.requestPermissions();
-
-let locationPermStatus;
-try {
-    locationPermStatus = await Geolocation.requestPermissions();
-} catch (err) {
-    locationPermStatus = "disabled"
-}
-
-if (cameraPermStatus.camera === "granted" && filePermStatus.publicStorage === "granted" &&
-      (locationPermStatus === "disabled"         ||
-       locationPermStatus.location === "granted" ||
-       locationPermStatus.coarseLocation === "granted")
-) {
-    UserData.setSeenTutorial(true);        // NE PAS COMMENTER CETTE LIGNE
-    this.$router.replace("/register");     // NE PAS COMMENTER CETTE LIGNE
-} else {
-    this.$router.replace("/permission-denied")
-}
+# Configuration du projet
+## Prérequis
+Installer ionic
+```
+npm i -g @ionic/cli
+```
+## Installer les dépendances
+```
+npm install
+```
+## Développer avec hot-reload
+Avec le navigateur
+```
+ionic serve
+```
+Avec un émulateur
+```
+ionic cap run [android|ios] -l --external
+```
+## Production
+```
+ionic cap build [android|ios]
 ```
 
-### Déployer dans le Google Play Store
-1. (réactiver les lignes demandant les permissions dans `TutorialPage.vue`) 
-2. Exécuter `ionic cap build android` à la racine, ce qui va lancer Android Studio (sinon, le lancer manuellement)
-3. Récupérer les clefs  JKS dans le Google Docs dédié.
-4. Aller dans `build.gradle (Module :app)` et augmenter `versionCode` de 1, augmenter aussi `versionName` si besoin
-5. Build > Generate Signed Bundle / APK > Android App Bundle > Utiliser les clefs et mots de passe du Google Docs.
-6. Déposer le fichier AAB sur le Google Play Store (en test interne ou en produciton selon le type de MàJ).
+# Documentation complète
+Voir [Wiki](https://github.com/MaisonMONA/mona-mobile/wiki)
 
-⚠️ Si l'on veut juste tester la version actuelle sur son propre téléphone (et pas faire de release), ne pas augmenter le
-`versionCode` et générer un APK (pas un bundle). N'importe quel Android peut alors installer depuis cet APK.
+# Contribuer à notre projet
 
-## Accessibilité
-❗ Il est important d'appliquer les bonnes pratiques énumérées [ici](https://ionic.io/docs/accessibility) pour rendre l'application accessible.
+## Comment contribuer
+
+1. Consultez la liste des problèmes (voir [Github issues](https://github.com/MaisonMONA/mona-mobile/issues)).
+2. Assurez-vous que vous avez la dernière version du code.
+3. Créez une branche pour votre contribution: `git checkout -b votre-nouvelle-fonctionnalite`.
+4. Faites vos modifications et testez-les soigneusement.
+5. Soumettez une demande de tirage (pull request) avec une description détaillée de vos modifications.
+
+## Lignes directrices de codage
+
+- Respectez les conventions de codage existantes (recommandation: plugin Sonarlint).
+- Appliquer les bonnes pratiques pour garder l'application accessible.
+- Documentez votre code de manière claire.
+- Assurez-vous que votre code fonctionne correctement.
+
+## Rapporter des problèmes
+
+Si vous trouvez un bug ou avez une suggestion, veuillez créer une nouvelle issue (voir [Github issues](https://github.com/MaisonMONA/mona-mobile/issues)) et décrivez le problème ou la suggestion aussi clairement que possible.
+
+
+# Contact
+Par courriel, à info@monamontreal.org
+
+Par [Element](https://matrix.to/#/!XOqqdZkRaYkVJVZVaG:matrix.org?via=matrix.org)
+
+# Licence
+
+MONA-Mobile est disponible sous la licence MIT. Consultez le fichier LICENSE pour plus d'informations.
+
