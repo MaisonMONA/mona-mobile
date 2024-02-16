@@ -26,6 +26,7 @@
     "@ionic/vue-router": "^7.0.0",
     "ionicons": "^7.0.0",
     "ol": "^7.2.2",
+    "prettier": "^3.2.5",
     "vue": "^3.3.0",
     "vue-router": "^4.2.0"
   },

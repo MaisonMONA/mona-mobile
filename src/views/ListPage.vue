@@ -35,11 +35,13 @@
             <ion-avatar slot="start">
               <img :src="getDiscoveryMedalIcon(discovery)" alt="" />
             </ion-avatar>
-            <ion-label id="distance" position="fixed">{{
-              Distance.distance2string(
-                Distance.calculateDistance(discovery, lat2, lng2)
-              )
-            }}</ion-label>
+            <ion-label id="distance" position="fixed"
+              >{{
+                Distance.distance2string(
+                  Distance.calculateDistance(discovery, lat2, lng2),
+                )
+              }}
+            </ion-label>
             <ion-label id="title">{{ discovery.getTitle() }}</ion-label>
           </ion-item>
         </ion-list>
@@ -63,7 +65,7 @@
               slot="start"
               :src="optionsOutline"
             ></ion-icon>
-            <ion-text id="modal-heading"> <p>Filtres</p></ion-text>
+            <ion-text id="modal-heading"><p>Filtres</p></ion-text>
             <ion-icon
               class="modal-icon"
               size="medium"
@@ -104,9 +106,7 @@
               <div class="filter-category">
                 <ion-avatar>
                   <img
-                    :src="
-                      '@/assets/drawable/medals/artwork/default.svg'
-                    "
+                    :src="'src/assets/drawable/medals/artwork/default.svg'"
                   />
                 </ion-avatar>
                 <ion-text>Œuvres</ion-text>
@@ -124,9 +124,7 @@
               <div class="filter-category">
                 <ion-avatar>
                   <img
-                    :src="
-                      '@/assets/drawable/medals/heritage/default.svg'
-                    "
+                    :src="'src/assets/drawable/medals/heritage/default.svg'"
                   />
                 </ion-avatar>
                 <ion-text>Patrimoines</ion-text>
@@ -143,9 +141,7 @@
             >
               <div class="filter-category">
                 <ion-avatar>
-                  <img
-                    :src="'@/assets/drawable/medals/place/default.svg'"
-                  />
+                  <img :src="'src/assets/drawable/medals/place/default.svg'" />
                 </ion-avatar>
                 <ion-text>Lieux</ion-text>
               </div>
@@ -416,11 +412,10 @@ export default {
 
     getDiscoveryMedalIcon(discovery) {
       if (UserData.isCollected(discovery.id, discovery.dType))
-        return `@/assets/drawable/medals/${discovery.dType}/collected.svg`;
+        return `src/assets/drawable/medals/${discovery.dType}/collected.svg`;
       else if (UserData.isTargeted(discovery.id, discovery.dType))
-        return `@/assets/drawable/medals/${discovery.dType}/targeted.svg`;
-      else
-        return `@/assets/drawable/medals/${discovery.dType}/default.svg`;
+        return `src/assets/drawable/medals/${discovery.dType}/targeted.svg`;
+      else return `src/assets/drawable/medals/${discovery.dType}/default.svg`;
     },
 
     dismiss() {
@@ -524,13 +519,16 @@ ion-avatar img {
 ion-avatar {
   margin-right: 0;
 }
+
 ion-row {
   margin: 5%;
 }
+
 ion-col {
   margin-top: 2%;
   margin-bottom: 2%;
 }
+
 ion-searchbar {
   padding-left: 21px;
   padding-right: 21px;
@@ -561,9 +559,11 @@ p.bottom-text {
 #title {
   font-weight: bold;
 }
+
 #distance {
   font-size: small;
 }
+
 ion-col img {
   width: 5vw;
   height: 5vw;
@@ -625,10 +625,12 @@ ion-radio {
   font-weight: bold;
   font-family: "Gotham Roundedight", sans-serif;
 }
+
 ion-modal ion-toolbar {
   --background: #e0dfe4;
   --color: black;
 }
+
 ion-modal {
   --border-radius: 16px;
   --box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),

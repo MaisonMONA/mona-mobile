@@ -60,7 +60,6 @@ import { Filesystem } from "@capacitor/filesystem";
 import { Camera } from "@capacitor/camera";
 import { Geolocation } from "@capacitor/geolocation";
 import router from "@/router/index.ts";
-//TODO: find out why images are not displayed
 
 export default {
     name: "RegisterPage",
@@ -84,7 +83,6 @@ export default {
 
     methods: {
         goToLogin() {
-          console.log("in goToLogin")
             router.push("/login");
         },
 
