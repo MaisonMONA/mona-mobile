@@ -105,7 +105,7 @@
                 <ion-avatar>
                   <img
                     :src="
-                      require('@/assets/drawable/medals/artwork/default.svg')
+                      '@/assets/drawable/medals/artwork/default.svg'
                     "
                   />
                 </ion-avatar>
@@ -125,7 +125,7 @@
                 <ion-avatar>
                   <img
                     :src="
-                      require('@/assets/drawable/medals/heritage/default.svg')
+                      '@/assets/drawable/medals/heritage/default.svg'
                     "
                   />
                 </ion-avatar>
@@ -144,7 +144,7 @@
               <div class="filter-category">
                 <ion-avatar>
                   <img
-                    :src="require('@/assets/drawable/medals/place/default.svg')"
+                    :src="'@/assets/drawable/medals/place/default.svg'"
                   />
                 </ion-avatar>
                 <ion-text>Lieux</ion-text>
@@ -189,7 +189,7 @@ import {
 import { filterOutline, close, optionsOutline, reload } from "ionicons/icons";
 import { UserData } from "@/internal/databases/UserData";
 import { Distance } from "../internal/Distance";
-
+//TODO: find out why images are not displayed
 export default {
   name: "ListPage",
   computed: {
@@ -416,11 +416,11 @@ export default {
 
     getDiscoveryMedalIcon(discovery) {
       if (UserData.isCollected(discovery.id, discovery.dType))
-        return require(`@/assets/drawable/medals/${discovery.dType}/collected.svg`);
+        return `@/assets/drawable/medals/${discovery.dType}/collected.svg`;
       else if (UserData.isTargeted(discovery.id, discovery.dType))
-        return require(`@/assets/drawable/medals/${discovery.dType}/targeted.svg`);
+        return `@/assets/drawable/medals/${discovery.dType}/targeted.svg`;
       else
-        return require(`@/assets/drawable/medals/${discovery.dType}/default.svg`);
+        return `@/assets/drawable/medals/${discovery.dType}/default.svg`;
     },
 
     dismiss() {

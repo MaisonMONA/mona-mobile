@@ -3,8 +3,8 @@
         <ion-content>
             <div class="page">
                 <ion-button @click="nextSlide">Continuer</ion-button>
-                <img :src="require(`@/assets/drawable/tutorial/page ${pageNumber}.jpg`)"/>
-                <img class="background-blurred" :src="require(`@/assets/drawable/tutorial/page ${pageNumber}.jpg`)"/>
+                <img :src="`@/assets/drawable/tutorial/page ${pageNumber}.jpg`"/>
+                <img class="background-blurred" :src="`√@/assets/drawable/tutorial/page ${pageNumber}.jpg`"/>
             </div>
         </ion-content>
     </ion-page>
@@ -16,7 +16,7 @@ import { Filesystem } from "@capacitor/filesystem";
 import { Camera } from "@capacitor/camera";
 import { Geolocation } from "@capacitor/geolocation";
 import { UserData } from "@/internal/databases/UserData";
-
+//TODO: find out why images are not displayed
 export default {
     name: "TutorialPage",
     components: {

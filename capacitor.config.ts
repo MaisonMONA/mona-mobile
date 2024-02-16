@@ -4,7 +4,9 @@ const config: CapacitorConfig = {
   appId: 'com.mona.starter',
   appName: 'MONA',
   webDir: 'dist',
-  bundledWebRuntime: false
+  server: {
+    androidScheme: 'https'
+  }
 };
 
 export default config;

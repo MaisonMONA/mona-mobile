@@ -10,7 +10,7 @@ import { ArtworkDatabase } from "@/internal/databases/ArtworkDatabase";
 import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
 import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
 import Globals from "@/internal/Globals";
-
+//TODO: find out why images are not displayed
 
 const convertBlobToBase64 = (blob: Blob) => new Promise((resolve, reject) => {
     const reader = new FileReader;
@@ -270,7 +270,7 @@ export default {
         const style = new Style({
             image: new Icon({
                 anchor: [0.5, 1],
-                src: require(`@/assets/drawable/pins/${type}/${status}.png`),
+                src: `@/assets/drawable/pins/${type}/${status}.png`,
                 scale: 0.5,
             })
         });
