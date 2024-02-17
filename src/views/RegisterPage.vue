@@ -59,7 +59,7 @@ import Globals from "@/internal/Globals";
 import { Filesystem } from "@capacitor/filesystem";
 import { Camera } from "@capacitor/camera";
 import { Geolocation } from "@capacitor/geolocation";
-
+import router from "@/router/index.ts";
 
 export default {
     name: "RegisterPage",
@@ -83,7 +83,7 @@ export default {
 
     methods: {
         goToLogin() {
-            this.$router.push("/login");
+            router.push("/login");
         },
 
         register() {
