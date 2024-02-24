@@ -52,11 +52,7 @@
       class="ion-margin-bottom ion-margin-top border"
     >
       <ion-col size="auto">
-        <img
-          :alt="elem.message"
-          :src="`src/assets/drawable/tutorial/page 1.jpg`"
-        />
-        <!--        <img :alt="elem.message" :src="getImgUrl(elem.src)" />-->
+        <img :alt="elem.message" :src="elem.src" />
       </ion-col>
       <ion-col>
         <div class="container_progression">
