@@ -3,7 +3,13 @@ import { Directory, Filesystem } from "@capacitor/filesystem";
 import Feature from "ol/Feature";
 import { Icon, Style } from "ol/style";
 
-import { Discovery, DiscoveryEnum } from "@/internal/Types";
+import {
+  Artwork,
+  Discovery,
+  DiscoveryEnum,
+  Heritage,
+  Place,
+} from "@/internal/Types";
 import { RNG } from "@/internal/RNG";
 import { UserData } from "@/internal/databases/UserData";
 import { ArtworkDatabase } from "@/internal/databases/ArtworkDatabase";
@@ -247,7 +253,10 @@ export default {
       });
   },
 
-  getDiscovery(id: number, type: number | string): Discovery | null {
+  getDiscovery(
+    id: number,
+    type: number | string,
+  ): Artwork | Place | Heritage | null {
     /**
      * Simple utility function that returns the discovery associated
      * with ID with type being flexible.
