@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { BadgeDatabase } from "@/internal/databases/BadgeDatabase";
+import { Badge } from "@/internal/Types";
 export const useBadgesDB = defineStore("badgesDB", {
   state: () => {
     return {
@@ -22,7 +23,7 @@ export const useBadgesDB = defineStore("badgesDB", {
     getBadges() {
       return BadgeDatabase.getSubset(0, BadgeDatabase.getSize());
     },
-    getCount() {
+    getCount(): Badge[] {
       return BadgeDatabase.getSubset(0, 9);
     },
   },
