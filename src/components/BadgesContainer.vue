@@ -16,7 +16,12 @@
         class="badgeContainer ion-margin-end border ion-padding"
         style="height: 100%"
       >
-        <img :alt="elem.message" :src="elem.src" style="max-width: none" />
+        <img
+          :alt="elem.message"
+          :src="elem.src"
+          style="max-width: none"
+          @click="toDelete"
+        />
         <span style="margin-top: 2%; font-size: small"> {{ elem.title }} </span>
       </swiper-slide>
     </swiper>
@@ -123,6 +128,13 @@ export default {
   computed: {
     nbrCountUnlocked() {
       return badgesCollectionsStore.userCount.length;
+    },
+  },
+  methods: {
+    toDelete() {
+      console.log(badgesCollectionsStore.userCollectedDiscovery);
+      console.log(badgesCollectionsStore.userCollectedBadges);
+      console.log(badgesCollectionsStore.countCollection);
     },
   },
 };
