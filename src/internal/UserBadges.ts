@@ -1,5 +1,5 @@
 import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
-import { CollectedBadge } from "./CollectedBadges";
+import { CollectedBadge } from "@/internal/CollectedBadges";
 
 export class UserBadges {
   private static userBadgesCollectionCache: any = null;
