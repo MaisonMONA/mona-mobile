@@ -46,6 +46,8 @@ import Utils from "@/internal/Utils";
 import { useRoute } from "vue-router";
 import { Icon, Style } from "ol/style";
 import customLocationIcon from "@/assets/drawable/icons/location.svg";
+import { Geolocation } from "@capacitor/geolocation";
+import { AndroidSettings, NativeSettings } from "capacitor-native-settings";
 //TODO: find out why images are not displayed
 // This variable is here to know if the user focuses a discovery or not
 let hasFocus = false;
@@ -93,7 +95,9 @@ export default {
       INITAL_COORD: discovery
         ? [discovery.location.lng, discovery.location.lat]
         : UserData.getLocation(),
+      // if location is not available, use the initial coordinates = [-68.2075, 52.8131]
       DEFAULT_ZOOM_LEVEL: discovery ? 17 : 14, // If the map was opened by the DOD page we want to zoom more
+      // if location is not available, use the default zoom level = 4.5
       TILE_LAYER: layer,
       arrowRightIcon,
       settingsIcon: cogOutline,
@@ -122,14 +126,29 @@ export default {
   },
 
   methods: {
-    myMap() {
+    async myMap() {
       useGeographic();
+      let locationPermStatus;
+      try {
+        locationPermStatus = await Geolocation.requestPermissions();
+      } catch (err) {
+        locationPermStatus = "denied";
+      }
+      console.log("locationPermStatus", locationPermStatus);
+      // TODO: verify if this opens the app settings
+      if (locationPermStatus === "denied") {
+        // Open app settings
+        await NativeSettings.openAndroid({
+          option: AndroidSettings.ApplicationDetails,
+        });
+      }
       this.mainMap = new Map({
         // Hiding attribution (yes it's immoral)
         controls: defaultControls({ attribution: false }),
 
         target: "map",
         view: new View({
+          //TODO: if location is not available, use the initial coordinates = [-68.2075, 52.8131] and zoom level = 4.5
           center: this.INITAL_COORD,
           zoom: this.DEFAULT_ZOOM_LEVEL,
 
