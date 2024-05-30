@@ -136,12 +136,14 @@ export default {
       }
       console.log("locationPermStatus", locationPermStatus);
       // TODO: verify if this opens the app settings
+      let openAppSettings;
       if (locationPermStatus === "denied") {
         // Open app settings
-        await NativeSettings.openAndroid({
+        openAppSettings = await NativeSettings.openAndroid({
           option: AndroidSettings.ApplicationDetails,
         });
       }
+      console.log("openAppSettings", openAppSettings);
       this.mainMap = new Map({
         // Hiding attribution (yes it's immoral)
         controls: defaultControls({ attribution: false }),
