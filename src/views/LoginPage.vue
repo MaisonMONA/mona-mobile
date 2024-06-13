@@ -30,10 +30,12 @@
                 text-align: left;
                 padding-left: 7%;
                 font-size: small;
-                color: #0059ff;
+                color: #0059ff !important;
               "
             >
-              Mot de passe oublié ?
+              <router-link to="/forgot-password">
+                Mot de passe oublié ?
+              </router-link>
             </p>
           </div>
 
