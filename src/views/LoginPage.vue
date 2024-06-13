@@ -33,7 +33,7 @@
                 color: #0059ff !important;
               "
             >
-              <router-link to="/forgot-password">
+              <router-link to="/forgot-password" class="forgotPasswordLink">
                 Mot de passe oublié ?
               </router-link>
             </p>
@@ -148,9 +148,8 @@ export default {
 
 <style scoped>
 @import url("@/theme/TopToolbar.css");
-
-.ion-page {
-  background: white;
+.forgotPasswordLink {
+  color: #595959 !important;
 }
 
 p,
