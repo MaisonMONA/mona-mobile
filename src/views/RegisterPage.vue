@@ -8,14 +8,13 @@
     </ion-header>
 
     <ion-content :fullscreen="true">
-      <ion-toast :is-open="formErrorPresent" :message="errorMessage" :duration="10000"
-                 @didDismiss="formErrorPresent=false" color="danger"></ion-toast>
-      <p id="register-alert-holder"></p>
+      <ion-toast :is-open="formErrorPresent" :message="errorMessage" :duration="9000"
+                 @didDismiss="formErrorPresent=false" color="danger" position="top" position-anchor="ion-toast-anchor"></ion-toast>
       <div class="main-content">
         <p id="welcome">Inscription</p>
         <p id="ask-for-registration">Bienvenue !<br>Commençons par créer un compte.</p>
 
-        <div class="form-section">
+        <div class="form-section" id="ion-toast-anchor">
           <div class="input-element username">
             <label for="username-input">Nom d'utilisateur</label>
             <ion-item id="username-input">
@@ -50,7 +49,6 @@
         </div>
       </div>
     </ion-content>
-
   </ion-page>
 </template>
 
@@ -156,7 +154,7 @@ export default {
           console.log(parsed.errors.password.length);
           if (parsed.errors.password.length === 2) { errorMessage +=
               "Le mot de passe doit être d'au moins 6 caractères.\n" +
-              "La confirmation de mot de passe ne correspond pas au mot de passe.\n";}
+              "Les mots de passe ne concordent pas.\n";}
           // API response returns only one password error
           else if (parsed.errors.password.length === 1) { errorMessage +=
               (parsed.errors.password[0] === "The password must be at least 6 characters.") ?
@@ -266,5 +264,9 @@ label {
 #register-alert-holder.show {
   color: darkred;
   background: #E6B1B1;
+}
+
+ion-toast::part(message) {
+  white-space: pre;
 }
 </style>
