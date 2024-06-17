@@ -69,6 +69,7 @@ export default {
 
   data() {
     return {
+      // related to ion-toast
       formErrorPresent: false, // to open/close ion-toast error
       errorMessage: "", // ion-toast error content
     };
