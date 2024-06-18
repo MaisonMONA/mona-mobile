@@ -578,6 +578,10 @@ p.bottom-text {
 
 #title {
   font-weight: bold;
+  /* To do so that the title stays on one line and finishes with "..." if it's too long */
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 #distance {
