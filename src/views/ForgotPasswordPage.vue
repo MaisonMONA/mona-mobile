@@ -16,19 +16,37 @@ import {
   informationCircleOutline,
 } from "ionicons/icons";
 import Globals from "../internal/Globals.ts";
-const toastErrorMsg = ref("");
+
 const msg200 = "Email de réinitialisation envoyé";
 const msg404 = "Nom d'utilisateur introuvable";
 const msg400 = "Aucun email associé à votre compte";
+
 const inputUsername = reactive({ value: "" });
 
-const toastCSS = ref("status404");
+const toastErrorMsg = reactive({ value: "" });
+const toastCSS = ref("status40X");
 const toastIcon = ref(null);
 
+const isToastOpen = ref(false);
+function setToast(value, icon, css, state) {
+  toastErrorMsg.value = value;
+  toastIcon.value = icon;
+  toastCSS.value = css;
+  setOpenToast(state);
+}
+function setOpenToast(state) {
+  isToastOpen.value = state;
+}
+
 function resetPassword() {
+  setOpenToast(false);
   if (inputUsername.value === "") {
-    toastErrorMsg.value = "Veuillez entrer votre nom d'utilisateur";
-    toastIcon.value = informationCircleOutline;
+    setToast(
+      "Veuillez entrer votre nom d'utilisateur",
+      informationCircleOutline,
+      "status40X",
+      true,
+    );
     return;
   }
   // Call API to reset password
@@ -40,30 +58,26 @@ function resetPassword() {
     body: formData,
   })
     .then(async (response) => {
-      const parsed = await response.json();
-
-      if (response.ok) {
-        // Show success message
-        toastErrorMsg.value = msg200;
-        toastCSS.value = "status200";
-        toastIcon.value = checkmarkCircle;
+      await response.json();
+      return { response };
+    })
+    .then(({ response }) => {
+      if (response.status === 200) {
+        setToast(msg200, checkmarkCircle, "status200", true);
       } else if (response.status === 404) {
-        // Show appropriate error
-        toastErrorMsg.value = msg404;
-        toastCSS.value = "status404";
-        toastIcon.value = closeCircle;
+        setToast(msg404, closeCircle, "status40X", true);
       } else if (response.status === 400) {
-        // Show appropriate error
-        toastErrorMsg.value = msg400;
-        toastCSS.value = "status404";
-        toastIcon.value = closeCircle;
+        setToast(msg400, closeCircle, "status40X", true);
       }
+      setOpenToast(true);
     })
     .catch(() => {
-      toastErrorMsg.value =
-        "Une erreur est survenue lors de la réinitialisation du mot de passe. Veuillez réessayer.";
-      toastIcon.value = closeCircle;
-      toastCSS.value = "status404";
+      setToast(
+        "Une erreur est survenue lors de la réinitialisation du mot de passe. Veuillez réessayer.",
+        closeCircle,
+        "status40X",
+        true,
+      );
     });
 }
 </script>
@@ -87,11 +101,7 @@ function resetPassword() {
           placeholder="Entrer votre nom d'utilisateur"
           v-model="inputUsername.value"
         ></ion-input>
-        <ion-button
-          expand="block"
-          @click="resetPassword"
-          class="reinitialiser"
-          id="open-toast"
+        <ion-button expand="block" @click="resetPassword" class="reinitialiser"
           >Réinitialiser le mot de passe</ion-button
         >
         <ion-button expand="block" router-link="/login" class="annuler"
@@ -99,11 +109,12 @@ function resetPassword() {
         >
       </div>
       <ion-toast
-        trigger="open-toast"
-        :message="toastErrorMsg"
+        :is-open="isToastOpen"
+        :message="toastErrorMsg.value"
         :duration="3000"
         :icon="toastIcon"
         :class="toastCSS"
+        @disDismiss="setOpenToast(false)"
       ></ion-toast>
     </ion-content>
   </ion-page>
@@ -115,7 +126,7 @@ ion-toast.status200 {
   --box-shadow: 3px 3px 10px 0 rgba(0, 0, 0, 0.2);
   --color: white;
 }
-ion-toast.status404 {
+ion-toast.status40X {
   --background: #d82727;
   --box-shadow: 3px 3px 10px 0 rgba(0, 0, 0, 0.2);
   --color: white;
@@ -124,6 +135,7 @@ ion-button.reinitialiser {
   --background: #4d58cb;
   --background-activated: #000000;
   --ripple-color: #000000;
+  --color: white;
   margin-bottom: 2%;
 }
 ion-button.annuler {
