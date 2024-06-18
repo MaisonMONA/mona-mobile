@@ -1,6 +1,5 @@
 <template>
   <ion-page>
-
     <ion-header>
       <ion-toolbar>
         <ion-title>MONA</ion-title>
@@ -8,13 +7,20 @@
     </ion-header>
 
     <ion-content :fullscreen="true">
-      <ion-toast :is-open="formErrorPresent" :message="errorMessage" :duration="9000"
-                 @didDismiss="formErrorPresent=false" color="danger" position="top" position-anchor="ion-toast-anchor"></ion-toast>
+      <ion-toast
+        :is-open="ionToastErrorMessageIsOpen"
+        :message="ionToastErrorMessage"
+        :duration="9000"
+        @didDismiss="ionToastErrorMessageIsOpen = false"
+        color="danger"
+        position="top"
+        position-anchor="ion-toast-anchor"
+      ></ion-toast>
       <div class="main-content">
         <p id="welcome">Connexion</p>
         <p id="ask-for-login">Connectez-vous à votre compte.</p>
 
-        <div class="form-section">
+        <div class="form-section" id="ion-toast-anchor">
           <div class="input-element username">
             <label for="login-username">Nom d'utilisateur</label>
             <ion-item id="login-username">
@@ -31,42 +37,59 @@
 
           <ion-button @click="login">Se connecter</ion-button>
 
-          <p class="redirect-to-register" @click="goToRegister">Pas de compte ? <span>En créer un</span></p>
+          <p class="redirect-to-register" @click="goToRegister">
+            Pas de compte ? <span>En créer un</span>
+          </p>
         </div>
       </div>
     </ion-content>
-
   </ion-page>
 </template>
 
 <script>
-import {IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonInput, IonButton, IonToast} from "@ionic/vue";
-import {UserData} from "@/internal/databases/UserData";
+import {
+  IonPage,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonItem,
+  IonInput,
+  IonButton,
+  IonToast,
+} from "@ionic/vue";
+import { UserData } from "@/internal/databases/UserData";
 import Globals from "@/internal/Globals";
-
 
 export default {
   name: "LoginPage",
   components: {
     IonToast,
-    IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonInput, IonButton
+    IonPage,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonItem,
+    IonInput,
+    IonButton,
   },
 
   data() {
     return {
       // related to ion-toast
-      formErrorPresent: false, // to open/close ion-toast error
-      errorMessage: "", // ion-toast error content
+      ionToastErrorMessageIsOpen: false, // to open/close ion-toast error
+      ionToastErrorMessage: "", // ion-toast error content
     };
   },
 
   beforeMount() {
-    UserData.populate()
-        .then(() => {
-          if (UserData.getToken() !== '') {  // User is logged in, redirect
-            this.$router.replace("/loading");
-          }
-        })
+    UserData.populate().then(() => {
+      if (UserData.getToken() !== "") {
+        // User is logged in, redirect
+        this.$router.replace("/loading");
+      }
+    });
   },
 
   methods: {
@@ -75,8 +98,12 @@ export default {
     },
 
     login() {
-      const username = document.querySelector("ion-item#login-username ion-input").value;
-      const password = document.querySelector("ion-item#login-password ion-input").value;
+      const username = document.querySelector(
+        "ion-item#login-username ion-input",
+      ).value;
+      const password = document.querySelector(
+        "ion-item#login-password ion-input",
+      ).value;
 
       if (username && password) {
         const formData = new FormData();
@@ -85,43 +112,42 @@ export default {
 
         fetch(Globals.apiRoutes.login, {
           method: "POST",
-          body: formData
+          body: formData,
         })
+          .then(async (response) => {
+            const parsed = await response.json();
 
-            .then(async (response) => {
-              const parsed = await response.json();
-
-              if (response.ok) {
-                if (!parsed.token) {
-                  this.showAlert("Server error");
-                }
-
-                UserData.setToken(parsed.token)
-                UserData.setUsername(username.trim());
-                this.$router.replace("/loading");
-              } else {
-                // Show appropriate error
-                if (parsed.errors && parsed.errors.username) {
-                  console.log(parsed)
-                  this.showAlert(parsed.errors.username[0]);
-                } else {
-                  this.showAlert(`Erreur serveur (code ${response.status})`);
-                }
+            if (response.ok) {
+              if (!parsed.token) {
+                this.showAlert("Erreur de serveur");
               }
-            })
 
-            .catch(() => {
-              this.showAlert("Impossible de se connecter à internet.");
-            });
+              UserData.setToken(parsed.token);
+              UserData.setUsername(username.trim());
+              this.$router.replace("/loading");
+            } else {
+              // Show appropriate error
+              if (parsed.errors && parsed.errors.username) {
+                console.log(parsed);
+                this.showAlert(parsed.errors.username[0]);
+              } else {
+                this.showAlert(`Erreur serveur (code ${response.status})`);
+              }
+            }
+          })
+
+          .catch(() => {
+            this.showAlert("Impossible de se connecter à internet.");
+          });
       }
     },
 
     showAlert(alertMessage) {
-      this.formErrorPresent = true;
-      this.errorMessage = alertMessage;
-    }
-  }
-}
+      this.ionToastErrorMessageIsOpen = true;
+      this.ionToastErrorMessage = alertMessage;
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -131,8 +157,9 @@ export default {
   background: white;
 }
 
-p, label {
-  font-family: 'Gotham Rounded Light', sans-serif;
+p,
+label {
+  font-family: "Gotham Rounded Light", sans-serif;
 }
 
 #welcome {
@@ -198,6 +225,6 @@ label {
 
 #login-alert-holder.show {
   color: darkred;
-  background: #E6B1B1;
+  background: #e6b1b1;
 }
 </style>

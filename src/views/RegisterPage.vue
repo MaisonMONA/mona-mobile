@@ -1,6 +1,5 @@
 <template>
   <ion-page>
-
     <ion-header>
       <ion-toolbar>
         <ion-title>MONA</ion-title>
@@ -8,11 +7,20 @@
     </ion-header>
 
     <ion-content :fullscreen="true">
-      <ion-toast :is-open="formErrorPresent" :message="errorMessage" :duration="9000"
-                 @didDismiss="formErrorPresent=false" color="danger" position="top" position-anchor="ion-toast-anchor"></ion-toast>
+      <ion-toast
+        :is-open="ionToastErrorMessageIsOpen"
+        :message="ionToastErrorMessage"
+        :duration="9000"
+        @didDismiss="ionToastErrorMessageIsOpen = false"
+        color="danger"
+        position="top"
+        position-anchor="ion-toast-anchor"
+      ></ion-toast>
       <div class="main-content">
         <p id="welcome">Inscription</p>
-        <p id="ask-for-registration">Bienvenue !<br>Commençons par créer un compte.</p>
+        <p id="ask-for-registration">
+          Bienvenue !<br />Commençons par créer un compte.
+        </p>
 
         <div class="form-section" id="ion-toast-anchor">
           <div class="input-element username">
@@ -37,7 +45,9 @@
           </div>
 
           <div class="input-element password-confirmation">
-            <label for="password-confirmation-input">Vérifiez le mot de passe</label>
+            <label for="password-confirmation-input"
+              >Vérifiez le mot de passe</label
+            >
             <ion-item id="password-confirmation-input">
               <ion-input type="password"></ion-input>
             </ion-item>
@@ -45,7 +55,9 @@
 
           <ion-button @click="register">S'inscrire</ion-button>
 
-          <p class="redirect-to-login" @click="goToLogin">Déjà un compte ? <span>Se connecter</span></p>
+          <p class="redirect-to-login" @click="goToLogin">
+            Déjà un compte ? <span>Se connecter</span>
+          </p>
         </div>
       </div>
     </ion-content>
@@ -53,25 +65,42 @@
 </template>
 
 <script>
-import {IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonInput, IonButton, IonToast} from "@ionic/vue";
-import {UserData} from "@/internal/databases/UserData";
+import {
+  IonPage,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonItem,
+  IonInput,
+  IonButton,
+  IonToast,
+} from "@ionic/vue";
+import { UserData } from "@/internal/databases/UserData";
 import Globals from "@/internal/Globals";
-import {Filesystem} from "@capacitor/filesystem";
-import {Camera} from "@capacitor/camera";
-import {Geolocation} from "@capacitor/geolocation";
+import { Filesystem } from "@capacitor/filesystem";
+import { Camera } from "@capacitor/camera";
+import { Geolocation } from "@capacitor/geolocation";
 import router from "@/router/index.ts";
 
 export default {
   name: "RegisterPage",
   components: {
-    IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonInput, IonButton, IonToast
+    IonPage,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonItem,
+    IonInput,
+    IonButton,
+    IonToast,
   },
 
   data() {
     return {
-      // related to ion-toast
-      formErrorPresent: false, // to open/close ion-toast error
-      errorMessage: "", // ion-toast error content
+      ionToastErrorMessageIsOpen: false,
+      ionToastErrorMessage: "",
     };
   },
 
@@ -81,7 +110,7 @@ export default {
     if (!UserData.hasSeenTutorial()) {
       // Show tutorial on first time
       this.$router.replace("/tutorial");
-    } else if (UserData.getToken() !== '') {
+    } else if (UserData.getToken() !== "") {
       // If user is logged in, redirect immediately
       this.$router.replace("/loading");
     } else {
@@ -95,83 +124,91 @@ export default {
     },
 
     register() {
-      const username = document.querySelector("ion-item#username-input ion-input").value;
-      const email = document.querySelector("ion-item#email-input ion-input").value;
-      const password = document.querySelector("ion-item#password-input ion-input").value;
-      const passwordConfirm = document.querySelector("ion-item#password-confirmation-input ion-input").value;
+      const username = document.querySelector(
+        "ion-item#username-input ion-input",
+      ).value;
+      const email = document.querySelector(
+        "ion-item#email-input ion-input",
+      ).value;
+      const password = document.querySelector(
+        "ion-item#password-input ion-input",
+      ).value;
+      const passwordConfirm = document.querySelector(
+        "ion-item#password-confirmation-input ion-input",
+      ).value;
 
-      // Informations obligatoires entrées?
+      // Checker si les informations obligatoires sont entrées
       if (username && password && passwordConfirm) {
-        //if (password === passwordConfirm) {
         const formData = new FormData();
         formData.append("username", username.trim());
         if (email) {
-          formData.append("email", email)
+          formData.append("email", email);
         }
         formData.append("password", passwordConfirm);
         formData.append("password_confirmation", password);
 
         fetch(Globals.apiRoutes.register, {
           method: "POST",
-          body: formData
+          body: formData,
         })
+          .then(async (response) => {
+            const parsed = await response.json();
 
-            .then(async (response) => {
-              const parsed = await response.json();
-
-              if (response.ok) {
-                if (!parsed.token) {
-                  this.showAlert("Server error");
-                }
-
-                UserData.setToken(parsed.token);
-                UserData.setUsername(username.trim());
-                this.$router.replace("/loading");
-              } else {
-                // Show appropriate error
-                this.handleError(parsed);
+            if (response.ok) {
+              if (!parsed.token) {
+                this.showAlert("Erreur de serveur");
               }
-            })
 
-            .catch(() => {
-              this.showAlert("Impossible de se connecter à internet!");
-            });
-        /*} else {
-          // Password mismatch
-          this.showAlert("Les mots de passe ne concordent pas.");
-        }*/
+              UserData.setToken(parsed.token);
+              UserData.setUsername(username.trim());
+              this.$router.replace("/loading");
+            } else {
+              // Show appropriate error
+              this.handleError(parsed);
+            }
+          })
+
+          .catch(() => {
+            this.showAlert("Impossible de se connecter à internet!");
+          });
       }
     },
 
     handleError(parsed) {
-      // Are there errors in the API response?
+      const passwordTooShortMessage =
+        "Le mot de passe doit être d'au moins 6 caractères.\n";
+      const passwordsNotMatchingMessage =
+        "Les mots de passe ne concordent pas.\n";
+      const usernameTakenMessage = "Le nom d'utilisateur est déjà pris.\n";
+      const emailTakenMessage = "Le courriel est déjà pris.\n";
       if (parsed.errors) {
-        let errorMessage = "";
-        // Is there a username error?
-        if (parsed.errors.username) errorMessage += "Le nom d'utilisateur est déjà pris.\n";
-        // Is there a password error?
+        let ionToastErrorMessage = "";
+        if (parsed.errors.username)
+          ionToastErrorMessage += usernameTakenMessage;
         if (parsed.errors.password) {
           // API response returns "The password must be at least 6 characters." and "The password confirmation does not match."
-          console.log(parsed.errors.password.length);
-          if (parsed.errors.password.length === 2) { errorMessage +=
-              "Le mot de passe doit être d'au moins 6 caractères.\n" +
-              "Les mots de passe ne concordent pas.\n";}
+          if (parsed.errors.password.length === 2) {
+            ionToastErrorMessage +=
+              passwordTooShortMessage + passwordsNotMatchingMessage;
+          }
           // API response returns only one password error
-          else if (parsed.errors.password.length === 1) { errorMessage +=
-              (parsed.errors.password[0] === "The password must be at least 6 characters.") ?
-              "Le mot de passe doit être d'au moins 6 caractères.\n" :
-              "Les mots de passe ne concordent pas.\n";}
+          else if (parsed.errors.password.length === 1) {
+            ionToastErrorMessage +=
+              parsed.errors.password[0] ===
+              "The password must be at least 6 characters."
+                ? passwordTooShortMessage
+                : passwordsNotMatchingMessage;
+          }
         }
-        // Is there an email error?
-        if (parsed.errors.email) errorMessage += "Le courriel est déjà pris.\n";
+        if (parsed.errors.email) ionToastErrorMessage += emailTakenMessage;
 
-        this.showAlert(errorMessage);
+        this.showAlert(ionToastErrorMessage);
       }
     },
 
     showAlert(alertMessage) {
-      this.formErrorPresent = true;
-      this.errorMessage = alertMessage;
+      this.ionToastErrorMessageIsOpen = true;
+      this.ionToastErrorMessage = alertMessage;
     },
 
     async checkPermissions() {
@@ -179,15 +216,16 @@ export default {
       const filePermStatus = await Filesystem.checkPermissions();
       const locationPermStatus = await Geolocation.checkPermissions();
 
-      if (cameraPermStatus.camera !== "granted" ||
-          filePermStatus.publicStorage !== "granted" ||
-          locationPermStatus.location !== "granted") {
-
-        //this.$router.replace("/permission-denied");
+      if (
+        cameraPermStatus.camera !== "granted" ||
+        filePermStatus.publicStorage !== "granted" ||
+        locationPermStatus.location !== "granted"
+      ) {
+        this.$router.replace("/permission-denied");
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -197,8 +235,9 @@ export default {
   background: white;
 }
 
-p, label {
-  font-family: 'Gotham Rounded Light', sans-serif;
+p,
+label {
+  font-family: "Gotham Rounded Light", sans-serif;
 }
 
 #welcome {
@@ -264,7 +303,7 @@ label {
 
 #register-alert-holder.show {
   color: darkred;
-  background: #E6B1B1;
+  background: #e6b1b1;
 }
 
 ion-toast::part(message) {
