@@ -77,9 +77,8 @@ export default {
 
   data() {
     return {
-      // related to ion-toast
-      ionToastErrorMessageIsOpen: false, // to open/close ion-toast error
-      ionToastErrorMessage: "", // ion-toast error content
+      ionToastErrorMessageIsOpen: false,
+      ionToastErrorMessage: "",
     };
   },
 
@@ -205,26 +204,4 @@ label {
   border-bottom: 1px solid black;
 }
 
-#login-alert-holder {
-  position: absolute;
-  text-align: center;
-  transform: translateX(-50%);
-  left: 50%;
-  top: 15%;
-
-  padding: 0.2em 0.4em;
-  border-radius: 4px;
-
-  font-weight: bolder;
-  color: white;
-  background: white;
-  font-size: 12px;
-
-  transition: all 0.3s linear;
-}
-
-#login-alert-holder.show {
-  color: darkred;
-  background: #e6b1b1;
-}
 </style>

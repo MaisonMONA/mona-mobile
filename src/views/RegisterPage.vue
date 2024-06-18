@@ -283,29 +283,6 @@ label {
   border-bottom: 1px solid black;
 }
 
-#register-alert-holder {
-  position: absolute;
-  text-align: center;
-  transform: translateX(-50%);
-  left: 50%;
-
-  margin: 5% 0 0;
-  padding: 0.2em 0.4em;
-  border-radius: 4px;
-
-  font-weight: bolder;
-  color: white;
-  background: white;
-  font-size: 12px;
-
-  transition: all 0.3s linear;
-}
-
-#register-alert-holder.show {
-  color: darkred;
-  background: #e6b1b1;
-}
-
 ion-toast::part(message) {
   white-space: pre;
 }
