@@ -2,7 +2,7 @@
   <ion-page>
     <ion-header>
       <ion-toolbar>
-        <ion-title>MONA</ion-title>
+        <ion-title id="ion-toast-anchor">MONA</ion-title>
       </ion-toolbar>
     </ion-header>
 
@@ -21,7 +21,7 @@
         <p id="welcome">Connexion</p>
         <p id="ask-for-login">Connectez-vous à votre compte.</p>
 
-        <div class="form-section" id="ion-toast-anchor">
+        <div class="form-section">
           <div class="input-element username">
             <label for="login-username">Nom d'utilisateur</label>
             <ion-item id="login-username">
@@ -32,7 +32,7 @@
           <div class="input-element password">
             <label for="login-password">Mot de passe</label>
             <ion-item id="login-password">
-              <ion-input type="password"></ion-input>
+              <ion-input type="password" @keydown.enter="login"></ion-input>
             </ion-item>
 
             <p

@@ -2,7 +2,7 @@
   <ion-page>
     <ion-header>
       <ion-toolbar>
-        <ion-title>MONA</ion-title>
+        <ion-title id="ion-toast-anchor">MONA</ion-title>
       </ion-toolbar>
     </ion-header>
 
@@ -22,7 +22,7 @@
           Bienvenue !<br />Commençons par créer un compte.
         </p>
 
-        <div class="form-section" id="ion-toast-anchor">
+        <div class="form-section">
           <div class="input-element username">
             <label for="username-input">Nom d'utilisateur</label>
             <ion-item id="username-input">
@@ -49,7 +49,7 @@
               >Vérifiez le mot de passe</label
             >
             <ion-item id="password-confirmation-input">
-              <ion-input type="password"></ion-input>
+              <ion-input type="password" @keydown.enter="register"></ion-input>
             </ion-item>
           </div>
 
@@ -286,4 +286,5 @@ label {
 ion-toast::part(message) {
   white-space: pre;
 }
+
 </style>

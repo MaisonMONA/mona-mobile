@@ -20,7 +20,7 @@
     <div class="comment">
       <p class="hint">Commentaire</p>
       <ion-item class="commentForm" counter="true">
-        <ion-input id="input" maxlength="300"></ion-input>
+        <ion-input id="input" maxlength="300" @keydown.enter="submitDiscovery()"></ion-input>
       </ion-item>
     </div>
     <ion-button fill="solid" @click="submitDiscovery()">Envoyer</ion-button>
