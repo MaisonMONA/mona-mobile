@@ -16,6 +16,7 @@
         position="top"
         position-anchor="ion-toast-anchor"
       ></ion-toast>
+
       <div class="main-content">
         <p id="welcome">Connexion</p>
         <p id="ask-for-login">Connectez-vous à votre compte.</p>
@@ -33,6 +34,19 @@
             <ion-item id="login-password">
               <ion-input type="password"></ion-input>
             </ion-item>
+
+            <p
+              style="
+                text-align: left;
+                padding-left: 7%;
+                font-size: small;
+                color: #0059ff !important;
+              "
+            >
+              <router-link to="/forgot-password" class="forgotPasswordLink">
+                Mot de passe oublié ?
+              </router-link>
+            </p>
           </div>
 
           <ion-button @click="login">Se connecter</ion-button>
@@ -151,9 +165,8 @@ export default {
 
 <style scoped>
 @import url("@/theme/TopToolbar.css");
-
-.ion-page {
-  background: white;
+.forgotPasswordLink {
+  color: #595959 !important;
 }
 
 p,
@@ -203,5 +216,4 @@ label {
   font-weight: bolder;
   border-bottom: 1px solid black;
 }
-
 </style>
