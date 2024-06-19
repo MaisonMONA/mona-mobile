@@ -7,12 +7,21 @@
     </ion-header>
 
     <ion-content :fullscreen="true">
-      <p id="login-alert-holder"></p>
+      <ion-toast
+        :is-open="ionToastErrorMessageIsOpen"
+        :message="ionToastErrorMessage"
+        :duration="9000"
+        @didDismiss="ionToastErrorMessageIsOpen = false"
+        color="danger"
+        position="top"
+        position-anchor="ion-toast-anchor"
+      ></ion-toast>
+
       <div class="main-content">
         <p id="welcome">Connexion</p>
         <p id="ask-for-login">Connectez-vous à votre compte.</p>
 
-        <div class="form-section">
+        <div class="form-section" id="ion-toast-anchor">
           <div class="input-element username">
             <label for="login-username">Nom d'utilisateur</label>
             <ion-item id="login-username">
@@ -25,6 +34,7 @@
             <ion-item id="login-password">
               <ion-input type="password"></ion-input>
             </ion-item>
+
             <p
               style="
                 text-align: left;
@@ -60,6 +70,7 @@ import {
   IonItem,
   IonInput,
   IonButton,
+  IonToast,
 } from "@ionic/vue";
 import { UserData } from "@/internal/databases/UserData";
 import Globals from "@/internal/Globals";
@@ -67,6 +78,7 @@ import Globals from "@/internal/Globals";
 export default {
   name: "LoginPage",
   components: {
+    IonToast,
     IonPage,
     IonHeader,
     IonToolbar,
@@ -75,6 +87,13 @@ export default {
     IonItem,
     IonInput,
     IonButton,
+  },
+
+  data() {
+    return {
+      ionToastErrorMessageIsOpen: false,
+      ionToastErrorMessage: "",
+    };
   },
 
   beforeMount() {
@@ -113,7 +132,7 @@ export default {
 
             if (response.ok) {
               if (!parsed.token) {
-                this.showAlert("Server error");
+                this.showAlert("Erreur de serveur");
               }
 
               UserData.setToken(parsed.token);
@@ -137,10 +156,8 @@ export default {
     },
 
     showAlert(alertMessage) {
-      const alertElem = document.getElementById("login-alert-holder");
-
-      alertElem.innerHTML = alertMessage;
-      alertElem.classList.add("show");
+      this.ionToastErrorMessageIsOpen = true;
+      this.ionToastErrorMessage = alertMessage;
     },
   },
 };
@@ -198,28 +215,5 @@ label {
 .redirect-to-register span {
   font-weight: bolder;
   border-bottom: 1px solid black;
-}
-
-#login-alert-holder {
-  position: absolute;
-  text-align: center;
-  transform: translateX(-50%);
-  left: 50%;
-  top: 15%;
-
-  padding: 0.2em 0.4em;
-  border-radius: 4px;
-
-  font-weight: bolder;
-  color: white;
-  background: white;
-  font-size: 12px;
-
-  transition: all 0.3s linear;
-}
-
-#login-alert-holder.show {
-  color: darkred;
-  background: #e6b1b1;
 }
 </style>
