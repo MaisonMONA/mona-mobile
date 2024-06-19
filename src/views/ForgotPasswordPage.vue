@@ -69,7 +69,6 @@ function resetPassword() {
       } else if (response.status === 400) {
         setToast(msg400, closeCircle, "status40X", true);
       }
-      setOpenToast(true);
     })
     .catch(() => {
       setToast(
@@ -100,6 +99,7 @@ function resetPassword() {
           fill="outline"
           placeholder="Entrer votre nom d'utilisateur"
           v-model="inputUsername.value"
+          id="ion-toast-anchor"
         ></ion-input>
         <ion-button expand="block" @click="resetPassword" class="reinitialiser"
           >Réinitialiser le mot de passe</ion-button
@@ -115,6 +115,8 @@ function resetPassword() {
         :icon="toastIcon"
         :class="toastCSS"
         @disDismiss="setOpenToast(false)"
+        position="top"
+        position-anchor="ion-toast-anchor"
       ></ion-toast>
     </ion-content>
   </ion-page>
