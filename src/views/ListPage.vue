@@ -16,6 +16,7 @@
             :debounce="500"
             @ion-clear="triggerTextFilter('')"
             @change="triggerTextFilter($event.target.value)"
+            @keydown.enter="triggerTextFilter($event.target.value)"
         ></ion-searchbar>
         <ion-button
             id="open-modal"
