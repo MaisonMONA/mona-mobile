@@ -112,6 +112,7 @@ async function showLoading() {
           placeholder="Entrer votre nom d'utilisateur"
           v-model="inputUsername.value"
           id="ion-toast-anchor"
+          @keydown.enter="resetPassword"
         ></ion-input>
         <ion-button expand="block" @click="resetPassword" class="reinitialiser"
           >Réinitialiser le mot de passe</ion-button
@@ -135,6 +136,7 @@ async function showLoading() {
 </template>
 
 <style scoped>
+@import url("@/theme/TopToolbar.css");
 ion-toast.status200 {
   --background: #327128;
   --box-shadow: 3px 3px 10px 0 rgba(0, 0, 0, 0.2);
