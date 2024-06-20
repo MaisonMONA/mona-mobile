@@ -8,6 +8,7 @@ import {
   IonInput,
   IonButton,
   IonToast,
+  loadingController,
 } from "@ionic/vue";
 import { reactive, ref } from "vue";
 import {
@@ -40,6 +41,7 @@ function setOpenToast(state) {
 
 function resetPassword() {
   setOpenToast(false);
+
   if (inputUsername.value === "") {
     setToast(
       "Veuillez entrer votre nom d'utilisateur",
@@ -53,12 +55,14 @@ function resetPassword() {
   const formData = new FormData();
   formData.append("username", inputUsername.value.trim());
 
+  showLoading();
   fetch(Globals.apiRoutes.forgotPassword, {
     method: "POST",
     body: formData,
   })
     .then(async (response) => {
       await response.json();
+      await loadingController.dismiss();
       return { response };
     })
     .then(({ response }) => {
@@ -78,6 +82,14 @@ function resetPassword() {
         true,
       );
     });
+}
+
+async function showLoading() {
+  const loading = await loadingController.create({
+    duration: 3000,
+  });
+
+  return await loading.present();
 }
 </script>
 
@@ -100,6 +112,7 @@ function resetPassword() {
           placeholder="Entrer votre nom d'utilisateur"
           v-model="inputUsername.value"
           id="ion-toast-anchor"
+          @keydown.enter="resetPassword"
         ></ion-input>
         <ion-button expand="block" @click="resetPassword" class="reinitialiser"
           >Réinitialiser le mot de passe</ion-button
@@ -123,6 +136,7 @@ function resetPassword() {
 </template>
 
 <style scoped>
+@import url("@/theme/TopToolbar.css");
 ion-toast.status200 {
   --background: #327128;
   --box-shadow: 3px 3px 10px 0 rgba(0, 0, 0, 0.2);
