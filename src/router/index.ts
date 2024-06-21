@@ -12,20 +12,16 @@ const routes: RouteRecordRaw[] = [
     component: TabsPage,
     children: [
       {
-        path: "",
-        redirect: "/tabs/discovery-of-the-day",
+        path: "", //home is map
+        redirect: "/tabs/map",
       },
       {
-        path: "discovery-of-the-day",
-        component: () => import("@/views/DiscoveryOfTheDayPage.vue"),
-      },
-      {
-        path: "list",
-        component: () => import("@/views/ListPage.vue"),
-      },
-      {
-        path: "map",
+        path: "map", // carte
         component: () => import("@/views/MapPage.vue"),
+      },
+      {
+        path: "list", // annuaire
+        component: () => import("@/views/ListPage.vue"),
       },
       {
         path: "collection",
