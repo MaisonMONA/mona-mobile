@@ -6,24 +6,27 @@
       </ion-toolbar>
     </ion-header>
 
-    <div class="rating">
-      <p class="hint">Notez l'œuvre</p>
-      <ul>
-        <li :key="st" v-for="st in 5" @click="updateRating(st)">
-          <ion-icon
-            size="large"
-            :icon="st <= givenRating ? star : starOutline"
-          ></ion-icon>
-        </li>
-      </ul>
-    </div>
-    <div class="comment">
-      <p class="hint">Commentaire</p>
-      <ion-item class="commentForm" counter="true">
-        <ion-input id="input" maxlength="300" @keydown.enter="submitDiscovery()"></ion-input>
-      </ion-item>
-    </div>
-    <ion-button fill="solid" @click="submitDiscovery()">Envoyer</ion-button>
+    <ion-content class="ion-padding">
+      <div class="">
+        <p class="">Notez l'œuvre</p>
+        <ul>
+          <li :key="st" v-for="st in 5" @click="updateRating(st)">
+            <ion-icon
+              size="large"
+              :icon="st <= givenRating ? star : starOutline"
+            ></ion-icon>
+          </li>
+        </ul>
+      </div>
+      <ion-textarea
+        label="Commentaire"
+        label-placement="floating"
+        :counter="true"
+        maxlength="300"
+        :auto-grow="true"
+      ></ion-textarea>
+      <ion-button fill="solid" @click="submitDiscovery()">Envoyer</ion-button>
+    </ion-content>
   </ion-page>
 </template>
 
@@ -37,6 +40,8 @@ import {
   IonInput,
   IonButton,
   IonItem,
+  IonTextarea,
+  IonContent,
 } from "@ionic/vue";
 import { starOutline, star, camera } from "ionicons/icons";
 import { useBadgesCollections } from "@/stores/BadgesCollections";
@@ -56,6 +61,8 @@ export default {
     IonInput,
     IonButton,
     IonItem,
+    IonTextarea,
+    IonContent,
   },
   data() {
     return {
