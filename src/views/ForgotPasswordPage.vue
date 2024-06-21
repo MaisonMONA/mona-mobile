@@ -117,7 +117,11 @@ async function showLoading() {
         <ion-button expand="block" @click="resetPassword" class="reinitialiser"
           >Réinitialiser le mot de passe</ion-button
         >
-        <ion-button expand="block" router-link="/login" class="annuler"
+        <ion-button
+          expand="block"
+          router-link="/login"
+          class="annuler"
+          @click="setOpenToast(false)"
           >Annuler</ion-button
         >
       </div>

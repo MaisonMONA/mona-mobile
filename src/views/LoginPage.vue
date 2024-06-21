@@ -36,6 +36,7 @@
             </ion-item>
 
             <p
+              @click="ionToastErrorMessageIsOpen = false"
               style="
                 text-align: left;
                 padding-left: 7%;
@@ -107,6 +108,7 @@ export default {
 
   methods: {
     goToRegister() {
+      this.ionToastErrorMessageIsOpen = false;
       this.$router.push("/register");
     },
 

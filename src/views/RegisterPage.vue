@@ -120,7 +120,8 @@ export default {
 
   methods: {
     goToLogin() {
-      router.push("/login");
+      this.ionToastErrorMessageIsOpen = false;
+      this.$router.push("/login");
     },
 
     register() {
@@ -286,5 +287,4 @@ label {
 ion-toast::part(message) {
   white-space: pre;
 }
-
 </style>
