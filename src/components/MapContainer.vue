@@ -50,6 +50,7 @@ import customLocationIcon from "@/assets/drawable/icons/location.svg";
 // This variable is here to know if the user focuses a discovery or not
 let hasFocus = false;
 
+//TODO figure out why this method is here
 function insertAllPins(destination, list) {
   for (const discovery of list) {
     const feature = new Feature({
@@ -80,6 +81,7 @@ export default {
 
     let discovery = null;
 
+    // If URL has discovery (because clicked on it from its description card), focus on it
     if (this.$route.query.type && this.$route.query.id) {
       discovery = Utils.getDiscovery(
         parseInt(this.$route.query.id),
@@ -89,6 +91,7 @@ export default {
     }
 
     return {
+      formerSelectedPinFeature: null,
       mainMap: null,
       INITAL_COORD: discovery
         ? [discovery.location.lng, discovery.location.lat]
@@ -102,6 +105,7 @@ export default {
   },
 
   created() {
+    // If discovery in the URL has changed, update the focus on the discovery
     this.$watch(
       () => this.$route.params,
       () => {
@@ -112,6 +116,7 @@ export default {
           );
           this.focusDiscovery(discovery);
         }
+        this.showPins(); // Put here to also update the focused discovery pin size
       },
     );
     this.renderMap();
@@ -128,7 +133,7 @@ export default {
         // Hiding attribution (yes it's immoral)
         controls: defaultControls({ attribution: false }),
 
-        target: "map",
+        target: "map", // html element id where map will be rendered
         view: new View({
           center: this.INITAL_COORD,
           zoom: this.DEFAULT_ZOOM_LEVEL,
@@ -173,6 +178,38 @@ export default {
       } else {
         // Show all discoveries
         insertAllPins(pinsLayer, UserData.getSortedDiscoveriesAZ());
+      }
+
+      // highlighting selected pin
+      // if there was a selected pin before, make former selected pin back to normal scale
+      if (this.formerSelectedPinFeature) {
+        this.formerSelectedPinFeature.setStyle(Utils.pinStyleFunction);
+      }
+
+      // make selected pin in URL bigger
+      if (this.$route.query.id && this.$route.query.type) {
+        const id = parseInt(this.$route.query.id);
+        const type = this.$route.query.type;
+
+        const selectedPinDiscovery = Utils.getDiscovery(id, type,);
+        const selectedFeature = pinsLayer.getSource().getClosestFeatureToCoordinate(
+            [selectedPinDiscovery.location.lng, selectedPinDiscovery.location.lat]);
+
+        let status;
+        if (UserData.isCollected(id, type)) status = "collected";
+        else if (UserData.isTargeted(id, type)) status = "targeted";
+        else status = "default";
+
+        const selectedPinStyle = new Style({
+          image: new Icon({
+            anchor: [0.5, 1],
+            src: `src/assets/drawable/pins/${type}/${status}.png`,
+            scale: 0.7, // Augment pin scale to 0.7 (original scale is 0.5 in Utils.pinStyleFunction)
+          }),
+        });
+        selectedFeature.setStyle(selectedPinStyle);
+        
+        this.formerSelectedPinFeature = selectedFeature; // assign currently selected pin as former selected pin
       }
 
       this.mainMap.addLayer(pinsLayer);
@@ -242,7 +279,9 @@ export default {
       const features = this.mainMap.getFeaturesAtPixel(event.pixel, {
         hitTolerance: 10,
       });
+      // Checks if clicked on a discovery
       if (features.length > 0) {
+        // Update focus on clicked discovery
         const dType = features[0].get("dType");
         const id = features[0].get("id");
 
@@ -253,6 +292,7 @@ export default {
         this.focusDiscovery(discovery);
         hasFocus = true;
       } else {
+        // Unfocus
         if (hasFocus) {
           this.unfocusDiscovery();
           hasFocus = false;
