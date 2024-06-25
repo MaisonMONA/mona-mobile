@@ -47,18 +47,18 @@ import { useRoute } from "vue-router";
 import { Icon, Style } from "ol/style";
 import customLocationIcon from "@/assets/drawable/icons/location.svg";
 //TODO: find out why images are not displayed
-// This variable is here to know if the user focuses a discovery or not
+// This variable is here to know if the user focuses (previous click is) on a discovery or not
 let hasFocus = false;
 
 //TODO figure out why this method is here
-function insertAllPins(destination, list) {
-  for (const discovery of list) {
+function insertAllPins(destinationLayer, discoveryList) {
+  for (const discovery of discoveryList) {
     const feature = new Feature({
       geometry: new Point([discovery.location.lng, discovery.location.lat]),
       id: discovery.id,
       dType: discovery.dType,
     });
-    destination.getSource().addFeature(feature);
+    destinationLayer.getSource().addFeature(feature);
   }
 }
 
@@ -169,7 +169,7 @@ export default {
     showPins(discoveries = []) {
       const pinsLayer = new VectorLayer({
         source: new VectorSource(),
-        style: Utils.pinStyleFunction,
+        style: Utils.pinStyleFunction, // style that features (pins) will take
       });
 
       if (discoveries.length > 0) {
@@ -180,19 +180,36 @@ export default {
         insertAllPins(pinsLayer, UserData.getSortedDiscoveriesAZ());
       }
 
-      // highlighting selected pin
-      // if there was a selected pin before, make former selected pin back to normal scale
-      if (this.formerSelectedPinFeature) {
-        this.formerSelectedPinFeature.setStyle(Utils.pinStyleFunction);
+      // if there's selected pin, highlights it
+      if (this.$route.query.type && this.$route.query.id) {
+        const discovery = Utils.getDiscovery(
+            parseInt(this.$route.query.id),
+            this.$route.query.type,
+        );
+        this.highlightSelectedDiscoveryPin(pinsLayer.getStyle(), pinsLayer, discovery);
+      // if not, if there's a formerly selected pin, returns it back to its original style
+      } else {
+        if (this.formerSelectedPinFeature) {
+          this.formerSelectedPinFeature.setStyle(pinsLayer.getStyle());
+        }
       }
 
-      // make selected pin in URL bigger
-      if (this.$route.query.id && this.$route.query.type) {
-        const id = parseInt(this.$route.query.id);
-        const type = this.$route.query.type;
 
-        const selectedPinDiscovery = Utils.getDiscovery(id, type,);
-        const selectedFeature = pinsLayer.getSource().getClosestFeatureToCoordinate(
+      this.mainMap.addLayer(pinsLayer);
+    },
+
+    // Makes selected discovery pin bigger and re-establishes former selected pin's size
+    highlightSelectedDiscoveryPin(unselectedPinStyle, destinationLayer, selectedPinDiscovery) {
+      // if there was a selected pin before, make former selected pin back to normal scale
+      if (this.formerSelectedPinFeature) {
+        this.formerSelectedPinFeature.setStyle(unselectedPinStyle);
+      }
+
+      // make selected pin bigger
+        const id = parseInt(selectedPinDiscovery.id);
+        const type = selectedPinDiscovery.dType;
+
+        const selectedFeature = destinationLayer.getSource().getClosestFeatureToCoordinate(
             [selectedPinDiscovery.location.lng, selectedPinDiscovery.location.lat]);
 
         let status;
@@ -208,16 +225,15 @@ export default {
           }),
         });
         selectedFeature.setStyle(selectedPinStyle);
-        
-        this.formerSelectedPinFeature = selectedFeature; // assign currently selected pin as former selected pin
-      }
 
-      this.mainMap.addLayer(pinsLayer);
+        this.formerSelectedPinFeature = selectedFeature; // assign currently selected pin as former selected pin
+
     },
 
     showLocation() {
       const locationLayer = new VectorLayer({
         source: new VectorSource(),
+        // Make so that each feature (only one, which is user location here) is styled with user location pin
         style: new Style({
           image: new Icon({
             anchor: [0.5, 0.5],
@@ -300,6 +316,7 @@ export default {
       }
     },
 
+    // Zoom and center on discovery and open its description popup
     focusDiscovery(discovery, map = this.mainMap) {
       if (!discovery) return;
 
@@ -356,6 +373,7 @@ export default {
       }, transitionDuration + 100);
     },
 
+    // Hide description popup
     unfocusDiscovery() {
       const details = document.getElementById("popup-content");
       const elem = document.getElementById("popup");
@@ -364,6 +382,7 @@ export default {
       elem.classList.remove("activated");
     },
 
+    // Re-center on user location
     recenterView() {
       const mapView = this.mainMap.getView();
 
