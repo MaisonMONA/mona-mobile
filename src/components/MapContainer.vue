@@ -44,8 +44,9 @@ import { easeOut } from "ol/easing";
 import { UserData } from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
 import { useRoute } from "vue-router";
-import { Icon, Style } from "ol/style";
+import {Fill, Icon, Style} from "ol/style";
 import customLocationIcon from "@/assets/drawable/icons/location.svg";
+import CircleStyle from "ol/style/Circle.js";
 //TODO: find out why images are not displayed
 // This variable is here to know if the user focuses a discovery or not
 let hasFocus = false;
@@ -181,12 +182,29 @@ export default {
     showLocation() {
       const locationLayer = new VectorLayer({
         source: new VectorSource(),
-        style: new Style({
-          image: new Icon({
-            anchor: [0.5, 0.5],
-            src: `src/assets/drawable/pins/location.png`,
+        style: [
+          // Blue transparent outer circle style
+          new Style({
+            image: new CircleStyle({
+              fill: new Fill({
+                color: "rgba(72, 157, 255, 0.202945)",
+              }),
+              // Put minimum radius as 13 for aesthetic reasons
+              // TODO Convert UserData.getAccuracy() into realistic radius in meters, check if getAccuracy() gets updated and set max radius
+              // TODO Maybe use polygon circular
+              radius: Math.max(13, UserData.getAccuracy()),
+            }),
+          }),
+          // Blue opaque inner circle style
+          new Style({
+          image: new CircleStyle({
+            fill: new Fill({
+              color: "#489DFF",
+            }),
+            radius: 7,
           }),
         }),
+        ]
       });
 
       const feature = new Feature({
@@ -198,7 +216,34 @@ export default {
 
       // Update location every 5 seconds
       setInterval(
-        () => feature.getGeometry().setCoordinates(UserData.getLocation()),
+        () => {
+          feature.getGeometry().setCoordinates(UserData.getLocation());
+          /* Same style as initial style, just putting all over again the style because style is
+          "immutable" in OpenLayers with only difference being UserData.getAccuracy() that we want
+          updated for the transparent circle radius to represent user location accuracy */
+          locationLayer.setStyle([
+            // Blue transparent outer circle style
+            new Style({
+              image: new CircleStyle({
+                fill: new Fill({
+                  color: "rgba(72, 157, 255, 0.202945)",
+                }),
+                // Put minimum radius as 13 for aesthetic reasons
+                //TODO Same TODO as previous one
+                radius: Math.max(13, UserData.getAccuracy()),
+              }),
+            }),
+            // Blue opaque inner circle style
+            new Style({
+              image: new CircleStyle({
+                fill: new Fill({
+                  color: "#489DFF",
+                }),
+                radius: 7,
+              }),
+            }),
+          ]);
+          },
         5000,
       );
     },
