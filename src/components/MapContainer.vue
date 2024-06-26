@@ -1,5 +1,6 @@
 <template>
   <div id="map" class="map">
+    <!-- <p>{{test}}</p> -->
     <div id="popup">
       <div id="popup-content" hidden>
         <div id="popup-details">
@@ -90,6 +91,7 @@ export default {
     }
 
     return {
+      //test: UserData.getAccuracy(),
       mainMap: null,
       INITAL_COORD: discovery
         ? [discovery.location.lng, discovery.location.lat]
@@ -191,8 +193,10 @@ export default {
               }),
               // Put minimum radius as 13 for aesthetic reasons
               // TODO Convert UserData.getAccuracy() into realistic radius in meters, check if getAccuracy() gets updated and set max radius
-              // TODO Maybe use polygon circular
-              radius: Math.max(13, UserData.getAccuracy()),
+              // TODO Maybe use polygon circular...
+              // TODO But if radius is in meters, it could be too big and unaesthetic and bothering to user
+              // TODO Maybe do a sort of percentage thing with UserData.getAccuracy()/10 + inner radius
+              radius: Math.min(Math.max(7, 7 + UserData.getAccuracy()/7), 30),
             }),
           }),
           // Blue opaque inner circle style
@@ -230,7 +234,7 @@ export default {
                 }),
                 // Put minimum radius as 13 for aesthetic reasons
                 //TODO Same TODO as previous one
-                radius: Math.max(13, UserData.getAccuracy()),
+                radius: Math.min(Math.max(7, 7 + UserData.getAccuracy()/7), 30),
               }),
             }),
             // Blue opaque inner circle style
