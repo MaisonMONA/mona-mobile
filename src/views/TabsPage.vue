@@ -77,7 +77,14 @@ ion-tab-bar {
 }
 
 ion-icon {
-    font-size: 40px;
+    font-size: 8vw;
+}
+
+/* TODO Temporary, to remove when continuing to work on navigation bar*/
+ion-icon:not(.inactive-tab) {
+  background-color: rgba(252, 231, 94, 0.89);
+  border-radius: 35%;
+  padding: 15%;
 }
 
 ion-icon.inactive-tab {
