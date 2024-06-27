@@ -4,9 +4,6 @@
 <!--        <ion-tabs>-->
             <ion-router-outlet></ion-router-outlet>
             <ion-tab-bar slot="bottom">
-<!--                <ion-tab-button id="discovery-of-the-day" tab="discovery-of-the-day" href="/tabs/discovery-of-the-day">
-                    <ion-icon :icon="customCalendar"/>
-                </ion-tab-button>-->
 
                 <ion-tab-button id="map" tab="map" href="/tabs/map">
                     <ion-icon :icon="customMap"/>
@@ -31,7 +28,6 @@
 <script lang="js">
 import { IonTabBar, IonTabButton, IonTabs, IonIcon, IonPage, IonRouterOutlet } from '@ionic/vue';
 import customMap from "@/assets/drawable/icons/uncolored_map.svg"
-//import customCalendar from "@/assets/drawable/icons/calendar_black.svg"
 import customList from "@/assets/drawable/icons/uncolored_list.svg"
 import customCollection from "@/assets/drawable/icons/uncolored_collection.svg"
 import customDotsMore from "@/assets/drawable/icons/uncolored_more.svg"
@@ -43,14 +39,13 @@ export default {
 
     data() {
         return {
-            customMap, customList, customCollection, customDotsMore, console //, customCalendar
+            customMap, customList, customCollection, customDotsMore, console
         }
     },
 
     methods: {
         checkRoute(event) {
             // Resetting all icons
-            // console.log(document.getElementById("discovery-of-the-day"))
             const elements = document.querySelectorAll("ion-tab-button");
             for (const elem of elements) {
                 if (elem.id.includes(event.tab))
