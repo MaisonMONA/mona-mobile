@@ -7,25 +7,32 @@
     </ion-header>
 
     <ion-content class="ion-padding">
-      <div class="">
-        <p class="">Notez l'œuvre</p>
-        <ul>
-          <li :key="st" v-for="st in 5" @click="updateRating(st)">
-            <ion-icon
-              size="large"
-              :icon="st <= givenRating ? star : starOutline"
-            ></ion-icon>
-          </li>
-        </ul>
+      <div id="discoveryReviewContent">
+        <div class="rating">
+          <p class="">Notez l'œuvre</p>
+          <ul>
+            <li :key="st" v-for="st in 5" @click="updateRating(st)">
+              <ion-icon
+                size="large"
+                :icon="st <= givenRating ? star : starOutline"
+              ></ion-icon>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <p>Commentaires :</p>
+          <ion-textarea
+            label-placement="floating"
+            :counter="true"
+            maxlength="300"
+            :auto-grow="true"
+          ></ion-textarea>
+          <ion-button fill="solid" @click="submitDiscovery()"
+            >Envoyer</ion-button
+          >
+        </div>
       </div>
-      <ion-textarea
-        label="Commentaire"
-        label-placement="floating"
-        :counter="true"
-        maxlength="300"
-        :auto-grow="true"
-      ></ion-textarea>
-      <ion-button fill="solid" @click="submitDiscovery()">Envoyer</ion-button>
     </ion-content>
   </ion-page>
 </template>
@@ -37,9 +44,7 @@ import {
   IonTitle,
   IonToolbar,
   IonIcon,
-  IonInput,
   IonButton,
-  IonItem,
   IonTextarea,
   IonContent,
 } from "@ionic/vue";
@@ -58,9 +63,7 @@ export default {
     IonToolbar,
     IonTitle,
     IonIcon,
-    IonInput,
     IonButton,
-    IonItem,
     IonTextarea,
     IonContent,
   },
@@ -105,6 +108,12 @@ export default {
 <style scoped>
 @import url("@/theme/GlobalStyle.css");
 
+#discoveryReviewContent {
+  position: relative;
+  margin-top: auto;
+  text-align: center;
+}
+
 .ion-page {
   background: white;
 }
@@ -114,10 +123,7 @@ ion-icon {
 }
 
 .rating {
-  position: absolute;
-  top: 35%;
-  width: 100%;
-  text-align: center;
+  margin-top: 20%;
 }
 
 .hint {
