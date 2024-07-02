@@ -238,8 +238,8 @@ export default {
       setInterval(
         () => {
           userPointFeature.getGeometry().setCoordinates(UserData.getLocation());
-          // TODO Update location accuracy layer -- how?
-          locationAccuracyLayer.setGeometry(circular(UserData.getLocation(), UserData.getAccuracy()));
+          // TODO Update location accuracy layer -- how? Not sure if this works:
+          locationAccuracyLayer.getSource().getFeatures()[0].setGeometry(circular(UserData.getLocation(), UserData.getAccuracy()));
           },
         5000,
       );
