@@ -1,6 +1,6 @@
 <template>
   <div id="map" class="map">
-    <!-- <p>{{test}}</p> -->
+     <p>{{test}}</p>
     <div id="popup">
       <div id="popup-content" hidden>
         <div id="popup-details">
@@ -45,9 +45,10 @@ import { easeOut } from "ol/easing";
 import { UserData } from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
 import { useRoute } from "vue-router";
-import {Fill, Icon, Style} from "ol/style";
+import {Fill, Icon, Stroke, Style} from "ol/style";
 import customLocationIcon from "@/assets/drawable/icons/location.svg";
 import CircleStyle from "ol/style/Circle.js";
+import {circular} from "ol/geom/Polygon.js";
 //TODO: find out why images are not displayed
 // This variable is here to know if the user focuses a discovery or not
 let hasFocus = false;
@@ -91,7 +92,7 @@ export default {
     }
 
     return {
-      //test: UserData.getAccuracy(),
+      test: UserData.getAccuracy(),
       mainMap: null,
       INITAL_COORD: discovery
         ? [discovery.location.lng, discovery.location.lat]
@@ -182,26 +183,43 @@ export default {
     },
 
     showLocation() {
-      const locationLayer = new VectorLayer({
+
+      //User location accuracy radius in meters (transparent blue circle)
+      const locationAccuracyLayer = new VectorLayer({
         source: new VectorSource(),
         style: [
-          // Blue transparent outer circle style
+          new Style({
+            fill: new Fill({
+              color: "rgba(72, 157, 255, 0.202945)",
+            }),
+          }),
+        ]
+      });
+      locationAccuracyLayer.getSource().addFeature(
+        new Feature({
+          geometry: circular(UserData.getLocation(), UserData.getAccuracy()),
+        }));
+      this.mainMap.addLayer(locationAccuracyLayer);
+
+      //User location icon (blue opaque circle with white outline)
+      const userLocationLayer = new VectorLayer({
+        source: new VectorSource(),
+        style: [
+          // Trying to put a slight shadow behind user location image to see it better on the map
           new Style({
             image: new CircleStyle({
               fill: new Fill({
-                color: "rgba(72, 157, 255, 0.202945)",
+                color: "rgba(72, 157, 255, 0.05)",
               }),
-              // Put minimum radius as 13 for aesthetic reasons
-              // TODO Convert UserData.getAccuracy() into realistic radius in meters, check if getAccuracy() gets updated and set max radius
-              // TODO Maybe use polygon circular...
-              // TODO But if radius is in meters, it could be too big and unaesthetic and bothering to user
-              // TODO Maybe do a sort of percentage thing with UserData.getAccuracy()/10 + inner radius
-              radius: Math.min(Math.max(7, 7 + UserData.getAccuracy()/7), 30),
+              radius: 11,
             }),
           }),
-          // Blue opaque inner circle style
           new Style({
           image: new CircleStyle({
+            stroke: new Stroke({
+              color: 'white',
+              width: 3,
+            }),
             fill: new Fill({
               color: "#489DFF",
             }),
@@ -210,43 +228,18 @@ export default {
         }),
         ]
       });
-
-      const feature = new Feature({
+      const userPointFeature = new Feature({
         geometry: new Point(UserData.getLocation()),
       });
-      locationLayer.getSource().addFeature(feature);
+      userLocationLayer.getSource().addFeature(userPointFeature);
+      this.mainMap.addLayer(userLocationLayer);
 
-      this.mainMap.addLayer(locationLayer);
-
-      // Update location every 5 seconds
+      // Update location and accuracy radius every 5 seconds
       setInterval(
         () => {
-          feature.getGeometry().setCoordinates(UserData.getLocation());
-          /* Same style as initial style, just putting all over again the style because style is
-          "immutable" in OpenLayers with only difference being UserData.getAccuracy() that we want
-          updated for the transparent circle radius to represent user location accuracy */
-          locationLayer.setStyle([
-            // Blue transparent outer circle style
-            new Style({
-              image: new CircleStyle({
-                fill: new Fill({
-                  color: "rgba(72, 157, 255, 0.202945)",
-                }),
-                // Put minimum radius as 13 for aesthetic reasons
-                //TODO Same TODO as previous one
-                radius: Math.min(Math.max(7, 7 + UserData.getAccuracy()/7), 30),
-              }),
-            }),
-            // Blue opaque inner circle style
-            new Style({
-              image: new CircleStyle({
-                fill: new Fill({
-                  color: "#489DFF",
-                }),
-                radius: 7,
-              }),
-            }),
-          ]);
+          userPointFeature.getGeometry().setCoordinates(UserData.getLocation());
+          // TODO Update location accuracy layer -- how?
+          locationAccuracyLayer.setGeometry(circular(UserData.getLocation(), UserData.getAccuracy()));
           },
         5000,
       );
