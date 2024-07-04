@@ -45,7 +45,8 @@ import { UserData } from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
 import { useRoute } from "vue-router";
 import { Icon, Style } from "ol/style";
-import customLocationIcon from "@/assets/drawable/icons/location.svg";
+import customLocationIcon from "@/assets/drawable/icons/location_icon.svg";
+import customSettingsIcon from "@/assets/drawable/icons/settings_icon.svg";
 //TODO: find out why images are not displayed
 // This variable is here to know if the user focuses a discovery or not
 let hasFocus = false;
@@ -96,7 +97,7 @@ export default {
       DEFAULT_ZOOM_LEVEL: discovery ? 17 : 14, // If the map was opened by the DOD page we want to zoom more
       TILE_LAYER: layer,
       arrowRightIcon,
-      settingsIcon: cogOutline,
+      settingsIcon: customSettingsIcon,
       locationIcon: customLocationIcon,
     };
   },
