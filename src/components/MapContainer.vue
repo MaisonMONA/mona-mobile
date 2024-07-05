@@ -50,7 +50,7 @@ import customLocationIcon from "@/assets/drawable/icons/location.svg";
 // This variable is here to know if the user focuses (previous click is) on a discovery or not
 let hasFocus = false;
 
-//TODO figure out why this method is here
+
 function insertAllPins(destinationLayer, discoveryList) {
   for (const discovery of discoveryList) {
     const feature = new Feature({
@@ -93,7 +93,7 @@ export default {
     return {
       formerSelectedPinFeature: null,
       mainMap: null,
-      INITAL_COORD: discovery
+      INITIAL_COORDS: discovery
         ? [discovery.location.lng, discovery.location.lat]
         : UserData.getLocation(),
       DEFAULT_ZOOM_LEVEL: discovery ? 17 : 14, // If the map was opened by the DOD page we want to zoom more
@@ -116,7 +116,7 @@ export default {
           );
           this.focusDiscovery(discovery);
         }
-        this.showPins(); // Put here to also update the focused discovery pin size
+        this.showPins(); // To change the big pin when focusing on a pin from the map
       },
     );
     this.renderMap();
@@ -135,7 +135,7 @@ export default {
 
         target: "map", // html element id where map will be rendered
         view: new View({
-          center: this.INITAL_COORD,
+          center: this.INITIAL_COORDS,
           zoom: this.DEFAULT_ZOOM_LEVEL,
 
           // Disable rotation on map
@@ -149,11 +149,13 @@ export default {
       this.mainMap.on("movestart", this.unfocusDiscovery);
 
       this.showPins();
-      this.showLocation();
+      this.showUserLocation();
     },
 
     renderMap() {
-      this.myMap();
+      //TODO I don't think calling myMap() here is necessary as renderMap() is called in created lifecycle
+      //TODO when the DOM elements, which are called in myMap() with 'target: map', aren't accessible yet.
+      //this.myMap();
       const route = useRoute();
       const dType = route.params.dType;
       const id = route.params.id;
@@ -194,7 +196,6 @@ export default {
         }
       }
 
-
       this.mainMap.addLayer(pinsLayer);
     },
 
@@ -205,23 +206,16 @@ export default {
         this.formerSelectedPinFeature.setStyle(unselectedPinStyle);
       }
 
-      // make selected pin bigger
-        const id = parseInt(selectedPinDiscovery.id);
-        const type = selectedPinDiscovery.dType;
-
+      // Setting new style for selected pin
+        // Get feature on the map that corresponds to selected pin
         const selectedFeature = destinationLayer.getSource().getClosestFeatureToCoordinate(
             [selectedPinDiscovery.location.lng, selectedPinDiscovery.location.lat]);
-
-        let status;
-        if (UserData.isCollected(id, type)) status = "collected";
-        else if (UserData.isTargeted(id, type)) status = "targeted";
-        else status = "default";
 
         const selectedPinStyle = new Style({
           image: new Icon({
             anchor: [0.5, 1],
-            src: `src/assets/drawable/pins/${type}/${status}.png`,
-            scale: 0.7, // Augment pin scale to 0.7 (original scale is 0.5 in Utils.pinStyleFunction)
+            src: `src/assets/drawable/pins/selected_pin.svg`,
+            scale: 0.83, // Augment selected pin size
           }),
         });
         selectedFeature.setStyle(selectedPinStyle);
@@ -230,7 +224,7 @@ export default {
 
     },
 
-    showLocation() {
+    showUserLocation() {
       const locationLayer = new VectorLayer({
         source: new VectorSource(),
         // Make so that each feature (only one, which is user location here) is styled with user location pin
@@ -257,12 +251,13 @@ export default {
     },
 
     changeTileLayer() {
-      // Removing the previously drawn
+      // Removing layers
       const prevLayers = this.mainMap.getLayers();
       while (prevLayers.getLength() > 0) {
         this.mainMap.removeLayer(prevLayers.pop());
       }
 
+      // Switch to Stamen toner-lite map layer
       if (UserData.getMapStyle() === "osm") {
         const stamenLayer = new layerGroup({
           layers: [
@@ -274,6 +269,8 @@ export default {
 
         this.mainMap.setLayerGroup(stamenLayer);
         UserData.setMapStyle("stamen");
+
+      // Switch to OSM map layer
       } /* if (UserData.getMapStyle() === "stamen") */ else {
         const osmLayer = new layerGroup({
           layers: [
@@ -287,28 +284,33 @@ export default {
         UserData.setMapStyle("osm");
       }
 
+      // Put back pins and user location layers
       this.showPins();
-      this.showLocation();
+      this.showUserLocation();
     },
 
     handleMapClick(event) {
+      // Get features(discoveries on the map) close to click
       const features = this.mainMap.getFeaturesAtPixel(event.pixel, {
         hitTolerance: 10,
       });
-      // Checks if clicked on a discovery
+
+      // Check if clicked close to features
       if (features.length > 0) {
-        // Update focus on clicked discovery
+        // Update focus on feature closest to click
         const dType = features[0].get("dType");
         const id = features[0].get("id");
 
         const discovery = Utils.getDiscovery(id, dType);
 
+        // Close current pop-up if present and re-open pop-up for clicked feature
         if (hasFocus) this.unfocusDiscovery();
 
         this.focusDiscovery(discovery);
         hasFocus = true;
+
       } else {
-        // Unfocus
+        // Close pop-up
         if (hasFocus) {
           this.unfocusDiscovery();
           hasFocus = false;
