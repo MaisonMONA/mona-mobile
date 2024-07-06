@@ -14,12 +14,32 @@
     --border-radius: 50%;
     width: 14vw;
     height: 14vw;
-    font-size: 10px;
+    font-size: 0; /* To hide text */
+}
 
+/* isUserLocationInViewport = true */
+#recenter-button.userLocationInViewport {
+    --border-color: #4D58CB;
+    --border-width: 3px;
+}
+
+/* isUserLocationOutsideViewport = true */
+#recenter-button.userLocationOutsideViewport {
+    --background: #D9D9D9;
+    width: 60vw;
+    height: 12vw;
+    --border-radius: 90px;
+    font-size: 4vw;
+    letter-spacing: 0.02vw;
+    font-weight: 500;
+}
+#recenter-button.userLocationOutsideViewport ion-icon {
+    font-size: 5vw;
+    margin-right: 3vw;
 }
 
 .map-button ion-icon {
-    font-size: 3vw;
+    font-size: 3.5vw;
 }
 
 #recenter-button {
