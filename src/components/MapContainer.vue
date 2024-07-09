@@ -17,15 +17,24 @@
     <ion-icon :icon="settingsIcon"></ion-icon>
   </ion-button>
 
-  <ion-button @click="recenterView" id="recenter-button" class="map-button">
-    <ion-icon :icon="locationIcon"></ion-icon>
+  <ion-button
+    @click="recenterView"
+    id="recenter-button"
+    :class="{
+      'map-button': true,
+      userLocationInViewport: isUserLocationInViewport,
+      userLocationOutsideViewport: isUserLocationOutsideViewport,
+    }"
+    :fill="isUserLocationInViewport ? 'outline' : 'solid'"
+  >
+    <ion-icon :icon="locationIcon"></ion-icon>Recentrer la carte
   </ion-button>
 </template>
 
 <script>
 import "ol/ol.css";
 
-import { arrowForward as arrowRightIcon, cogOutline } from "ionicons/icons";
+import { arrowForward as arrowRightIcon } from "ionicons/icons";
 import { IonButton, IonIcon } from "@ionic/vue";
 
 import Map from "ol/Map";
@@ -45,7 +54,9 @@ import { UserData } from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
 import { useRoute } from "vue-router";
 import { Icon, Style } from "ol/style";
-import customLocationIcon from "/assets/drawable/icons/location.svg";
+import customLocationIcon from "/assets/drawable/icons/location_icon.svg";
+import customSettingsIcon from "/assets/drawable/icons/settings_icon.svg";
+import { containsCoordinate } from "ol/extent.js";
 
 // This variable is here to know if the user focuses a discovery or not
 let hasFocus = false;
@@ -89,6 +100,8 @@ export default {
     }
 
     return {
+      isUserLocationInViewport: false,
+      isUserLocationOutsideViewport: false,
       mainMap: null,
       INITAL_COORD: discovery
         ? [discovery.location.lng, discovery.location.lat]
@@ -96,7 +109,7 @@ export default {
       DEFAULT_ZOOM_LEVEL: discovery ? 17 : 14, // If the map was opened by the DOD page we want to zoom more
       TILE_LAYER: layer,
       arrowRightIcon,
-      settingsIcon: cogOutline,
+      settingsIcon: customSettingsIcon,
       locationIcon: customLocationIcon,
     };
   },
@@ -142,9 +155,42 @@ export default {
 
       this.mainMap.on("singleclick", this.handleMapClick);
       this.mainMap.on("movestart", this.unfocusDiscovery);
+      this.mainMap.on("moveend", this.setCenterButtonAppearance);
 
       this.showPins();
       this.showLocation();
+    },
+
+    setCenterButtonAppearance() {
+      // Reducing decimals to make '===' possible because UserData.getLocation and this.mainMap.getView.getCenter return different numbers of decimals
+      const userLocationX = UserData.getLocation()[0].toFixed(7);
+      const userLocationY = UserData.getLocation()[1].toFixed(7);
+      const viewCenterX = this.mainMap.getView().getCenter()[0].toFixed(7);
+      const viewCenterY = this.mainMap.getView().getCenter()[1].toFixed(7);
+
+      // (Extent of viewport on map represented by [smallest viewport x, smallest viewport y, biggest viewport x, biggest viewport y])
+      const viewportExtent = this.mainMap
+        .getView()
+        .calculateExtent(this.mainMap.getSize());
+
+      // userLocationOutsideViewport button
+      // User location out of viewport
+      if (!containsCoordinate(viewportExtent, UserData.getLocation())) {
+        this.isUserLocationInViewport = false;
+        this.isUserLocationOutsideViewport = true;
+      }
+      //Default button
+      // View centered (view center = user location coordinates)
+      else if (userLocationX === viewCenterX && userLocationY === viewCenterY) {
+        this.isUserLocationInViewport = false;
+        this.isUserLocationOutsideViewport = false;
+      }
+      //userLocationInViewport button
+      // Not centered, but in viewport (view center != user coordinates && user location coordinates in viewport)
+      else {
+        this.isUserLocationInViewport = true;
+        this.isUserLocationOutsideViewport = false;
+      }
     },
 
     renderMap() {
