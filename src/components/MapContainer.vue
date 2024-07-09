@@ -45,8 +45,8 @@ import { UserData } from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
 import { useRoute } from "vue-router";
 import { Icon, Style } from "ol/style";
-import customLocationIcon from "@/assets/drawable/icons/location.svg";
-//TODO: find out why images are not displayed
+import customLocationIcon from "/assets/drawable/icons/location.svg";
+
 // This variable is here to know if the user focuses a discovery or not
 let hasFocus = false;
 
@@ -184,7 +184,7 @@ export default {
         style: new Style({
           image: new Icon({
             anchor: [0.5, 0.5],
-            src: `src/assets/drawable/pins/location.png`,
+            src: `./assets/drawable/pins/location.png`,
           }),
         }),
       });
