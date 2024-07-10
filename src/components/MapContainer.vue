@@ -53,22 +53,24 @@ import { easeOut } from "ol/easing";
 import { UserData } from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
 import { useRoute } from "vue-router";
-import { Icon, Style } from "ol/style";
+import { Fill, Icon, Stroke, Style } from "ol/style";
+import CircleStyle from "ol/style/Circle.js";
+import { circular } from "ol/geom/Polygon.js";
 import customLocationIcon from "/assets/drawable/icons/location_icon.svg";
 import customSettingsIcon from "/assets/drawable/icons/settings_icon.svg";
 import { containsCoordinate } from "ol/extent.js";
 
-// This variable is here to know if the user focuses a discovery or not
+// This variable is here to know if the user focuses (previous click is) on a discovery or not
 let hasFocus = false;
 
-function insertAllPins(destination, list) {
-  for (const discovery of list) {
+function insertAllPins(destinationLayer, discoveryList) {
+  for (const discovery of discoveryList) {
     const feature = new Feature({
       geometry: new Point([discovery.location.lng, discovery.location.lat]),
       id: discovery.id,
       dType: discovery.dType,
     });
-    destination.getSource().addFeature(feature);
+    destinationLayer.getSource().addFeature(feature);
   }
 }
 
@@ -91,6 +93,7 @@ export default {
 
     let discovery = null;
 
+    // If URL has discovery (because clicked on it from its description card), focus on it
     if (this.$route.query.type && this.$route.query.id) {
       discovery = Utils.getDiscovery(
         parseInt(this.$route.query.id),
@@ -100,10 +103,11 @@ export default {
     }
 
     return {
+      formerSelectedPinFeature: null,
       isUserLocationInViewport: false,
       isUserLocationOutsideViewport: false,
       mainMap: null,
-      INITAL_COORD: discovery
+      INITIAL_COORDS: discovery
         ? [discovery.location.lng, discovery.location.lat]
         : UserData.getLocation(),
       DEFAULT_ZOOM_LEVEL: discovery ? 17 : 14, // If the map was opened by the DOD page we want to zoom more
@@ -115,6 +119,7 @@ export default {
   },
 
   created() {
+    // If discovery in the URL has changed, update the focus on the discovery
     this.$watch(
       () => this.$route.params,
       () => {
@@ -125,6 +130,7 @@ export default {
           );
           this.focusDiscovery(discovery);
         }
+        this.showPins(); // To change the big pin when focusing on a pin from the map
       },
     );
     this.renderMap();
@@ -141,9 +147,9 @@ export default {
         // Hiding attribution (yes it's immoral)
         controls: defaultControls({ attribution: false }),
 
-        target: "map",
+        target: "map", // html element id where map will be rendered
         view: new View({
-          center: this.INITAL_COORD,
+          center: this.INITIAL_COORDS,
           zoom: this.DEFAULT_ZOOM_LEVEL,
 
           // Disable rotation on map
@@ -194,7 +200,9 @@ export default {
     },
 
     renderMap() {
-      this.myMap();
+      //TODO I don't think calling myMap() here is necessary as renderMap() is called in created lifecycle
+      //TODO when the DOM elements, which are called in myMap() with 'target: map', aren't accessible yet.
+      //this.myMap();
       const route = useRoute();
       const dType = route.params.dType;
       const id = route.params.id;
@@ -210,7 +218,7 @@ export default {
     showPins(discoveries = []) {
       const pinsLayer = new VectorLayer({
         source: new VectorSource(),
-        style: Utils.pinStyleFunction,
+        style: Utils.pinStyleFunction, // style that features (pins) will take
       });
 
       if (discoveries.length > 0) {
@@ -221,41 +229,132 @@ export default {
         insertAllPins(pinsLayer, UserData.getSortedDiscoveriesAZ());
       }
 
+      // if there's selected pin, highlights it
+      if (this.$route.query.type && this.$route.query.id) {
+        const discovery = Utils.getDiscovery(
+          parseInt(this.$route.query.id),
+          this.$route.query.type,
+        );
+        this.highlightSelectedDiscoveryPin(
+          pinsLayer.getStyle(),
+          pinsLayer,
+          discovery,
+        );
+        // if not, if there's a formerly selected pin, returns it back to its original style
+      } else {
+        if (this.formerSelectedPinFeature) {
+          this.formerSelectedPinFeature.setStyle(pinsLayer.getStyle());
+        }
+      }
+
       this.mainMap.addLayer(pinsLayer);
     },
 
-    showLocation() {
-      const locationLayer = new VectorLayer({
-        source: new VectorSource(),
-        style: new Style({
-          image: new Icon({
-            anchor: [0.5, 0.5],
-            src: `./assets/drawable/pins/location.png`,
-          }),
+    // Makes selected discovery pin bigger and re-establishes former selected pin's size
+    highlightSelectedDiscoveryPin(
+      unselectedPinStyle,
+      destinationLayer,
+      selectedPinDiscovery,
+    ) {
+      // if there was a selected pin before, make former selected pin back to normal scale
+      if (this.formerSelectedPinFeature) {
+        this.formerSelectedPinFeature.setStyle(unselectedPinStyle);
+      }
+
+      // Setting new style for selected pin
+      // Get feature on the map that corresponds to selected pin
+      const selectedFeature = destinationLayer
+        .getSource()
+        .getClosestFeatureToCoordinate([
+          selectedPinDiscovery.location.lng,
+          selectedPinDiscovery.location.lat,
+        ]);
+
+      const selectedPinStyle = new Style({
+        image: new Icon({
+          anchor: [0.5, 1],
+          src: `./assets/drawable/pins/selected_pin.svg`,
+          scale: 0.83, // Augment selected pin size
         }),
       });
+      selectedFeature.setStyle(selectedPinStyle);
 
-      const feature = new Feature({
+      this.formerSelectedPinFeature = selectedFeature; // assign currently selected pin as former selected pin
+    },
+
+    showLocation() {
+      //User location accuracy radius in meters (transparent blue circle)
+      const locationAccuracyLayer = new VectorLayer({
+        source: new VectorSource(),
+        style: [
+          new Style({
+            fill: new Fill({
+              color: "rgba(72, 157, 255, 0.202945)",
+            }),
+          }),
+        ],
+      });
+      locationAccuracyLayer.getSource().addFeature(
+        new Feature({
+          geometry: circular(UserData.getLocation(), UserData.getAccuracy()),
+        }),
+      );
+      this.mainMap.addLayer(locationAccuracyLayer);
+
+      //User location icon (blue opaque circle with white outline)
+      const userLocationLayer = new VectorLayer({
+        source: new VectorSource(),
+        style: [
+          // Trying to put a slight shadow behind user location image to see it better on the map
+          new Style({
+            image: new CircleStyle({
+              fill: new Fill({
+                color: "rgba(72, 157, 255, 0.05)",
+              }),
+              radius: 11,
+            }),
+          }),
+          new Style({
+            image: new CircleStyle({
+              stroke: new Stroke({
+                color: "white",
+                width: 3,
+              }),
+              fill: new Fill({
+                color: "#489DFF",
+              }),
+              radius: 7,
+            }),
+          }),
+        ],
+      });
+      const userPointFeature = new Feature({
         geometry: new Point(UserData.getLocation()),
       });
-      locationLayer.getSource().addFeature(feature);
+      userLocationLayer.getSource().addFeature(userPointFeature);
+      this.mainMap.addLayer(userLocationLayer);
 
-      this.mainMap.addLayer(locationLayer);
-
-      // Update location every 5 seconds
-      setInterval(
-        () => feature.getGeometry().setCoordinates(UserData.getLocation()),
-        5000,
-      );
+      // Update location and accuracy radius every 5 seconds
+      setInterval(() => {
+        userPointFeature.getGeometry().setCoordinates(UserData.getLocation());
+        // TODO Update location accuracy layer -- how? Not sure if this works:
+        locationAccuracyLayer
+          .getSource()
+          .getFeatures()[0]
+          .setGeometry(
+            circular(UserData.getLocation(), UserData.getAccuracy()),
+          );
+      }, 5000);
     },
 
     changeTileLayer() {
-      // Removing the previously drawn
+      // Removing layers
       const prevLayers = this.mainMap.getLayers();
       while (prevLayers.getLength() > 0) {
         this.mainMap.removeLayer(prevLayers.pop());
       }
 
+      // Switch to Stamen toner-lite map layer
       if (UserData.getMapStyle() === "osm") {
         const stamenLayer = new layerGroup({
           layers: [
@@ -267,6 +366,8 @@ export default {
 
         this.mainMap.setLayerGroup(stamenLayer);
         UserData.setMapStyle("stamen");
+
+        // Switch to OSM map layer
       } /* if (UserData.getMapStyle() === "stamen") */ else {
         const osmLayer = new layerGroup({
           layers: [
@@ -280,25 +381,32 @@ export default {
         UserData.setMapStyle("osm");
       }
 
+      // Put back pins and user location layers
       this.showPins();
-      this.showLocation();
+      this.showUserLocation();
     },
 
     handleMapClick(event) {
+      // Get features(discoveries on the map) close to click
       const features = this.mainMap.getFeaturesAtPixel(event.pixel, {
         hitTolerance: 10,
       });
+
+      // Check if clicked close to features
       if (features.length > 0) {
+        // Update focus on feature closest to click
         const dType = features[0].get("dType");
         const id = features[0].get("id");
 
         const discovery = Utils.getDiscovery(id, dType);
 
+        // Close current pop-up if present and re-open pop-up for clicked feature
         if (hasFocus) this.unfocusDiscovery();
 
         this.focusDiscovery(discovery);
         hasFocus = true;
       } else {
+        // Close pop-up
         if (hasFocus) {
           this.unfocusDiscovery();
           hasFocus = false;
@@ -306,6 +414,7 @@ export default {
       }
     },
 
+    // Zoom and center on discovery and open its description popup
     focusDiscovery(discovery, map = this.mainMap) {
       if (!discovery) return;
 
@@ -362,6 +471,7 @@ export default {
       }, transitionDuration + 100);
     },
 
+    // Hide description popup
     unfocusDiscovery() {
       const details = document.getElementById("popup-content");
       const elem = document.getElementById("popup");
@@ -370,6 +480,7 @@ export default {
       elem.classList.remove("activated");
     },
 
+    // Re-center on user location
     recenterView() {
       const mapView = this.mainMap.getView();
 
