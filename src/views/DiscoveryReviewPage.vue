@@ -20,21 +20,17 @@
           </ul>
         </div>
 
-        <div class="commentForm">
-          <div class="comment">
-            <p>Commentaires :</p>
-            <ion-textarea
-              label-placement="floating"
-              :counter="true"
-              maxlength="300"
-              :auto-grow="true"
-            ></ion-textarea>
-          </div>
-
-          <ion-button fill="solid" @click="submitDiscovery()"
-            >Envoyer</ion-button
-          >
+        <div class="comment">
+          <p>Commentaires :</p>
+          <ion-textarea
+            label-placement="floating"
+            :counter="true"
+            maxlength="300"
+            :auto-grow="true"
+          ></ion-textarea>
         </div>
+
+        <ion-button fill="solid" @click="submitDiscovery()">Envoyer</ion-button>
       </div>
     </ion-content>
   </ion-page>
@@ -110,6 +106,7 @@ export default {
 
 <style scoped>
 @import url("@/theme/GlobalStyle.css");
+@import url("@/theme/TopToolbar.css");
 
 #discoveryReviewContent {
   position: relative;
@@ -122,7 +119,7 @@ ion-icon {
 }
 
 .rating {
-  margin-top: 20%;
+  margin-top: 40%;
 }
 
 ul {
@@ -133,24 +130,11 @@ li {
   display: inline-block;
 }
 
-.commentForm {
-  position: absolute;
-  top: 50%;
-  width: 70%;
-  left: 15%;
-  text-align: center;
-  margin-top: 15%;
-}
-
 .comment {
-  text-align: center;
-  margin-top: 50%;
+  margin: 20% 10% 20% 10%;
 }
 
 ion-button {
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 35%;
   --background: var(--mona-yellow);
 }
 </style>
