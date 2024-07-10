@@ -12,23 +12,20 @@ export class CollectedBadge {
   private static boroughCollection = [] as any;
   private static categoryCollection = [] as any;
   private static ownerCollection = [] as any;
-  private static countPathLocked = "src/assets/drawable/badges/count/locked/";
-  private static countPathUnlocked =
-    "src/assets/drawable/badges/count/unlocked/";
+  private static countPathLocked = "/assets/drawable/badges/count/locked/";
+  private static countPathUnlocked = "/assets/drawable/badges/count/unlocked/";
 
   private static boroughPathUnlocked =
-    "src/assets/drawable/badges/borough/unlocked/";
-  private static boroughPathLocked =
-    "src/assets/drawable/badges/borough/locked/";
+    "/assets/drawable/badges/borough/unlocked/";
+  private static boroughPathLocked = "/assets/drawable/badges/borough/locked/";
 
-  private static ownerPathUnlocked =
-    "src/assets/drawable/badges/owner/unlocked/";
-  private static ownerPathLocked = "src/assets/drawable/badges/owner/locked/";
+  private static ownerPathUnlocked = "/assets/drawable/badges/owner/unlocked/";
+  private static ownerPathLocked = "/assets/drawable/badges/owner/locked/";
 
   private static categoryPathUnlocked =
-    "src/assets/drawable/badges/category/unlocked/";
+    "/assets/drawable/badges/category/unlocked/";
   private static categoryPathLocked =
-    "src/assets/drawable/badges/category/locked/";
+    "/assets/drawable/badges/category/locked/";
 
   public static collecteBadges() {
     const tmpBoroughContainer = new Map<string, number>();

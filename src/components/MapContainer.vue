@@ -17,22 +17,31 @@
     <ion-icon :icon="settingsIcon"></ion-icon>
   </ion-button>
 
-  <ion-button @click="recenterView" id="recenter-button" :class="{ 'map-button': true, userLocationInViewport: isUserLocationInViewport, userLocationOutsideViewport: isUserLocationOutsideViewport }" :fill="isUserLocationInViewport ? 'outline' : 'solid'">
-  <ion-icon :icon="locationIcon"></ion-icon>Recentrer la carte
+  <ion-button
+    @click="recenterView"
+    id="recenter-button"
+    :class="{
+      'map-button': true,
+      userLocationInViewport: isUserLocationInViewport,
+      userLocationOutsideViewport: isUserLocationOutsideViewport,
+    }"
+    :fill="isUserLocationInViewport ? 'outline' : 'solid'"
+  >
+    <ion-icon :icon="locationIcon"></ion-icon>Recentrer la carte
   </ion-button>
 </template>
 
 <script>
 import "ol/ol.css";
 
-import { arrowForward as arrowRightIcon} from "ionicons/icons";
+import { arrowForward as arrowRightIcon } from "ionicons/icons";
 import { IonButton, IonIcon } from "@ionic/vue";
 
 import Map from "ol/Map";
 import View from "ol/View";
 import TileLayer from "ol/layer/Tile";
 import { Group as layerGroup } from "ol/layer";
-import {useGeographic} from "ol/proj";
+import { useGeographic } from "ol/proj";
 import Point from "ol/geom/Point";
 import Feature from "ol/Feature";
 import { OSM, Stamen } from "ol/source";
@@ -44,17 +53,15 @@ import { easeOut } from "ol/easing";
 import { UserData } from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
 import { useRoute } from "vue-router";
-import {Fill, Icon, Stroke, Style} from "ol/style";
+import { Fill, Icon, Stroke, Style } from "ol/style";
 import CircleStyle from "ol/style/Circle.js";
-import {circular} from "ol/geom/Polygon.js";
-import customLocationIcon from "@/assets/drawable/icons/location_icon.svg";
-import customSettingsIcon from "@/assets/drawable/icons/settings_icon.svg";
-import {containsCoordinate} from "ol/extent.js";
+import { circular } from "ol/geom/Polygon.js";
+import customLocationIcon from "/assets/drawable/icons/location_icon.svg";
+import customSettingsIcon from "/assets/drawable/icons/settings_icon.svg";
+import { containsCoordinate } from "ol/extent.js";
 
-//TODO: find out why images are not displayed
 // This variable is here to know if the user focuses (previous click is) on a discovery or not
 let hasFocus = false;
-
 
 function insertAllPins(destinationLayer, discoveryList) {
   for (const discovery of discoveryList) {
@@ -168,26 +175,28 @@ export default {
       const viewCenterY = this.mainMap.getView().getCenter()[1].toFixed(7);
 
       // (Extent of viewport on map represented by [smallest viewport x, smallest viewport y, biggest viewport x, biggest viewport y])
-      const viewportExtent = this.mainMap.getView().calculateExtent(this.mainMap.getSize());
+      const viewportExtent = this.mainMap
+        .getView()
+        .calculateExtent(this.mainMap.getSize());
 
       // userLocationOutsideViewport button
-        // User location out of viewport
-        if (!containsCoordinate(viewportExtent, UserData.getLocation())) {
-          this.isUserLocationInViewport = false;
-          this.isUserLocationOutsideViewport = true;
-        }
+      // User location out of viewport
+      if (!containsCoordinate(viewportExtent, UserData.getLocation())) {
+        this.isUserLocationInViewport = false;
+        this.isUserLocationOutsideViewport = true;
+      }
       //Default button
-        // View centered (view center = user location coordinates)
-        else if (userLocationX === viewCenterX && userLocationY === viewCenterY) {
-          this.isUserLocationInViewport = false;
-          this.isUserLocationOutsideViewport = false;
-        }
+      // View centered (view center = user location coordinates)
+      else if (userLocationX === viewCenterX && userLocationY === viewCenterY) {
+        this.isUserLocationInViewport = false;
+        this.isUserLocationOutsideViewport = false;
+      }
       //userLocationInViewport button
-        // Not centered, but in viewport (view center != user coordinates && user location coordinates in viewport)
-        else {
-          this.isUserLocationInViewport = true;
-          this.isUserLocationOutsideViewport = false;
-        }
+      // Not centered, but in viewport (view center != user coordinates && user location coordinates in viewport)
+      else {
+        this.isUserLocationInViewport = true;
+        this.isUserLocationOutsideViewport = false;
+      }
     },
 
     renderMap() {
@@ -223,11 +232,15 @@ export default {
       // if there's selected pin, highlights it
       if (this.$route.query.type && this.$route.query.id) {
         const discovery = Utils.getDiscovery(
-            parseInt(this.$route.query.id),
-            this.$route.query.type,
+          parseInt(this.$route.query.id),
+          this.$route.query.type,
         );
-        this.highlightSelectedDiscoveryPin(pinsLayer.getStyle(), pinsLayer, discovery);
-      // if not, if there's a formerly selected pin, returns it back to its original style
+        this.highlightSelectedDiscoveryPin(
+          pinsLayer.getStyle(),
+          pinsLayer,
+          discovery,
+        );
+        // if not, if there's a formerly selected pin, returns it back to its original style
       } else {
         if (this.formerSelectedPinFeature) {
           this.formerSelectedPinFeature.setStyle(pinsLayer.getStyle());
@@ -238,7 +251,11 @@ export default {
     },
 
     // Makes selected discovery pin bigger and re-establishes former selected pin's size
-    highlightSelectedDiscoveryPin(unselectedPinStyle, destinationLayer, selectedPinDiscovery) {
+    highlightSelectedDiscoveryPin(
+      unselectedPinStyle,
+      destinationLayer,
+      selectedPinDiscovery,
+    ) {
       // if there was a selected pin before, make former selected pin back to normal scale
       if (this.formerSelectedPinFeature) {
         this.formerSelectedPinFeature.setStyle(unselectedPinStyle);
@@ -246,20 +263,23 @@ export default {
 
       // Setting new style for selected pin
       // Get feature on the map that corresponds to selected pin
-      const selectedFeature = destinationLayer.getSource().getClosestFeatureToCoordinate(
-          [selectedPinDiscovery.location.lng, selectedPinDiscovery.location.lat]);
+      const selectedFeature = destinationLayer
+        .getSource()
+        .getClosestFeatureToCoordinate([
+          selectedPinDiscovery.location.lng,
+          selectedPinDiscovery.location.lat,
+        ]);
 
       const selectedPinStyle = new Style({
         image: new Icon({
           anchor: [0.5, 1],
-          src: `src/assets/drawable/pins/selected_pin.svg`,
+          src: `./assets/drawable/pins/selected_pin.svg`,
           scale: 0.83, // Augment selected pin size
         }),
       });
       selectedFeature.setStyle(selectedPinStyle);
 
       this.formerSelectedPinFeature = selectedFeature; // assign currently selected pin as former selected pin
-
     },
 
     showLocation() {
@@ -272,12 +292,13 @@ export default {
               color: "rgba(72, 157, 255, 0.202945)",
             }),
           }),
-        ]
+        ],
       });
       locationAccuracyLayer.getSource().addFeature(
         new Feature({
           geometry: circular(UserData.getLocation(), UserData.getAccuracy()),
-        }));
+        }),
+      );
       this.mainMap.addLayer(locationAccuracyLayer);
 
       //User location icon (blue opaque circle with white outline)
@@ -294,18 +315,18 @@ export default {
             }),
           }),
           new Style({
-          image: new CircleStyle({
-            stroke: new Stroke({
-              color: 'white',
-              width: 3,
+            image: new CircleStyle({
+              stroke: new Stroke({
+                color: "white",
+                width: 3,
+              }),
+              fill: new Fill({
+                color: "#489DFF",
+              }),
+              radius: 7,
             }),
-            fill: new Fill({
-              color: "#489DFF",
-            }),
-            radius: 7,
           }),
-        }),
-        ]
+        ],
       });
       const userPointFeature = new Feature({
         geometry: new Point(UserData.getLocation()),
@@ -314,14 +335,16 @@ export default {
       this.mainMap.addLayer(userLocationLayer);
 
       // Update location and accuracy radius every 5 seconds
-      setInterval(
-        () => {
-          userPointFeature.getGeometry().setCoordinates(UserData.getLocation());
-          // TODO Update location accuracy layer -- how? Not sure if this works:
-          locationAccuracyLayer.getSource().getFeatures()[0].setGeometry(circular(UserData.getLocation(), UserData.getAccuracy()));
-          },
-        5000,
-      );
+      setInterval(() => {
+        userPointFeature.getGeometry().setCoordinates(UserData.getLocation());
+        // TODO Update location accuracy layer -- how? Not sure if this works:
+        locationAccuracyLayer
+          .getSource()
+          .getFeatures()[0]
+          .setGeometry(
+            circular(UserData.getLocation(), UserData.getAccuracy()),
+          );
+      }, 5000);
     },
 
     changeTileLayer() {
@@ -344,7 +367,7 @@ export default {
         this.mainMap.setLayerGroup(stamenLayer);
         UserData.setMapStyle("stamen");
 
-      // Switch to OSM map layer
+        // Switch to OSM map layer
       } /* if (UserData.getMapStyle() === "stamen") */ else {
         const osmLayer = new layerGroup({
           layers: [
@@ -382,7 +405,6 @@ export default {
 
         this.focusDiscovery(discovery);
         hasFocus = true;
-
       } else {
         // Close pop-up
         if (hasFocus) {
