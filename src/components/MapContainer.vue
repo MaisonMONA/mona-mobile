@@ -44,10 +44,13 @@ import { easeOut } from "ol/easing";
 import { UserData } from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
 import { useRoute } from "vue-router";
-import { Icon, Style } from "ol/style";
+import {Fill, Icon, Stroke, Style} from "ol/style";
+import CircleStyle from "ol/style/Circle.js";
+import {circular} from "ol/geom/Polygon.js";
 import customLocationIcon from "@/assets/drawable/icons/location_icon.svg";
 import customSettingsIcon from "@/assets/drawable/icons/settings_icon.svg";
 import {containsCoordinate} from "ol/extent.js";
+
 //TODO: find out why images are not displayed
 // This variable is here to know if the user focuses (previous click is) on a discovery or not
 let hasFocus = false;
@@ -154,7 +157,7 @@ export default {
       this.mainMap.on("moveend", this.setCenterButtonAppearance);
 
       this.showPins();
-      this.showUserLocation();
+      this.showLocation();
     },
 
     setCenterButtonAppearance() {
@@ -242,45 +245,81 @@ export default {
       }
 
       // Setting new style for selected pin
-        // Get feature on the map that corresponds to selected pin
-        const selectedFeature = destinationLayer.getSource().getClosestFeatureToCoordinate(
-            [selectedPinDiscovery.location.lng, selectedPinDiscovery.location.lat]);
+      // Get feature on the map that corresponds to selected pin
+      const selectedFeature = destinationLayer.getSource().getClosestFeatureToCoordinate(
+          [selectedPinDiscovery.location.lng, selectedPinDiscovery.location.lat]);
 
-        const selectedPinStyle = new Style({
-          image: new Icon({
-            anchor: [0.5, 1],
-            src: `src/assets/drawable/pins/selected_pin.svg`,
-            scale: 0.83, // Augment selected pin size
-          }),
-        });
-        selectedFeature.setStyle(selectedPinStyle);
+      const selectedPinStyle = new Style({
+        image: new Icon({
+          anchor: [0.5, 1],
+          src: `src/assets/drawable/pins/selected_pin.svg`,
+          scale: 0.83, // Augment selected pin size
+        }),
+      });
+      selectedFeature.setStyle(selectedPinStyle);
 
-        this.formerSelectedPinFeature = selectedFeature; // assign currently selected pin as former selected pin
+      this.formerSelectedPinFeature = selectedFeature; // assign currently selected pin as former selected pin
 
     },
 
-    showUserLocation() {
-      const locationLayer = new VectorLayer({
+    showLocation() {
+      //User location accuracy radius in meters (transparent blue circle)
+      const locationAccuracyLayer = new VectorLayer({
         source: new VectorSource(),
-        // Make so that each feature (only one, which is user location here) is styled with user location pin
-        style: new Style({
-          image: new Icon({
-            anchor: [0.5, 0.5],
-            src: `src/assets/drawable/pins/location.png`,
+        style: [
+          new Style({
+            fill: new Fill({
+              color: "rgba(72, 157, 255, 0.202945)",
+            }),
+          }),
+        ]
+      });
+      locationAccuracyLayer.getSource().addFeature(
+        new Feature({
+          geometry: circular(UserData.getLocation(), UserData.getAccuracy()),
+        }));
+      this.mainMap.addLayer(locationAccuracyLayer);
+
+      //User location icon (blue opaque circle with white outline)
+      const userLocationLayer = new VectorLayer({
+        source: new VectorSource(),
+        style: [
+          // Trying to put a slight shadow behind user location image to see it better on the map
+          new Style({
+            image: new CircleStyle({
+              fill: new Fill({
+                color: "rgba(72, 157, 255, 0.05)",
+              }),
+              radius: 11,
+            }),
+          }),
+          new Style({
+          image: new CircleStyle({
+            stroke: new Stroke({
+              color: 'white',
+              width: 3,
+            }),
+            fill: new Fill({
+              color: "#489DFF",
+            }),
+            radius: 7,
           }),
         }),
+        ]
       });
-
-      const feature = new Feature({
+      const userPointFeature = new Feature({
         geometry: new Point(UserData.getLocation()),
       });
-      locationLayer.getSource().addFeature(feature);
+      userLocationLayer.getSource().addFeature(userPointFeature);
+      this.mainMap.addLayer(userLocationLayer);
 
-      this.mainMap.addLayer(locationLayer);
-
-      // Update location every 5 seconds
+      // Update location and accuracy radius every 5 seconds
       setInterval(
-        () => feature.getGeometry().setCoordinates(UserData.getLocation()),
+        () => {
+          userPointFeature.getGeometry().setCoordinates(UserData.getLocation());
+          // TODO Update location accuracy layer -- how? Not sure if this works:
+          locationAccuracyLayer.getSource().getFeatures()[0].setGeometry(circular(UserData.getLocation(), UserData.getAccuracy()));
+          },
         5000,
       );
     },
