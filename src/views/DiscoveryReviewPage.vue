@@ -20,14 +20,17 @@
           </ul>
         </div>
 
-        <div>
-          <p>Commentaires :</p>
-          <ion-textarea
-            label-placement="floating"
-            :counter="true"
-            maxlength="300"
-            :auto-grow="true"
-          ></ion-textarea>
+        <div class="commentForm">
+          <div class="comment">
+            <p>Commentaires :</p>
+            <ion-textarea
+              label-placement="floating"
+              :counter="true"
+              maxlength="300"
+              :auto-grow="true"
+            ></ion-textarea>
+          </div>
+
           <ion-button fill="solid" @click="submitDiscovery()"
             >Envoyer</ion-button
           >
@@ -114,20 +117,12 @@ export default {
   text-align: center;
 }
 
-.ion-page {
-  background: white;
-}
-
 ion-icon {
   color: var(--mona-yellow);
 }
 
 .rating {
   margin-top: 20%;
-}
-
-.hint {
-  font-family: "Gotham Rounded Light", sans-serif;
 }
 
 ul {
