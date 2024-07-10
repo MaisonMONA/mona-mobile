@@ -11,18 +11,18 @@
         <p id="tab-title">Liste des découvertes à faire</p>
         <!-- triggerTextFilter function triggered each 500 ms when search bar value changes-->
         <ion-searchbar
-            show-clear-button="always"
-            placeholder="Chercher"
-            :debounce="500"
-            @ion-clear="triggerTextFilter('')"
-            @change="triggerTextFilter($event.target.value)"
-            @keydown.enter="triggerTextFilter($event.target.value)"
+          show-clear-button="always"
+          placeholder="Chercher"
+          :debounce="500"
+          @ion-clear="triggerTextFilter('')"
+          @change="triggerTextFilter($event.target.value)"
+          @keydown.enter="triggerTextFilter($event.target.value)"
         ></ion-searchbar>
         <ion-button
-            id="open-modal"
-            class="filters-button"
-            shape="round"
-            fill="outline"
+          id="open-modal"
+          class="filters-button"
+          shape="round"
+          fill="outline"
         >
           <ion-icon :icon="filterOutline"></ion-icon>
           Filtrer
@@ -31,20 +31,20 @@
         <!-- Results list -->
         <ion-list :inset="true" lines="none" :key="componentKey">
           <ion-item
-              id="list"
-              v-for="discovery of getDiscoveries()"
-              :key="discovery"
-              @click="openDetails(discovery)"
+            id="list"
+            v-for="discovery of getDiscoveries()"
+            :key="discovery"
+            @click="openDetails(discovery)"
           >
             <!-- Discovery icon -->
             <ion-avatar slot="start">
-              <img :src="getDiscoveryMedalIcon(discovery)" alt=""/>
+              <img :src="getDiscoveryMedalIcon(discovery)" alt="" />
             </ion-avatar>
             <!-- Discovery to user distance  -->
             <ion-label id="distance" position="fixed" class="ion-text-wrap"
-            >{{
+              >{{
                 Distance.distance2string(
-                    Distance.calculateDistance(discovery, lat2, lng2),
+                  Distance.calculateDistance(discovery, lat2, lng2),
                 )
               }}
             </ion-label>
@@ -60,27 +60,27 @@
 
       <!-- Filtres modal window opened when clicking Filtrer button -->
       <ion-modal
-          ref="modal"
-          trigger="open-modal"
-          :initial-breakpoint="0.4"
-          :breakpoints="[0, 0.2, 0.4]"
+        ref="modal"
+        trigger="open-modal"
+        :initial-breakpoint="0.4"
+        :breakpoints="[0, 0.2, 0.4]"
       >
         <!-- Filtres modal window content -->
         <ion-content>
           <ion-toolbar id="modal-header">
             <ion-icon
-                class="modal-icon"
-                size="medium"
-                slot="start"
-                :src="optionsOutline"
+              class="modal-icon"
+              size="medium"
+              slot="start"
+              :src="optionsOutline"
             ></ion-icon>
             <ion-text id="modal-heading"><p>Filtres</p></ion-text>
             <ion-icon
-                class="modal-icon"
-                size="medium"
-                slot="end"
-                :src="close"
-                @click="dismiss()"
+              class="modal-icon"
+              size="medium"
+              slot="end"
+              :src="close"
+              @click="dismiss()"
             ></ion-icon>
           </ion-toolbar>
 
@@ -107,55 +107,51 @@
           <ion-row class="ion-justify-content-between">
             <!-- Oeuvres select button -->
             <ion-col
-                class="filtre"
-                size="3"
-                @click="selectedDiscovery(artwork)"
-                :style="{
+              class="filtre"
+              size="3"
+              @click="selectedDiscovery(artwork)"
+              :style="{
                 color: artwork.color,
                 backgroundColor: artwork.backgroundColor,
               }"
             >
               <div class="filter-category">
                 <ion-avatar>
-                  <img
-                      :src="'src/assets/drawable/medals/artwork/default.svg'"
-                  />
+                  <img :src="'./assets/drawable/medals/artwork/default.svg'" />
                 </ion-avatar>
                 <ion-text>Œuvres</ion-text>
               </div>
             </ion-col>
             <!-- Patrimoines select button -->
             <ion-col
-                class="filtre"
-                size="4"
-                @click="selectedDiscovery(heritage)"
-                :style="{
+              class="filtre"
+              size="4"
+              @click="selectedDiscovery(heritage)"
+              :style="{
                 color: heritage.color,
                 backgroundColor: heritage.backgroundColor,
               }"
             >
               <div class="filter-category">
                 <ion-avatar>
-                  <img
-                      :src="'src/assets/drawable/medals/heritage/default.svg'"
-                  />
+                  <img :src="'./assets/drawable/medals/heritage/default.svg'" />
                 </ion-avatar>
                 <ion-text>Patrimoines</ion-text>
               </div>
             </ion-col>
             <!-- Lieux select button -->
             <ion-col
-                class="filtre"
-                size="3"
-                @click="selectedDiscovery(place)"
-                :style="{
+              class="filtre"
+              size="3"
+              @click="selectedDiscovery(place)"
+              :style="{
                 color: place.color,
                 backgroundColor: place.backgroundColor,
               }"
             >
               <div class="filter-category">
                 <ion-avatar>
-                  <img :src="'src/assets/drawable/medals/place/default.svg'"/>
+                  <img :src="'./assets/drawable/medals/place/default.svg'" />
                 </ion-avatar>
                 <ion-text>Lieux</ion-text>
               </div>
@@ -196,9 +192,9 @@ import {
   IonRadio,
   IonRadioGroup,
 } from "@ionic/vue";
-import {filterOutline, close, optionsOutline, reload} from "ionicons/icons";
-import {UserData} from "@/internal/databases/UserData";
-import {Distance} from "../internal/Distance";
+import { filterOutline, close, optionsOutline, reload } from "ionicons/icons";
+import { UserData } from "@/internal/databases/UserData";
+import { Distance } from "../internal/Distance";
 //TODO: find out why images are not displayed
 export default {
   name: "ListPage",
@@ -341,41 +337,41 @@ export default {
       let subset;
       const type = typeDiscovery ? typeDiscovery.type : "";
       const completeDiscoveries = sortByAZ
-          ? "completeDiscoveriesAZ"
-          : "completeDiscoveriesDistance";
+        ? "completeDiscoveriesAZ"
+        : "completeDiscoveriesDistance";
       const sortBy = sortByAZ ? "sortByAZ" : "sortByDistance";
       const discoverySort = sortByAZ
-          ? "discoveriesSortByAZ"
-          : "discoveriesSortByDistance";
+        ? "discoveriesSortByAZ"
+        : "discoveriesSortByDistance";
       if (typeDiscovery) {
         subset = this[completeDiscoveries]
-            .filter((elm) => {
-              return elm
-                  .getTitle()
-                  .toLowerCase()
-                  .normalize("NFD")
-                  .replace(/\p{Diacritic}/gu, "")
-                  .includes(this.currentFilter.toLowerCase());
-            })
-            .filter((discovery) => discovery.dType === type)
-            .slice(this.offset, this.offset + 50);
+          .filter((elm) => {
+            return elm
+              .getTitle()
+              .toLowerCase()
+              .normalize("NFD")
+              .replace(/\p{Diacritic}/gu, "")
+              .includes(this.currentFilter.toLowerCase());
+          })
+          .filter((discovery) => discovery.dType === type)
+          .slice(this.offset, this.offset + 50);
         typeDiscovery[sortBy] = typeDiscovery[sortBy].concat(subset);
       } else {
         subset = this[completeDiscoveries]
-            .filter((elm) => {
-              return elm
-                  .getTitle()
-                  .toLowerCase()
-                  .normalize("NFD")
-                  .replace(/\p{Diacritic}/gu, "")
-                  .includes(this.currentFilter.toLowerCase());
-            })
-            .slice(this.offset, this.offset + 50);
+          .filter((elm) => {
+            return elm
+              .getTitle()
+              .toLowerCase()
+              .normalize("NFD")
+              .replace(/\p{Diacritic}/gu, "")
+              .includes(this.currentFilter.toLowerCase());
+          })
+          .slice(this.offset, this.offset + 50);
         this[discoverySort] = this[discoverySort].concat(subset);
       }
 
       if (event && event.target && event.target.complete)
-          // Send a signal when the user reaches the bottom
+        // Send a signal when the user reaches the bottom
         event.target.complete();
 
       this.offset += 50;
@@ -392,9 +388,9 @@ export default {
     triggerTextFilter(searchText) {
       // Removing whitespace and "diacritical" marks from the search input
       this.currentFilter = searchText
-          .trim()
-          .normalize("NFD")
-          .replace(/\p{Diacritic}/gu, "");
+        .trim()
+        .normalize("NFD")
+        .replace(/\p{Diacritic}/gu, "");
 
       this.offset = 0;
 
@@ -430,10 +426,10 @@ export default {
 
     getDiscoveryMedalIcon(discovery) {
       if (UserData.isCollected(discovery.id, discovery.dType))
-        return `src/assets/drawable/medals/${discovery.dType}/collected.svg`;
+        return `./assets/drawable/medals/${discovery.dType}/collected.svg`;
       else if (UserData.isTargeted(discovery.id, discovery.dType))
-        return `src/assets/drawable/medals/${discovery.dType}/targeted.svg`;
-      else return `src/assets/drawable/medals/${discovery.dType}/default.svg`;
+        return `./assets/drawable/medals/${discovery.dType}/targeted.svg`;
+      else return `./assets/drawable/medals/${discovery.dType}/default.svg`;
     },
 
     dismiss() {
@@ -451,21 +447,21 @@ export default {
         this.discoveriesSortByDistance = [];
         UserData.sortByDistance();
         this.completeDiscoveriesDistance =
-            UserData.getSortedDiscoveriesDistance().filter((elm) => {
-              return elm
-                  .getTitle()
-                  .toLowerCase()
-                  .normalize("NFD")
-                  .replace(/\p{Diacritic}/gu, "")
-                  .includes(this.currentFilter.toLowerCase());
-            });
+          UserData.getSortedDiscoveriesDistance().filter((elm) => {
+            return elm
+              .getTitle()
+              .toLowerCase()
+              .normalize("NFD")
+              .replace(/\p{Diacritic}/gu, "")
+              .includes(this.currentFilter.toLowerCase());
+          });
         this.pullDiscoveriesTrier(event, false, null);
       }
 
       this.forceRerender();
 
       if (event && event.target && event.target.complete)
-          // Signal
+        // Signal
         event.target.complete();
     },
     selectedDiscovery(discovery) {
@@ -661,7 +657,7 @@ ion-modal ion-toolbar {
 ion-modal {
   --border-radius: 16px;
   --box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
-  0 4px 6px -4px rgb(0 0 0 / 0.1);
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
 #modal-heading p {

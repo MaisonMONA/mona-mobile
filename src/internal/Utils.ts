@@ -307,7 +307,7 @@ export default {
     const style = new Style({
       image: new Icon({
         anchor: [0.5, 1],
-        src: `src/assets/drawable/pins/${type}/${status}.png`,
+        src: `./assets/drawable/pins/${type}/${status}.png`,
         scale: 0.5,
       }),
     });
