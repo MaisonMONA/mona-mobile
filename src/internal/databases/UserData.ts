@@ -358,6 +358,7 @@ export class UserData {
     });
 
     // TODO: use `accuracy` to be displayed as a feature on the map (choose the layer with the location icon)
+
     this.data.location.lng = geoloc.coords.longitude;
     this.data.location.lat = geoloc.coords.latitude;
     this.data.location.accuracy = geoloc.coords.accuracy;
@@ -372,11 +373,6 @@ export class UserData {
       });
 
     return [this.data.location.lng, this.data.location.lat];
-  }
-
-  // Returns the accuracy radius in meters of user location
-  public static getAccuracy() {
-    return this.data.location.accuracy;
   }
 
   public static getMapFocus() {
