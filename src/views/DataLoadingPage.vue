@@ -1,18 +1,13 @@
 <template>
   <ion-page>
-
     <ion-content :fullscreen="true">
-      <p id="alertHolder"></p>
-      <p>Chargement des données<br />utilisateur...</p>
+      <img src="/assets/animation/monaLogo.gif" />
     </ion-content>
   </ion-page>
 </template>
 
 <script>
-import {
-  IonPage,
-  IonContent,
-} from "@ionic/vue";
+import { IonPage, IonContent } from "@ionic/vue";
 import { ArtworkDatabase } from "@/internal/databases/ArtworkDatabase";
 import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
 import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
