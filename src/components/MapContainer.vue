@@ -13,10 +13,6 @@
     </div>
   </div>
 
-  <ion-button @click="changeTileLayer" id="settings-button" class="map-button">
-    <ion-icon :icon="settingsIcon"></ion-icon>
-  </ion-button>
-
   <ion-button
     @click="recenterView"
     id="recenter-button"
@@ -44,7 +40,7 @@ import { Group as layerGroup } from "ol/layer";
 import { useGeographic } from "ol/proj";
 import Point from "ol/geom/Point";
 import Feature from "ol/Feature";
-import { OSM, Stamen } from "ol/source";
+import { OSM } from "ol/source";
 import { defaults as defaultControls } from "ol/control";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
@@ -57,7 +53,6 @@ import { Fill, Icon, Stroke, Style } from "ol/style";
 import CircleStyle from "ol/style/Circle.js";
 import { circular } from "ol/geom/Polygon.js";
 import customLocationIcon from "/assets/drawable/icons/location_icon.svg";
-import customSettingsIcon from "/assets/drawable/icons/settings_icon.svg";
 import { containsCoordinate } from "ol/extent.js";
 
 // This variable is here to know if the user focuses (previous click is) on a discovery or not
@@ -113,7 +108,6 @@ export default {
       DEFAULT_ZOOM_LEVEL: discovery ? 17 : 14, // If the map was opened by the DOD page we want to zoom more
       TILE_LAYER: layer,
       arrowRightIcon,
-      settingsIcon: customSettingsIcon,
       locationIcon: customLocationIcon,
     };
   },
@@ -145,7 +139,8 @@ export default {
       useGeographic();
       this.mainMap = new Map({
         // Hiding attribution (yes it's immoral)
-        controls: defaultControls({ attribution: false }),
+        //TODO To put back Zoom buttons, replace 'zoom: false' by 'zoom: true'
+        controls: defaultControls({ attribution: false, zoom: false }),
 
         target: "map", // html element id where map will be rendered
         view: new View({
@@ -345,45 +340,6 @@ export default {
             circular(UserData.getLocation(), UserData.getAccuracy()),
           );
       }, 5000);
-    },
-
-    changeTileLayer() {
-      // Removing layers
-      const prevLayers = this.mainMap.getLayers();
-      while (prevLayers.getLength() > 0) {
-        this.mainMap.removeLayer(prevLayers.pop());
-      }
-
-      // Switch to Stamen toner-lite map layer
-      if (UserData.getMapStyle() === "osm") {
-        const stamenLayer = new layerGroup({
-          layers: [
-            new TileLayer({
-              source: new Stamen({ layer: "toner-lite" }),
-            }),
-          ],
-        });
-
-        this.mainMap.setLayerGroup(stamenLayer);
-        UserData.setMapStyle("stamen");
-
-        // Switch to OSM map layer
-      } /* if (UserData.getMapStyle() === "stamen") */ else {
-        const osmLayer = new layerGroup({
-          layers: [
-            new TileLayer({
-              source: new OSM(),
-            }),
-          ],
-        });
-
-        this.mainMap.setLayerGroup(osmLayer);
-        UserData.setMapStyle("osm");
-      }
-
-      // Put back pins and user location layers
-      this.showPins();
-      this.showUserLocation();
     },
 
     handleMapClick(event) {

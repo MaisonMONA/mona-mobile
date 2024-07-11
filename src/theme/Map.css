@@ -8,12 +8,12 @@
 
 .map-button {
     position: absolute;
-    right: 3vw;
+    right: 6vw;
     --background: #FFFFFF;
     --background-activated: lightgrey;
     --border-radius: 50%;
-    width: 14vw;
-    height: 14vw;
+    width: 18vw;
+    height: 18vw;
     font-size: 0; /* To hide text */
 }
 
@@ -27,7 +27,7 @@
 #recenter-button.userLocationOutsideViewport {
     --background: #D9D9D9;
     width: 60vw;
-    height: 12vw;
+    height: 16vw;
     --border-radius: 90px;
     font-size: 4vw;
     letter-spacing: 0.02vw;
@@ -44,10 +44,6 @@
 
 #recenter-button {
     bottom: 16vh;
-}
-
-#settings-button {
-    bottom: 25vh;
 }
 
 div#popup.activated {
