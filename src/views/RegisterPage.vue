@@ -1,10 +1,5 @@
 <template>
   <ion-page>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title id="ion-toast-anchor">MONA</ion-title>
-      </ion-toolbar>
-    </ion-header>
 
     <ion-content :fullscreen="true">
       <ion-toast
@@ -16,6 +11,8 @@
         position="top"
         position-anchor="ion-toast-anchor"
       ></ion-toast>
+
+      <div id="ion-toast-anchor"></div>
       <div class="main-content">
         <p id="welcome">Inscription</p>
         <p id="ask-for-registration">
@@ -67,9 +64,6 @@
 <script>
 import {
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonContent,
   IonItem,
   IonInput,
@@ -87,9 +81,6 @@ export default {
   name: "RegisterPage",
   components: {
     IonPage,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
     IonContent,
     IonItem,
     IonInput,
@@ -250,7 +241,7 @@ label {
   font-size: 14px;
   text-align: center;
   position: relative;
-  top: 5%;
+  top: 15%;
   width: 100%;
   height: 85%;
 }

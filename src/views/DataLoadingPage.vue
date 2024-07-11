@@ -1,10 +1,5 @@
 <template>
   <ion-page>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>MONA</ion-title>
-      </ion-toolbar>
-    </ion-header>
 
     <ion-content :fullscreen="true">
       <p id="alertHolder"></p>
@@ -16,9 +11,6 @@
 <script>
 import {
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonContent,
 } from "@ionic/vue";
 import { ArtworkDatabase } from "@/internal/databases/ArtworkDatabase";
@@ -32,9 +24,6 @@ export default {
   name: "DataLoadingPage",
   components: {
     IonPage,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
     IonContent,
   },
 

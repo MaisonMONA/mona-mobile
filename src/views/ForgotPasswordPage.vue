@@ -1,9 +1,6 @@
 <script setup>
 import {
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonContent,
   IonInput,
   IonButton,
@@ -95,11 +92,6 @@ async function showLoading() {
 
 <template>
   <ion-page>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>MONA</ion-title>
-      </ion-toolbar>
-    </ion-header>
 
     <ion-content>
       <div class="ion-padding">
@@ -141,6 +133,10 @@ async function showLoading() {
 
 <style scoped>
 @import url("@/theme/TopToolbar.css");
+div.ion-padding {
+  position: relative;
+  top: 5%;
+}
 ion-toast.status200 {
   --background: #327128;
   --box-shadow: 3px 3px 10px 0 rgba(0, 0, 0, 0.2);

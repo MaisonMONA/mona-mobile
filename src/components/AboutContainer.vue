@@ -4,7 +4,6 @@
             <ion-buttons slot="start">
                 <ion-back-button></ion-back-button>
             </ion-buttons>
-            <ion-title>MONA</ion-title>
         </ion-toolbar>
     </ion-header>
 
@@ -50,7 +49,7 @@ import { IonHeader, IonContent, IonToolbar, IonButtons, IonBackButton, IonTitle 
 export default {
     name: "AboutContainer",
     components: {
-        IonHeader, IonContent, IonToolbar, IonButtons, IonBackButton, IonTitle
+        IonHeader, IonContent, IonToolbar, IonButtons, IonBackButton
     }
 }
 </script>

@@ -1,10 +1,5 @@
 <template>
   <ion-page>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>MONA</ion-title>
-      </ion-toolbar>
-    </ion-header>
 
     <ion-content :fullscreen="true">
       <div class="main-content">
@@ -173,9 +168,7 @@
 <script>
 import {
   IonPage,
-  IonHeader,
   IonToolbar,
-  IonTitle,
   IonContent,
   IonList,
   IonLabel,
@@ -207,9 +200,7 @@ export default {
     IonRefresher,
     IonRefresherContent,
     IonPage,
-    IonHeader,
     IonToolbar,
-    IonTitle,
     IonContent,
     IonList,
     IonLabel,
@@ -495,13 +486,13 @@ export default {
 <style scoped>
 @import url("@/theme/GlobalStyle.css");
 
-.ion-content {
+ion-content {
   background: #f3f2f7;
 }
 
 #tab-title {
   margin-top: 0;
-  padding-top: 24px;
+  padding-top: 15%;
   margin-top: 0;
   margin-left: 21px;
   font-family: "Gotham Rounded Light", sans-serif;

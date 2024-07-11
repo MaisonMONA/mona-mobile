@@ -1,10 +1,5 @@
 <template>
     <ion-page>
-        <ion-header>
-            <ion-toolbar>
-                <ion-title>MONA</ion-title>
-            </ion-toolbar>
-        </ion-header>
 
         <ion-content>
             <div class="main-content">
@@ -25,7 +20,7 @@
 </template>
 
 <script>
-import { IonPage, IonToolbar, IonTitle, IonContent, IonButton } from "@ionic/vue";
+import { IonPage, IonContent, IonButton } from "@ionic/vue";
 import { Filesystem } from "@capacitor/filesystem";
 import { Camera } from "@capacitor/camera";
 import { Geolocation } from "@capacitor/geolocation";
@@ -33,7 +28,7 @@ import { Geolocation } from "@capacitor/geolocation";
 export default {
     name: "PermissionDeniedPage",
     components: {
-        IonPage, IonToolbar, IonTitle, IonContent, IonButton
+        IonPage, IonContent, IonButton
     },
 
     methods: {
