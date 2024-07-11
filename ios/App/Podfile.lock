@@ -1,14 +1,14 @@
 PODS:
-  - Capacitor (5.7.0):
+  - Capacitor (5.7.6):
     - CapacitorCordova
   - CapacitorApp (5.0.7):
     - Capacitor
-  - CapacitorCamera (5.0.9):
+  - CapacitorCamera (5.0.10):
     - Capacitor
-  - CapacitorCordova (5.7.0)
-  - CapacitorFilesystem (5.2.1):
+  - CapacitorCordova (5.7.6)
+  - CapacitorFilesystem (5.2.2):
     - Capacitor
-  - CapacitorGeolocation (5.0.7):
+  - CapacitorGeolocation (5.0.8):
     - Capacitor
   - CapacitorHaptics (5.0.7):
     - Capacitor
@@ -49,12 +49,12 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/status-bar"
 
 SPEC CHECKSUMS:
-  Capacitor: fc155ee2ee45a2093d716f13cf5aa5a865e2d85a
+  Capacitor: 6e86d6f68a9348c76b6da7349ab3ee4a9edd3b9a
   CapacitorApp: 17fecd0e6cb23feafac7eb0939417389038b0979
-  CapacitorCamera: 4892c5c392f60039d853dde78bc50ba19fbd113e
-  CapacitorCordova: e825fce1a2e14e4b5730641c7e098dccf74397b7
-  CapacitorFilesystem: 9f3e3c7fea2fff12f46dd5b07a2914f2103e4cfc
-  CapacitorGeolocation: 918a292459542bcce98433f9e7c7909f8c72838a
+  CapacitorCamera: d333715364b5d85422c627aae6db87ef6161352c
+  CapacitorCordova: 46df0372f7768ff20aa659ba1658b5d7315ea42a
+  CapacitorFilesystem: 202b158a878462ab4f401d0eb4d9644c67927333
+  CapacitorGeolocation: 0572212732f7ee65828d069a9663a274be89b9fc
   CapacitorHaptics: 7c7c206f0c96a628fed073830c96d28c4b2e772e
   CapacitorKeyboard: aec619a578235c6ce279075009a2689c2cf5c42c
   CapacitorStatusBar: f390fbb49b82ffb754ea4b3cf71dc8b048baf3e7

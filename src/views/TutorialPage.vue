@@ -3,10 +3,10 @@
     <ion-content>
       <div class="page">
         <ion-button @click="nextSlide">Continuer</ion-button>
-        <img :src="`src/assets/drawable/tutorial/page ${pageNumber}.jpg`" />
+        <img :src="`./assets/drawable/tutorial/page ${pageNumber}.jpg`" />
         <img
           class="background-blurred"
-          :src="`src/assets/drawable/tutorial/page ${pageNumber}.jpg`"
+          :src="`./assets/drawable/tutorial/page ${pageNumber}.jpg`"
         />
       </div>
     </ion-content>
@@ -19,7 +19,7 @@ import { Filesystem } from "@capacitor/filesystem";
 import { Camera } from "@capacitor/camera";
 import { Geolocation } from "@capacitor/geolocation";
 import { UserData } from "@/internal/databases/UserData";
-//TODO: find out why images are not displayed with @
+
 export default {
   name: "TutorialPage",
   components: {
@@ -31,7 +31,6 @@ export default {
   data() {
     return {
       pageNumber: 1,
-      image: "@/assets/drawable/tutorial/page 1.jpg",
     };
   },
 

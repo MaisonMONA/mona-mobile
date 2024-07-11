@@ -6,24 +6,33 @@
       </ion-toolbar>
     </ion-header>
 
-    <div class="rating">
-      <p class="hint">Notez l'œuvre</p>
-      <ul>
-        <li :key="st" v-for="st in 5" @click="updateRating(st)">
-          <ion-icon
-            size="large"
-            :icon="st <= givenRating ? star : starOutline"
-          ></ion-icon>
-        </li>
-      </ul>
-    </div>
-    <div class="comment">
-      <p class="hint">Commentaire</p>
-      <ion-item class="commentForm" counter="true">
-        <ion-input id="input" maxlength="300" @keydown.enter="submitDiscovery()"></ion-input>
-      </ion-item>
-    </div>
-    <ion-button fill="solid" @click="submitDiscovery()">Envoyer</ion-button>
+    <ion-content class="ion-padding">
+      <div id="discoveryReviewContent">
+        <div class="rating">
+          <p class="">Notez l'œuvre</p>
+          <ul>
+            <li :key="st" v-for="st in 5" @click="updateRating(st)">
+              <ion-icon
+                size="large"
+                :icon="st <= givenRating ? star : starOutline"
+              ></ion-icon>
+            </li>
+          </ul>
+        </div>
+
+        <div class="comment">
+          <p>Commentaires :</p>
+          <ion-textarea
+            label-placement="floating"
+            :counter="true"
+            maxlength="300"
+            :auto-grow="true"
+          ></ion-textarea>
+        </div>
+
+        <ion-button fill="solid" @click="submitDiscovery()">Envoyer</ion-button>
+      </div>
+    </ion-content>
   </ion-page>
 </template>
 
@@ -34,9 +43,9 @@ import {
   IonTitle,
   IonToolbar,
   IonIcon,
-  IonInput,
   IonButton,
-  IonItem,
+  IonTextarea,
+  IonContent,
 } from "@ionic/vue";
 import { starOutline, star, camera } from "ionicons/icons";
 import { useBadgesCollections } from "@/stores/BadgesCollections";
@@ -53,9 +62,9 @@ export default {
     IonToolbar,
     IonTitle,
     IonIcon,
-    IonInput,
     IonButton,
-    IonItem,
+    IonTextarea,
+    IonContent,
   },
   data() {
     return {
@@ -97,9 +106,12 @@ export default {
 
 <style scoped>
 @import url("@/theme/GlobalStyle.css");
+@import url("@/theme/TopToolbar.css");
 
-.ion-page {
-  background: white;
+#discoveryReviewContent {
+  position: relative;
+  margin-top: auto;
+  text-align: center;
 }
 
 ion-icon {
@@ -107,14 +119,7 @@ ion-icon {
 }
 
 .rating {
-  position: absolute;
-  top: 35%;
-  width: 100%;
-  text-align: center;
-}
-
-.hint {
-  font-family: "Gotham Rounded Light", sans-serif;
+  margin-top: 40%;
 }
 
 ul {
@@ -125,24 +130,11 @@ li {
   display: inline-block;
 }
 
-.commentForm {
-  position: absolute;
-  top: 50%;
-  width: 70%;
-  left: 15%;
-  text-align: center;
-  margin-top: 15%;
-}
-
 .comment {
-  text-align: center;
-  margin-top: 50%;
+  margin: 20% 10% 20% 10%;
 }
 
 ion-button {
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 35%;
   --background: var(--mona-yellow);
 }
 </style>
