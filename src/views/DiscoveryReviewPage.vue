@@ -1,10 +1,5 @@
 <template>
   <ion-page>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>MONA</ion-title>
-      </ion-toolbar>
-    </ion-header>
 
     <div class="rating">
       <p class="hint">Notez l'œuvre</p>
@@ -29,10 +24,7 @@
 
 <script>
 import {
-  IonHeader,
   IonPage,
-  IonTitle,
-  IonToolbar,
   IonIcon,
   IonInput,
   IonButton,
@@ -49,9 +41,6 @@ export default {
   name: "DiscoveryReviewPage",
   components: {
     IonPage,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
     IonIcon,
     IonInput,
     IonButton,

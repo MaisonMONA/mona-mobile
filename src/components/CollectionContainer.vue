@@ -60,9 +60,6 @@ import { reload } from "ionicons/icons";
 import { UserData } from "@/internal/databases/UserData";
 import {
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonContent, //IonNavLink,
   IonGrid,
   IonRow,
@@ -81,9 +78,6 @@ export default {
   name: "CollectionContainer",
   components: {
     IonPage,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
     IonContent,
     IonGrid,
     IonRow,
