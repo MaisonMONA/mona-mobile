@@ -27,6 +27,7 @@
             :counter="true"
             maxlength="300"
             :auto-grow="true"
+            id="input"
           ></ion-textarea>
         </div>
 
