@@ -1,20 +1,26 @@
----
-name: "release"
+name: Create release
 
 on:
   push:
     branches:
-      - "main"
+      - main
+    tags:
+      - v*
+
+permissions:
+  contents: write
 
 jobs:
-  pre-release:
-    name: "Pre Release"
-    runs-on: "ubuntu-latest"
-
+  release:
+    name: Release pushed tag
+    runs-on: ubuntu-22.04
     steps:
-      - uses: "marvinpinto/action-automatic-releases@latest"
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest"
-          prerelease: true
-          title: "Development Build"
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref_name }}
+        run: |
+          gh release create "$tag" \
+              --repo="$GITHUB_REPOSITORY" \
+              --title="${GITHUB_REPOSITORY#*/} ${tag#v}" \
+              --notes-file=CHANGELOG.md \
