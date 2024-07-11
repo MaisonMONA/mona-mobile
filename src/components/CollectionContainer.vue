@@ -73,7 +73,7 @@ import {
   IonRefresherContent,
 } from "@ionic/vue";
 import Utils from "@/internal/Utils";
-import customCollectionIcon from "@/assets/drawable/icons/collection_white.svg";
+import customCollectionIcon from "/assets/drawable/icons/collection_white.svg";
 import { Directory, Filesystem } from "@capacitor/filesystem";
 import BadgesContainer from "@/components/BadgesContainer.vue";
 
@@ -130,7 +130,7 @@ export default {
       const { filename } = UserData.getCollected(id, dType);
       if (filename == null) {
         // Use default thumbnail
-        return require("@/assets/drawable/photo_placeholder.jpg");
+        return require("./assets/drawable/photo_placeholder.jpg");
       } else {
         Filesystem.readFile({
           path: "thumbnail/" + filename,
@@ -149,7 +149,7 @@ export default {
             console.log(err);
             document.getElementById(
               `user-photo-${id}-${dType}`,
-            ).src = require("@/assets/drawable/photo_placeholder.jpg");
+            ).src = require("./assets/drawable/photo_placeholder.jpg");
           });
       }
     },
