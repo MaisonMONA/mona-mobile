@@ -11,11 +11,11 @@
             <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths" />
         </provider>
     </application>
-    <uses-permission-sdk-23 android:name="android.permission.READ_MEDIA_IMAGES" />
+
+
     <uses-permission-sdk-23 android:name="android.permission.VIBRATE" />
     <uses-permission-sdk-23 android:name="android.permission.INTERNET" />
-    <uses-permission-sdk-23 android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission-sdk-23 android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission-sdk-23 android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
     <uses-permission-sdk-23 android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission-sdk-23 android:name="android.permission.ACCESS_COARSE_LOCATION" />
 </manifest>
