@@ -15,9 +15,6 @@
 
 <script>
 import { IonPage, IonContent, IonButton } from "@ionic/vue";
-import { Filesystem } from "@capacitor/filesystem";
-import { Camera } from "@capacitor/camera";
-import { Geolocation } from "@capacitor/geolocation";
 import { UserData } from "@/internal/databases/UserData";
 
 export default {
@@ -35,7 +32,7 @@ export default {
   },
 
   methods: {
-    async nextSlide() {
+    nextSlide() {
       if (this.pageNumber < 12) this.pageNumber++;
       else {
         // The user played the tutorial form `/tabs/more`, don't check perms
@@ -44,29 +41,8 @@ export default {
           return;
         }
 
-        // Ask for permissions
-        const cameraPermStatus = await Camera.requestPermissions();
-        const filePermStatus = await Filesystem.requestPermissions();
-
-        let locationPermStatus;
-        try {
-          locationPermStatus = await Geolocation.requestPermissions();
-        } catch (err) {
-          locationPermStatus = "disabled";
-        }
-
-        if (
-          cameraPermStatus.camera === "granted" &&
-          filePermStatus.publicStorage === "granted" &&
-          (locationPermStatus === "disabled" ||
-            locationPermStatus.location === "granted" ||
-            locationPermStatus.coarseLocation === "granted")
-        ) {
-          UserData.setSeenTutorial(true);
-          this.$router.replace("/register");
-        } else {
-          this.$router.replace("/permission-denied");
-        }
+        UserData.setSeenTutorial(true);
+        this.$router.replace("/register");
       }
     },
   },

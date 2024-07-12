@@ -1,6 +1,5 @@
 <template>
   <ion-page>
-
     <ion-content :fullscreen="true">
       <ion-toast
         :is-open="ionToastErrorMessageIsOpen"
@@ -72,9 +71,6 @@ import {
 } from "@ionic/vue";
 import { UserData } from "@/internal/databases/UserData";
 import Globals from "@/internal/Globals";
-import { Filesystem } from "@capacitor/filesystem";
-import { Camera } from "@capacitor/camera";
-import { Geolocation } from "@capacitor/geolocation";
 import router from "@/router/index.ts";
 
 export default {
@@ -104,8 +100,6 @@ export default {
     } else if (UserData.getToken() !== "") {
       // If user is logged in, redirect immediately
       this.$router.replace("/loading");
-    } else {
-      await this.checkPermissions();
     }
   },
 
@@ -201,20 +195,6 @@ export default {
     showAlert(alertMessage) {
       this.ionToastErrorMessageIsOpen = true;
       this.ionToastErrorMessage = alertMessage;
-    },
-
-    async checkPermissions() {
-      const cameraPermStatus = await Camera.checkPermissions();
-      const filePermStatus = await Filesystem.checkPermissions();
-      const locationPermStatus = await Geolocation.checkPermissions();
-
-      if (
-        cameraPermStatus.camera !== "granted" ||
-        filePermStatus.publicStorage !== "granted" ||
-        locationPermStatus.location !== "granted"
-      ) {
-        this.$router.replace("/permission-denied");
-      }
     },
   },
 };
