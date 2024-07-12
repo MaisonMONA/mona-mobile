@@ -54,6 +54,7 @@ import CircleStyle from "ol/style/Circle.js";
 import { circular } from "ol/geom/Polygon.js";
 import customLocationIcon from "/assets/drawable/icons/location_icon.svg";
 import { containsCoordinate } from "ol/extent.js";
+import { Geolocation } from "@capacitor/geolocation";
 
 // This variable is here to know if the user focuses (previous click is) on a discovery or not
 let hasFocus = false;
@@ -130,11 +131,24 @@ export default {
     this.renderMap();
   },
 
-  mounted() {
-    this.myMap();
+  async mounted() {
+    await this.askForPermissions();
   },
 
   methods: {
+    async askForPermissions() {
+      try {
+        const geoPermission = await Geolocation.requestPermissions();
+
+        if (geoPermission.location === "denied") {
+          this.$router.replace("/permission-denied"); // TODO: Replace with "Home - Disabled localization"
+        } else {
+          this.myMap();
+        }
+      } catch (e) {
+        await this.askForPermissions();
+      }
+    },
     myMap() {
       useGeographic();
       this.mainMap = new Map({
