@@ -25,13 +25,21 @@
   >
     <ion-icon :icon="locationIcon"></ion-icon>Recentrer la carte
   </ion-button>
+
+  <ion-alert
+    :is-open="isAlertOpen"
+    header="Activer la localisation pour rechercher les oeuvres à proximité"
+    :buttons="alertBtn"
+    @didDismiss="isAlertOpen = false"
+  >
+  </ion-alert>
 </template>
 
 <script>
 import "ol/ol.css";
 
 import { arrowForward as arrowRightIcon } from "ionicons/icons";
-import { IonButton, IonIcon } from "@ionic/vue";
+import { IonButton, IonIcon, IonAlert } from "@ionic/vue";
 
 import Map from "ol/Map";
 import View from "ol/View";
@@ -77,6 +85,7 @@ export default {
   components: {
     IonButton,
     IonIcon,
+    IonAlert,
   },
 
   data() {
@@ -114,6 +123,23 @@ export default {
       TILE_LAYER: layer,
       arrowRightIcon,
       locationIcon: customLocationIcon,
+      isAlertOpen: false,
+      alertBtn: [
+        {
+          text: "Annuler",
+          role: "cancel",
+          handler: () => {
+            this.setAlertOpen(false);
+          },
+        },
+        {
+          text: "Activer",
+          role: "confirm",
+          handler: () => {
+            this.openAppSettings();
+          },
+        },
+      ],
     };
   },
 
@@ -147,11 +173,6 @@ export default {
         if (geoPermission.location === "denied") {
           this.isPermissionDenied = true;
           this.myMap();
-          // const openAppSettings = await NativeSettings.openAndroid({
-          //   option: AndroidSettings.ApplicationDetails,
-          // });
-          // console.log("openAppSettings", openAppSettings);
-          // this.$router.replace("/permission-denied"); // TODO: Replace with "Home - Disabled localization"
         } else {
           this.isPermissionDenied = false;
           this.myMap();
@@ -465,14 +486,27 @@ export default {
 
     // Re-center on user location
     recenterView() {
-      const mapView = this.mainMap.getView();
+      if (!this.isPermissionDenied) {
+        const mapView = this.mainMap.getView();
 
-      mapView.animate({
-        center: UserData.getLocation(),
-        duration: 200,
-        zoom: Math.max(mapView.getZoom(), 14.25),
-        easing: easeOut,
+        mapView.animate({
+          center: UserData.getLocation(),
+          duration: 200,
+          zoom: Math.max(mapView.getZoom(), 14.25),
+          easing: easeOut,
+        });
+      } else {
+        this.setAlertOpen(true);
+      }
+    },
+    async openAppSettings() {
+      // TODO: check if is IOS or Android
+      await NativeSettings.openAndroid({
+        option: AndroidSettings.ApplicationDetails,
       });
+    },
+    setAlertOpen(state) {
+      this.isAlertOpen = state;
     },
   },
 };
