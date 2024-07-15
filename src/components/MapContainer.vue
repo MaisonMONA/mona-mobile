@@ -100,6 +100,7 @@ export default {
     }
 
     return {
+      isPermissionDenied: false,
       formerSelectedPinFeature: null,
       isUserLocationInViewport: false,
       isUserLocationOutsideViewport: false,
@@ -144,12 +145,15 @@ export default {
         const geoPermission = await Geolocation.requestPermissions();
 
         if (geoPermission.location === "denied") {
-          const openAppSettings = await NativeSettings.openAndroid({
-            option: AndroidSettings.ApplicationDetails,
-          });
-          console.log("openAppSettings", openAppSettings);
-          this.$router.replace("/permission-denied"); // TODO: Replace with "Home - Disabled localization"
+          this.isPermissionDenied = true;
+          this.myMap();
+          // const openAppSettings = await NativeSettings.openAndroid({
+          //   option: AndroidSettings.ApplicationDetails,
+          // });
+          // console.log("openAppSettings", openAppSettings);
+          // this.$router.replace("/permission-denied"); // TODO: Replace with "Home - Disabled localization"
         } else {
+          this.isPermissionDenied = false;
           this.myMap();
         }
       } catch (e) {
@@ -165,9 +169,10 @@ export default {
 
         target: "map", // html element id where map will be rendered
         view: new View({
-          //TODO: if location is not available, use the initial coordinates = [-68.2075, 52.8131] and zoom level = 4.5
-          center: this.INITAL_COORD,
-          zoom: this.DEFAULT_ZOOM_LEVEL,
+          center: this.isPermissionDenied
+            ? [-68.2075, 52.8131]
+            : this.INITIAL_COORDS,
+          zoom: this.isPermissionDenied ? 4.5 : this.DEFAULT_ZOOM_LEVEL,
 
           // Disable rotation on map
           enableRotation: false,
@@ -181,7 +186,7 @@ export default {
       this.mainMap.on("moveend", this.setCenterButtonAppearance);
 
       this.showPins();
-      this.showLocation();
+      if (!this.isPermissionDenied) this.showLocation();
     },
 
     setCenterButtonAppearance() {
