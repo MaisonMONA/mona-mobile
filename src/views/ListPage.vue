@@ -1,20 +1,17 @@
 <template>
   <ion-page>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>MONA</ion-title>
-      </ion-toolbar>
-    </ion-header>
 
     <ion-content :fullscreen="true">
       <div class="main-content">
         <p id="tab-title">Liste des découvertes à faire</p>
+        <!-- triggerTextFilter function triggered each 500 ms when search bar value changes-->
         <ion-searchbar
           show-clear-button="always"
           placeholder="Chercher"
           :debounce="500"
           @ion-clear="triggerTextFilter('')"
           @change="triggerTextFilter($event.target.value)"
+          @keydown.enter="triggerTextFilter($event.target.value)"
         ></ion-searchbar>
         <ion-button
           id="open-modal"
@@ -25,6 +22,8 @@
           <ion-icon :icon="filterOutline"></ion-icon>
           Filtrer
         </ion-button>
+
+        <!-- Results list -->
         <ion-list :inset="true" lines="none" :key="componentKey">
           <ion-item
             id="list"
@@ -32,16 +31,19 @@
             :key="discovery"
             @click="openDetails(discovery)"
           >
+            <!-- Discovery icon -->
             <ion-avatar slot="start">
               <img :src="getDiscoveryMedalIcon(discovery)" alt="" />
             </ion-avatar>
-            <ion-label id="distance" position="fixed"
+            <!-- Discovery to user distance  -->
+            <ion-label id="distance" position="fixed" class="ion-text-wrap"
               >{{
                 Distance.distance2string(
                   Distance.calculateDistance(discovery, lat2, lng2),
                 )
               }}
             </ion-label>
+            <!-- Discovery title -->
             <ion-label id="title">{{ discovery.getTitle() }}</ion-label>
           </ion-item>
         </ion-list>
@@ -51,12 +53,14 @@
         <p class="bottom-text">{{ getDiscoveries().length }} résultats</p>
       </div>
 
+      <!-- Filtres modal window opened when clicking Filtrer button -->
       <ion-modal
         ref="modal"
         trigger="open-modal"
         :initial-breakpoint="0.4"
         :breakpoints="[0, 0.2, 0.4]"
       >
+        <!-- Filtres modal window content -->
         <ion-content>
           <ion-toolbar id="modal-header">
             <ion-icon
@@ -75,6 +79,7 @@
             ></ion-icon>
           </ion-toolbar>
 
+          <!-- Choose how to order the results -->
           <div class="titreTrier">
             <ion-label>Trier par</ion-label>
           </div>
@@ -89,11 +94,13 @@
             </ion-radio-group>
           </div>
 
+          <!-- Choose how to filter the results -->
           <div class="titreTrier">
             <ion-label>Filtrer par</ion-label>
           </div>
 
           <ion-row class="ion-justify-content-between">
+            <!-- Oeuvres select button -->
             <ion-col
               class="filtre"
               size="3"
@@ -105,13 +112,12 @@
             >
               <div class="filter-category">
                 <ion-avatar>
-                  <img
-                    :src="'src/assets/drawable/medals/artwork/default.svg'"
-                  />
+                  <img :src="'./assets/drawable/medals/artwork/default.svg'" />
                 </ion-avatar>
                 <ion-text>Œuvres</ion-text>
               </div>
             </ion-col>
+            <!-- Patrimoines select button -->
             <ion-col
               class="filtre"
               size="4"
@@ -123,13 +129,12 @@
             >
               <div class="filter-category">
                 <ion-avatar>
-                  <img
-                    :src="'src/assets/drawable/medals/heritage/default.svg'"
-                  />
+                  <img :src="'./assets/drawable/medals/heritage/default.svg'" />
                 </ion-avatar>
                 <ion-text>Patrimoines</ion-text>
               </div>
             </ion-col>
+            <!-- Lieux select button -->
             <ion-col
               class="filtre"
               size="3"
@@ -141,7 +146,7 @@
             >
               <div class="filter-category">
                 <ion-avatar>
-                  <img :src="'src/assets/drawable/medals/place/default.svg'" />
+                  <img :src="'./assets/drawable/medals/place/default.svg'" />
                 </ion-avatar>
                 <ion-text>Lieux</ion-text>
               </div>
@@ -163,9 +168,7 @@
 <script>
 import {
   IonPage,
-  IonHeader,
   IonToolbar,
-  IonTitle,
   IonContent,
   IonList,
   IonLabel,
@@ -197,9 +200,7 @@ export default {
     IonRefresher,
     IonRefresherContent,
     IonPage,
-    IonHeader,
     IonToolbar,
-    IonTitle,
     IonContent,
     IonList,
     IonLabel,
@@ -376,6 +377,7 @@ export default {
     },
 
     triggerTextFilter(searchText) {
+      // Removing whitespace and "diacritical" marks from the search input
       this.currentFilter = searchText
         .trim()
         .normalize("NFD")
@@ -383,7 +385,9 @@ export default {
 
       this.offset = 0;
 
+      // Choice "Trier par" in "Filtres"
       if (this.choixTrie === "AZ") {
+        // Choice "Filtrer par" in "Filtres"
         if (this.place.selected) {
           this.place.sortByAZ = [];
           this.pullDiscoveriesTrier(searchText, true, this.place);
@@ -396,6 +400,7 @@ export default {
         } else this.discoveriesSortByAZ = [];
         this.pullDiscoveriesTrier(searchText, true, null);
       } else if (this.choixTrie === "Distance") {
+        // Choice "Filtrer par" in "Filtres"
         if (this.place.selected) {
           this.place.sortByDistance = [];
           this.pullDiscoveriesTrier(searchText, false, this.place);
@@ -412,10 +417,10 @@ export default {
 
     getDiscoveryMedalIcon(discovery) {
       if (UserData.isCollected(discovery.id, discovery.dType))
-        return `src/assets/drawable/medals/${discovery.dType}/collected.svg`;
+        return `./assets/drawable/medals/${discovery.dType}/collected.svg`;
       else if (UserData.isTargeted(discovery.id, discovery.dType))
-        return `src/assets/drawable/medals/${discovery.dType}/targeted.svg`;
-      else return `src/assets/drawable/medals/${discovery.dType}/default.svg`;
+        return `./assets/drawable/medals/${discovery.dType}/targeted.svg`;
+      else return `./assets/drawable/medals/${discovery.dType}/default.svg`;
     },
 
     dismiss() {
@@ -452,6 +457,7 @@ export default {
     },
     selectedDiscovery(discovery) {
       const typeDiscoveries = [this.artwork, this.heritage, this.place];
+      // Toggle selected appearance of clicked selected discovery filter
       if (!discovery.selected) {
         discovery.backgroundColor = "#E0DFE4";
         discovery.color = "black";
@@ -460,6 +466,7 @@ export default {
         discovery.color = "black";
       }
 
+      // Make so that only one discovery filter is selected
       for (const typeDiscovery of typeDiscoveries) {
         if (typeDiscovery !== discovery) {
           if (typeDiscovery.selected === true) {
@@ -469,6 +476,7 @@ export default {
           }
         }
       }
+      // Toggle on/off clicked selected discovery filter
       discovery.selected = !discovery.selected;
     },
   },
@@ -478,13 +486,13 @@ export default {
 <style scoped>
 @import url("@/theme/GlobalStyle.css");
 
-.ion-content {
+ion-content {
   background: #f3f2f7;
 }
 
 #tab-title {
   margin-top: 0;
-  padding-top: 24px;
+  padding-top: 15%;
   margin-top: 0;
   margin-left: 21px;
   font-family: "Gotham Rounded Light", sans-serif;
@@ -558,10 +566,16 @@ p.bottom-text {
 
 #title {
   font-weight: bold;
+  /* To do so that the title stays on one line and finishes with "..." if it's too long */
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 #distance {
   font-size: small;
+  max-width: 30%; /* To correct #title sticking to the right bug caused by #distance taking too much space
+   (max-width: 200px in Inspect element)*/
 }
 
 ion-col img {

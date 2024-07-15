@@ -5,7 +5,6 @@
         <ion-buttons slot="start">
           <ion-back-button></ion-back-button>
         </ion-buttons>
-        <ion-title>MONA</ion-title>
       </ion-toolbar>
       <div
         class="ion-margin-end ion-margin-start"

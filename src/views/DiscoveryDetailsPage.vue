@@ -5,7 +5,6 @@
         <ion-buttons slot="start">
           <ion-back-button></ion-back-button>
         </ion-buttons>
-        <ion-title>MONA</ion-title>
       </ion-toolbar>
     </ion-header>
 
@@ -14,7 +13,7 @@
         <div class="photoContainer">
           <ion-img
             id="defaultPhoto"
-            :src="'src/assets/drawable/mona_logo_med.png'"
+            :src="'./assets/drawable/mona_logo_med.png'"
           ></ion-img>
           <ion-img id="userPhoto"></ion-img>
         </div>
@@ -103,7 +102,6 @@ import {
   IonHeader,
   IonIcon,
   IonPage,
-  IonTitle,
   IonToolbar,
   IonImg,
   toastController,
@@ -115,9 +113,9 @@ import { DiscoveryEnum } from "@/internal/Types";
 import { UserData } from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
 import { Directory, Filesystem } from "@capacitor/filesystem";
-import targetIconWhite from "@/assets/drawable/icons/target.svg";
-import targetIconBlack from "@/assets/drawable/icons/target_black.svg";
-import customMapIcon from "@/assets/drawable/icons/map.svg";
+import targetIconWhite from "/assets/drawable/icons/target.svg";
+import targetIconBlack from "/assets/drawable/icons/target_black.svg";
+import customMapIcon from "/assets/drawable/icons/map.svg";
 
 export default {
   name: "discovery-details",
@@ -127,7 +125,6 @@ export default {
     IonPage,
     IonToolbar,
     IonHeader,
-    IonTitle,
     IonContent,
     IonIcon,
     IonButton,

@@ -1,26 +1,20 @@
 <template>
   <ion-page>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>MONA</ion-title>
-      </ion-toolbar>
-    </ion-header>
-
     <ion-content :fullscreen="true">
-      <p id="alertHolder"></p>
-      <p>Chargement des données<br />utilisateur...</p>
+      <ion-toast
+        :is-open="ionToastErrorMessageIsOpen"
+        :message="ionToastErrorMessage"
+        color="danger"
+        position="top"
+        position-anchor="ion-toast-anchor"
+      ></ion-toast>
+      <img src="/assets/animation/monaLogo.gif" />
     </ion-content>
   </ion-page>
 </template>
 
 <script>
-import {
-  IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-} from "@ionic/vue";
+import { IonPage, IonContent, IonToast } from "@ionic/vue";
 import { ArtworkDatabase } from "@/internal/databases/ArtworkDatabase";
 import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
 import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
@@ -31,11 +25,15 @@ import { UserBadges } from "@/internal/UserBadges";
 export default {
   name: "DataLoadingPage",
   components: {
+    IonToast,
     IonPage,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
     IonContent,
+  },
+  data() {
+    return {
+      ionToastErrorMessageIsOpen: false,
+      ionToastErrorMessage: "",
+    };
   },
 
   mounted() {
@@ -57,7 +55,10 @@ export default {
         UserData.checkForDBUpdate();
         UserData.tryUploadingPendingDiscoveries();
       })
-      .then(() => this.$router.replace("/tabs/map"))
+      .then(() => {
+        this.ionToastErrorMessageIsOpen = false;
+        this.$router.replace("/tabs/map");
+      })
       .catch((err) => {
         throw new Error(`Could not retrieve user data (${err})`);
       });
@@ -65,10 +66,8 @@ export default {
 
   methods: {
     showAlert(alertMessage) {
-      const alertElem = document.getElementById("alertHolder");
-
-      alertElem.innerHTML = alertMessage;
-      alertElem.classList.add("show");
+      this.ionToastErrorMessageIsOpen = true;
+      this.ionToastErrorMessage = alertMessage;
     },
   },
 };

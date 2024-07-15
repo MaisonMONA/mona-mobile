@@ -5,17 +5,17 @@ import { UserData } from "@/internal/databases/UserData";
 import { BadgeDatabase } from "@/internal/databases/BadgeDatabase";
 import { Artwork, Heritage, Place } from "@/internal/Types";
 
-const countPathLocked = "src/assets/drawable/badges/count/locked/";
-const countPathUnlocked = "src/assets/drawable/badges/count/unlocked/";
+const countPathLocked = "/assets/drawable/badges/count/locked/";
+const countPathUnlocked = "/assets/drawable/badges/count/unlocked/";
 
-const boroughPathUnlocked = "src/assets/drawable/badges/borough/unlocked/";
-const boroughPathLocked = "src/assets/drawable/badges/borough/locked/";
+const boroughPathUnlocked = "/assets/drawable/badges/borough/unlocked/";
+const boroughPathLocked = "/assets/drawable/badges/borough/locked/";
 
-const ownerPathUnlocked = "src/assets/drawable/badges/owner/unlocked/";
-const ownerPathLocked = "src/assets/drawable/badges/owner/locked/";
+const ownerPathUnlocked = "/assets/drawable/badges/owner/unlocked/";
+const ownerPathLocked = "/assets/drawable/badges/owner/locked/";
 
-const categoryPathUnlocked = "src/assets/drawable/badges/category/unlocked/";
-const categoryPathLocked = "src/assets/drawable/badges/category/locked/";
+const categoryPathUnlocked = "/assets/drawable/badges/category/unlocked/";
+const categoryPathLocked = "/assets/drawable/badges/category/locked/";
 
 export const useBadgesCollections = defineStore("badgesCollectionStore", {
   state: () => {

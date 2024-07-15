@@ -8,26 +8,42 @@
 
 .map-button {
     position: absolute;
-    right: 3vw;
-    --background: var(--toolbar-purple);
+    right: 6vw;
+    --background: #FFFFFF;
     --background-activated: lightgrey;
-    color: #7F7F7F;
-    width: 50px;
-    height: 50px;
-    font-size: 10px;
-    --border-radius: 15px;
+    --border-radius: 50%;
+    width: 18vw;
+    height: 18vw;
+    font-size: 0; /* To hide text */
+}
+
+/* isUserLocationInViewport = true */
+#recenter-button.userLocationInViewport {
+    --border-color: #4D58CB;
+    --border-width: 3px;
+}
+
+/* isUserLocationOutsideViewport = true */
+#recenter-button.userLocationOutsideViewport {
+    --background: #D9D9D9;
+    width: 60vw;
+    height: 16vw;
+    --border-radius: 90px;
+    font-size: 4vw;
+    letter-spacing: 0.02vw;
+    font-weight: 500;
+}
+#recenter-button.userLocationOutsideViewport ion-icon {
+    font-size: 5vw;
+    margin-right: 3vw;
 }
 
 .map-button ion-icon {
-    font-size: 32px;
+    font-size: 3.5vw;
 }
 
 #recenter-button {
-    bottom: 12vh;
-}
-
-#settings-button {
-    bottom: 20vh;
+    bottom: 16vh;
 }
 
 div#popup.activated {

@@ -3,10 +3,10 @@
     <ion-content>
       <div class="page">
         <ion-button @click="nextSlide">Continuer</ion-button>
-        <img :src="`src/assets/drawable/tutorial/page ${pageNumber}.jpg`" />
+        <img :src="`./assets/drawable/tutorial/page ${pageNumber}.jpg`" />
         <img
           class="background-blurred"
-          :src="`src/assets/drawable/tutorial/page ${pageNumber}.jpg`"
+          :src="`./assets/drawable/tutorial/page ${pageNumber}.jpg`"
         />
       </div>
     </ion-content>
@@ -15,11 +15,8 @@
 
 <script>
 import { IonPage, IonContent, IonButton } from "@ionic/vue";
-import { Filesystem } from "@capacitor/filesystem";
-import { Camera } from "@capacitor/camera";
-import { Geolocation } from "@capacitor/geolocation";
 import { UserData } from "@/internal/databases/UserData";
-//TODO: find out why images are not displayed with @
+
 export default {
   name: "TutorialPage",
   components: {
@@ -31,12 +28,11 @@ export default {
   data() {
     return {
       pageNumber: 1,
-      image: "@/assets/drawable/tutorial/page 1.jpg",
     };
   },
 
   methods: {
-    async nextSlide() {
+    nextSlide() {
       if (this.pageNumber < 12) this.pageNumber++;
       else {
         // The user played the tutorial form `/tabs/more`, don't check perms
@@ -45,29 +41,8 @@ export default {
           return;
         }
 
-        // Ask for permissions
-        const cameraPermStatus = await Camera.requestPermissions();
-        const filePermStatus = await Filesystem.requestPermissions();
-
-        let locationPermStatus;
-        try {
-          locationPermStatus = await Geolocation.requestPermissions();
-        } catch (err) {
-          locationPermStatus = "disabled";
-        }
-
-        if (
-          cameraPermStatus.camera === "granted" &&
-          filePermStatus.publicStorage === "granted" &&
-          (locationPermStatus === "disabled" ||
-            locationPermStatus.location === "granted" ||
-            locationPermStatus.coarseLocation === "granted")
-        ) {
-          UserData.setSeenTutorial(true);
-          this.$router.replace("/register");
-        } else {
-          this.$router.replace("/permission-denied");
-        }
+        UserData.setSeenTutorial(true);
+        this.$router.replace("/register");
       }
     },
   },
