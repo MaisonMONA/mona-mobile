@@ -98,6 +98,7 @@ export default {
     }
 
     return {
+      mapPinsLayer: null,
       formerSelectedPinFeature: null,
       isUserLocationInViewport: false,
       isUserLocationOutsideViewport: false,
@@ -195,9 +196,6 @@ export default {
     },
 
     renderMap() {
-      //TODO I don't think calling myMap() here is necessary as renderMap() is called in created lifecycle
-      //TODO when the DOM elements, which are called in myMap() with 'target: map', aren't accessible yet.
-      //this.myMap();
       const route = useRoute();
       const dType = route.params.dType;
       const id = route.params.id;
@@ -210,11 +208,15 @@ export default {
       }
     },
 
+    // Shows pins on the map and the pin in params
+    // Called in created() and when the URL params changes
     showPins(discoveries = []) {
       const pinsLayer = new VectorLayer({
         source: new VectorSource(),
         style: Utils.pinStyleFunction, // style that features (pins) will take
       });
+
+      this.mapPinsLayer = pinsLayer;
 
       if (discoveries.length > 0) {
         // Show a subset of discoveries (used with filters)
@@ -224,17 +226,13 @@ export default {
         insertAllPins(pinsLayer, UserData.getSortedDiscoveriesAZ());
       }
 
-      // if there's selected pin, highlights it
+      // if there's selected pin in url parameters, highlights it
       if (this.$route.query.type && this.$route.query.id) {
         const discovery = Utils.getDiscovery(
           parseInt(this.$route.query.id),
           this.$route.query.type,
         );
-        this.highlightSelectedDiscoveryPin(
-          pinsLayer.getStyle(),
-          pinsLayer,
-          discovery,
-        );
+        this.highlightSelectedDiscoveryPin(discovery);
         // if not, if there's a formerly selected pin, returns it back to its original style
       } else {
         if (this.formerSelectedPinFeature) {
@@ -246,19 +244,15 @@ export default {
     },
 
     // Makes selected discovery pin bigger and re-establishes former selected pin's size
-    highlightSelectedDiscoveryPin(
-      unselectedPinStyle,
-      destinationLayer,
-      selectedPinDiscovery,
-    ) {
+    highlightSelectedDiscoveryPin(selectedPinDiscovery) {
       // if there was a selected pin before, make former selected pin back to normal scale
       if (this.formerSelectedPinFeature) {
-        this.formerSelectedPinFeature.setStyle(unselectedPinStyle);
+        this.formerSelectedPinFeature.setStyle(this.mapPinsLayer.getStyle());
       }
 
       // Setting new style for selected pin
       // Get feature on the map that corresponds to selected pin
-      const selectedFeature = destinationLayer
+      const selectedFeature = this.mapPinsLayer
         .getSource()
         .getClosestFeatureToCoordinate([
           selectedPinDiscovery.location.lng,
@@ -353,15 +347,23 @@ export default {
         // Update focus on feature closest to click
         const dType = features[0].get("dType");
         const id = features[0].get("id");
-
         const discovery = Utils.getDiscovery(id, dType);
+
+        // Highlight clicked pin
+        this.highlightSelectedDiscoveryPin(discovery);
 
         // Close current pop-up if present and re-open pop-up for clicked feature
         if (hasFocus) this.unfocusDiscovery();
 
         this.focusDiscovery(discovery);
         hasFocus = true;
+
+      // Did not click close to features
       } else {
+        // if there was a selected pin before, make former selected pin back to normal scale
+        if (this.formerSelectedPinFeature) {
+          this.formerSelectedPinFeature.setStyle(this.mapPinsLayer.getStyle());
+        }
         // Close pop-up
         if (hasFocus) {
           this.unfocusDiscovery();
