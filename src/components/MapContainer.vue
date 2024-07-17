@@ -27,6 +27,7 @@
   </ion-button>
 
   <ion-alert
+    class="map-alert"
     :is-open="isAlertOpen"
     header="Activer la localisation pour rechercher les oeuvres à proximité"
     :buttons="alertBtn"
@@ -127,14 +128,14 @@ export default {
       alertBtn: [
         {
           text: "Annuler",
-          role: "cancel",
+          cssClass: "alert-button-cancel",
           handler: () => {
             this.setAlertOpen(false);
           },
         },
         {
           text: "Activer",
-          role: "confirm",
+          cssClass: "alert-button-confirm",
           handler: () => {
             this.openAppSettings();
           },
