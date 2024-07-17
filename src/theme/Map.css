@@ -1,5 +1,96 @@
 @import url("@/theme/GlobalStyle.css");
 
+/* Closest discoveries accordion */
+ion-accordion-group {
+    position: absolute;
+    bottom: 10.5vh;
+    width: 100vw
+}
+
+ion-accordion {
+    border-radius: 16px 16px 0 0;
+}
+
+ion-item[slot="header"] ion-label {
+    font-size: 4vw;
+}
+
+ion-list {
+    display: flex;
+    overflow-x: scroll;
+    padding: 0 2vw;
+    margin:0;
+}
+
+ion-item ion-grid {
+    height: 18vh;
+    width: 37vw;
+    border: 1px solid #FFDE7B;
+    border-radius: 10px;
+}
+
+ion-row#closestDiscoveryTitle {
+    margin: 0.8vh 0;
+    height: 6vh;
+    font-size: 3.7vw;
+    font-weight: 500;
+    /* Only let 3 lines of text and then, ellipsis overflowing text*/
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+ion-row#closestDiscoveryArtistOrUsages {
+    height: 2.2vh;
+    margin-bottom: 0.5vh;
+    font-size: 3.7vw;
+    /* Only let 1 line of text and then, ellipsis overflowing text*/
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+ion-row#closestDiscoveryDate {
+    height: 1.6vh;
+    font-size: 3.4vw;
+    margin-bottom: 1.34vh;
+}
+
+ion-row ion-label#closestDiscoveryDistance {
+    margin-top: 0.1vh;
+    margin-left: 0.5vw;
+    height: 3.8vw;
+    font-size: 3.2vw;
+}
+
+ion-list ion-item {
+    flex: 0 0 auto;
+    --inner-padding-end: 0vw;
+    --padding-start: 2vw;
+}
+
+#seeMoreInList {
+    margin: 0 2vw;
+    padding: 10vw;
+    height: 18vh;
+    width: 37vw;
+    font-weight: 500;
+    color: steelblue;
+    text-decoration: underline steelblue;
+    text-decoration-thickness: 0.3vw;
+    border: 2px solid cornflowerblue;
+    border-radius: 10px;
+    display:flex;
+    text-align: center;
+    vertical-align: middle;
+    align-items: center;
+}
+/* Closest discoveries accordion */
+
 .map {
     min-height: 100px;
     height: 100%;
