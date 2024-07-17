@@ -30,48 +30,68 @@
   <ion-accordion-group>
     <ion-accordion>
       <!-- TODO Move recenter button with accordion and update when position changed -->
-      <ion-item slot="header"
-                @click="this.closestDiscoveriesDistance = UserData.getSortedDiscoveriesDistance().slice(0,12);
-                this.lat2= UserData.getLocation()[1]; this.lng2= UserData.getLocation()[0];">
+      <ion-item
+        slot="header"
+        @click="
+          this.closestDiscoveriesDistance =
+            UserData.getSortedDiscoveriesDistance().slice(0, 12);
+          this.lat2 = UserData.getLocation()[1];
+          this.lng2 = UserData.getLocation()[0];
+        "
+      >
         <ion-label>Découvertes à proximité: </ion-label>
       </ion-item>
-        <div
-             slot="content"
-             style="height: 20vh; width: 100vw;">
+      <div slot="content" style="height: 20vh; width: 100vw">
         <ion-list :inset="false" lines="none">
-          <ion-item v-for="discovery of closestDiscoveriesDistance" :key="discovery" @click="openDetails(discovery)">
+          <ion-item
+            v-for="discovery of closestDiscoveriesDistance"
+            :key="discovery"
+            @click="openDetails(discovery)"
+          >
             <ion-grid>
-                <ion-row id="closestDiscoveryTitle">
-                  <!-- Discovery title -->
-                  {{ discovery.getTitle() }}
-                </ion-row>
-                <ion-row id="closestDiscoveryArtistOrUsages">
-                  <!-- Discovery artist or usages-->
-                  {{ (discovery.dType === "artwork" ? discovery.getArtists() : discovery.getUsages()) }}
-                </ion-row>
-                <ion-row id="closestDiscoveryDate">
-                  <!-- Discovery date -->
-                  {{ (discovery.dType === "heritage" || discovery.dType === "artwork" ? discovery.produced_at : "---") }}
-                </ion-row>
-                <ion-row>
-                  <!-- Discovery pin icon (svg) -->
-                  <ion-icon id="closestDiscoveryPinIcon" :icon="`./assets/drawable/pins/${discovery.dType}/default.svg`"></ion-icon>
-                  <!-- Discovery to user distance  -->
-                  <ion-label id="closestDiscoveryDistance"
+              <ion-row id="closestDiscoveryTitle">
+                <!-- Discovery title -->
+                {{ discovery.getTitle() }}
+              </ion-row>
+              <ion-row id="closestDiscoveryArtistOrUsages">
+                <!-- Discovery artist or usages-->
+                {{
+                  discovery.dType === "artwork"
+                    ? discovery.getArtists()
+                    : discovery.getUsages()
+                }}
+              </ion-row>
+              <ion-row id="closestDiscoveryDate">
+                <!-- Discovery date -->
+                {{
+                  discovery.dType === "heritage" ||
+                  discovery.dType === "artwork"
+                    ? discovery.produced_at
+                    : "---"
+                }}
+              </ion-row>
+              <ion-row>
+                <!-- Discovery pin icon (svg) -->
+                <ion-icon
+                  id="closestDiscoveryPinIcon"
+                  :icon="`./assets/drawable/pins/${discovery.dType}/default.svg`"
+                ></ion-icon>
+                <!-- Discovery to user distance  -->
+                <ion-label id="closestDiscoveryDistance"
                   >{{
-                      Distance.distance2string(
-                          Distance.calculateDistance(discovery, lat2, lng2),
-                      )
-                    }}
-                  </ion-label>
-                </ion-row>
+                    Distance.distance2string(
+                      Distance.calculateDistance(discovery, lat2, lng2),
+                    )
+                  }}
+                </ion-label>
+              </ion-row>
             </ion-grid>
           </ion-item>
-          <div id="seeMoreInList" @click="this.$router.push('/tabs/list');">
+          <div id="seeMoreInList" @click="this.$router.push('/tabs/list')">
             Voir plus dans l'annuaire
           </div>
         </ion-list>
-        </div>
+      </div>
     </ion-accordion>
   </ion-accordion-group>
   <!-- Closest discoveries accordion -->
@@ -81,7 +101,14 @@
 import "ol/ol.css";
 
 import { arrowForward as arrowRightIcon } from "ionicons/icons";
-import { IonButton, IonContent, IonIcon, IonLabel, IonAccordion } from "@ionic/vue";
+import {
+  IonButton,
+  IonContent,
+  IonIcon,
+  IonLabel,
+  IonAccordion,
+  IonAccordionGroup,
+} from "@ionic/vue";
 
 import Map from "ol/Map";
 import View from "ol/View";
@@ -104,7 +131,7 @@ import CircleStyle from "ol/style/Circle.js";
 import { circular } from "ol/geom/Polygon.js";
 import customLocationIcon from "/assets/drawable/icons/location_icon.svg";
 import { containsCoordinate } from "ol/extent.js";
-import {Distance} from "@/internal/Distance";
+import { Distance } from "@/internal/Distance";
 
 // This variable is here to know if the user focuses (previous click is) on a discovery or not
 let hasFocus = false;
@@ -124,11 +151,11 @@ export default {
   name: "MapContainer",
   computed: {
     Distance() {
-      return Distance
+      return Distance;
     },
     UserData() {
-      return UserData
-    }
+      return UserData;
+    },
   },
 
   components: {
@@ -137,6 +164,7 @@ export default {
     IonButton,
     IonIcon,
     IonAccordion,
+    IonAccordionGroup,
   },
 
   data() {
