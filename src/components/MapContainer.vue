@@ -58,13 +58,18 @@ import { easeOut } from "ol/easing";
 import { UserData } from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
 import { useRoute } from "vue-router";
-import { AndroidSettings, NativeSettings } from "capacitor-native-settings";
+import {
+  AndroidSettings,
+  IOSSettings,
+  NativeSettings,
+} from "capacitor-native-settings";
 import { Fill, Icon, Stroke, Style } from "ol/style";
 import CircleStyle from "ol/style/Circle.js";
 import { circular } from "ol/geom/Polygon.js";
 import customLocationIcon from "/assets/drawable/icons/location_icon.svg";
 import { containsCoordinate } from "ol/extent.js";
 import { Geolocation } from "@capacitor/geolocation";
+import { isPlatform } from "@ionic/vue";
 
 // This variable is here to know if the user focuses (previous click is) on a discovery or not
 let hasFocus = false;
@@ -501,10 +506,15 @@ export default {
       }
     },
     async openAppSettings() {
-      // TODO: check if is IOS or Android
-      await NativeSettings.openAndroid({
-        option: AndroidSettings.ApplicationDetails,
-      });
+      if (isPlatform("android")) {
+        await NativeSettings.openAndroid({
+          option: AndroidSettings.ApplicationDetails,
+        });
+      } else {
+        await NativeSettings.openIOS({
+          option: IOSSettings.App,
+        });
+      }
     },
     setAlertOpen(state) {
       this.isAlertOpen = state;
