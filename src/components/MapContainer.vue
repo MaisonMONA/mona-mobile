@@ -70,6 +70,7 @@ import customLocationIcon from "/assets/drawable/icons/location_icon.svg";
 import { containsCoordinate } from "ol/extent.js";
 import { Geolocation } from "@capacitor/geolocation";
 import { isPlatform } from "@ionic/vue";
+import { App } from "@capacitor/app";
 
 // This variable is here to know if the user focuses (previous click is) on a discovery or not
 let hasFocus = false;
@@ -115,7 +116,7 @@ export default {
     }
 
     return {
-      isPermissionDenied: false,
+      isPermissionDenied: true,
       formerSelectedPinFeature: null,
       isUserLocationInViewport: false,
       isUserLocationOutsideViewport: false,
@@ -168,23 +169,30 @@ export default {
   },
 
   async mounted() {
+    // Foreground app state change listener
+    // After user go back to the app from app settings, check if the location permission is granted
+    await App.addListener("appStateChange", async ({ isActive }) => {
+      if (isActive) {
+        const geoCheckPermission = await Geolocation.checkPermissions();
+        this.isPermissionDenied = geoCheckPermission.location === "denied";
+
+        if (!this.isPermissionDenied) {
+          this.showLocation();
+        }
+      }
+    });
+    // If the permission is granted, this.askForPermissions() will not ask for permission again
     await this.askForPermissions();
+    this.myMap();
   },
 
   methods: {
     async askForPermissions() {
       try {
-        const geoPermission = await Geolocation.requestPermissions();
-
-        if (geoPermission.location === "denied") {
-          this.isPermissionDenied = true;
-          this.myMap();
-        } else {
-          this.isPermissionDenied = false;
-          this.myMap();
-        }
+        const geoRequestPermission = await Geolocation.requestPermissions();
+        this.isPermissionDenied = geoRequestPermission.location === "denied";
       } catch (e) {
-        await this.askForPermissions();
+        /* empty */
       }
     },
     myMap() {
@@ -213,6 +221,7 @@ export default {
       this.mainMap.on("moveend", this.setCenterButtonAppearance);
 
       this.showPins();
+      // Need to put an if statement here. If not, the blue circle will show up even if the user has denied the location permission
       if (!this.isPermissionDenied) this.showLocation();
     },
 
