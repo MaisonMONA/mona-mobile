@@ -112,9 +112,9 @@ export default {
 /*TODO Use align-items: start and margin-bottom */
 ion-tab-bar {
   padding: 0 4% 0 5%;
-  border-top: 1px solid #d9d9d9;
-  border-bottom: 6px solid #ffffff;
-  height: 10%;
+  border-top: 0.1vh solid #d9d9d9;
+  border-bottom: 0.7vh solid #ffffff;
+  height: 10vh;
   margin: -1px 0 0 0;
   --background: #ffffff;
 }

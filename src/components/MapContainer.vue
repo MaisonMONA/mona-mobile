@@ -1,4 +1,4 @@
-<template>
+<template style="contain: layout">
   <div id="map" class="map">
     <div id="popup">
       <div id="popup-content" hidden>
@@ -25,13 +25,94 @@
   >
     <ion-icon :icon="locationIcon"></ion-icon>Recentrer la carte
   </ion-button>
+
+  <!-- Closest discoveries accordion -->
+  <ion-accordion-group>
+    <ion-accordion>
+      <!-- TODO Move recenter button with accordion and update when position changed -->
+      <!-- TODO Put between 5 and 12 discoveries depending on discoveries in viewport and add number of discoveries in header?? (to confirm with team to understand what to do) -->
+      <!-- TODO Check if discoveries match with user location when it changes -->
+      <ion-item
+        slot="header"
+        @click="
+          this.closestDiscoveriesDistance =
+            UserData.getSortedDiscoveriesDistance().slice(0, 12);
+          this.lat2 = UserData.getLocation()[1];
+          this.lng2 = UserData.getLocation()[0];
+        "
+      >
+        <ion-label>Découvertes à proximité: </ion-label>
+      </ion-item>
+      <div slot="content" style="height: 20vh; width: 100vw">
+        <ion-list :inset="false" lines="none">
+          <ion-item
+            v-for="discovery of closestDiscoveriesDistance"
+            :key="discovery"
+            @click="focusDiscovery(discovery); openDetails(discovery)"
+          >
+            <!-- TODO Do border gradient like on Figma -->
+            <ion-grid :style="{borderColor: discovery.dType === 'artwork' ? '#FFDE7B' : (discovery.dType === 'heritage' ? '#f9a186' : '#B965ED') }">
+              <ion-row id="closestDiscoveryTitle">
+                <!-- Discovery title -->
+                {{ discovery.getTitle() }}
+              </ion-row>
+              <ion-row id="closestDiscoveryArtistOrUsages">
+                <!-- Discovery artist or usages-->
+                {{
+                  discovery.dType === "artwork"
+                    ? discovery.getArtists()
+                    : discovery.getUsages()
+                }}
+              </ion-row>
+              <ion-row id="closestDiscoveryDate">
+                <!-- Discovery date -->
+                {{
+                  discovery.dType === "heritage" ||
+                  discovery.dType === "artwork"
+                    ? discovery.produced_at
+                    : "---"
+                }}
+              </ion-row>
+              <ion-row>
+                <!-- Discovery pin icon (svg) -->
+                <ion-icon
+                  id="closestDiscoveryPinIcon"
+                  :icon="`./assets/drawable/pins/${discovery.dType}/default.svg`"
+                ></ion-icon>
+                <!-- Discovery to user distance  -->
+                <ion-label id="closestDiscoveryDistance"
+                  >{{
+                    Distance.distance2string(
+                      Distance.calculateDistance(discovery, lat2, lng2),
+                    )
+                  }}
+                </ion-label>
+              </ion-row>
+            </ion-grid>
+          </ion-item>
+          <!-- TODO Make list ordered in distance -->
+          <div id="seeMoreInList" @click="this.$router.push('/tabs/list')">
+            Voir plus dans l'annuaire
+          </div>
+        </ion-list>
+      </div>
+    </ion-accordion>
+  </ion-accordion-group>
+  <!-- Closest discoveries accordion -->
 </template>
 
 <script>
 import "ol/ol.css";
 
-import { arrowForward as arrowRightIcon } from "ionicons/icons";
-import { IonButton, IonIcon } from "@ionic/vue";
+import {arrowForward as arrowRightIcon} from "ionicons/icons";
+import {
+  IonButton,
+  IonContent,
+  IonIcon,
+  IonLabel,
+  IonAccordion,
+  IonAccordionGroup,
+} from "@ionic/vue";
 
 import Map from "ol/Map";
 import View from "ol/View";
@@ -54,6 +135,7 @@ import CircleStyle from "ol/style/Circle.js";
 import { circular } from "ol/geom/Polygon.js";
 import customLocationIcon from "/assets/drawable/icons/location_icon.svg";
 import { containsCoordinate } from "ol/extent.js";
+import { Distance } from "@/internal/Distance";
 
 // This variable is here to know if the user focuses (previous click is) on a discovery or not
 let hasFocus = false;
@@ -71,10 +153,22 @@ function insertAllPins(destinationLayer, discoveryList) {
 
 export default {
   name: "MapContainer",
+  computed: {
+    Distance() {
+      return Distance;
+    },
+    UserData() {
+      return UserData;
+    },
+  },
 
   components: {
+    IonLabel,
+    IonContent,
     IonButton,
     IonIcon,
+    IonAccordion,
+    IonAccordionGroup,
   },
 
   data() {
@@ -98,6 +192,9 @@ export default {
     }
 
     return {
+      lat2: UserData.getLocation()[1],
+      lng2: UserData.getLocation()[0],
+      closestDiscoveriesDistance: [],
       formerSelectedPinFeature: null,
       isUserLocationInViewport: false,
       isUserLocationOutsideViewport: false,
@@ -139,7 +236,7 @@ export default {
       useGeographic();
       this.mainMap = new Map({
         // Hiding attribution (yes it's immoral)
-        //TODO To put back Zoom buttons, replace 'zoom: false' by 'zoom: true'
+        // ********* To put back Zoom buttons, replace 'zoom: false' by 'zoom: true' ********
         controls: defaultControls({ attribution: false, zoom: false }),
 
         target: "map", // html element id where map will be rendered
@@ -160,6 +257,15 @@ export default {
 
       this.showPins();
       this.showLocation();
+    },
+
+    openDetails(discovery) {
+      let type;
+      if (discovery.dType === "artwork") type = 0;
+      else if (discovery.dType === "place") type = 1;
+      /* (discovery.dType == "heritage") */ else type = 2;
+
+      this.$router.push(`/discovery-details/${type}/${discovery.id}`);
     },
 
     setCenterButtonAppearance() {
