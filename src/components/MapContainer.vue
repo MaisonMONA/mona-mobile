@@ -134,7 +134,6 @@ import {
   IonAccordionGroup,
   IonAlert,
 } from "@ionic/vue";
-
 import Map from "ol/Map";
 import View from "ol/View";
 import TileLayer from "ol/layer/Tile";
@@ -147,7 +146,6 @@ import { defaults as defaultControls } from "ol/control";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import { easeOut } from "ol/easing";
-
 import { UserData } from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
 import { useRoute } from "vue-router";
