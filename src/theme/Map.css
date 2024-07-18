@@ -25,7 +25,8 @@ ion-list {
 ion-item ion-grid {
     height: 18vh;
     width: 37vw;
-    border: 1px solid #FFDE7B;
+    border-width: 1px;
+    border-style: solid;
     border-radius: 10px;
 }
 
@@ -134,7 +135,7 @@ ion-list ion-item {
 }
 
 #recenter-button {
-    bottom: 16vh;
+    bottom: 22vh;
 }
 
 div#popup.activated {

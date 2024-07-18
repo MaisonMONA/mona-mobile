@@ -30,6 +30,7 @@
   <ion-accordion-group>
     <ion-accordion>
       <!-- TODO Move recenter button with accordion and update when position changed -->
+      <!-- TODO Put between 5 and 12 discoveries depending on discoveries in viewport and add number of discoveries in header?? (to confirm with team to understand what to do) -->
       <ion-item
         slot="header"
         @click="
@@ -46,9 +47,10 @@
           <ion-item
             v-for="discovery of closestDiscoveriesDistance"
             :key="discovery"
-            @click="openDetails(discovery)"
+            @click="focusDiscovery(discovery); openDetails(discovery)"
           >
-            <ion-grid>
+            <!-- TODO Do border gradient like on Figma -->
+            <ion-grid :style="{borderColor: discovery.dType === 'artwork' ? '#FFDE7B' : (discovery.dType === 'heritage' ? '#f9a186' : '#B965ED') }">
               <ion-row id="closestDiscoveryTitle">
                 <!-- Discovery title -->
                 {{ discovery.getTitle() }}
@@ -87,6 +89,7 @@
               </ion-row>
             </ion-grid>
           </ion-item>
+          <!-- TODO Make list ordered in distance -->
           <div id="seeMoreInList" @click="this.$router.push('/tabs/list')">
             Voir plus dans l'annuaire
           </div>
@@ -100,7 +103,7 @@
 <script>
 import "ol/ol.css";
 
-import { arrowForward as arrowRightIcon } from "ionicons/icons";
+import {arrowForward as arrowRightIcon} from "ionicons/icons";
 import {
   IonButton,
   IonContent,
@@ -232,7 +235,7 @@ export default {
       useGeographic();
       this.mainMap = new Map({
         // Hiding attribution (yes it's immoral)
-        //TODO To put back Zoom buttons, replace 'zoom: false' by 'zoom: true'
+        // ********* To put back Zoom buttons, replace 'zoom: false' by 'zoom: true' ********
         controls: defaultControls({ attribution: false, zoom: false }),
 
         target: "map", // html element id where map will be rendered
