@@ -48,10 +48,22 @@
           <ion-item
             v-for="discovery of closestDiscoveriesDistance"
             :key="discovery"
-            @click="focusDiscovery(discovery); openDetails(discovery)"
+            @click="
+              focusDiscovery(discovery);
+              openDetails(discovery);
+            "
           >
             <!-- TODO Do border gradient like on Figma -->
-            <ion-grid :style="{borderColor: discovery.dType === 'artwork' ? '#FFDE7B' : (discovery.dType === 'heritage' ? '#f9a186' : '#B965ED') }">
+            <ion-grid
+              :style="{
+                borderColor:
+                  discovery.dType === 'artwork'
+                    ? '#FFDE7B'
+                    : discovery.dType === 'heritage'
+                      ? '#f9a186'
+                      : '#B965ED',
+              }"
+            >
               <ion-row id="closestDiscoveryTitle">
                 <!-- Discovery title -->
                 {{ discovery.getTitle() }}
@@ -104,7 +116,7 @@
 <script>
 import "ol/ol.css";
 
-import {arrowForward as arrowRightIcon} from "ionicons/icons";
+import { arrowForward as arrowRightIcon } from "ionicons/icons";
 import {
   IonButton,
   IonContent,
@@ -135,6 +147,7 @@ import CircleStyle from "ol/style/Circle.js";
 import { circular } from "ol/geom/Polygon.js";
 import customLocationIcon from "/assets/drawable/icons/location_icon.svg";
 import { containsCoordinate } from "ol/extent.js";
+import { Geolocation } from "@capacitor/geolocation";
 import { Distance } from "@/internal/Distance";
 
 // This variable is here to know if the user focuses (previous click is) on a discovery or not
@@ -228,11 +241,24 @@ export default {
     this.renderMap();
   },
 
-  mounted() {
-    this.myMap();
+  async mounted() {
+    await this.askForPermissions();
   },
 
   methods: {
+    async askForPermissions() {
+      try {
+        const geoPermission = await Geolocation.requestPermissions();
+
+        if (geoPermission.location === "denied") {
+          this.$router.replace("/permission-denied"); // TODO: Replace with "Home - Disabled localization"
+        } else {
+          this.myMap();
+        }
+      } catch (e) {
+        await this.askForPermissions();
+      }
+    },
     myMap() {
       useGeographic();
       this.mainMap = new Map({
@@ -464,7 +490,7 @@ export default {
         this.focusDiscovery(discovery);
         hasFocus = true;
 
-      // Did not click close to features
+        // Did not click close to features
       } else {
         // if there was a selected pin before, make former selected pin back to normal scale
         if (this.formerSelectedPinFeature) {
