@@ -244,6 +244,8 @@ export default {
         view: new View({
           center: this.INITIAL_COORDS,
           zoom: this.DEFAULT_ZOOM_LEVEL,
+          maxZoom: 24,
+          minZoom: 7,
 
           // Disable rotation on map
           enableRotation: false,
