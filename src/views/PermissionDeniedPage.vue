@@ -28,9 +28,9 @@
         <p class="cannot-ask-for-perms">
           You have permanently blocked some permission requests.
         </p>
-        <ion-button @click="requestPermissions"
-          >Demander les permissions</ion-button
-        >
+        <p style="color: #4e4cbe; font-weight: bold">
+          Activer les permissions en accédant au paramètre de l'app.
+        </p>
       </div>
     </ion-content>
   </ion-page>
