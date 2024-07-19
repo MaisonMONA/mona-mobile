@@ -26,8 +26,17 @@
     <ion-icon :icon="locationIcon"></ion-icon>Recentrer la carte
   </ion-button>
 
+  <ion-alert
+    class="map-alert"
+    :is-open="isAlertOpen"
+    header="Activer la localisation pour rechercher les oeuvres à proximité"
+    :buttons="alertBtn"
+    @didDismiss="isAlertOpen = false"
+  >
+  </ion-alert>
+
   <!-- Closest discoveries accordion -->
-  <ion-accordion-group>
+  <ion-accordion-group v-if="!isPermissionDenied">
     <ion-accordion>
       <!-- TODO Move recenter button with accordion and update when position changed -->
       <!-- TODO Put between 5 and 12 discoveries depending on discoveries in viewport and add number of discoveries in header?? (to confirm with team to understand what to do) -->
@@ -115,7 +124,6 @@
 
 <script>
 import "ol/ol.css";
-
 import { arrowForward as arrowRightIcon } from "ionicons/icons";
 import {
   IonButton,
@@ -124,8 +132,8 @@ import {
   IonLabel,
   IonAccordion,
   IonAccordionGroup,
+  IonAlert,
 } from "@ionic/vue";
-
 import Map from "ol/Map";
 import View from "ol/View";
 import TileLayer from "ol/layer/Tile";
@@ -138,16 +146,22 @@ import { defaults as defaultControls } from "ol/control";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import { easeOut } from "ol/easing";
-
 import { UserData } from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
 import { useRoute } from "vue-router";
+import {
+  AndroidSettings,
+  IOSSettings,
+  NativeSettings,
+} from "capacitor-native-settings";
 import { Fill, Icon, Stroke, Style } from "ol/style";
 import CircleStyle from "ol/style/Circle.js";
 import { circular } from "ol/geom/Polygon.js";
 import customLocationIcon from "/assets/drawable/icons/location_icon.svg";
 import { containsCoordinate } from "ol/extent.js";
 import { Geolocation } from "@capacitor/geolocation";
+import { isPlatform } from "@ionic/vue";
+import { App } from "@capacitor/app";
 import { Distance } from "@/internal/Distance";
 
 // This variable is here to know if the user focuses (previous click is) on a discovery or not
@@ -180,6 +194,7 @@ export default {
     IonContent,
     IonButton,
     IonIcon,
+    IonAlert,
     IonAccordion,
     IonAccordionGroup,
   },
@@ -205,6 +220,7 @@ export default {
     }
 
     return {
+      isPermissionDenied: true,
       mapPinsLayer: null,
       lat2: UserData.getLocation()[1],
       lng2: UserData.getLocation()[0],
@@ -216,10 +232,29 @@ export default {
       INITIAL_COORDS: discovery
         ? [discovery.location.lng, discovery.location.lat]
         : UserData.getLocation(),
+      // if location is not available, use the initial coordinates = [-68.2075, 52.8131]
       DEFAULT_ZOOM_LEVEL: discovery ? 17 : 14, // If the map was opened by the DOD page we want to zoom more
+      // if location is not available, use the default zoom level = 4.5
       TILE_LAYER: layer,
       arrowRightIcon,
       locationIcon: customLocationIcon,
+      isAlertOpen: false,
+      alertBtn: [
+        {
+          text: "Annuler",
+          cssClass: "alert-button-cancel",
+          handler: () => {
+            this.setAlertOpen(false);
+          },
+        },
+        {
+          text: "Activer",
+          cssClass: "alert-button-confirm",
+          handler: () => {
+            this.openAppSettings();
+          },
+        },
+      ],
     };
   },
 
@@ -242,21 +277,30 @@ export default {
   },
 
   async mounted() {
+    // Foreground app state change listener
+    // After user go back to the app from app settings, check if the location permission is granted
+    await App.addListener("appStateChange", async ({ isActive }) => {
+      if (isActive) {
+        const geoCheckPermission = await Geolocation.checkPermissions();
+        this.isPermissionDenied = geoCheckPermission.location === "denied";
+
+        if (!this.isPermissionDenied) {
+          this.showLocation();
+        }
+      }
+    });
+    // If the permission is granted, this.askForPermissions() will not ask for permission again
     await this.askForPermissions();
+    this.myMap();
   },
 
   methods: {
     async askForPermissions() {
       try {
-        const geoPermission = await Geolocation.requestPermissions();
-
-        if (geoPermission.location === "denied") {
-          this.$router.replace("/permission-denied"); // TODO: Replace with "Home - Disabled localization"
-        } else {
-          this.myMap();
-        }
+        const geoRequestPermission = await Geolocation.requestPermissions();
+        this.isPermissionDenied = geoRequestPermission.location === "denied";
       } catch (e) {
-        await this.askForPermissions();
+        /* empty */
       }
     },
     myMap() {
@@ -268,8 +312,10 @@ export default {
 
         target: "map", // html element id where map will be rendered
         view: new View({
-          center: this.INITIAL_COORDS,
-          zoom: this.DEFAULT_ZOOM_LEVEL,
+          center: this.isPermissionDenied
+            ? [-68.2075, 52.8131]
+            : this.INITIAL_COORDS,
+          zoom: this.isPermissionDenied ? 4.5 : this.DEFAULT_ZOOM_LEVEL,
 
           // Disable rotation on map
           enableRotation: false,
@@ -283,7 +329,8 @@ export default {
       this.mainMap.on("moveend", this.setCenterButtonAppearance);
 
       this.showPins();
-      this.showLocation();
+      // Need to put an if statement here. If not, the blue circle will show up even if the user has denied the location permission
+      if (!this.isPermissionDenied) this.showLocation();
     },
 
     openDetails(discovery) {
@@ -572,14 +619,32 @@ export default {
 
     // Re-center on user location
     recenterView() {
-      const mapView = this.mainMap.getView();
+      if (!this.isPermissionDenied) {
+        const mapView = this.mainMap.getView();
 
-      mapView.animate({
-        center: UserData.getLocation(),
-        duration: 200,
-        zoom: Math.max(mapView.getZoom(), 14.25),
-        easing: easeOut,
-      });
+        mapView.animate({
+          center: UserData.getLocation(),
+          duration: 200,
+          zoom: Math.max(mapView.getZoom(), 14.25),
+          easing: easeOut,
+        });
+      } else {
+        this.setAlertOpen(true);
+      }
+    },
+    async openAppSettings() {
+      if (isPlatform("android")) {
+        await NativeSettings.openAndroid({
+          option: AndroidSettings.ApplicationDetails,
+        });
+      } else {
+        await NativeSettings.openIOS({
+          option: IOSSettings.App,
+        });
+      }
+    },
+    setAlertOpen(state) {
+      this.isAlertOpen = state;
     },
   },
 };
