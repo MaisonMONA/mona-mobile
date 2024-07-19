@@ -312,10 +312,13 @@ export default {
 
         target: "map", // html element id where map will be rendered
         view: new View({
+
           center: this.isPermissionDenied
             ? [-68.2075, 52.8131]
             : this.INITIAL_COORDS,
           zoom: this.isPermissionDenied ? 4.5 : this.DEFAULT_ZOOM_LEVEL,
+          maxZoom: 24,
+          minZoom: 3,
 
           // Disable rotation on map
           enableRotation: false,
@@ -392,7 +395,7 @@ export default {
     showPins(discoveries = []) {
       const pinsLayer = new VectorLayer({
         source: new VectorSource(),
-        style: Utils.pinStyleFunction, // style that features (pins) will take
+        style: this.pinStyleFunction, // style that features (pins) will take
       });
 
       this.mapPinsLayer = pinsLayer;
@@ -420,6 +423,41 @@ export default {
       }
 
       this.mainMap.addLayer(pinsLayer);
+    },
+
+    // Taken from Utils.ts
+    pinStyleFunction(feature) {
+      /**
+       * Style function for OSM Features (used for pins on the map).
+       * Not supposed to be called manually, but rather assigned or referenced.
+       *
+       * @param feature - the pin feature
+       * @return a new style
+       */
+
+      const id = feature.get("id");
+      const type = feature.get("dType");
+
+      const status = UserData.isCollected(id, type) ? "collected"
+          : UserData.isTargeted(id, type) ? "targeted" : "default";
+
+      const zoomLevel = this.mainMap.getView().getZoom();
+
+      const pinSize = zoomLevel < 14 ? 0.3
+                      : zoomLevel === 14 ? 0.35
+                      : zoomLevel === 15 ? 0.4
+                      : 0.5;
+
+
+      const style = new Style({
+        image: new Icon({
+          anchor: [0.5, 1],
+          src: `./assets/drawable/pins/${type}/${status}.png`,
+          scale: pinSize,
+        }),
+      });
+
+      return [style];
     },
 
     // Makes selected discovery pin bigger and re-establishes former selected pin's size
