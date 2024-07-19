@@ -36,7 +36,7 @@
   </ion-alert>
 
   <!-- Closest discoveries accordion -->
-  <ion-accordion-group v-if="!isPermissionDenied">
+  <ion-accordion-group class="closestDiscoveriesAccordion" v-if="!isPermissionDenied">
     <ion-accordion>
       <!-- TODO Move recenter button with accordion and update when position changed -->
       <!-- TODO Put between 5 and 12 discoveries depending on discoveries in viewport and add number of discoveries in header?? (to confirm with team to understand what to do) -->
