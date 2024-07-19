@@ -23,7 +23,7 @@
     }"
     :fill="isUserLocationInViewport ? 'outline' : 'solid'"
   >
-    <ion-icon :icon="locationIcon"></ion-icon>Recentrer la carte
+    <ion-icon :icon="locationIcon"></ion-icon>RECENTRER LA CARTE
   </ion-button>
 
   <ion-alert
