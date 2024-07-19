@@ -203,6 +203,7 @@ export default {
     const layer = new layerGroup({
       layers: [
         new TileLayer({
+          className: "basemapLayer",
           source: new OSM(),
         }),
       ],
