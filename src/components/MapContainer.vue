@@ -238,7 +238,7 @@ export default {
       this.mainMap = new Map({
         // Hiding attribution (yes it's immoral)
         // ********* To put back Zoom buttons, replace 'zoom: false' by 'zoom: true' ********
-        controls: defaultControls({ attribution: false, zoom: true }),
+        controls: defaultControls({ attribution: false, zoom: false }),
 
         target: "map", // html element id where map will be rendered
         view: new View({
