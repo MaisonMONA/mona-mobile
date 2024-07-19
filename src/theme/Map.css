@@ -6,6 +6,9 @@ ion-accordion-group.closestDiscoveriesAccordion {
     bottom: 10.5vh;
     width: 100vw
 }
+.ios ion-accordion-group.closestDiscoveriesAccordion {
+    bottom: 14.5vh;
+}
 
 ion-accordion-group.closestDiscoveriesAccordion ion-accordion {
     border-radius: 16px 16px 0 0;
@@ -117,6 +120,9 @@ ion-accordion-group.closestDiscoveriesAccordion ion-accordion div[slot="content"
     font-size: 3.5vw;
 }
 #recenter-button {
+    bottom: 20vh;
+}
+.ios #recenter-button {
     bottom: 22vh;
 }
 
@@ -135,6 +141,9 @@ ion-accordion-group.closestDiscoveriesAccordion ion-accordion div[slot="content"
     font-size: 4vw;
     letter-spacing: 0.02vw;
     font-weight: 500;
+}
+.ios #recenter-button.userLocationOutsideViewport {
+    font-weight: 600;
 }
 #recenter-button.userLocationOutsideViewport ion-icon {
     font-size: 5vw;

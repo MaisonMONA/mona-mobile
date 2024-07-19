@@ -106,10 +106,6 @@ export default {
 <style scoped>
 @import url("@/theme/TopToolbar.css");
 
-/*TODO Use grid-template-columns property?
-   justify-content: space-evenly/space-around/space-between*/
-
-/*TODO Use align-items: start and margin-bottom */
 ion-tab-bar {
   padding: 0 4% 0 5%;
   border-top: 0.1vh solid #d9d9d9;
@@ -117,6 +113,9 @@ ion-tab-bar {
   height: 10vh;
   margin: -1px 0 0 0;
   --background: #ffffff;
+}
+.ios ion-tab-bar {
+  padding: 0 4% 4vh 5%;
 }
 
 ion-tab-button {
@@ -128,16 +127,22 @@ ion-tab-button {
   border-radius: 90px;
   padding: 0 1.5vw;
 }
+.ios ion-tab-button {
+  padding: 0 3.8vw;
+}
 
-ion-icon {
+ion-tab-button ion-icon {
   font-size: 6vw;
 }
 
-ion-label {
+ion-tab-button ion-label {
   color: black;
   font-size: 3.7vw;
   padding-left: 2.5vw;
   font-weight: 410;
+}
+.ios ion-tab-button ion-label {
+  font-weight: 500;
 }
 
 ion-tab-button.active-tab {
