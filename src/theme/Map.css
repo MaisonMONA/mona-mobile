@@ -212,3 +212,55 @@ div#popup.activated {
 #seeMore ion-icon {
     font-size: 32px;
 }
+
+.map-alert {
+    --min-width: 90% !important;
+}
+
+.map-alert .alert-wrapper {
+    border-radius: 20px !important;
+}
+.map-alert .alert-wrapper .alert-head h2{
+    text-align: center !important;
+    font-weight: normal !important;
+    font-size: medium !important;
+}
+
+.map-alert .alert-wrapper .alert-head {
+    text-align: center !important;
+    font-weight: normal !important;
+}
+
+.map-alert .alert-button-group {
+    display: flex !important;
+    flex-direction: column-reverse !important;
+    justify-content: center !important;
+    padding: 0 5% 5% 5% !important;
+}
+
+.alert-button-cancel {
+    color: #D82727 !important;
+    border-style: solid !important;
+    border-width: 1px !important;
+    border-color: #D82727 !important;
+    border-radius: 24px !important;
+}
+
+.alert-button-cancel .alert-button-inner{
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.alert-button-confirm {
+    color: #FFFFFF !important;
+    background: #4D58CB !important;
+    margin-bottom: 4% !important;
+    border-radius: 24px !important;
+}
+
+.alert-button-confirm .alert-button-inner{
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
