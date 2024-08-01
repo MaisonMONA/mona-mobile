@@ -61,6 +61,7 @@ import {
   IonIcon,
   IonPage,
   IonRouterOutlet,
+  IonLabel,
 } from "@ionic/vue";
 import inactiveMap from "/assets/drawable/icons/inactive_map_tab_icon.svg";
 import inactiveList from "/assets/drawable/icons/inactive_list_tab_icon.svg";
@@ -79,6 +80,7 @@ export default {
     IonIcon,
     IonPage,
     IonRouterOutlet,
+    IonLabel,
   },
   data() {
     return {

@@ -36,7 +36,10 @@
   </ion-alert>
 
   <!-- Closest discoveries accordion -->
-  <ion-accordion-group class="closestDiscoveriesAccordion" v-if="!isPermissionDenied">
+  <ion-accordion-group
+    class="closestDiscoveriesAccordion"
+    v-if="!isPermissionDenied"
+  >
     <ion-accordion>
       <!-- TODO Move recenter button with accordion and update when position changed -->
       <!-- TODO Put between 5 and 12 discoveries depending on discoveries in viewport and add number of discoveries in header?? (to confirm with team to understand what to do) -->
@@ -120,6 +123,22 @@
     </ion-accordion>
   </ion-accordion-group>
   <!-- Closest discoveries accordion -->
+
+  <!-- Selected pin discovery details modal -->
+  <ion-modal
+    :is-open="discoveryDetailsModalOpen"
+    @didDismiss="this.discoveryDetailsModalOpen = false"
+    :breakpoints="[0.2, 0.75, 1]"
+    :initial-breakpoint="0.75"
+    :show-backdrop="false"
+  >
+    <ion-content>
+      <discovery-details :selected-discovery="currentSelectedDiscovery" />
+    </ion-content>
+  </ion-modal>
+
+  <!-- Selected pin discovery details modal -->
+
 </template>
 
 <script>
@@ -133,6 +152,11 @@ import {
   IonAccordion,
   IonAccordionGroup,
   IonAlert,
+  IonModal,
+  IonList,
+  IonItem,
+  IonGrid,
+  IonRow,
 } from "@ionic/vue";
 import Map from "ol/Map";
 import View from "ol/View";
@@ -158,11 +182,12 @@ import { Fill, Icon, Stroke, Style } from "ol/style";
 import CircleStyle from "ol/style/Circle.js";
 import { circular } from "ol/geom/Polygon.js";
 import customLocationIcon from "/assets/drawable/icons/location_icon.svg";
-import { containsCoordinate } from "ol/extent.js";
+import {containsCoordinate, getHeight} from "ol/extent.js";
 import { Geolocation } from "@capacitor/geolocation";
 import { isPlatform } from "@ionic/vue";
 import { App } from "@capacitor/app";
 import { Distance } from "@/internal/Distance";
+import DiscoveryDetails from "@/components/DiscoveryDetails.vue";
 
 // This variable is here to know if the user focuses (previous click is) on a discovery or not
 let hasFocus = false;
@@ -190,6 +215,8 @@ export default {
   },
 
   components: {
+    DiscoveryDetails,
+    IonModal,
     IonLabel,
     IonContent,
     IonButton,
@@ -197,6 +224,10 @@ export default {
     IonAlert,
     IonAccordion,
     IonAccordionGroup,
+    IonList,
+    IonItem,
+    IonGrid,
+    IonRow,
   },
 
   data() {
@@ -221,6 +252,8 @@ export default {
     }
 
     return {
+      currentSelectedDiscovery: null,
+      discoveryDetailsModalOpen: false,
       isPermissionDenied: true,
       mapPinsLayer: null,
       lat2: UserData.getLocation()[1],
@@ -309,11 +342,10 @@ export default {
       this.mainMap = new Map({
         // Hiding attribution (yes it's immoral)
         // ********* To put back Zoom buttons, replace 'zoom: false' by 'zoom: true' ********
-        controls: defaultControls({ attribution: false, zoom: false }),
+        controls: defaultControls({ attribution: false, zoom: true }),
 
         target: "map", // html element id where map will be rendered
         view: new View({
-
           center: this.isPermissionDenied
             ? [-68.2075, 52.8131]
             : this.INITIAL_COORDS,
@@ -439,16 +471,22 @@ export default {
       const id = feature.get("id");
       const type = feature.get("dType");
 
-      const status = UserData.isCollected(id, type) ? "collected"
-          : UserData.isTargeted(id, type) ? "targeted" : "default";
+      const status = UserData.isCollected(id, type)
+        ? "collected"
+        : UserData.isTargeted(id, type)
+          ? "targeted"
+          : "default";
 
       const zoomLevel = this.mainMap.getView().getZoom();
 
-      const pinSize = zoomLevel < 14 ? 0.3
-                      : zoomLevel === 14 ? 0.35
-                      : zoomLevel === 15 ? 0.4
-                      : 0.5;
-
+      const pinSize =
+        zoomLevel < 14
+          ? 0.3
+          : zoomLevel === 14
+            ? 0.35
+            : zoomLevel === 15
+              ? 0.4
+              : 0.5;
 
       const style = new Style({
         image: new Icon({
@@ -554,6 +592,7 @@ export default {
       }, 5000);
     },
 
+    // Handles click on the map
     handleMapClick(event) {
       // Get features(discoveries on the map) close to click
       const features = this.mainMap.getFeaturesAtPixel(event.pixel, {
@@ -562,17 +601,16 @@ export default {
 
       // Check if clicked close to features
       if (features.length > 0) {
-        // Update focus on feature closest to click
+        // Get closest feature to click
         const dType = features[0].get("dType");
         const id = features[0].get("id");
         const discovery = Utils.getDiscovery(id, dType);
 
-        // Highlight clicked pin
-        this.highlightSelectedDiscoveryPin(discovery);
-
+        //TODO Replace old focus system with new one
         // Close current pop-up if present and re-open pop-up for clicked feature
         if (hasFocus) this.unfocusDiscovery();
 
+        // Update focus on feature closest to click
         this.focusDiscovery(discovery);
         hasFocus = true;
 
@@ -590,27 +628,36 @@ export default {
       }
     },
 
-    // Zoom and center on discovery and open its description popup
+    // Highlights discovery, centers on it, and opens its description modal
     focusDiscovery(discovery, map = this.mainMap) {
       if (!discovery) return;
 
       const transitionDuration = 200; // Unit is milliseconds
+      const currentZoom = map.getView().getZoom();
 
-      // Center map on the pin with animation if it isn't already centered
-      const mapCenter = map.getView().getCenter();
-      if (
-        mapCenter[0] !== discovery.location.lng ||
-        mapCenter[1] !== discovery.location.lat
-      ) {
-        const currentZoom = map.getView().getZoom();
+      // Highlight clicked pin
+      this.highlightSelectedDiscoveryPin(discovery);
+
+      // Center map on the selected pin with animation
+        // Get viewport height coordinates at the desired zoom level
+        // Temporarily set the zoom level
+        this.mainMap.getView().setZoom(Math.max(currentZoom, 14.25));
+        // Calculate viewport height at the temporary zoom level
+        const extentHeight = getHeight(this.mainMap.getView().calculateExtent(map.getSize()));
+        // Restore the original zoom level
+        this.mainMap.getView().setZoom(currentZoom);
 
         map.getView().animate({
-          center: [discovery.location.lng, discovery.location.lat],
+          // Center viewport a bit below the selected pin so that the pin is towards the top of the screen
+          center: [discovery.location.lng, discovery.location.lat - 0.30 * extentHeight],
           duration: transitionDuration,
           zoom: Math.max(currentZoom, 14.25),
           easing: easeOut,
         });
-      }
+
+      // Open pin discovery details description modal
+      this.currentSelectedDiscovery = discovery;
+      this.discoveryDetailsModalOpen = true;
 
       const details = document.getElementById("popup-content");
 
@@ -671,6 +718,7 @@ export default {
         this.setAlertOpen(true);
       }
     },
+
     async openAppSettings() {
       if (isPlatform("android")) {
         await NativeSettings.openAndroid({
@@ -682,6 +730,7 @@ export default {
         });
       }
     },
+
     setAlertOpen(state) {
       this.isAlertOpen = state;
     },
