@@ -234,7 +234,7 @@ export default {
         parseInt(this.$route.query.id),
         this.$route.query.type,
       );
-      setTimeout(() => this.focusDiscovery(discovery), 250);
+      setTimeout(() => this.focusDiscovery(discovery), 100);
     }
 
     return {
@@ -288,12 +288,12 @@ export default {
             parseInt(this.$route.query.id),
             this.$route.query.type,
           );
-          this.focusDiscovery(discovery);
+          setTimeout(() => this.focusDiscovery(discovery), 100);
+        } else {
+          this.unfocusDiscovery();
         }
-        this.showPins(); // To change the big pin when focusing on a pin from the map
       },
     );
-    this.renderMap();
   },
 
   async mounted() {
@@ -388,19 +388,6 @@ export default {
       }
     },
 
-    renderMap() {
-      const route = useRoute();
-      const dType = route.params.dType;
-      const id = route.params.id;
-      if (dType && id) {
-        const discovery = Utils.getDiscovery(
-          parseInt(id.toString()),
-          dType.toString(),
-        );
-        this.focusDiscovery(discovery);
-      }
-    },
-
     // Shows pins on the map and the pin in params
     // Called in created() and when the URL params changes
     showPins(discoveries = []) {
@@ -417,20 +404,6 @@ export default {
       } else {
         // Show all discoveries
         insertAllPins(pinsLayer, UserData.getSortedDiscoveriesAZ());
-      }
-
-      // if there's selected pin in url parameters, highlights it
-      if (this.$route.query.type && this.$route.query.id) {
-        const discovery = Utils.getDiscovery(
-          parseInt(this.$route.query.id),
-          this.$route.query.type,
-        );
-        this.highlightSelectedDiscoveryPin(discovery);
-        // if not, if there's a formerly selected pin, returns it back to its original style
-      } else {
-        if (this.formerSelectedPinFeature) {
-          this.formerSelectedPinFeature.setStyle(pinsLayer.getStyle());
-        }
       }
 
       this.mainMap.addLayer(pinsLayer);
