@@ -1,16 +1,6 @@
 <template style="contain: layout">
   <div id="map" class="map">
-    <div id="popup">
-      <div id="popup-content" hidden>
-        <div id="popup-details">
-          <p id="popupTitle" class="details"></p>
-          <p id="popupSubtext" class="details"></p>
-        </div>
-        <ion-button fill="clear" id="seeMore" router-direction="forward">
-          <ion-icon slot="icon-only" :icon="arrowRightIcon"></ion-icon>
-        </ion-button>
-      </div>
-    </div>
+    <!-- Map container -->
   </div>
 
   <ion-button
@@ -62,7 +52,6 @@
             :key="discovery"
             @click="
               focusDiscovery(discovery);
-              openDetails(discovery);
             "
           >
             <!-- TODO Do border gradient like on Figma -->
@@ -127,7 +116,7 @@
   <!-- Selected pin discovery details modal -->
   <ion-modal
     :is-open="discoveryDetailsModalOpen"
-    @didDismiss="this.discoveryDetailsModalOpen = false"
+    @didDismiss="this.unfocusDiscovery"
     :breakpoints="[0.2, 0.75, 1]"
     :initial-breakpoint="0.75"
     :show-backdrop="false"
@@ -188,9 +177,6 @@ import { isPlatform } from "@ionic/vue";
 import { App } from "@capacitor/app";
 import { Distance } from "@/internal/Distance";
 import DiscoveryDetails from "@/components/DiscoveryDetails.vue";
-
-// This variable is here to know if the user focuses (previous click is) on a discovery or not
-let hasFocus = false;
 
 function insertAllPins(destinationLayer, discoveryList) {
   for (const discovery of discoveryList) {
@@ -329,6 +315,7 @@ export default {
   },
 
   methods: {
+
     async askForPermissions() {
       try {
         const geoRequestPermission = await Geolocation.requestPermissions();
@@ -337,6 +324,7 @@ export default {
         /* empty */
       }
     },
+
     myMap() {
       useGeographic();
       this.mainMap = new Map({
@@ -361,21 +349,11 @@ export default {
       });
 
       this.mainMap.on("singleclick", this.handleMapClick);
-      this.mainMap.on("movestart", this.unfocusDiscovery);
       this.mainMap.on("moveend", this.setCenterButtonAppearance);
 
       this.showPins();
       // Need to put an if statement here. If not, the blue circle will show up even if the user has denied the location permission
       if (!this.isPermissionDenied) this.showLocation();
-    },
-
-    openDetails(discovery) {
-      let type;
-      if (discovery.dType === "artwork") type = 0;
-      else if (discovery.dType === "place") type = 1;
-      /* (discovery.dType == "heritage") */ else type = 2;
-
-      this.$router.push(`/discovery-details/${type}/${discovery.id}`);
     },
 
     setCenterButtonAppearance() {
@@ -499,7 +477,7 @@ export default {
       return [style];
     },
 
-    // Makes selected discovery pin bigger and re-establishes former selected pin's size
+    // Makes selected discovery pin bigger, makes it red, and re-establishes former selected pin's size
     highlightSelectedDiscoveryPin(selectedPinDiscovery) {
       // if there was a selected pin before, make former selected pin back to normal scale
       if (this.formerSelectedPinFeature) {
@@ -606,25 +584,12 @@ export default {
         const id = features[0].get("id");
         const discovery = Utils.getDiscovery(id, dType);
 
-        //TODO Replace old focus system with new one
-        // Close current pop-up if present and re-open pop-up for clicked feature
-        if (hasFocus) this.unfocusDiscovery();
-
         // Update focus on feature closest to click
         this.focusDiscovery(discovery);
-        hasFocus = true;
 
-        // Did not click close to features
+      // Did not click close to features
       } else {
-        // if there was a selected pin before, make former selected pin back to normal scale
-        if (this.formerSelectedPinFeature) {
-          this.formerSelectedPinFeature.setStyle(this.mapPinsLayer.getStyle());
-        }
-        // Close pop-up
-        if (hasFocus) {
-          this.unfocusDiscovery();
-          hasFocus = false;
-        }
+        this.unfocusDiscovery();
       }
     },
 
@@ -648,7 +613,7 @@ export default {
         this.mainMap.getView().setZoom(currentZoom);
 
         map.getView().animate({
-          // Center viewport a bit below the selected pin so that the pin is towards the top of the screen
+          // Center viewport a bit below the selected pin so that the pin is towards the top of viewport
           center: [discovery.location.lng, discovery.location.lat - 0.30 * extentHeight],
           duration: transitionDuration,
           zoom: Math.max(currentZoom, 14.25),
@@ -658,49 +623,6 @@ export default {
       // Open pin discovery details description modal
       this.currentSelectedDiscovery = discovery;
       this.discoveryDetailsModalOpen = true;
-
-      const details = document.getElementById("popup-content");
-
-      // Show popup AFTER the view was centered
-      setTimeout(() => {
-        const elem = document.getElementById("popup");
-        elem.classList.add("activated");
-      }, transitionDuration);
-
-      // Show content of popup AFTER the popup was shown
-      setTimeout(() => {
-        const title = discovery.getTitle();
-        const subtext =
-          discovery.dType === "artwork"
-            ? discovery.getArtists()
-            : discovery.getUsages();
-
-        let type;
-        if (discovery.dType === "artwork") type = 0;
-        else if (discovery.dType === "place") type = 1;
-        /* if (discovery.dType === "heritage") */ else type = 2;
-
-        // Setting the button's redirection
-        const button = document.getElementById("seeMore");
-        button.onclick = () =>
-          this.$router.push({
-            path: `/discovery-details/${type}/${discovery.id}`,
-          });
-
-        document.getElementById("popupTitle").innerHTML = title;
-        document.getElementById("popupSubtext").innerHTML =
-          subtext.length > 0 ? subtext : "Inconnu";
-        details.hidden = false;
-      }, transitionDuration + 100);
-    },
-
-    // Hide description popup
-    unfocusDiscovery() {
-      const details = document.getElementById("popup-content");
-      const elem = document.getElementById("popup");
-
-      details.hidden = true;
-      elem.classList.remove("activated");
     },
 
     // Re-center on user location
@@ -719,6 +641,15 @@ export default {
       }
     },
 
+    // Close modal, if there was a selected pin before, make former selected pin back to normal scale and put formerSelectedPinFeature to null because there are no more selected pin
+    async unfocusDiscovery() {
+      this.discoveryDetailsModalOpen = false;
+      if (this.formerSelectedPinFeature) {
+        await this.formerSelectedPinFeature.setStyle(this.mapPinsLayer.getStyle());
+        this.formerSelectedPinFeature = null;
+      }
+    },
+
     async openAppSettings() {
       if (isPlatform("android")) {
         await NativeSettings.openAndroid({
@@ -734,6 +665,7 @@ export default {
     setAlertOpen(state) {
       this.isAlertOpen = state;
     },
+
   },
 };
 </script>
