@@ -115,6 +115,7 @@
 
   <!-- Selected pin discovery details modal -->
   <ion-modal
+    id="discoveryDetailsModal"
     :is-open="discoveryDetailsModalOpen"
     @didDismiss="this.unfocusDiscovery"
     :breakpoints="[0.2, 0.75, 1]"
@@ -330,7 +331,7 @@ export default {
       this.mainMap = new Map({
         // Hiding attribution (yes it's immoral)
         // ********* To put back Zoom buttons, replace 'zoom: false' by 'zoom: true' ********
-        controls: defaultControls({ attribution: false, zoom: true }),
+        controls: defaultControls({ attribution: false, zoom: false }),
 
         target: "map", // html element id where map will be rendered
         view: new View({
@@ -388,8 +389,8 @@ export default {
       }
     },
 
-    // Shows pins on the map and the pin in params
-    // Called in created() and when the URL params changes
+    // Shows pins on the map
+    // Called in created()
     showPins(discoveries = []) {
       const pinsLayer = new VectorLayer({
         source: new VectorSource(),
@@ -570,7 +571,6 @@ export default {
     focusDiscovery(discovery, map = this.mainMap) {
       if (!discovery) return;
 
-      const transitionDuration = 200; // Unit is milliseconds
       const currentZoom = map.getView().getZoom();
 
       // Highlight clicked pin
@@ -588,7 +588,7 @@ export default {
         map.getView().animate({
           // Center viewport a bit below the selected pin so that the pin is towards the top of viewport
           center: [discovery.location.lng, discovery.location.lat - 0.30 * extentHeight],
-          duration: transitionDuration,
+          duration: 100,
           zoom: Math.max(currentZoom, 14.25),
           easing: easeOut,
         });
@@ -614,7 +614,7 @@ export default {
       }
     },
 
-    // Close modal, if there was a selected pin before, make former selected pin back to normal scale and put formerSelectedPinFeature to null because there are no more selected pin
+    // Close modal, make former selected pin back to normal scale if there was a selected pin before, and put formerSelectedPinFeature to null because there are no more selected pin
     async unfocusDiscovery() {
       this.discoveryDetailsModalOpen = false;
       if (this.formerSelectedPinFeature) {
