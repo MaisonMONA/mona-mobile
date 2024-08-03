@@ -11,9 +11,9 @@
       userLocationInViewport: isUserLocationInViewport,
       userLocationOutsideViewport: isUserLocationOutsideViewport,
     }"
-    :fill="isUserLocationInViewport ? 'outline' : 'solid'"
+    :fill="isUserLocationInViewport || isUserLocationOutsideViewport ? 'outline' : 'solid'"
   >
-    <ion-icon :icon="locationIcon"></ion-icon>RECENTRER LA CARTE
+    <ion-icon :icon="isUserLocationOutsideViewport ? customLocationIconPurple : customLocationIconBlack"></ion-icon>RECENTRER LA CARTE
   </ion-button>
 
   <ion-alert
@@ -171,7 +171,8 @@ import {
 import { Fill, Icon, Stroke, Style } from "ol/style";
 import CircleStyle from "ol/style/Circle.js";
 import { circular } from "ol/geom/Polygon.js";
-import customLocationIcon from "/assets/drawable/icons/location_icon.svg";
+import customLocationIconBlack from "/assets/drawable/icons/location_icon_black.svg";
+import customLocationIconPurple from "/assets/drawable/icons/location_icon_purple.svg";
 import {containsCoordinate, getHeight} from "ol/extent.js";
 import { Geolocation } from "@capacitor/geolocation";
 import { isPlatform } from "@ionic/vue";
@@ -258,7 +259,8 @@ export default {
       // if location is not available, use the default zoom level = 4.5
       TILE_LAYER: layer,
       arrowRightIcon,
-      locationIcon: customLocationIcon,
+      customLocationIconBlack,
+      customLocationIconPurple,
       isAlertOpen: false,
       alertBtn: [
         {

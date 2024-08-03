@@ -141,19 +141,20 @@ ion-accordion-group.closestDiscoveriesAccordion ion-accordion div[slot="content"
 
 /* isUserLocationOutsideViewport = true */
 #recenter-button.userLocationOutsideViewport {
-    --background: #D9D9D9;
     width: 60vw;
     height: 16vw;
     --border-radius: 90px;
+    --border-width: 2px;
+    --border-color: #757DD7;
     font-size: 4vw;
     letter-spacing: 0.02vw;
     font-weight: 500;
+    color: #2E389E;
 }
 .ios #recenter-button.userLocationOutsideViewport {
     font-weight: 600;
 }
 #recenter-button.userLocationOutsideViewport ion-icon {
-    font-size: 5vw;
     margin-right: 3vw;
 }
 
