@@ -1,16 +1,6 @@
 <template style="contain: layout">
   <div id="map" class="map">
-    <div id="popup">
-      <div id="popup-content" hidden>
-        <div id="popup-details">
-          <p id="popupTitle" class="details"></p>
-          <p id="popupSubtext" class="details"></p>
-        </div>
-        <ion-button fill="clear" id="seeMore" router-direction="forward">
-          <ion-icon slot="icon-only" :icon="arrowRightIcon"></ion-icon>
-        </ion-button>
-      </div>
-    </div>
+    <!-- Map container -->
   </div>
 
   <ion-button
@@ -36,7 +26,10 @@
   </ion-alert>
 
   <!-- Closest discoveries accordion -->
-  <ion-accordion-group class="closestDiscoveriesAccordion" v-if="!isPermissionDenied">
+  <ion-accordion-group
+    class="closestDiscoveriesAccordion"
+    v-if="!isPermissionDenied"
+  >
     <ion-accordion>
       <!-- TODO Move recenter button with accordion and update when position changed -->
       <!-- TODO Put between 5 and 12 discoveries depending on discoveries in viewport and add number of discoveries in header?? (to confirm with team to understand what to do) -->
@@ -59,7 +52,6 @@
             :key="discovery"
             @click="
               focusDiscovery(discovery);
-              openDetails(discovery);
             "
           >
             <!-- TODO Do border gradient like on Figma -->
@@ -120,6 +112,23 @@
     </ion-accordion>
   </ion-accordion-group>
   <!-- Closest discoveries accordion -->
+
+  <!-- Selected pin discovery details modal -->
+  <ion-modal
+    id="discoveryDetailsModal"
+    :is-open="discoveryDetailsModalOpen"
+    @didDismiss="this.unfocusDiscovery"
+    :breakpoints="[0.2, 0.75, 1]"
+    :initial-breakpoint="0.75"
+    :show-backdrop="false"
+  >
+    <ion-content>
+      <discovery-details :selected-discovery="currentSelectedDiscovery" />
+    </ion-content>
+  </ion-modal>
+
+  <!-- Selected pin discovery details modal -->
+
 </template>
 
 <script>
@@ -133,6 +142,11 @@ import {
   IonAccordion,
   IonAccordionGroup,
   IonAlert,
+  IonModal,
+  IonList,
+  IonItem,
+  IonGrid,
+  IonRow,
 } from "@ionic/vue";
 import Map from "ol/Map";
 import View from "ol/View";
@@ -158,14 +172,12 @@ import { Fill, Icon, Stroke, Style } from "ol/style";
 import CircleStyle from "ol/style/Circle.js";
 import { circular } from "ol/geom/Polygon.js";
 import customLocationIcon from "/assets/drawable/icons/location_icon.svg";
-import { containsCoordinate } from "ol/extent.js";
+import {containsCoordinate, getHeight} from "ol/extent.js";
 import { Geolocation } from "@capacitor/geolocation";
 import { isPlatform } from "@ionic/vue";
 import { App } from "@capacitor/app";
 import { Distance } from "@/internal/Distance";
-
-// This variable is here to know if the user focuses (previous click is) on a discovery or not
-let hasFocus = false;
+import DiscoveryDetails from "@/components/DiscoveryDetails.vue";
 
 function insertAllPins(destinationLayer, discoveryList) {
   for (const discovery of discoveryList) {
@@ -190,6 +202,8 @@ export default {
   },
 
   components: {
+    DiscoveryDetails,
+    IonModal,
     IonLabel,
     IonContent,
     IonButton,
@@ -197,6 +211,10 @@ export default {
     IonAlert,
     IonAccordion,
     IonAccordionGroup,
+    IonList,
+    IonItem,
+    IonGrid,
+    IonRow,
   },
 
   data() {
@@ -217,10 +235,12 @@ export default {
         parseInt(this.$route.query.id),
         this.$route.query.type,
       );
-      setTimeout(() => this.focusDiscovery(discovery), 250);
+      setTimeout(() => this.focusDiscovery(discovery), 100);
     }
 
     return {
+      currentSelectedDiscovery: null,
+      discoveryDetailsModalOpen: false,
       isPermissionDenied: true,
       mapPinsLayer: null,
       lat2: UserData.getLocation()[1],
@@ -269,12 +289,12 @@ export default {
             parseInt(this.$route.query.id),
             this.$route.query.type,
           );
-          this.focusDiscovery(discovery);
+          setTimeout(() => this.focusDiscovery(discovery), 100);
+        } else {
+          this.unfocusDiscovery();
         }
-        this.showPins(); // To change the big pin when focusing on a pin from the map
       },
     );
-    this.renderMap();
   },
 
   async mounted() {
@@ -296,6 +316,7 @@ export default {
   },
 
   methods: {
+
     async askForPermissions() {
       try {
         const geoRequestPermission = await Geolocation.requestPermissions();
@@ -304,6 +325,7 @@ export default {
         /* empty */
       }
     },
+
     myMap() {
       useGeographic();
       this.mainMap = new Map({
@@ -313,7 +335,6 @@ export default {
 
         target: "map", // html element id where map will be rendered
         view: new View({
-
           center: this.isPermissionDenied
             ? [-68.2075, 52.8131]
             : this.INITIAL_COORDS,
@@ -329,21 +350,11 @@ export default {
       });
 
       this.mainMap.on("singleclick", this.handleMapClick);
-      this.mainMap.on("movestart", this.unfocusDiscovery);
       this.mainMap.on("moveend", this.setCenterButtonAppearance);
 
       this.showPins();
       // Need to put an if statement here. If not, the blue circle will show up even if the user has denied the location permission
       if (!this.isPermissionDenied) this.showLocation();
-    },
-
-    openDetails(discovery) {
-      let type;
-      if (discovery.dType === "artwork") type = 0;
-      else if (discovery.dType === "place") type = 1;
-      /* (discovery.dType == "heritage") */ else type = 2;
-
-      this.$router.push(`/discovery-details/${type}/${discovery.id}`);
     },
 
     setCenterButtonAppearance() {
@@ -378,21 +389,8 @@ export default {
       }
     },
 
-    renderMap() {
-      const route = useRoute();
-      const dType = route.params.dType;
-      const id = route.params.id;
-      if (dType && id) {
-        const discovery = Utils.getDiscovery(
-          parseInt(id.toString()),
-          dType.toString(),
-        );
-        this.focusDiscovery(discovery);
-      }
-    },
-
-    // Shows pins on the map and the pin in params
-    // Called in created() and when the URL params changes
+    // Shows pins on the map
+    // Called in created()
     showPins(discoveries = []) {
       const pinsLayer = new VectorLayer({
         source: new VectorSource(),
@@ -407,20 +405,6 @@ export default {
       } else {
         // Show all discoveries
         insertAllPins(pinsLayer, UserData.getSortedDiscoveriesAZ());
-      }
-
-      // if there's selected pin in url parameters, highlights it
-      if (this.$route.query.type && this.$route.query.id) {
-        const discovery = Utils.getDiscovery(
-          parseInt(this.$route.query.id),
-          this.$route.query.type,
-        );
-        this.highlightSelectedDiscoveryPin(discovery);
-        // if not, if there's a formerly selected pin, returns it back to its original style
-      } else {
-        if (this.formerSelectedPinFeature) {
-          this.formerSelectedPinFeature.setStyle(pinsLayer.getStyle());
-        }
       }
 
       this.mainMap.addLayer(pinsLayer);
@@ -439,16 +423,22 @@ export default {
       const id = feature.get("id");
       const type = feature.get("dType");
 
-      const status = UserData.isCollected(id, type) ? "collected"
-          : UserData.isTargeted(id, type) ? "targeted" : "default";
+      const status = UserData.isCollected(id, type)
+        ? "collected"
+        : UserData.isTargeted(id, type)
+          ? "targeted"
+          : "default";
 
       const zoomLevel = this.mainMap.getView().getZoom();
 
-      const pinSize = zoomLevel < 14 ? 0.3
-                      : zoomLevel === 14 ? 0.35
-                      : zoomLevel === 15 ? 0.4
-                      : 0.5;
-
+      const pinSize =
+        zoomLevel < 14
+          ? 0.3
+          : zoomLevel === 14
+            ? 0.35
+            : zoomLevel === 15
+              ? 0.4
+              : 0.5;
 
       const style = new Style({
         image: new Icon({
@@ -461,7 +451,7 @@ export default {
       return [style];
     },
 
-    // Makes selected discovery pin bigger and re-establishes former selected pin's size
+    // Makes selected discovery pin bigger, makes it red, and re-establishes former selected pin's size
     highlightSelectedDiscoveryPin(selectedPinDiscovery) {
       // if there was a selected pin before, make former selected pin back to normal scale
       if (this.formerSelectedPinFeature) {
@@ -554,6 +544,7 @@ export default {
       }, 5000);
     },
 
+    // Handles click on the map
     handleMapClick(event) {
       // Get features(discoveries on the map) close to click
       const features = this.mainMap.getFeaturesAtPixel(event.pixel, {
@@ -562,98 +553,49 @@ export default {
 
       // Check if clicked close to features
       if (features.length > 0) {
-        // Update focus on feature closest to click
+        // Get closest feature to click
         const dType = features[0].get("dType");
         const id = features[0].get("id");
         const discovery = Utils.getDiscovery(id, dType);
 
-        // Highlight clicked pin
-        this.highlightSelectedDiscoveryPin(discovery);
-
-        // Close current pop-up if present and re-open pop-up for clicked feature
-        if (hasFocus) this.unfocusDiscovery();
-
+        // Update focus on feature closest to click
         this.focusDiscovery(discovery);
-        hasFocus = true;
 
-        // Did not click close to features
+      // Did not click close to features
       } else {
-        // if there was a selected pin before, make former selected pin back to normal scale
-        if (this.formerSelectedPinFeature) {
-          this.formerSelectedPinFeature.setStyle(this.mapPinsLayer.getStyle());
-        }
-        // Close pop-up
-        if (hasFocus) {
-          this.unfocusDiscovery();
-          hasFocus = false;
-        }
+        this.unfocusDiscovery();
       }
     },
 
-    // Zoom and center on discovery and open its description popup
+    // Highlights discovery, centers on it, and opens its description modal
     focusDiscovery(discovery, map = this.mainMap) {
       if (!discovery) return;
 
-      const transitionDuration = 200; // Unit is milliseconds
+      const currentZoom = map.getView().getZoom();
 
-      // Center map on the pin with animation if it isn't already centered
-      const mapCenter = map.getView().getCenter();
-      if (
-        mapCenter[0] !== discovery.location.lng ||
-        mapCenter[1] !== discovery.location.lat
-      ) {
-        const currentZoom = map.getView().getZoom();
+      // Highlight clicked pin
+      this.highlightSelectedDiscoveryPin(discovery);
+
+      // Center map on the selected pin with animation
+        // Get viewport height coordinates at the desired zoom level
+        // Temporarily set the zoom level
+        this.mainMap.getView().setZoom(Math.max(currentZoom, 14.25));
+        // Calculate viewport height at the temporary zoom level
+        const extentHeight = getHeight(this.mainMap.getView().calculateExtent(map.getSize()));
+        // Restore the original zoom level
+        this.mainMap.getView().setZoom(currentZoom);
 
         map.getView().animate({
-          center: [discovery.location.lng, discovery.location.lat],
-          duration: transitionDuration,
+          // Center viewport a bit below the selected pin so that the pin is towards the top of viewport
+          center: [discovery.location.lng, discovery.location.lat - 0.30 * extentHeight],
+          duration: 100,
           zoom: Math.max(currentZoom, 14.25),
           easing: easeOut,
         });
-      }
 
-      const details = document.getElementById("popup-content");
-
-      // Show popup AFTER the view was centered
-      setTimeout(() => {
-        const elem = document.getElementById("popup");
-        elem.classList.add("activated");
-      }, transitionDuration);
-
-      // Show content of popup AFTER the popup was shown
-      setTimeout(() => {
-        const title = discovery.getTitle();
-        const subtext =
-          discovery.dType === "artwork"
-            ? discovery.getArtists()
-            : discovery.getUsages();
-
-        let type;
-        if (discovery.dType === "artwork") type = 0;
-        else if (discovery.dType === "place") type = 1;
-        /* if (discovery.dType === "heritage") */ else type = 2;
-
-        // Setting the button's redirection
-        const button = document.getElementById("seeMore");
-        button.onclick = () =>
-          this.$router.push({
-            path: `/discovery-details/${type}/${discovery.id}`,
-          });
-
-        document.getElementById("popupTitle").innerHTML = title;
-        document.getElementById("popupSubtext").innerHTML =
-          subtext.length > 0 ? subtext : "Inconnu";
-        details.hidden = false;
-      }, transitionDuration + 100);
-    },
-
-    // Hide description popup
-    unfocusDiscovery() {
-      const details = document.getElementById("popup-content");
-      const elem = document.getElementById("popup");
-
-      details.hidden = true;
-      elem.classList.remove("activated");
+      // Open pin discovery details description modal
+      this.currentSelectedDiscovery = discovery;
+      this.discoveryDetailsModalOpen = true;
     },
 
     // Re-center on user location
@@ -671,6 +613,16 @@ export default {
         this.setAlertOpen(true);
       }
     },
+
+    // Close modal, make former selected pin back to normal scale if there was a selected pin before, and put formerSelectedPinFeature to null because there are no more selected pin
+    async unfocusDiscovery() {
+      this.discoveryDetailsModalOpen = false;
+      if (this.formerSelectedPinFeature) {
+        await this.formerSelectedPinFeature.setStyle(this.mapPinsLayer.getStyle());
+        this.formerSelectedPinFeature = null;
+      }
+    },
+
     async openAppSettings() {
       if (isPlatform("android")) {
         await NativeSettings.openAndroid({
@@ -682,9 +634,11 @@ export default {
         });
       }
     },
+
     setAlertOpen(state) {
       this.isAlertOpen = state;
     },
+
   },
 };
 </script>

@@ -1,5 +1,12 @@
 @import url("@/theme/GlobalStyle.css");
 
+/* Selected pin discovery details modal */
+#discoveryDetailsModal {
+    --border-radius: 16px 16px 0px 0px;
+    /*height: 90vh; --makes nav bar visible! */
+}
+/* Selected pin discovery details modal */
+
 /* Closest discoveries accordion */
 ion-accordion-group.closestDiscoveriesAccordion {
     position: absolute;
@@ -150,80 +157,6 @@ ion-accordion-group.closestDiscoveriesAccordion ion-accordion div[slot="content"
     margin-right: 3vw;
 }
 
-div#popup.activated {
-    top: 40%;
-    width: 65vw;
-    height: 12vw;
-    border: 1px solid var(--button-outline-grey);
-}
-
-#popup {
-    perspective-origin: bottom;
-    background: rgba(255, 255, 255, 0.35);
-    backdrop-filter: blur(3px);
-    position: absolute;
-    left: 50%;
-    top: 40%;
-    transform: translate(-50%, -50%);
-    z-index: 1;
-    width: 0;
-    height: 0;
-    border-radius: 10vw;
-    overflow: inherit;
-    transition: all 0.1s cubic-bezier(0, .8, .2, 1);
-}
-
-#popup-details {
-    position: relative;
-    left: 5vw;
-    width: 48vw;
-    height: 12vw;
-    text-overflow: ellipsis;
-    padding-top: 1vw;
-}
-
-#popupTitle {
-    font-size: 16px;
-    font-style: italic;
-    font-weight: bold;
-}
-
-#popupSubtext {
-    position: relative;
-    top: -0.5vw;
-    font-size: 11px;
-    font-weight: 400;
-}
-
-#popupTitle, #popupSubtext {
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    font-family: "OpenSans", sans-serif;
-    color: black;
-    margin: 0;
-}
-
-#popup ion-button {
-    position: absolute;
-    top: 0;
-    right: 2px;
-
-    /* For some reason, increasing this number makes the arrow icon smaller. */
-    font-size: 0;
-
-    width: 10vw;
-    height: 10vw;
-    color: black;
-    --background: none;
-    --ripple-color: var(--mona-yellow);
-    --border-radius: 50%;
-    --border-width: 0;
-}
-
-#seeMore ion-icon {
-    font-size: 32px;
-}
 
 .map-alert {
     --min-width: 90% !important;
