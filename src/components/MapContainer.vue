@@ -3,19 +3,6 @@
     <!-- Map container -->
   </div>
 
-  <ion-button
-    @click="recenterView"
-    id="recenter-button"
-    :class="{
-      'map-button': true,
-      userLocationInViewport: isUserLocationInViewport,
-      userLocationOutsideViewport: isUserLocationOutsideViewport,
-    }"
-    :fill="isUserLocationInViewport || isUserLocationOutsideViewport ? 'outline' : 'solid'"
-  >
-    <ion-icon :icon="isUserLocationOutsideViewport ? customLocationIconPurple : customLocationIconBlack"></ion-icon>RECENTRER LA CARTE
-  </ion-button>
-
   <ion-alert
     class="map-alert"
     :is-open="isAlertOpen"
@@ -26,22 +13,36 @@
   </ion-alert>
 
   <!-- Closest discoveries accordion -->
+
+  <!-- ionChange and :value here are a fix to keep the accordion from re-opening by itself caused by recenter button updating (maybe ionic re-renders accordion when recenter button in it updates) -->
   <ion-accordion-group
     class="closestDiscoveriesAccordion"
     v-if="!isPermissionDenied"
+    :value="ionAccordionOpen ? 'ionaccordion' : ''"
+    @ionChange="ionAccordionOpen = !ionAccordionOpen"
   >
-    <ion-accordion>
+    <!-- Put the recenter button here so that it moves with the accordion-->
+    <div class="accordionButtonDiv">
+      <ion-button
+      @click="this.recenterView(); this.updateClosestDiscoveries();"
+      id="recenter-button"
+      :class="{
+      'map-button': true,
+      userLocationInViewport: isUserLocationInViewport,
+      userLocationOutsideViewport: isUserLocationOutsideViewport,
+      }"
+      :fill="isUserLocationInViewport || isUserLocationOutsideViewport ? 'outline' : 'solid'"
+      >
+        <ion-icon :icon="isUserLocationOutsideViewport ? customLocationIconPurple : customLocationIconBlack"></ion-icon>RECENTRER LA CARTE
+      </ion-button>
+    </div>
+
+    <ion-accordion value="ionaccordion">
       <!-- TODO Move recenter button with accordion and update when position changed -->
       <!-- TODO Put between 5 and 12 discoveries depending on discoveries in viewport and add number of discoveries in header?? (to confirm with team to understand what to do) -->
       <!-- TODO Check if discoveries match with user location when it changes -->
       <ion-item
         slot="header"
-        @click="
-          this.closestDiscoveriesDistance =
-            UserData.getSortedDiscoveriesDistance().slice(0, 12);
-          this.lat2 = UserData.getLocation()[1];
-          this.lng2 = UserData.getLocation()[0];
-        "
       >
         <ion-label>Découvertes à proximité: </ion-label>
       </ion-item>
@@ -240,6 +241,7 @@ export default {
     }
 
     return {
+      ionAccordionOpen: true,
       currentSelectedDiscovery: null,
       discoveryDetailsModalOpen: false,
       isPermissionDenied: true,
@@ -297,6 +299,13 @@ export default {
         }
       },
     );
+
+    // Set closest discoveries to user location when opening map
+    // Timeout because or else, it doesn't show closest discoveries
+    setTimeout(() => {
+      this.updateClosestDiscoveries();
+    }, 1000);
+
   },
 
   async mounted() {
@@ -318,6 +327,14 @@ export default {
   },
 
   methods: {
+
+    updateClosestDiscoveries() {
+      this.closestDiscoveriesDistance =
+          UserData.getSortedDiscoveriesDistance(0, 12);
+      // For distance between discoveries and user location
+      this.lat2 = UserData.getLocation()[1];
+      this.lng2 = UserData.getLocation()[0];
+    },
 
     async askForPermissions() {
       try {
@@ -590,7 +607,7 @@ export default {
         map.getView().animate({
           // Center viewport a bit below the selected pin so that the pin is towards the top of viewport
           center: [discovery.location.lng, discovery.location.lat - 0.30 * extentHeight],
-          duration: 100,
+          duration: 200,
           zoom: Math.max(currentZoom, 14.25),
           easing: easeOut,
         });

@@ -8,6 +8,12 @@
 /* Selected pin discovery details modal */
 
 /* Closest discoveries accordion */
+
+/* To make ion button follow accordion opening and closing */
+.accordionButtonDiv {
+    position: relative;
+}
+
 ion-accordion-group.closestDiscoveriesAccordion {
     position: absolute;
     bottom: 10.5vh;
@@ -127,10 +133,7 @@ ion-accordion-group.closestDiscoveriesAccordion ion-accordion div[slot="content"
     font-size: 3.5vw;
 }
 #recenter-button {
-    bottom: 20vh;
-}
-.ios #recenter-button {
-    bottom: 22vh;
+    bottom: 4vh;
 }
 
 /* isUserLocationInViewport = true */

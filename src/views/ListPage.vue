@@ -184,6 +184,9 @@ import {
   IonModal,
   IonRadio,
   IonRadioGroup,
+  IonText,
+  IonCol,
+  IonRow,
 } from "@ionic/vue";
 import { filterOutline, close, optionsOutline, reload } from "ionicons/icons";
 import { UserData } from "@/internal/databases/UserData";
@@ -214,6 +217,9 @@ export default {
     IonModal,
     IonRadio,
     IonRadioGroup,
+    IonText,
+    IonCol,
+    IonRow
   },
   setup() {
     return {
