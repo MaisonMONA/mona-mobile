@@ -13,15 +13,18 @@
   </ion-alert>
 
   <!-- Closest discoveries accordion -->
+
+  <!-- ionChange and :value here are a fix to keep the accordion from re-opening by itself caused by recenter button updating (maybe ionic re-renders accordion when recenter button in it updates) -->
   <ion-accordion-group
     class="closestDiscoveriesAccordion"
-    value="ionaccordion"
     v-if="!isPermissionDenied"
+    :value="ionAccordionOpen ? 'ionaccordion' : ''"
+    @ionChange="ionAccordionOpen = !ionAccordionOpen"
   >
     <!-- Put the recenter button here so that it moves with the accordion-->
     <div class="accordionButtonDiv">
       <ion-button
-      @click="recenterView"
+      @click="this.recenterView(); this.updateClosestDiscoveries();"
       id="recenter-button"
       :class="{
       'map-button': true,
@@ -238,6 +241,7 @@ export default {
     }
 
     return {
+      ionAccordionOpen: true,
       currentSelectedDiscovery: null,
       discoveryDetailsModalOpen: false,
       isPermissionDenied: true,
