@@ -31,7 +31,7 @@
           >
             <!-- Discovery icon -->
             <ion-avatar slot="start">
-              <img :src="getDiscoveryMedalIcon(discovery)" alt="" />
+              <img :src="getDiscoveryMedalIcon(discovery)" alt="discoveryMedalIcon" />
             </ion-avatar>
             <!-- Discovery to user distance  -->
             <ion-label id="distance" position="fixed" class="ion-text-wrap"
@@ -545,19 +545,20 @@ ion-list {
 }
 
 #list {
-  border: 5px solid #f3f2f7;
-  border-radius: 15px;
+  border-bottom: 5px solid #f3f2f7;
+  border-top: 5px solid #f3f2f7;
+  border-radius: 3vw;
   --min-height: 15vw;
 }
 
-ion-label {
-  padding-left: 15px;
+.titreTrier ion-label, .trierDistance, .trierAZ {
+  padding-left: 4%;
 }
 
 ion-avatar img {
-  margin-top: 5px;
-  max-width: 8vw;
-  max-height: 8vw;
+  margin-top: 10%;
+  max-width: 7.6vw;
+  max-height: 7.6vw;
 }
 
 ion-avatar {
@@ -601,6 +602,7 @@ p.bottom-text {
 }
 
 #title {
+  padding-left: 0.2vw;
   font-weight: bold;
   /* To do so that the title stays on one line and finishes with "..." if it's too long */
   text-overflow: ellipsis;
@@ -608,11 +610,22 @@ p.bottom-text {
   overflow: hidden;
 }
 
+.ios #title {
+  padding-left: 0;
+  font-size: 4vw;
+}
+
 #distance {
+  padding-left: 2vw;
   font-size: small;
-  max-width: 30%;
+  max-width: 20%;
   /* To correct #title sticking to the right bug caused by #distance taking too much space
     (max-width: 200px in Inspect element)*/
+  min-width: 0;
+  /* To override ionic probably shadow DOM setting min-width to 100px*/
+}
+.ios #distance {
+  max-width: 18%;
 }
 
 ion-col img {
