@@ -116,6 +116,9 @@ a {
   font-weight: normal;
 }
 
+div {
+  background-color: white;
+}
 #userInfo {
   background-color: white;
   color: black;
