@@ -1,5 +1,5 @@
 <template>
-  <ion-page>
+  <ion-page id="collectionPage">
     <div id="userInfo">
       <ion-icon id="defaultUserAvatar" :icon="defaultUserAvatar"></ion-icon>
       <div id="userInfoText">
@@ -116,11 +116,12 @@ a {
   font-weight: normal;
 }
 
-div {
-  background-color: white;
+#collectionPage {
+  /* Override dark mode */
+  background: white;
 }
+
 #userInfo {
-  background-color: white;
   color: black;
   display: flex;
   padding: 8vw 5vw 0 5vw;
@@ -155,12 +156,10 @@ div {
 }
 
 .ion-segment-container {
-  background: white;
   padding: 5vw 3.8vw;
 }
 
 ion-segment {
-  /* Override dark mode */
   --background: white;
   border: 1px solid black;
   border-radius: 90px;
