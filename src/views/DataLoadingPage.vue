@@ -56,6 +56,15 @@ export default {
         UserData.tryUploadingPendingDiscoveries();
       })
       .then(() => {
+
+        // Set when account was created
+        // TODO check if this is the right way to do it
+        try {
+          if (UserData.getWhenAccountCreated() === "") UserData.setWhenAccountCreated();
+        } catch (error) {
+          this.showAlert("Error: couldn't get when account was created by API.");
+        }
+
         this.ionToastErrorMessageIsOpen = false;
         this.$router.replace("/tabs/map");
       })

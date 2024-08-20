@@ -76,17 +76,10 @@ export default {
       BadgesContainer,
     };
   },
-  async beforeMount() {
-    const response = await fetch(Globals.apiRoutes.userProfile, {
-      method: "GET",
-      headers: {
-        Authorization: "Bearer " + UserData.getToken(),
-      },
-    });
-
-    if (response.ok) {
-      const parsed = await response.json();
-      const yearDayArray = /^(\d{4})-(\d{2})-/.exec(parsed.created_at);
+  beforeMount() {
+    const created_at = UserData.getWhenAccountCreated();
+    if (created_at) {
+      const yearDayArray = /^(\d{4})-(\d{2})-/.exec(created_at);
       const year = yearDayArray[1];
       const month = parseInt(yearDayArray[2]);
       const monthsArray = [
@@ -104,10 +97,6 @@ export default {
         "Décembre",
       ];
       this.memberSince = monthsArray[month - 1] + " " + year;
-      console.log(this.memberSince);
-
-    } else {
-      console.error(`Error fetching user info. Status: ${response.status}`);
     }
   },
   methods: {
