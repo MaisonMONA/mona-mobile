@@ -4,8 +4,7 @@
       <ion-icon id="defaultUserAvatar" :icon="defaultUserAvatar"></ion-icon>
       <div id="userInfoText">
         <h1>{{ username }}</h1>
-        <!-- TODO Make api/v3/user work to get "created_at" -->
-        <!--<h6>Membre depuis </h6>-->
+        <h6>Membre depuis {{ memberSince }}</h6>
       </div>
     </div>
       <div class="ion-segment-container">
@@ -48,6 +47,7 @@ import badgesContainer from "@/components/BadgesContainer.vue";
 import {UserData} from "@/internal/databases/UserData";
 import defaultUserAvatar from "/assets/drawable/icons/defaultUserAvatar.svg";
 import Utils from "@/internal/Utils";
+import Globals from "@/internal/Globals";
 export default {
   name: "CollectionBadge",
   computed: {
@@ -76,6 +76,29 @@ export default {
       BadgesContainer,
     };
   },
+  beforeMount() {
+    const created_at = UserData.getWhenAccountCreated();
+    if (created_at) {
+      const yearDayArray = /^(\d{4})-(\d{2})-/.exec(created_at);
+      const year = yearDayArray[1];
+      const month = parseInt(yearDayArray[2]);
+      const monthsArray = [
+        "Janvier",
+        "Février",
+        "Mars",
+        "Avril",
+        "Mai",
+        "Juin",
+        "Juillet",
+        "Août",
+        "Septembre",
+        "Octobre",
+        "Novembre",
+        "Décembre",
+      ];
+      this.memberSince = monthsArray[month - 1] + " " + year;
+    }
+  },
   methods: {
     getSegment() {
       if (this.choixSegment === "collection") {
@@ -88,6 +111,7 @@ export default {
   },
   data() {
     return {
+      memberSince: "",
       choixSegment: "collection",
       component: markRaw(CollectionContainer),
       username: UserData.getUsername(),
@@ -133,13 +157,7 @@ a {
 #userInfoText {
   margin-left: 5vw;
   display: flex;
-
-  /* Temporary before fixing API token bug api/v3/user to get "created_at" */
-  justify-content: center;
-  align-items: center;
-  /* Temporary before fixing API token bug api/v3/user to get "created_at" */
-
-  /*flex-direction: column;*/
+  flex-direction: column;
 }
 
 #defaultUserAvatar {
