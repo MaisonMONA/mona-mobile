@@ -9,10 +9,9 @@
         @didDismiss="ionToastErrorMessageIsOpen = false"
         color="danger"
         position="top"
-        position-anchor="ion-toast-anchor"
       ></ion-toast>
 
-      <div id="ion-toast-anchor" class="main-content">
+      <div class="main-content">
         <p id="welcome">Connexion</p>
         <p id="ask-for-login">Connectez-vous à votre compte.</p>
 

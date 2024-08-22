@@ -8,10 +8,8 @@
         @didDismiss="ionToastErrorMessageIsOpen = false"
         color="danger"
         position="top"
-        position-anchor="ion-toast-anchor"
       ></ion-toast>
 
-      <div id="ion-toast-anchor"></div>
       <div class="main-content">
         <p id="welcome">Inscription</p>
         <p id="ask-for-registration">
@@ -220,10 +218,13 @@ label {
 .main-content {
   font-size: 14px;
   text-align: center;
-  position: relative;
+  position: absolute;
   top: 15%;
   width: 100%;
   height: 85%;
+}
+.ios .main-content {
+  top: 17%;
 }
 
 div.form-section {
