@@ -116,7 +116,7 @@ ion-accordion-group.closestDiscoveriesAccordion ion-accordion div[slot="content"
 
 .basemapLayer {
     background-color: #ebebeb; /* background when map hasn't fully loaded when de-zooming quickly */
-    filter: grayscale(0.3); /* make map grayer */
+    filter: grayscale(0.7); /* make map grayer */
 }
 
 .map-button {
