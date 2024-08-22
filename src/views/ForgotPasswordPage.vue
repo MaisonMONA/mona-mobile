@@ -103,7 +103,6 @@ async function showLoading() {
           fill="outline"
           placeholder="Entrer votre nom d'utilisateur"
           v-model="inputUsername.value"
-          id="ion-toast-anchor"
           @keydown.enter="resetPassword"
         ></ion-input>
         <ion-button expand="block" @click="resetPassword" class="reinitialiser"
@@ -125,7 +124,6 @@ async function showLoading() {
         :class="toastCSS"
         @disDismiss="setOpenToast(false)"
         position="top"
-        position-anchor="ion-toast-anchor"
       ></ion-toast>
     </ion-content>
   </ion-page>
@@ -135,8 +133,12 @@ async function showLoading() {
 @import url("@/theme/TopToolbar.css");
 div.ion-padding {
   position: relative;
-  top: 5%;
+  top: 8vh;
 }
+.ios div.ion-padding {
+  top: 11vh;
+}
+
 ion-toast.status200 {
   --background: #327128;
   --box-shadow: 3px 3px 10px 0 rgba(0, 0, 0, 0.2);
