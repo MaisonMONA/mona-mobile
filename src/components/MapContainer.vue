@@ -358,7 +358,7 @@ export default {
             ? [-68.2075, 52.8131]
             : this.INITIAL_COORDS,
           zoom: this.isPermissionDenied ? 4.5 : this.DEFAULT_ZOOM_LEVEL,
-          maxZoom: 24,
+          maxZoom: 20,
           minZoom: 3,
 
           // Disable rotation on map
