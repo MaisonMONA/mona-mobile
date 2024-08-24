@@ -97,11 +97,11 @@ async function showLoading() {
       <div class="ion-padding">
         <ion-input
           type="email"
-          label="Nom d'utilisateur"
+          label="Entrez ici votre nom d'utilisateur"
           class="username"
           label-placement="floating"
           fill="outline"
-          placeholder="Entrer votre nom d'utilisateur"
+          placeholder="Nom d'utilisateur"
           v-model="inputUsername.value"
           @keydown.enter="resetPassword"
         ></ion-input>
@@ -154,7 +154,7 @@ ion-button.reinitialiser {
   --background-activated: #000000;
   --ripple-color: #000000;
   --color: white;
-  margin-bottom: 2%;
+  margin-bottom: 3%;
 }
 ion-button.annuler {
   --background: #d9d9d9;
@@ -163,7 +163,11 @@ ion-button.annuler {
   --color: black;
 }
 ion-input.username {
+  --color: #474747;
   --highlight-color-focused: #000000;
-  margin-bottom: 7%;
+  margin-bottom: 9%;
+}
+.ios ion-input.username {
+  border-bottom: 0.13vh solid #bfbfbf;
 }
 </style>
