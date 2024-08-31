@@ -20,7 +20,7 @@ import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
 import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
 import { BadgeDatabase } from "@/internal/databases/BadgeDatabase";
 import { UserData } from "@/internal/databases/UserData";
-import { UserBadges } from "@/internal/UserBadges";
+import {CollectedBadge} from "@/internal/CollectedBadges.ts";
 
 export default {
   name: "DataLoadingPage",
@@ -49,8 +49,8 @@ export default {
       })
       .then(() => Promise.all([UserData.getFromServer(), UserData.loadCache()]))
       .then(() => {
-        // cache collected badges
-        UserBadges.populate();
+        // Fetch collected badges
+        CollectedBadge.determineCollectedBadges();
         // async functions, but DO NOT await (background tasks)
         UserData.checkForDBUpdate();
         UserData.tryUploadingPendingDiscoveries();

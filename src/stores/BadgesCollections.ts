@@ -24,28 +24,30 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
       badgesDB: useBadgesDB(),
       userCollectedDiscovery: UserData.getCollectedChronologically(),
       userCollectedBadges: UserData.getCollectedBadges(),
-      userCount: UserData.getCollectedBadges()
+
+      // Make arrays with ids of the corresponding collected badges
+      collectedCountBadgesId: UserData.getCollectedBadges()
         .filter((badge: any) => {
           return badge.type === "count";
         })
         .map((badge: any) => {
           return badge.id;
         }),
-      userBorough: UserData.getCollectedBadges()
+      collectedBoroughBadgesId: UserData.getCollectedBadges()
         .filter((badge: any) => {
           return badge.type === "borough";
         })
         .map((badge: any) => {
           return badge.id;
         }),
-      userCategory: UserData.getCollectedBadges()
+      collectedCategoryBadgesId: UserData.getCollectedBadges()
         .filter((badge: any) => {
           return badge.type === "category";
         })
         .map((badge: any) => {
           return badge.id;
         }),
-      userOwner: UserData.getCollectedBadges()
+      ownerCategoryBadgesId: UserData.getCollectedBadges()
         .filter((badge: any) => {
           return badge.type === "owner";
         })
@@ -53,6 +55,7 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
           return badge.id;
         }),
 
+      // Badges collections ?
       countCollection: [] as any,
       boroughCollection: [] as any,
       categoryCollection: [] as any,
@@ -66,44 +69,52 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
   },
 
   actions: {
-    badgeCollection() {
-      this.countBadge();
-      this.boroughBadge();
-      this.categoryBadge();
-      this.ownerBadge();
-    },
-    countBadge() {
-      const countCollected = [];
 
-      for (const element of this.badgesDB.getCount()) {
-        if (this.userCount.includes(element.id)) {
-          countCollected.push(UserData.getCollectedBadge(element.id));
+    // Instantiate the badges to show for each type of badges
+    instantiateBadgesToShow() {
+      this.instantiateCountBadges();
+      this.instantiateBoroughBadges();
+      this.instantiateCategoryBadges();
+      this.instantiateOwnerBadges();
+    },
+
+    instantiateCountBadges() {
+      const countBadgesArray = [];
+
+      for (const countBadge of this.badgesDB.getCount()) {
+        if (this.collectedCountBadgesId.includes(countBadge.id)) {
+          // Collected badge
+          countBadgesArray.push(UserData.getCollectedBadge(countBadge.id));
         } else {
-          countCollected.push({
-            id: element.id,
-            src: countPathLocked + element.id + ".svg",
-            notification: element?.notification.fr,
-            description: element?.description.fr,
-            message: element?.notification.fr,
-            requireCount: element?.required_count,
-            title: element?.title.fr,
+          // Uncollected badge
+          countBadgesArray.push({
+            id: countBadge.id,
+            src: countPathLocked + countBadge.id + ".svg",
+            notification: countBadge?.notification.fr,
+            description: countBadge?.description.fr,
+            message: countBadge?.notification.fr,
+            requireCount: countBadge?.required_count,
+            title: countBadge?.title.fr,
             dType: null,
             type: "count",
           });
         }
       }
-      this.countCollection = countCollected;
+      this.countCollection = countBadgesArray;
     },
-    boroughBadge() {
-      const boroughCollected = [];
+
+    instantiateBoroughBadges() {
+      const boroughBadgesArray = [];
 
       for (const boroughElementID of this.badgesDB.borough) {
         const boroughElement = BadgeDatabase.getFromId(boroughElementID);
         const title = boroughElement?.getTitle();
-        if (this.userBorough.includes(boroughElementID)) {
-          boroughCollected.push(UserData.getCollectedBadge(boroughElementID));
+        if (this.collectedBoroughBadgesId.includes(boroughElementID)) {
+          // Collected or in progress badge
+          boroughBadgesArray.push(UserData.getCollectedBadge(boroughElementID));
         } else {
-          boroughCollected.push({
+          // Uncollected badge
+          boroughBadgesArray.push({
             id: boroughElementID,
             notification: boroughElement?.notification.fr,
             description: boroughElement?.description.fr,
@@ -117,18 +128,21 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
           });
         }
       }
-      this.boroughCollection = boroughCollected;
+      this.boroughCollection = boroughBadgesArray;
     },
-    categoryBadge() {
-      const categoryCollected = [];
+
+    instantiateCategoryBadges() {
+      const categoryBadgesArray = [];
       for (const e of this.badgesDB.category) {
         const categoryElementID = e[0];
         const categoryElement = BadgeDatabase.getFromId(categoryElementID);
 
-        if (this.userCategory.includes(categoryElementID)) {
-          categoryCollected.push(UserData.getCollectedBadge(categoryElementID));
+        if (this.collectedCategoryBadgesId.includes(categoryElementID)) {
+          // Collected or in progress badge
+          categoryBadgesArray.push(UserData.getCollectedBadge(categoryElementID));
         } else {
-          categoryCollected.push({
+          // Uncollected badge
+          categoryBadgesArray.push({
             id: categoryElementID,
             notification: categoryElement?.notification.fr,
             description: categoryElement?.description.fr,
@@ -142,17 +156,20 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
           });
         }
       }
-      this.categoryCollection = categoryCollected;
+      this.categoryCollection = categoryBadgesArray;
     },
-    ownerBadge() {
-      const ownerCollected = [];
+
+    instantiateOwnerBadges() {
+      const ownerBadgesArray = [];
       for (const e of this.badgesDB.owner) {
         const ownerElementID = e[0];
         const ownerElement = BadgeDatabase.getFromId(ownerElementID);
-        if (this.userOwner.includes(ownerElementID)) {
-          ownerCollected.push(UserData.getCollectedBadge(ownerElementID));
+        if (this.ownerCategoryBadgesId.includes(ownerElementID)) {
+          // Collected or in progress badge
+          ownerBadgesArray.push(UserData.getCollectedBadge(ownerElementID));
         } else {
-          ownerCollected.push({
+          // Uncollected badge
+          ownerBadgesArray.push({
             id: ownerElementID,
             notification: ownerElement?.notification.fr,
             description: ownerElement?.description.fr,
@@ -166,10 +183,11 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
           });
         }
       }
-      this.ownerCollection = ownerCollected;
+      this.ownerCollection = ownerBadgesArray;
     },
+
+    // Updates badges (augment count and/or change picture) with new discovery passed in
     newBadge(id: number, dType: string) {
-      this.badgeCollection();
       const element: Artwork | Place | Heritage | null = Utils.getDiscovery(
         id,
         dType,
@@ -181,6 +199,9 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
       this.newCategoryBadge(tmpCategory);
       this.newOwnerBadge(tmpOwner);
       this.newCountBadge();
+
+      // Update badges to show
+      this.instantiateBadgesToShow();
     },
     newBoroughBadge(borough: string | undefined) {
       if (borough) {
