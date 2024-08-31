@@ -120,14 +120,14 @@ export default {
     return { badgesCollectionsStore };
   },
   beforeMount() {
-    badgesCollectionsStore.badgeCollection();
+    badgesCollectionsStore.instantiateBadgesToShow();
     this.borough = badgesCollectionsStore.boroughCollection.concat(
       badgesCollectionsStore.ownerCollection,
     );
   },
   computed: {
     nbrCountUnlocked() {
-      return badgesCollectionsStore.userCount.length;
+      return badgesCollectionsStore.collectedCountBadgesId.length;
     },
   },
   methods: {
