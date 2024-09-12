@@ -20,7 +20,7 @@
           :alt="elem.message"
           :src="elem.src"
           style="max-width: none"
-          @click="toDelete"
+          @click="debuggingToDelete"
         />
         <span style="margin-top: 2%; font-size: small"> {{ elem.title }} </span>
       </swiper-slide>
@@ -131,10 +131,11 @@ export default {
     },
   },
   methods: {
-    toDelete() {
-      console.log(badgesCollectionsStore.userCollectedDiscovery);
-      console.log(badgesCollectionsStore.userCollectedBadges);
-      console.log(badgesCollectionsStore.countCollection);
+    debuggingToDelete() {
+      console.log("userCollectedDiscovery:", badgesCollectionsStore.userCollectedDiscovery);
+      console.log("userCollectedBadges:", badgesCollectionsStore.userCollectedBadges);
+      console.log("countCollection:", badgesCollectionsStore.countCollection);
+      console.log("collectedCountBadgesId:", badgesCollectionsStore.collectedCountBadgesId);
     },
   },
 };

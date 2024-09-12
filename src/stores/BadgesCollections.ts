@@ -25,37 +25,7 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
       userCollectedDiscovery: UserData.getCollectedChronologically(),
       userCollectedBadges: UserData.getCollectedBadges(),
 
-      // Make arrays with ids of the corresponding collected badges
-      collectedCountBadgesId: UserData.getCollectedBadges()
-        .filter((badge: any) => {
-          return badge.type === "count";
-        })
-        .map((badge: any) => {
-          return badge.id;
-        }),
-      collectedBoroughBadgesId: UserData.getCollectedBadges()
-        .filter((badge: any) => {
-          return badge.type === "borough";
-        })
-        .map((badge: any) => {
-          return badge.id;
-        }),
-      collectedCategoryBadgesId: UserData.getCollectedBadges()
-        .filter((badge: any) => {
-          return badge.type === "category";
-        })
-        .map((badge: any) => {
-          return badge.id;
-        }),
-      ownerCategoryBadgesId: UserData.getCollectedBadges()
-        .filter((badge: any) => {
-          return badge.type === "owner";
-        })
-        .map((badge: any) => {
-          return badge.id;
-        }),
-
-      // Badges collections ?
+      // Badges collections
       countCollection: [] as any,
       boroughCollection: [] as any,
       categoryCollection: [] as any,
@@ -66,12 +36,35 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
     getBoroughOwnerCollection(): any[] {
       return this.boroughCollection.concat(this.ownerCollection);
     },
+
+    // Make arrays with ids of the corresponding collected badges
+    collectedCountBadgesId(): number[] {
+      return this.userCollectedBadges
+          .filter((badge: any) => badge.type === "count")
+          .map((badge: any) => badge.id);
+    },
+    collectedBoroughBadgesId(): number[] {
+      return this.userCollectedBadges
+          .filter((badge: any) => badge.type === "borough")
+          .map((badge: any) => badge.id);
+    },
+    collectedCategoryBadgesId(): number[] {
+      return this.userCollectedBadges
+          .filter((badge: any) => badge.type === "category")
+          .map((badge: any) => badge.id);
+    },
+    ownerCategoryBadgesId(): number[] {
+      return this.userCollectedBadges
+          .filter((badge: any) => badge.type === "owner")
+          .map((badge: any) => badge.id);
+    },
   },
 
   actions: {
 
     // Instantiate the badges to show for each type of badges
     instantiateBadgesToShow() {
+      this.userCollectedBadges = UserData.getCollectedBadges(); // Update userCollectedBadges
       this.instantiateCountBadges();
       this.instantiateBoroughBadges();
       this.instantiateCategoryBadges();
@@ -192,6 +185,7 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
         id,
         dType,
       );
+      this.userCollectedDiscovery = UserData.getCollectedChronologically(); // Update userCollectedDiscovery
       const tmpBorough = element?.getBorough();
       const tmpOwner = element?.getOwner();
       const tmpCategory = element?.dType;
@@ -249,8 +243,9 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
     },
     newCountBadge() {
       for (const elem of this.countCollection) {
+        // Check if a locked badge has to be unlocked
         if (elem.src.includes(countPathLocked)) {
-          if (elem.requireCount === this.userCollectedBadges.length + 1) {
+          if (elem.requireCount === this.userCollectedDiscovery.length) {
             elem.src = countPathUnlocked + elem.id + ".svg";
             console.log("count unlocked");
             UserData.addCollectedBadge(elem);
