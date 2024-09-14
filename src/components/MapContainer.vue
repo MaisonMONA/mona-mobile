@@ -288,7 +288,7 @@ export default {
     this.$watch(
       () => this.$route.params,
       () => {
-        if (this.$route.query.type && this.$route.query.id) {
+        if (this.$route.query.type && this.$route.query.id && this.$route.path === '/tabs/map') {
           const discovery = Utils.getDiscovery(
             parseInt(this.$route.query.id),
             this.$route.query.type,
