@@ -29,6 +29,7 @@ ion-accordion-group.closestDiscoveriesAccordion ion-accordion {
 
 ion-accordion-group.closestDiscoveriesAccordion ion-accordion ion-item[slot="header"] ion-label {
     font-size: 4vw;
+    padding: 0.8vh 0;
 }
 
 ion-accordion-group.closestDiscoveriesAccordion ion-accordion div[slot="content"] ion-list {
@@ -39,7 +40,7 @@ ion-accordion-group.closestDiscoveriesAccordion ion-accordion div[slot="content"
 }
 
 ion-accordion-group.closestDiscoveriesAccordion ion-accordion div[slot="content"] ion-list ion-item ion-grid {
-    height: 18vh;
+    height: 18.3vh;
     width: 37vw;
     border-width: 1px;
     border-style: solid;
