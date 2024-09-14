@@ -119,8 +119,8 @@
     id="discoveryDetailsModal"
     :is-open="discoveryDetailsModalOpen"
     @didDismiss="this.unfocusDiscovery"
-    :breakpoints="[0.2, 0.75, 1]"
-    :initial-breakpoint="0.75"
+    :breakpoints="[0.70, 1]"
+    :initial-breakpoint="0.663"
     :show-backdrop="false"
   >
     <ion-content>
