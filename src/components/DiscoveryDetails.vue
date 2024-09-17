@@ -17,7 +17,12 @@
           </div>
 
           <!-- Title -->
-          <p class="details title">{{ discovery.getTitle() }}</p>
+          <p>
+            <span class="details title">{{ discovery.getTitle() }}</span>
+            <!-- TARGET BUTTON TODO Fix how it positions -->
+              <ion-icon id="targetIcon" @click="toggleTargetDiscovery" :icon="customTargetIcon"></ion-icon>
+          </p>
+
 
           <hr class="separating-bar">
 
@@ -47,23 +52,31 @@
           <span>{{ details2 }}</span>
         </div>
 
+        <!-- FICHE COMPLETE BUTTON -->
+        <ion-button
+            class="discovery-button"
+            id="ficheCompleteButton"
+            fill="outline"
+            @click="openDiscoveryDetailsPage"
+        >
+          FICHE COMPLÈTE
+        </ion-button>
+
+        <!-- PHOTO BUTTON -->
+        <ion-button
+            class="discovery-button"
+            id="photoButton"
+            fill="solid"
+            @click="activateCamera"
+        >
+          <ion-icon id="cameraIcon" :icon="'./assets/drawable/icons/camera_photo_icon.svg'"></ion-icon>
+          PHOTOGRAPHIER
+        </ion-button>
       </div>
 
-      <!-- PHOTO BUTTON -->
-      <ion-button
-          class="discovery-button"
-          id="photoButton"
-          fill="solid"
-          @click="activateCamera"
-      >
-        <ion-icon id="cameraIcon" :icon="'./assets/drawable/icons/camera_photo_icon.svg'"></ion-icon>
-        PHOTOGRAPHIER
-      </ion-button>
 
-      <!-- TARGET BUTTON -->
-      <ion-fab-button id="targetButton" @click="toggleTargetDiscovery">
-        <ion-icon id="targetIcon" :icon="customTargetIcon"></ion-icon>
-      </ion-fab-button>
+
+
 
     </ion-content>
   </ion-page>
@@ -91,8 +104,8 @@ import { DiscoveryEnum } from "@/internal/Types";
 import { UserData } from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
 import { Directory, Filesystem } from "@capacitor/filesystem";
-import targetIconWhite from "/assets/drawable/icons/target.svg";
-import targetIconBlack from "/assets/drawable/icons/target_black.svg";
+import targetIconWhite from "/assets/drawable/icons/target_unactivated.svg";
+import targetIconBlack from "/assets/drawable/icons/target_activated.svg";
 import customMapIcon from "/assets/drawable/icons/map.svg";
 
 export default {
@@ -229,6 +242,16 @@ export default {
   },
 
   methods: {
+
+    openDiscoveryDetailsPage() {
+      const type =
+          this.discovery.dType === "artwork" ? 0
+              : this.discovery.dType === "place" ? 1
+                  : /* (discovery.dType == "heritage") */ 2;
+
+      this.$router.push(`/discovery-details/${type}/${this.discovery.id}`);
+    },
+
     async activateCamera() {
       const img = await Utils.takePicture();
       if (img == null) return; // User cancelled
@@ -339,6 +362,12 @@ export default {
   height: 2vh;
 }
 
+#ficheCompleteButton {
+  --color: #2E389E;
+  --border-color: #757DD7;
+  --border-width: 2px;
+}
+
 #photoButton {
   position: absolute;
   --background: #4D58CB;
@@ -363,14 +392,11 @@ ion-button {
   --border-radius: 15px;
   --background: white;
 }
-#targetButton {
-  transform-origin: center;
-  position: absolute;
-  right: 5%;
-  top: 50%;
-}
-
 #targetIcon {
+  float:right;
+  transform-origin: center;
+  position: relative;
+  --background: white;
   font-size: 30px;
 }
 
@@ -429,7 +455,7 @@ p.details {
 .addressContainer {
   display: flex;
   align-items: center;
-  margin: 2vh 1.8vh;
+  margin: 0 1.8vh 2vh 1.8vh;
   font-size: 3.7vw;
 }
 
@@ -446,7 +472,7 @@ p.details {
   position: relative;
   height: 100%;
   width: 92%;
-  margin: 0 3.9vw;
+  margin: 0 0 1.8vh 3.9vw;
 }
 
 .photoContainer ion-img#defaultPhoto {
