@@ -16,11 +16,11 @@
             <ion-chip id="discoveryStateChip" > {{ isCollected ? "Dans la collection" : isTargeted ? "Sauvegardée" : "À collectionner"}} </ion-chip>
           </div>
 
-          <!-- Title -->
           <p>
+            <!-- TARGET BUTTON -->
+            <ion-icon id="targetIcon" @click="toggleTargetDiscovery" :icon="customTargetIcon"></ion-icon>
+            <!-- Title -->
             <span class="details title">{{ discovery.getTitle() }}</span>
-            <!-- TARGET BUTTON TODO Fix how it positions -->
-              <ion-icon id="targetIcon" @click="toggleTargetDiscovery" :icon="customTargetIcon"></ion-icon>
           </p>
 
 
@@ -392,13 +392,6 @@ ion-button {
   --border-radius: 15px;
   --background: white;
 }
-#targetIcon {
-  float:right;
-  transform-origin: center;
-  position: relative;
-  --background: white;
-  font-size: 30px;
-}
 
 .discoverydetails {
   margin: 5% 5% 1.8vh 5%;
@@ -414,6 +407,11 @@ p.details {
   font-size: 32px;
   font-weight: 500;
   margin: 1.7vh 0 1.8vh 0;
+}
+#targetIcon {
+  float: right;
+  --background: white;
+  font-size: 30px;
 }
 
 .bigDotBetweenArtistsAndDate {
