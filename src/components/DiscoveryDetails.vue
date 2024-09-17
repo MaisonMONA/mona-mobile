@@ -2,85 +2,69 @@
   <ion-page>
 
     <ion-content>
-      <div class="discoveryPhotoContainer">
+
+      <div class="discoveryDetailsContainer">
+        <div class="discoverydetails">
+
+          <!-- TODO Modify how it takes up space -->
+          <div class="chipsContainer">
+            <!-- Type -->
+            <ion-chip id="typeChip" :style="{ backgroundColor: dType === 'artwork' ? '#FFDE7B' : dType === 'heritage' ? '#F9B09E' : '#B965ED', color: dType === 'place' ? 'white' : 'black'}">{{ dType === 'artwork' ? "Oeuvre d'art" : dType === 'heritage' ? "Patrimoine" : "Lieux Culturels" }}</ion-chip>
+            <!-- Categories -->
+            <ion-chip id="categoryChip" :outline="true" v-if="dType === 'artwork' ? details2 : details1">{{ dType === 'artwork' ? details2 : details1 }}</ion-chip>
+            <!-- DiscoveryState -->
+            <ion-chip id="discoveryStateChip" > {{ isCollected ? "Dans la collection" : isTargeted ? "Sauvegardée" : "À collectionner"}} </ion-chip>
+          </div>
+
+          <!-- Title -->
+          <p class="details title">{{ discovery.getTitle() }}</p>
+
+          <hr class="separating-bar">
+
+          <p>
+            <!-- Artists or usages -->
+            <span v-if="dType === 'artwork'" class="details one">{{ details1 }}</span>
+            <span v-if="dType === 'artwork'" class="bigDotBetweenArtistsAndDate">  •  </span>
+            <!-- Production date -->
+            <span class="details production-date">{{ productionDate }}</span>
+          </p>
+        </div>
+
         <div class="photoContainer">
           <ion-img
-            id="defaultPhoto"
-            :src="'./assets/drawable/mona_logo_med.png'"
+              id="defaultPhoto"
+              :src="'./assets/drawable/discoveryDetailsPhotoPlaceholder.svg'"
           ></ion-img>
           <ion-img id="userPhoto"></ion-img>
         </div>
 
-        <!-- PHOTO BUTTON -->
-        <ion-button
+        <!-- TODO What to do about artwork location? -->
+        <div v-if="dType !== 'artwork'" class="addressContainer">
+          <!-- Discovery pin icon-->
+          <ion-icon
+              :icon="`./assets/drawable/pins/${discovery.dType}/default.svg`"
+          ></ion-icon>
+          <span>{{ details2 }}</span>
+        </div>
+
+      </div>
+
+      <!-- PHOTO BUTTON -->
+      <ion-button
           class="discovery-button"
           id="photoButton"
           fill="solid"
           @click="activateCamera"
-        >
-          <ion-icon id="cameraIcon" :icon="cameraOutline"></ion-icon>
-        </ion-button>
+      >
+        <ion-icon id="cameraIcon" :icon="'./assets/drawable/icons/camera_photo_icon.svg'"></ion-icon>
+        PHOTOGRAPHIER
+      </ion-button>
 
-        <!-- "SEE ON MAP" BUTTON -->
-        <ion-button
-          class="discovery-button"
-          id="seeOnMapButton"
-          fill="solid"
-          @click="activateMap([discovery.lng, discovery.lat])"
-        >
-          <ion-icon id="mapIcon" :icon="customMapIcon"></ion-icon>
-        </ion-button>
+      <!-- TARGET BUTTON -->
+      <ion-fab-button id="targetButton" @click="toggleTargetDiscovery">
+        <ion-icon id="targetIcon" :icon="customTargetIcon"></ion-icon>
+      </ion-fab-button>
 
-        <!-- TARGET BUTTON -->
-        <ion-fab-button id="targetButton" @click="toggleTargetDiscovery">
-          <ion-icon id="targetIcon" :icon="customTargetIcon"></ion-icon>
-        </ion-fab-button>
-      </div>
-
-      <div class="discoveryDetailsContainer">
-        <div class="discoverydetails">
-          <p class="details title">{{ discovery.getTitle() }}</p>
-
-          <div v-if="isCollected" class="user-review">
-            <!-- A rating of 0 means the user didn't rate the discovery (min val is 1) -->
-            <ul v-if="this.getRating() > 0" id="dRating">
-              <li :key="st" v-for="st in this.getRating()">
-                <ion-icon size="large" :icon="star"></ion-icon>
-              </li>
-              <li :key="nostar" v-for="nostar in 5 - this.getRating()">
-                <ion-icon size="large" :icon="starOutline"></ion-icon>
-              </li>
-            </ul>
-
-            <p v-if="this.getComment()">
-              Commentaire : {{ this.getComment() }}
-            </p>
-          </div>
-
-          <span class="separating-bar"></span>
-
-          <!-- Artists or usages -->
-          <p class="details one">{{ details1 }}</p>
-
-          <!-- Categories or borough -->
-          <p class="details two">{{ details2 }}</p>
-
-          <!-- Production date -->
-          <p class="details production-date">{{ productionDate }}</p>
-
-          <!-- Directions or description -->
-          <p class="details three">{{ details3 }}</p>
-
-          <template v-if="isArtwork">
-            <p class="details four">{{ details4 }}</p>
-            <!-- Artwork dimensions -->
-            <p class="details five">{{ details5 }}</p>
-            <!-- Artwork materials -->
-            <p class="details six">{{ details6 }}</p>
-            <!-- Artwork techniques -->
-          </template>
-        </div>
-      </div>
     </ion-content>
   </ion-page>
 </template>
@@ -98,8 +82,9 @@ import {
   IonToolbar,
   IonImg,
   toastController,
+  IonChip,
 } from "@ionic/vue";
-import { cameraOutline, star, starOutline } from "ionicons/icons";
+import {star, starOutline } from "ionicons/icons";
 import { useRoute } from "vue-router";
 
 import { DiscoveryEnum } from "@/internal/Types";
@@ -120,14 +105,11 @@ export default {
   components: {
     IonFabButton,
     IonPage,
-    IonToolbar,
-    IonHeader,
     IonContent,
     IonIcon,
     IonButton,
-    IonBackButton,
-    IonButtons,
     IonImg,
+    IonChip,
   },
 
   data() {
@@ -155,9 +137,7 @@ export default {
       isArtwork = false;
 
       details1 = this.discovery.getUsages();
-      details2 = [this.discovery.getBorough(), this.discovery.getAddress()]
-        .filter((elm) => elm)
-        .join(" • ");
+      details2 = this.discovery.getAddress();
       details3 = this.discovery.description;
       details4 = "";
       details5 = "";
@@ -169,7 +149,6 @@ export default {
     }
 
     return {
-      cameraOutline,
       customMapIcon,
       star,
       starOutline,
@@ -179,6 +158,8 @@ export default {
         this.discovery.id,
         this.discovery.dType,
       ),
+
+      isTargeted: UserData.isTargeted(this.discovery.id, this.discovery.dType),
 
       isArtwork,
       productionDate,
@@ -239,23 +220,12 @@ export default {
 
       // Hiding buttons
       document.getElementById("photoButton").style.display = "none";
-      document.getElementById("seeOnMapButton").style.display = "none";
     }
 
     // Handling target icon color
     if (UserData.isTargeted(this.discovery.id, this.discovery.dType))
       this.customTargetIcon = targetIconBlack;
     else this.customTargetIcon = targetIconWhite;
-
-    // Change the bar color based on its type
-    let barColor;
-    if (this.discovery.dType === "artwork") barColor = "#FFDE7C";
-    else if (this.discovery.dType === "place") barColor = "#D0B9EB";
-    else if (this.discovery.dType === "heritage") barColor = "#FFAB96";
-    else barColor = "#C0C4E4"; // Blue powder
-
-    const separatingBar = document.querySelector("span.separating-bar");
-    if (separatingBar) separatingBar.style.borderColor = barColor;
   },
 
   methods: {
@@ -272,11 +242,9 @@ export default {
 
       // Hiding buttons
       const photoButton = document.getElementById("photoButton");
-      const seeOnMapButton = document.getElementById("seeOnMapButton");
-      if (photoButton && seeOnMapButton) {
+      if (photoButton) {
         // Same here
         photoButton.style.display = "none";
-        seeOnMapButton.style.display = "none";
       }
 
       // Enable image opening
@@ -303,11 +271,13 @@ export default {
       if (UserData.isTargeted(this.discovery.id, this.discovery.dType)) {
         UserData.removeTargeted(this.discovery);
         this.customTargetIcon = targetIconWhite;
+        this.isTargeted = false;
 
         toastMessage = "La découverte n'est plus ciblée";
       } else {
         UserData.addTargeted(this.discovery);
         this.customTargetIcon = targetIconBlack;
+        this.isTargeted = true;
 
         toastMessage = "La découverte est maintenant ciblée";
       }
@@ -357,21 +327,29 @@ export default {
 </script>
 
 <style scoped>
-.discoveryPhotoContainer {
-  width: 100%;
-  height: 50%;
-  background: var(--blue-powder);
+
+.chipsContainer {
+  position: relative;
+  right: 2vw;
 }
 
-#photoButton,
-#seeOnMapButton {
+.chipsContainer ion-chip {
+  font-size: 3.5vw;
+  font-weight: 500;
+  height: 2vh;
+}
+
+#photoButton {
   position: absolute;
-  width: 35%;
-  top: 35%;
-  height: 80px;
-  outline-color: white;
-  --border-color: white;
-  color: white;
+  --background: #4D58CB;
+  --color: white;
+  font-size: 4vw;
+  font-weight: 600;
+}
+
+#photoButton ion-icon {
+  font-size: 5vw;
+  margin-right: 1.8vw;
 }
 
 ion-button ion-icon {
@@ -385,15 +363,6 @@ ion-button {
   --border-radius: 15px;
   --background: white;
 }
-
-#photoButton {
-  left: 10%;
-}
-
-#seeOnMapButton {
-  right: 10%;
-}
-
 #targetButton {
   transform-origin: center;
   position: absolute;
@@ -406,14 +375,8 @@ ion-button {
 }
 
 .discoverydetails {
-  margin: 5% 5% 30px 5%;
+  margin: 5% 5% 1.8vh 5%;
   font-family: "OpenSans", sans-serif;
-}
-
-.details.title {
-  font-size: 25px;
-  font-style: italic;
-  font-weight: 600;
 }
 
 p.details {
@@ -421,14 +384,22 @@ p.details {
   margin-bottom: 5px;
 }
 
+.details.title {
+  font-size: 32px;
+  font-weight: 500;
+  margin: 1.7vh 0 1.8vh 0;
+}
+
+.bigDotBetweenArtistsAndDate {
+  font-size: 20px;
+  color: #FADA00;
+}
+
+/* TODO Make text cut and add ellipsis when it's bigger than 2 lines just before date */
 .details.one {
   font-size: 20px;
   font-weight: 300;
   margin: 20px 0 0 0;
-}
-
-.details.two {
-  font-size: 16px;
 }
 
 .details.three,
@@ -442,12 +413,12 @@ p.details {
 }
 
 .details.production-date {
-  font-size: 15px;
+  font-size: 16px;
+  font-weight: 300;
 }
 
-span.separating-bar {
-  padding: 0 25vw 0 0;
-  border-bottom: 5px solid var(--blue-powder);
+.separating-bar {
+  border-top: 1px solid #E6E6E6;
 }
 
 .user-review p {
@@ -455,18 +426,31 @@ span.separating-bar {
   font-size: 14px;
 }
 
-ion-back-button {
-  color: black;
+.addressContainer {
+  display: flex;
+  align-items: center;
+  margin: 2vh 1.8vh;
+  font-size: 3.7vw;
+}
+
+.addressContainer ion-icon {
+  font-size: 5vw;
+  margin-right: 1.8vw;
+}
+
+.addressContainer span {
+  text-decoration: underline;
 }
 
 .photoContainer {
   position: relative;
   height: 100%;
+  width: 92%;
+  margin: 0 3.9vw;
 }
 
 .photoContainer ion-img#defaultPhoto {
   position: relative;
-  top: 50px;
 }
 
 .photoContainer ion-img#userPhoto {
