@@ -119,7 +119,7 @@
     id="discoveryDetailsModal"
     :is-open="discoveryDetailsModalOpen"
     @didDismiss="this.unfocusDiscovery"
-    :breakpoints="[0.663, 0.70]"
+    :breakpoints="[0.663, 0.79]"
     :initial-breakpoint="0.663"
     :show-backdrop="false"
   >
