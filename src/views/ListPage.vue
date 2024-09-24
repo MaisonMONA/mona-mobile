@@ -27,7 +27,7 @@
             id="list"
             v-for="discovery of getDiscoveriesToShow()"
             :key="discovery"
-            @click="openDiscoveryDetailsPage(discovery)"
+            @click="openDiscoveryDetailsFullModale(discovery)"
           >
             <!-- Discovery icon -->
             <ion-avatar slot="start">
@@ -147,7 +147,10 @@
             >
               <div class="filter-category">
                 <ion-avatar>
-                  <img :src="'./assets/drawable/medals/place/default.svg'" alt="place discovery medal icon"/>
+                  <img
+                    :src="'./assets/drawable/medals/place/default.svg'"
+                    alt="place discovery medal icon"
+                  />
                 </ion-avatar>
                 <ion-text>Lieux</ion-text>
               </div>
@@ -155,6 +158,22 @@
           </ion-row>
         </ion-content>
       </ion-modal>
+
+      <!-- Selected pin discovery details modal -->
+      <ion-modal
+        id="discoveryDetailsFullModal"
+        :is-open="discoveryDetailsFullModalOpen"
+        @didDismiss="discoveryDetailsFullModalOpen = false"
+        :breakpoints="[0.976]"
+        :initial-breakpoint="0.976"
+        :show-backdrop="true"
+      >
+        <ion-content>
+          <discovery-details-full-modale :selected-discovery="listSelectedDiscovery" />
+        </ion-content>
+      </ion-modal>
+
+      <!-- Selected pin discovery details modal -->
 
       <ion-refresher slot="fixed" @ion-refresh="refreshPage">
         <ion-refresher-content></ion-refresher-content>
@@ -192,6 +211,7 @@ import {
 import { filterOutline, close, optionsOutline, reload } from "ionicons/icons";
 import { UserData } from "@/internal/databases/UserData";
 import { Distance } from "../internal/Distance";
+import DiscoveryDetailsFullModale from "@/components/DiscoveryDetailsFullModale.vue";
 
 export default {
   name: "ListPage",
@@ -201,6 +221,7 @@ export default {
     },
   },
   components: {
+    DiscoveryDetailsFullModale,
     IonRefresher,
     IonRefresherContent,
     IonPage,
@@ -231,6 +252,10 @@ export default {
 
   data() {
     return {
+
+      discoveryDetailsFullModalOpen: false,
+      listSelectedDiscovery: null,
+
       arrayOffset: 0,
       currentTextFilter: "",
       lat2: UserData.getLocation()[1],
@@ -366,7 +391,6 @@ export default {
         // Add the arraySubset to the corresponding discovery type object array
         discoveryTypeObject[discoverySortByArray] =
           discoveryTypeObject[discoverySortByArray].concat(arraySubset);
-
       } else {
         arraySubset = this[completeDiscoveries]
           // Filter discoveries by search bar value
@@ -387,6 +411,11 @@ export default {
         event.target.complete();
 
       this.arrayOffset += 50;
+    },
+
+    openDiscoveryDetailsFullModale(discovery) {
+      this.discoveryDetailsFullModalOpen = true;
+      this.listSelectedDiscovery = discovery;
     },
 
     openDiscoveryDetailsPage(discovery) {
