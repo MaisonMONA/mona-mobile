@@ -104,7 +104,6 @@
           <ion-img id="userPhoto"></ion-img>
         </div>
 
-        <!-- TODO What to do about artwork location? -->
         <div class="addressContainer">
           <!-- Discovery pin icon-->
           <ion-icon
@@ -144,28 +143,21 @@
 
 <script>
 import {
-  IonBackButton,
   IonButton,
-  IonButtons,
   IonContent,
-  IonFabButton,
-  IonHeader,
   IonIcon,
   IonPage,
-  IonToolbar,
   IonImg,
   toastController,
   IonChip,
 } from "@ionic/vue";
-import { star, starOutline } from "ionicons/icons";
-import { useRoute } from "vue-router";
 
 import { DiscoveryEnum } from "@/internal/Types";
 import { UserData } from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
 import { Directory, Filesystem } from "@capacitor/filesystem";
-import targetIconWhite from "/assets/drawable/icons/target_unactivated.svg";
-import targetIconBlack from "/assets/drawable/icons/target_activated.svg";
+import targetIconUnactivated from "/assets/drawable/icons/target_unactivated.svg";
+import targetIconActivated from "/assets/drawable/icons/target_activated.svg";
 import customMapIcon from "/assets/drawable/icons/map.svg";
 
 export default {
@@ -176,7 +168,6 @@ export default {
   },
 
   components: {
-    IonFabButton,
     IonPage,
     IonContent,
     IonIcon,
@@ -225,16 +216,16 @@ export default {
 
     return {
       customMapIcon,
-      star,
-      starOutline,
-      customTargetIcon: targetIconWhite, // May be overridden during mount
 
       isCollected: UserData.isCollected(
-        this.discovery.id,
-        this.discovery.dType,
+          this.discovery.id,
+          this.discovery.dType,
       ),
 
       isTargeted: UserData.isTargeted(this.discovery.id, this.discovery.dType),
+
+      customTargetIcon: UserData.isTargeted(this.discovery.id, this.discovery.dType) ?
+          targetIconActivated : targetIconUnactivated, // May be overridden during mount
 
       isArtwork,
       productionDate,
@@ -299,8 +290,8 @@ export default {
 
     // Handling target icon color
     if (UserData.isTargeted(this.discovery.id, this.discovery.dType))
-      this.customTargetIcon = targetIconBlack;
-    else this.customTargetIcon = targetIconWhite;
+      this.customTargetIcon = targetIconActivated;
+    else this.customTargetIcon = targetIconUnactivated;
   },
 
   methods: {
@@ -356,13 +347,13 @@ export default {
 
       if (UserData.isTargeted(this.discovery.id, this.discovery.dType)) {
         UserData.removeTargeted(this.discovery);
-        this.customTargetIcon = targetIconWhite;
+        this.customTargetIcon = targetIconUnactivated;
         this.isTargeted = false;
 
         toastMessage = "La découverte n'est plus ciblée";
       } else {
         UserData.addTargeted(this.discovery);
-        this.customTargetIcon = targetIconBlack;
+        this.customTargetIcon = targetIconActivated;
         this.isTargeted = true;
 
         toastMessage = "La découverte est maintenant ciblée";
@@ -379,34 +370,6 @@ export default {
 
     showImg() {
       // TODO
-    },
-
-    activateMap() {
-      const mapInstructions = {
-        path: "/tabs/map/",
-        query: {
-          type: this.discovery.dType,
-          id: this.discovery.id,
-        },
-      };
-
-      this.$router.push(mapInstructions);
-    },
-
-    getComment() {
-      const userData = UserData.getCollected(
-        this.discovery.id,
-        this.discovery.dType,
-      );
-      return userData.comment;
-    },
-
-    getRating() {
-      const userData = UserData.getCollected(
-        this.discovery.id,
-        this.discovery.dType,
-      );
-      return userData.rating;
     },
   },
 };
@@ -511,23 +474,14 @@ ion-button {
   font-weight: 300;
 }
 
-.details.three,
-.four,
-.five,
-.six {
+.details{
   font-size: 14px;
-  color: gray;
   margin: 5px 0;
   line-height: 20px;
 }
 
 .separating-bar {
   border-top: 1px solid #e6e6e6;
-}
-
-.user-review p {
-  margin: 0;
-  font-size: 14px;
 }
 
 .photoContainer {
@@ -563,16 +517,4 @@ ion-button {
   text-decoration: underline;
 }
 
-#dRating ion-icon {
-  color: var(--mona-yellow);
-}
-
-ul {
-  margin: 0;
-  padding: 0;
-}
-
-li {
-  display: inline-block;
-}
 </style>
