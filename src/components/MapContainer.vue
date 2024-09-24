@@ -119,8 +119,8 @@
     id="discoveryDetailsModal"
     :is-open="discoveryDetailsModalOpen"
     @didDismiss="this.unfocusDiscovery"
-    :breakpoints="[0.2, 0.75, 1]"
-    :initial-breakpoint="0.75"
+    :breakpoints="[0.663, 0.79]"
+    :initial-breakpoint="0.663"
     :show-backdrop="false"
   >
     <ion-content>
@@ -288,7 +288,7 @@ export default {
     this.$watch(
       () => this.$route.params,
       () => {
-        if (this.$route.query.type && this.$route.query.id && this.$route.path === '/tabs/map') {
+        if (this.$route.query.type && this.$route.query.id && this.$route.path !== '/discovery-review/') {
           const discovery = Utils.getDiscovery(
             parseInt(this.$route.query.id),
             this.$route.query.type,

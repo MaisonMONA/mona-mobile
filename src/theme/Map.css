@@ -2,7 +2,7 @@
 
 /* Selected pin discovery details modal */
 #discoveryDetailsModal {
-    --border-radius: 16px 16px 0px 0px;
+    --border-radius: 16px;
     /*height: 90vh; --makes nav bar visible! */
 }
 /* Selected pin discovery details modal */

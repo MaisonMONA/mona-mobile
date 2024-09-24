@@ -1,15 +1,127 @@
 <template>
   <ion-page>
-
     <ion-content>
-      <div class="discoveryPhotoContainer">
+      <div class="discoveryDetailsContainer">
+        <div class="discoverydetails">
+          <div class="chipsContainer">
+            <!-- Type -->
+            <ion-chip
+              id="typeChip"
+              :style="{
+                backgroundColor:
+                  dType === 'artwork'
+                    ? '#FFDE7B'
+                    : dType === 'heritage'
+                      ? '#F9B09E'
+                      : '#B965ED',
+                color: dType === 'place' ? 'white' : 'black',
+              }"
+              >{{
+                dType === "artwork"
+                  ? "Oeuvre d'art"
+                  : dType === "heritage"
+                    ? "Patrimoine"
+                    : "Lieux Culturels"
+              }}
+            </ion-chip>
+            <!-- Categories -->
+            <ion-chip
+              id="categoryChip"
+              :outline="true"
+              v-if="dType === 'artwork' ? details2 : details1"
+              >{{ dType === "artwork" ? details2 : details1 }}
+            </ion-chip>
+            <!-- DiscoveryState -->
+            <ion-chip
+              id="discoveryStateChip"
+              :style="{
+                backgroundColor: isCollected
+                  ? '#FDF4B4'
+                  : isTargeted
+                    ? '#ECEDF8'
+                    : '#4D58CB',
+                color: isCollected
+                  ? '#000000'
+                  : isTargeted
+                    ? '#2E389E'
+                    : '#FFFFFF',
+              }"
+            >
+              {{
+                isCollected
+                  ? "Dans la collection"
+                  : isTargeted
+                    ? "Sauvegardée"
+                    : "À collectionner"
+              }}
+              <ion-icon
+                :icon="
+                  isCollected
+                    ? './assets/drawable/icons/collectedIcon.svg'
+                    : isTargeted
+                      ? customTargetIcon
+                      : './assets/drawable/icons/yetToCollectIcon.svg'
+                "
+              ></ion-icon>
+            </ion-chip>
+          </div>
+
+          <div id="titleAndTargetIcon">
+            <!-- TARGET BUTTON -->
+            <ion-icon
+              v-if="!isCollected"
+              id="targetIcon"
+              @click="toggleTargetDiscovery"
+              :icon="customTargetIcon"
+            ></ion-icon>
+            <!-- Title -->
+            <span class="details title">{{ discovery.getTitle() }}</span>
+          </div>
+
+          <hr class="separating-bar" />
+
+          <div id="artistsAndDate">
+            <!-- Artists or usages -->
+            <span v-if="dType === 'artwork'" class="details one">{{
+              details1
+            }}</span>
+            <span
+              v-if="dType === 'artwork'"
+              id="bigDotBetweenArtistsAndDate"
+            >
+              •
+            </span>
+            <!-- Production date -->
+            <span class="details production-date">{{ productionDate }}</span>
+          </div>
+        </div>
+
         <div class="photoContainer">
           <ion-img
             id="defaultPhoto"
-            :src="'./assets/drawable/mona_logo_med.png'"
+            :src="'./assets/drawable/discoveryDetailsPhotoPlaceholder.svg'"
           ></ion-img>
           <ion-img id="userPhoto"></ion-img>
         </div>
+
+        <div class="addressContainer">
+          <!-- Discovery pin icon-->
+          <ion-icon
+            :icon="`./assets/drawable/pins/${discovery.dType}/default.svg`"
+          ></ion-icon>
+          <span>{{ details7 }}</span>
+        </div>
+
+        <!-- FICHE COMPLETE BUTTON -->
+        <ion-button
+          class="discovery-button"
+          id="ficheCompleteButton"
+          fill="outline"
+          @click="openDiscoveryDetailsPage"
+          :style="{ width: isCollected ? '92vw' : '44vw' }"
+        >
+          {{ isCollected ? "VOIR LA FICHE COMPLÈTE" : "FICHE COMPLÈTE" }}
+        </ion-button>
 
         <!-- PHOTO BUTTON -->
         <ion-button
@@ -18,68 +130,12 @@
           fill="solid"
           @click="activateCamera"
         >
-          <ion-icon id="cameraIcon" :icon="cameraOutline"></ion-icon>
+          <ion-icon
+            id="cameraIcon"
+            :icon="'./assets/drawable/icons/camera_photo_icon.svg'"
+          ></ion-icon>
+          PHOTOGRAPHIER
         </ion-button>
-
-        <!-- "SEE ON MAP" BUTTON -->
-        <ion-button
-          class="discovery-button"
-          id="seeOnMapButton"
-          fill="solid"
-          @click="activateMap([discovery.lng, discovery.lat])"
-        >
-          <ion-icon id="mapIcon" :icon="customMapIcon"></ion-icon>
-        </ion-button>
-
-        <!-- TARGET BUTTON -->
-        <ion-fab-button id="targetButton" @click="toggleTargetDiscovery">
-          <ion-icon id="targetIcon" :icon="customTargetIcon"></ion-icon>
-        </ion-fab-button>
-      </div>
-
-      <div class="discoveryDetailsContainer">
-        <div class="discoverydetails">
-          <p class="details title">{{ discovery.getTitle() }}</p>
-
-          <div v-if="isCollected" class="user-review">
-            <!-- A rating of 0 means the user didn't rate the discovery (min val is 1) -->
-            <ul v-if="this.getRating() > 0" id="dRating">
-              <li :key="st" v-for="st in this.getRating()">
-                <ion-icon size="large" :icon="star"></ion-icon>
-              </li>
-              <li :key="nostar" v-for="nostar in 5 - this.getRating()">
-                <ion-icon size="large" :icon="starOutline"></ion-icon>
-              </li>
-            </ul>
-
-            <p v-if="this.getComment()">
-              Commentaire : {{ this.getComment() }}
-            </p>
-          </div>
-
-          <span class="separating-bar"></span>
-
-          <!-- Artists or usages -->
-          <p class="details one">{{ details1 }}</p>
-
-          <!-- Categories or borough -->
-          <p class="details two">{{ details2 }}</p>
-
-          <!-- Production date -->
-          <p class="details production-date">{{ productionDate }}</p>
-
-          <!-- Directions or description -->
-          <p class="details three">{{ details3 }}</p>
-
-          <template v-if="isArtwork">
-            <p class="details four">{{ details4 }}</p>
-            <!-- Artwork dimensions -->
-            <p class="details five">{{ details5 }}</p>
-            <!-- Artwork materials -->
-            <p class="details six">{{ details6 }}</p>
-            <!-- Artwork techniques -->
-          </template>
-        </div>
       </div>
     </ion-content>
   </ion-page>
@@ -87,27 +143,21 @@
 
 <script>
 import {
-  IonBackButton,
   IonButton,
-  IonButtons,
   IonContent,
-  IonFabButton,
-  IonHeader,
   IonIcon,
   IonPage,
-  IonToolbar,
   IonImg,
   toastController,
+  IonChip,
 } from "@ionic/vue";
-import { cameraOutline, star, starOutline } from "ionicons/icons";
-import { useRoute } from "vue-router";
 
 import { DiscoveryEnum } from "@/internal/Types";
 import { UserData } from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
 import { Directory, Filesystem } from "@capacitor/filesystem";
-import targetIconWhite from "/assets/drawable/icons/target.svg";
-import targetIconBlack from "/assets/drawable/icons/target_black.svg";
+import targetIconUnactivated from "/assets/drawable/icons/target_unactivated.svg";
+import targetIconActivated from "/assets/drawable/icons/target_activated.svg";
 import customMapIcon from "/assets/drawable/icons/map.svg";
 
 export default {
@@ -118,20 +168,15 @@ export default {
   },
 
   components: {
-    IonFabButton,
     IonPage,
-    IonToolbar,
-    IonHeader,
     IonContent,
     IonIcon,
     IonButton,
-    IonBackButton,
-    IonButtons,
     IonImg,
+    IonChip,
   },
 
   data() {
-
     let isArtwork,
       productionDate,
       details1,
@@ -139,7 +184,8 @@ export default {
       details3,
       details4,
       details5,
-      details6;
+      details6,
+      details7;
     if (this.discovery.dType === "artwork") {
       isArtwork = true;
 
@@ -149,19 +195,19 @@ export default {
       details4 = this.discovery.getDimensions();
       details5 = this.discovery.getMaterials();
       details6 = this.discovery.getTechniques();
+      details7 = "(" + this.discovery.getLocation().lat + ", " + this.discovery.getLocation().lng + ")";
 
       productionDate = this.discovery.produced_at;
     } else {
       isArtwork = false;
 
       details1 = this.discovery.getUsages();
-      details2 = [this.discovery.getBorough(), this.discovery.getAddress()]
-        .filter((elm) => elm)
-        .join(" • ");
+      details2 = this.discovery.getAddress();
       details3 = this.discovery.description;
       details4 = "";
       details5 = "";
       details6 = "";
+      details7 = this.discovery.getAddress();
 
       if (this.discovery.dType === "heritage")
         productionDate = this.discovery.produced_at;
@@ -169,16 +215,17 @@ export default {
     }
 
     return {
-      cameraOutline,
       customMapIcon,
-      star,
-      starOutline,
-      customTargetIcon: targetIconWhite, // May be overridden during mount
 
       isCollected: UserData.isCollected(
-        this.discovery.id,
-        this.discovery.dType,
+          this.discovery.id,
+          this.discovery.dType,
       ),
+
+      isTargeted: UserData.isTargeted(this.discovery.id, this.discovery.dType),
+
+      customTargetIcon: UserData.isTargeted(this.discovery.id, this.discovery.dType) ?
+          targetIconActivated : targetIconUnactivated, // May be overridden during mount
 
       isArtwork,
       productionDate,
@@ -188,6 +235,7 @@ export default {
       details4,
       details5,
       details6,
+      details7,
     };
   },
 
@@ -203,7 +251,6 @@ export default {
       discovery,
       DiscoveryEnum,
     };
-
   },
 
   mounted() {
@@ -239,26 +286,26 @@ export default {
 
       // Hiding buttons
       document.getElementById("photoButton").style.display = "none";
-      document.getElementById("seeOnMapButton").style.display = "none";
     }
 
     // Handling target icon color
     if (UserData.isTargeted(this.discovery.id, this.discovery.dType))
-      this.customTargetIcon = targetIconBlack;
-    else this.customTargetIcon = targetIconWhite;
-
-    // Change the bar color based on its type
-    let barColor;
-    if (this.discovery.dType === "artwork") barColor = "#FFDE7C";
-    else if (this.discovery.dType === "place") barColor = "#D0B9EB";
-    else if (this.discovery.dType === "heritage") barColor = "#FFAB96";
-    else barColor = "#C0C4E4"; // Blue powder
-
-    const separatingBar = document.querySelector("span.separating-bar");
-    if (separatingBar) separatingBar.style.borderColor = barColor;
+      this.customTargetIcon = targetIconActivated;
+    else this.customTargetIcon = targetIconUnactivated;
   },
 
   methods: {
+    openDiscoveryDetailsPage() {
+      const type =
+        this.discovery.dType === "artwork"
+          ? 0
+          : this.discovery.dType === "place"
+            ? 1
+            : /* (discovery.dType == "heritage") */ 2;
+
+      this.$router.push(`/discovery-details/${type}/${this.discovery.id}`);
+    },
+
     async activateCamera() {
       const img = await Utils.takePicture();
       if (img == null) return; // User cancelled
@@ -272,11 +319,9 @@ export default {
 
       // Hiding buttons
       const photoButton = document.getElementById("photoButton");
-      const seeOnMapButton = document.getElementById("seeOnMapButton");
-      if (photoButton && seeOnMapButton) {
+      if (photoButton) {
         // Same here
         photoButton.style.display = "none";
-        seeOnMapButton.style.display = "none";
       }
 
       // Enable image opening
@@ -302,12 +347,14 @@ export default {
 
       if (UserData.isTargeted(this.discovery.id, this.discovery.dType)) {
         UserData.removeTargeted(this.discovery);
-        this.customTargetIcon = targetIconWhite;
+        this.customTargetIcon = targetIconUnactivated;
+        this.isTargeted = false;
 
         toastMessage = "La découverte n'est plus ciblée";
       } else {
         UserData.addTargeted(this.discovery);
-        this.customTargetIcon = targetIconBlack;
+        this.customTargetIcon = targetIconActivated;
+        this.isTargeted = true;
 
         toastMessage = "La découverte est maintenant ciblée";
       }
@@ -324,54 +371,57 @@ export default {
     showImg() {
       // TODO
     },
-
-    activateMap() {
-      const mapInstructions = {
-        path: "/tabs/map/",
-        query: {
-          type: this.discovery.dType,
-          id: this.discovery.id,
-        },
-      };
-
-      this.$router.push(mapInstructions);
-    },
-
-    getComment() {
-      const userData = UserData.getCollected(
-        this.discovery.id,
-        this.discovery.dType,
-      );
-      return userData.comment;
-    },
-
-    getRating() {
-      const userData = UserData.getCollected(
-        this.discovery.id,
-        this.discovery.dType,
-      );
-      return userData.rating;
-    },
   },
 };
 </script>
 
 <style scoped>
-.discoveryPhotoContainer {
-  width: 100%;
-  height: 50%;
-  background: var(--blue-powder);
+.chipsContainer {
+  position: relative;
+  right: 2vw;
+}
+.chipsContainer ion-chip {
+  padding: 0 1.9vw;
+  font-family: "Roboto Light", sans-serif;
+  font-size: 2.9vw;
+  font-weight: 400;
+  min-height: 2.67vh;
+}
+#categoryChip {
+  color: #2E389E;
+  border-color: #2E389E;
+}
+#discoveryStateChip ion-icon {
+  font-size: 2.8vw;
+  padding-right: 1.4vw;
 }
 
-#photoButton,
-#seeOnMapButton {
+#ficheCompleteButton {
+  height: 5.4vh;
+  margin-left: 3.9vw;
+  margin-right: 3.8vw;
+  --color: #2e389e;
+  --border-color: #757dd7;
+  --border-width: 2px;
+  --border-radius: 8px;
+  font-size: 3.8vw;
+}
+
+#photoButton {
+  height: 5.4vh;
+  width: 44vw;
   position: absolute;
-  width: 35%;
-  top: 35%;
-  height: 80px;
-  outline-color: white;
-  --border-color: white;
-  color: white;
+  --background: #4d58cb;
+  --color: white;
+  --border-radius: 8px;
+  --padding-start: 2.9vw;
+  --padding-end: 2.9vw;
+  font-size: 3.8vw;
+  font-weight: 600;
+}
+#photoButton ion-icon {
+  font-size: 3.7vw;
+  margin-right: 1.8vw;
 }
 
 ion-button ion-icon {
@@ -386,106 +436,85 @@ ion-button {
   --background: white;
 }
 
-#photoButton {
-  left: 10%;
-}
-
-#seeOnMapButton {
-  right: 10%;
-}
-
-#targetButton {
-  transform-origin: center;
-  position: absolute;
-  right: 5%;
-  top: 50%;
-}
-
-#targetIcon {
-  font-size: 30px;
-}
-
 .discoverydetails {
-  margin: 5% 5% 30px 5%;
+  margin: 5% 5% 1.8vh 5%;
   font-family: "OpenSans", sans-serif;
 }
 
+#titleAndTargetIcon {
+  margin: 1.7vh 0;
+}
 .details.title {
-  font-size: 25px;
-  font-style: italic;
-  font-weight: 600;
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 9.6vw;
+}
+#targetIcon {
+  float: right;
+  --background: white;
+  font-size: 30px;
 }
 
-p.details {
-  margin-top: 5px;
-  margin-bottom: 5px;
-}
-
-.details.one {
+#bigDotBetweenArtistsAndDate {
   font-size: 20px;
+  color: #fada00;
+}
+
+#artistsAndDate {
+  margin: 1.7vh 0;
+}
+/* TODO Make text cut and add ellipsis when it's bigger than 2 lines just before date */
+.details.one {
+  font-size: 4.8vw;
   font-weight: 300;
   margin: 20px 0 0 0;
 }
-
-.details.two {
-  font-size: 16px;
+.details.production-date {
+  font-size: 3.8vw;
+  font-weight: 300;
 }
 
-.details.three,
-.four,
-.five,
-.six {
+.details{
   font-size: 14px;
-  color: gray;
   margin: 5px 0;
   line-height: 20px;
 }
 
-.details.production-date {
-  font-size: 15px;
-}
-
-span.separating-bar {
-  padding: 0 25vw 0 0;
-  border-bottom: 5px solid var(--blue-powder);
-}
-
-.user-review p {
-  margin: 0;
-  font-size: 14px;
-}
-
-ion-back-button {
-  color: black;
+.separating-bar {
+  border-top: 1px solid #e6e6e6;
 }
 
 .photoContainer {
   position: relative;
   height: 100%;
+  width: 92vw;
+  margin: 0 0 1.8vh 3.9vw;
 }
-
+.photoContainer ion-img::part(image) {
+  border-radius: 1.9vw;
+}
 .photoContainer ion-img#defaultPhoto {
   position: relative;
-  top: 50px;
+  height: 17vh;
 }
-
 .photoContainer ion-img#userPhoto {
   display: none;
   object-fit: cover;
-  height: 100%;
-  width: 100%;
+  height: 28vh;
 }
 
-#dRating ion-icon {
-  color: var(--mona-yellow);
+.addressContainer {
+  display: flex;
+  align-items: center;
+  margin: 0 1.8vh 2.7vh 1.8vh;
+  font-size: 3.4vw;
+}
+.addressContainer ion-icon {
+  font-size: 6vw;
+  margin-right: 1.8vw;
+}
+.addressContainer span {
+  text-decoration: underline;
 }
 
-ul {
-  margin: 0;
-  padding: 0;
-}
-
-li {
-  display: inline-block;
-}
 </style>
