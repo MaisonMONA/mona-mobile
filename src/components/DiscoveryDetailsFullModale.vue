@@ -123,10 +123,10 @@
               </div>
               <!-- TODO Mediums -->
               <div v-if="details5" class="detailsTabElement">
-                <div>
+                <p>
                   <span class="detailsSubTitle">Matériaux</span> <br />
                   {{ details5 }}
-                </div>
+                </p>
                 <hr class="separating-bar" />
               </div>
               <div v-if="details6" class="detailsTabElement">
@@ -308,7 +308,11 @@ export default {
       details4 = "";
       details5 = "";
       details6 = "";
-      details7 = this.discovery.getAddress();
+      details7 = this.discovery.getAddress() || "(" +
+          this.discovery.getLocation().lat +
+          ", " +
+          this.discovery.getLocation().lng +
+          ")";
       details8 = "";
       details9 = this.discovery.getBorough();
 
@@ -621,7 +625,7 @@ ion-button {
 
 .segments {
   margin: 3.67vh 3.9vw 0 3.9vw;
-  padding-bottom: 8vh;
+  padding-bottom: 10vh;
 }
 .segments ion-segment {
   --background: white;
@@ -655,8 +659,9 @@ ion-button {
 .detailsTab {
   margin: 1.8vh 0;
 }
-.detailsTabElement {
-  margin: 1.8vh 0;
+.detailsTabElement p{
+  margin: 1.78vh 0;
+  line-height: 2.67vh;
 }
 .detailsTabBoroughElement {
   margin: 1.78vh 0;
