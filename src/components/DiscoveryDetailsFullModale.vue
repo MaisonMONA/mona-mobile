@@ -144,17 +144,12 @@
                 </p>
                 <hr class="separating-bar" />
               </div>
-              <div v-if="details7" class="detailsTabElement">
-                <p>
-                  <span class="detailsSubTitle">Support</span> <br />
-                  {{ details7 }}
-                </p>
-                <hr class="separating-bar" />
-              </div>
               <!-- TODO Status ?? -->
             </div>
 
-            <p>{{ details9 }}</p>
+            <p class="detailsTabBoroughElement">
+              {{ details9 }}
+            </p>
 
             <div class="addressContainer">
               <!-- Discovery pin icon-->
@@ -166,7 +161,7 @@
           </div>
 
           <div v-if="activeTab === 'aPropos'" class="descriptionTab aProposTab">
-            <p v-if="details3" id="aProposText">{{ details3 }}</p>
+            <p id="aProposText">{{details3 ? details3 : "—" }}</p>
           </div>
 
           <div
@@ -199,8 +194,8 @@
                     :icon="`public/assets/drawable/icons/yellowStar.svg`"
                   ></ion-icon>
                 </li>
-                <li :key="nostar" v-for="nostar in 5 - this.getRating()">
-                  <ion-icon
+                <li >
+                  <ion-icon :key="nostar" v-for="nostar in 5 - this.getRating()"
                     size="small"
                     :icon="`/assets/drawable/icons/greyStar.svg`"
                   ></ion-icon>
@@ -626,6 +621,7 @@ ion-button {
 
 .segments {
   margin: 3.67vh 3.9vw 0 3.9vw;
+  padding-bottom: 8vh;
 }
 .segments ion-segment {
   --background: white;
@@ -639,10 +635,12 @@ ion-button {
   --color-checked: #2E389E;
   --indicator-box-shadow: none;
   --border-radius: 0;
-  margin-left: -5vw;
 }
-ion-segment-button::part(indicator-background) {
-  border-bottom: 2px solid #757DD7;
+.segments ion-segment-button::part(indicator-background) {
+  border-bottom: 0.44vh solid #757DD7;
+}
+.segments ion-segment-button::part(native) {
+  padding: 0;
 }
 
 .descriptionTab {
@@ -660,10 +658,15 @@ ion-segment-button::part(indicator-background) {
 .detailsTabElement {
   margin: 1.8vh 0;
 }
+.detailsTabBoroughElement {
+  margin: 1.78vh 0;
+  font-size: 3.8vw;
+  line-height: 2.67vh;
+}
 
 #aProposText {
   overflow-y: scroll;
-  height: 34vh;
+  height: 38.4vh;
 }
 
 .detailsSubTitle {
@@ -676,7 +679,7 @@ ion-segment-button::part(indicator-background) {
   font-weight: 600;
 }
 
-#notCommentYetText {
+#notCommentYetText, .user-review p {
   font-style: italic;
 }
 
@@ -694,18 +697,21 @@ ion-segment-button::part(indicator-background) {
   text-decoration: underline;
 }
 
-ul {
+.commentTab ul {
   margin: 0;
   padding: 0;
 }
-li {
+.commentTab li {
   display: inline-block;
 
 }
 
-li ion-icon {
-  height: 3.62vw;
-  width: 3.62vw;
-  margin: 0 0.48vw 0 0;
+.commentTab li ion-icon {
+  position: relative;
+  top: 0.3vw;
+  height: 4vw;
+  width: 4vw;
+  margin: 0 0.61vw 0 0;
+
 }
 </style>

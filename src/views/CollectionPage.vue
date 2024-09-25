@@ -7,7 +7,7 @@
         <h6>Membre depuis {{ memberSince }}</h6>
       </div>
     </div>
-      <div class="ion-segment-container">
+      <div class="ion-segment-container collectionPageSegment">
         <ion-segment :value="getSegment()" v-model="choixSegment" mode="ios">
           <ion-segment-button value="collection">
             <ion-label>Ma collection</ion-label>
@@ -173,18 +173,18 @@ a {
   margin: 0;
 }
 
-.ion-segment-container {
+.ion-segment-container.collectionPageSegment {
   padding: 5vw 3.8vw;
 }
 
-ion-segment {
+.collectionPageSegment ion-segment {
   --background: white;
   border: 1px solid black;
   border-radius: 90px;
   padding: 1px;
 }
 
-ion-segment-button {
+.collectionPageSegment ion-segment-button {
   /* Override dark mode */
   --color: black;
 

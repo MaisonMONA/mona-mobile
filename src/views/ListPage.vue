@@ -164,7 +164,7 @@
         id="discoveryDetailsFullModal"
         :is-open="discoveryDetailsFullModalOpen"
         @didDismiss="discoveryDetailsFullModalOpen = false"
-        :breakpoints="[0.976]"
+        :breakpoints="[0.5, 0.976]"
         :initial-breakpoint="0.976"
         :show-backdrop="true"
       >
