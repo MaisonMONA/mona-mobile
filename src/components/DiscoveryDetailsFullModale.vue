@@ -78,17 +78,12 @@
             <span class="details title">{{ discovery.getTitle() }}</span>
           </div>
 
-          <hr class="separating-bar" />
-
           <div id="artistsAndDate">
             <!-- Artists or usages -->
             <span v-if="dType === 'artwork'" class="details one">{{
               details1
             }}</span>
-            <span
-              v-if="dType === 'artwork'"
-              id="bigDotBetweenArtistsAndDate"
-            >
+            <span v-if="dType === 'artwork'" id="bigDotBetweenArtistsAndDate">
               •
             </span>
             <!-- Production date -->
@@ -104,24 +99,135 @@
           <ion-img id="userPhoto"></ion-img>
         </div>
 
-        <div class="addressContainer">
-          <!-- Discovery pin icon-->
-          <ion-icon
-            :icon="`./assets/drawable/pins/${discovery.dType}/default.svg`"
-          ></ion-icon>
-          <span>{{ details7 }}</span>
-        </div>
+        <div class="segments">
+          <ion-segment value="details" v-model="activeTab">
+            <ion-segment-button value="details">
+              <ion-label>DETAILS</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="aPropos">
+              <ion-label>À PROPOS</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="commentaire">
+              <ion-label>COMMENTAIRE</ion-label>
+            </ion-segment-button>
+          </ion-segment>
 
-        <!-- FICHE COMPLETE BUTTON -->
-        <ion-button
-          class="discovery-button"
-          id="ficheCompleteButton"
-          fill="outline"
-          @click="openDiscoveryDetailsPage"
-          :style="{ width: isCollected ? '92vw' : '44vw' }"
-        >
-          {{ isCollected ? "VOIR LA FICHE COMPLÈTE" : "FICHE COMPLÈTE" }}
-        </ion-button>
+          <div v-if="activeTab === 'details'" class="descriptionTab detailsTab">
+            <div>
+              <div v-if="details4" class="detailsTabElement">
+                <p>
+                  <span class="detailsSubTitle">Dimensions</span> <br />
+                  {{ details4 }}
+                </p>
+                <hr class="separating-bar" />
+              </div>
+              <div v-if="details12" class="detailsTabElement">
+                <p>
+                  <span class="detailsSubTitle">Mediums</span> <br />
+                  {{ details12 }}
+                </p>
+                <hr class="separating-bar" />
+              </div>
+              <div v-if="details5" class="detailsTabElement">
+                <p>
+                  <span class="detailsSubTitle">Matériaux</span> <br />
+                  {{ details5 }}
+                </p>
+                <hr class="separating-bar" />
+              </div>
+              <div v-if="details6" class="detailsTabElement">
+                <p>
+                  <span class="detailsSubTitle">Techniques</span> <br />
+                  {{ details6 }}
+                </p>
+                <hr class="separating-bar" />
+              </div>
+              <div v-if="details11" class="detailsTabElement">
+                <p>
+                  <span class="detailsSubTitle">Support</span> <br />
+                  {{ details11 }}
+                </p>
+                <hr class="separating-bar" />
+              </div>
+              <div v-if="details8" class="detailsTabElement">
+                <p>
+                  <span class="detailsSubTitle">Propriétaire</span> <br />
+                  {{ details8 }}
+                </p>
+                <hr class="separating-bar" />
+              </div>
+              <div v-if="details10" class="detailsTabElement">
+                <p>
+                  <span class="detailsSubTitle">Status</span> <br />
+                  {{ details10 }}
+                </p>
+                <hr class="separating-bar" />
+              </div>
+            </div>
+
+            <p class="detailsTabBoroughElement">
+              {{ details9 }}
+            </p>
+
+            <div class="addressContainer">
+              <!-- Discovery pin icon-->
+              <ion-icon
+                :icon="`./assets/drawable/pins/${discovery.dType}/default.svg`"
+              ></ion-icon>
+              <span>{{ details7 }}</span>
+            </div>
+          </div>
+
+          <div v-if="activeTab === 'aPropos'" class="descriptionTab aProposTab">
+            <p id="aProposText">{{ details3 ? details3 : "—" }}</p>
+          </div>
+
+          <div
+            v-if="activeTab === 'commentaire'"
+            class="descriptionTab commentTab"
+          >
+            <div v-if="!isCollected">
+              <ul class="dRating">
+                <ion-label class="commentSubTitle"
+                  >Pas de commentaire</ion-label
+                >
+                <li :key="st" v-for="st in 5">
+                  <ion-icon
+                    size="small"
+                    :icon="`public/assets/drawable/icons/greyStar.svg`"
+                  ></ion-icon>
+                </li>
+              </ul>
+              <p id="notCommentYetText">
+                Vous n'avez pas encore commenté cette oeuvre.
+              </p>
+            </div>
+
+            <div v-if="isCollected" class="user-review">
+              <ul class="dRating">
+                <ion-label class="commentSubTitle">Commentaire</ion-label>
+                <li :key="st" v-for="st in this.getRating()">
+                  <ion-icon
+                    size="small"
+                    :icon="`public/assets/drawable/icons/yellowStar.svg`"
+                  ></ion-icon>
+                </li>
+                <li>
+                  <ion-icon
+                    :key="nostar"
+                    v-for="nostar in 5 - this.getRating()"
+                    size="small"
+                    :icon="`/assets/drawable/icons/greyStar.svg`"
+                  ></ion-icon>
+                </li>
+              </ul>
+
+              <p v-if="this.getComment()">
+                {{ this.getComment() }}
+              </p>
+            </div>
+          </div>
+        </div>
 
         <!-- PHOTO BUTTON -->
         <ion-button
@@ -147,9 +253,12 @@ import {
   IonContent,
   IonIcon,
   IonPage,
+  IonLabel,
   IonImg,
   toastController,
   IonChip,
+  IonSegment,
+  IonSegmentButton,
 } from "@ionic/vue";
 
 import { DiscoveryEnum } from "@/internal/Types";
@@ -161,7 +270,7 @@ import targetIconActivated from "/assets/drawable/icons/target_activated.svg";
 import customMapIcon from "/assets/drawable/icons/map.svg";
 
 export default {
-  name: "discovery-details",
+  name: "discovery-details-full-modale",
 
   props: {
     selectedDiscovery: Object,
@@ -171,9 +280,12 @@ export default {
     IonPage,
     IonContent,
     IonIcon,
+    IonLabel,
     IonButton,
     IonImg,
     IonChip,
+    IonSegment,
+    IonSegmentButton,
   },
 
   data() {
@@ -185,7 +297,13 @@ export default {
       details4,
       details5,
       details6,
-      details7;
+      details7,
+      details8,
+      details9,
+      details10,
+      details11,
+      details12,
+      details13;
     if (this.discovery.dType === "artwork") {
       isArtwork = true;
 
@@ -195,7 +313,18 @@ export default {
       details4 = this.discovery.getDimensions();
       details5 = this.discovery.getMaterials();
       details6 = this.discovery.getTechniques();
-      details7 = "(" + this.discovery.getLocation().lat + ", " + this.discovery.getLocation().lng + ")";
+      details7 =
+        "(" +
+        this.discovery.getLocation().lat +
+        ", " +
+        this.discovery.getLocation().lng +
+        ")";
+      details8 = this.discovery.getOwner();
+      details9 = this.discovery.getBorough();
+      details10 = "";
+      details11 = this.discovery.getSupports();
+      details12 = this.discovery.getMediums();
+      details13 = this.discovery.getUrl();
 
       productionDate = this.discovery.produced_at;
     } else {
@@ -207,25 +336,43 @@ export default {
       details4 = "";
       details5 = "";
       details6 = "";
-      details7 = this.discovery.getAddress();
+      details7 =
+        this.discovery.getAddress() ||
+        "(" +
+          this.discovery.getLocation().lat +
+          ", " +
+          this.discovery.getLocation().lng +
+          ")";
+      details8 = "";
+      details9 = this.discovery.getBorough();
+      details10 = "";
+      details11 = "";
+      details12 = "";
+      details13 = this.discovery.getUrl();
 
-      if (this.discovery.dType === "heritage")
+      if (this.discovery.dType === "heritage") {
         productionDate = this.discovery.produced_at;
-      else productionDate = "";
+        details10 = this.discovery.getStatus();
+      } else productionDate = "";
     }
 
     return {
+      activeTab: "details",
       customMapIcon,
 
       isCollected: UserData.isCollected(
-          this.discovery.id,
-          this.discovery.dType,
+        this.discovery.id,
+        this.discovery.dType,
       ),
 
       isTargeted: UserData.isTargeted(this.discovery.id, this.discovery.dType),
 
-      customTargetIcon: UserData.isTargeted(this.discovery.id, this.discovery.dType) ?
-          targetIconActivated : targetIconUnactivated, // May be overridden during mount
+      customTargetIcon: UserData.isTargeted(
+        this.discovery.id,
+        this.discovery.dType,
+      )
+        ? targetIconActivated
+        : targetIconUnactivated, // May be overridden during mount
 
       isArtwork,
       productionDate,
@@ -236,6 +383,12 @@ export default {
       details5,
       details6,
       details7,
+      details8,
+      details9,
+      details10,
+      details11,
+      details12,
+      details13,
     };
   },
 
@@ -295,10 +448,6 @@ export default {
   },
 
   methods: {
-    openDiscoveryDetailsPage() {
-      this.$emit('view-full-details', UserData.getCollected(this.discovery.id, this.discovery.dType));
-    },
-
     async activateCamera() {
       const img = await Utils.takePicture();
       if (img == null) return; // User cancelled
@@ -364,6 +513,21 @@ export default {
     showImg() {
       // TODO
     },
+    getComment() {
+      const userData = UserData.getCollected(
+        this.discovery.id,
+        this.discovery.dType,
+      );
+      return userData.comment;
+    },
+
+    getRating() {
+      const userData = UserData.getCollected(
+        this.discovery.id,
+        this.discovery.dType,
+      );
+      return userData.rating;
+    },
   },
 };
 </script>
@@ -381,8 +545,8 @@ export default {
   min-height: 2.67vh;
 }
 #categoryChip {
-  color: #2E389E;
-  border-color: #2E389E;
+  color: #2e389e;
+  border-color: #2e389e;
 }
 #discoveryStateChip ion-icon {
   font-size: 2.8vw;
@@ -402,8 +566,10 @@ export default {
 
 #photoButton {
   height: 5.4vh;
-  width: 44vw;
-  position: absolute;
+  width: 92vw;
+  margin-left: 3.9vw;
+  bottom: 4vh;
+  position: fixed;
   --background: #4d58cb;
   --color: white;
   --border-radius: 8px;
@@ -467,7 +633,7 @@ ion-button {
   font-weight: 300;
 }
 
-.details{
+.details {
   font-size: 14px;
   margin: 5px 0;
   line-height: 20px;
@@ -493,13 +659,79 @@ ion-button {
 .photoContainer ion-img#userPhoto {
   display: none;
   object-fit: cover;
-  height: 28vh;
+  height: 42.6vh;
+}
+
+.segments {
+  margin: 3.67vh 3.9vw 0 3.9vw;
+  padding-bottom: 10vh;
+}
+.segments ion-segment {
+  --background: white;
+  border: none;
+  border-bottom: 1px solid #757dd7;
+  border-radius: 0;
+}
+.segments ion-segment ion-segment-button {
+  font-size: 3.38vw;
+  font-weight: 500;
+  --color-checked: #2e389e;
+  --indicator-box-shadow: none;
+  --border-radius: 0;
+}
+.segments ion-segment-button::part(indicator-background) {
+  border-bottom: 0.44vh solid #757dd7;
+}
+.segments ion-segment-button::part(native) {
+  padding: 0;
+}
+
+.descriptionTab {
+  font-size: 3.86vw;
+  font-weight: 400;
+}
+
+.aProposTab,
+.commentTab {
+  margin: 3.5vh 0;
+}
+.detailsTab {
+  margin: 1.8vh 0;
+}
+.detailsTabElement p {
+  margin: 1.78vh 0;
+  line-height: 2.67vh;
+}
+.detailsTabBoroughElement {
+  margin: 1.78vh 0;
+  font-size: 3.8vw;
+  line-height: 2.67vh;
+}
+
+#aProposText {
+  overflow-y: scroll;
+  height: 38.4vh;
+}
+
+.detailsSubTitle {
+  font-size: 3.8vw;
+  font-weight: 700;
+}
+.commentSubTitle {
+  margin: 0 2.9vw 0 0;
+  font-size: 4.3vw;
+  font-weight: 600;
+}
+
+#notCommentYetText,
+.user-review p {
+  font-style: italic;
 }
 
 .addressContainer {
   display: flex;
   align-items: center;
-  margin: 0 1.8vh 2.7vh 1.8vh;
+  margin: 0 0 2.7vh 0;
   font-size: 3.4vw;
 }
 .addressContainer ion-icon {
@@ -510,4 +742,19 @@ ion-button {
   text-decoration: underline;
 }
 
+.commentTab ul {
+  margin: 0;
+  padding: 0;
+}
+.commentTab li {
+  display: inline-block;
+}
+
+.commentTab li ion-icon {
+  position: relative;
+  top: 0.3vw;
+  height: 4vw;
+  width: 4vw;
+  margin: 0 0.61vw 0 0;
+}
 </style>
