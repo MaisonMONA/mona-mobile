@@ -113,38 +113,57 @@
           </ion-segment>
 
           <div v-if="activeTab === 'details'" class="descriptionTab detailsTab">
-            <div v-if="isArtwork">
+            <div>
               <div v-if="details4" class="detailsTabElement">
                 <p>
-                  <span class="detailsSubTitle">Dimensions</span> <br />
+                  <span class="detailsSubTitle">Dimensions</span> <br/>
                   {{ details4 }}
                 </p>
                 <hr class="separating-bar" />
               </div>
-              <!-- TODO Mediums -->
+              <div v-if="details12" class="detailsTabElement">
+                <p>
+                  <span class="detailsSubTitle">Mediums</span> <br/>
+                  {{ details12 }}
+                </p>
+                <hr class="separating-bar" />
+              </div>
               <div v-if="details5" class="detailsTabElement">
                 <p>
-                  <span class="detailsSubTitle">Matériaux</span> <br />
+                  <span class="detailsSubTitle">Matériaux</span> <br/>
                   {{ details5 }}
                 </p>
                 <hr class="separating-bar" />
               </div>
               <div v-if="details6" class="detailsTabElement">
                 <p>
-                  <span class="detailsSubTitle">Techniques</span> <br />
+                  <span class="detailsSubTitle">Techniques</span> <br/>
                   {{ details6 }}
                 </p>
                 <hr class="separating-bar" />
               </div>
-              <!-- TODO Support -->
+              <div v-if="details11" class="detailsTabElement">
+                <p>
+                  <span class="detailsSubTitle">Support</span> <br/>
+                  {{ details11 }}
+                </p>
+                <hr class="separating-bar" />
+              </div>
               <div v-if="details8" class="detailsTabElement">
                 <p>
-                  <span class="detailsSubTitle">Propriétaire</span> <br />
+                  <span class="detailsSubTitle">Propriétaire</span> <br/>
                   {{ details8 }}
                 </p>
                 <hr class="separating-bar" />
               </div>
-              <!-- TODO Status ?? -->
+              <div v-if="details10" class="detailsTabElement">
+                <p>
+                  <span class="detailsSubTitle">Status</span> <br/>
+                  {{ details10 }}
+                </p>
+                <hr class="separating-bar" />
+              </div>
+
             </div>
 
             <p class="detailsTabBoroughElement">
@@ -161,7 +180,7 @@
           </div>
 
           <div v-if="activeTab === 'aPropos'" class="descriptionTab aProposTab">
-            <p id="aProposText">{{details3 ? details3 : "—" }}</p>
+            <p id="aProposText">{{ details3 ? details3 : "—" }}</p>
           </div>
 
           <div
@@ -180,9 +199,9 @@
                   ></ion-icon>
                 </li>
               </ul>
-              <p id="notCommentYetText"
-                >Vous n'avez pas encore commenté cette oeuvre.</p
-              >
+              <p id="notCommentYetText">
+                Vous n'avez pas encore commenté cette oeuvre.
+              </p>
             </div>
 
             <div v-if="isCollected" class="user-review">
@@ -194,8 +213,10 @@
                     :icon="`public/assets/drawable/icons/yellowStar.svg`"
                   ></ion-icon>
                 </li>
-                <li >
-                  <ion-icon :key="nostar" v-for="nostar in 5 - this.getRating()"
+                <li>
+                  <ion-icon
+                    :key="nostar"
+                    v-for="nostar in 5 - this.getRating()"
                     size="small"
                     :icon="`/assets/drawable/icons/greyStar.svg`"
                   ></ion-icon>
@@ -279,7 +300,10 @@ export default {
       details6,
       details7,
       details8,
-      details9;
+      details9,
+      details10,
+      details11,
+      details12;
     if (this.discovery.dType === "artwork") {
       isArtwork = true;
 
@@ -297,6 +321,9 @@ export default {
         ")";
       details8 = this.discovery.getOwner();
       details9 = this.discovery.getBorough();
+      details10 = "";
+      details11 = this.discovery.getSupports();
+      details12 = this.discovery.getMediums();
 
       productionDate = this.discovery.produced_at;
     } else {
@@ -308,17 +335,23 @@ export default {
       details4 = "";
       details5 = "";
       details6 = "";
-      details7 = this.discovery.getAddress() || "(" +
+      details7 =
+        this.discovery.getAddress() ||
+        "(" +
           this.discovery.getLocation().lat +
           ", " +
           this.discovery.getLocation().lng +
           ")";
       details8 = "";
       details9 = this.discovery.getBorough();
+      details10 = "";
+      details11 = "";
+      details12 = "";
 
-      if (this.discovery.dType === "heritage")
+      if (this.discovery.dType === "heritage") {
         productionDate = this.discovery.produced_at;
-      else productionDate = "";
+        details10 = this.discovery.getStatus();
+      } else productionDate = "";
     }
 
     return {
@@ -350,6 +383,9 @@ export default {
       details7,
       details8,
       details9,
+      details10,
+      details11,
+      details12,
     };
   },
 
@@ -630,18 +666,18 @@ ion-button {
 .segments ion-segment {
   --background: white;
   border: none;
-  border-bottom: 1px solid #757DD7;
+  border-bottom: 1px solid #757dd7;
   border-radius: 0;
 }
 .segments ion-segment ion-segment-button {
   font-size: 3.38vw;
   font-weight: 500;
-  --color-checked: #2E389E;
+  --color-checked: #2e389e;
   --indicator-box-shadow: none;
   --border-radius: 0;
 }
 .segments ion-segment-button::part(indicator-background) {
-  border-bottom: 0.44vh solid #757DD7;
+  border-bottom: 0.44vh solid #757dd7;
 }
 .segments ion-segment-button::part(native) {
   padding: 0;
@@ -659,7 +695,7 @@ ion-button {
 .detailsTab {
   margin: 1.8vh 0;
 }
-.detailsTabElement p{
+.detailsTabElement p {
   margin: 1.78vh 0;
   line-height: 2.67vh;
 }
@@ -684,7 +720,8 @@ ion-button {
   font-weight: 600;
 }
 
-#notCommentYetText, .user-review p {
+#notCommentYetText,
+.user-review p {
   font-style: italic;
 }
 
@@ -708,7 +745,6 @@ ion-button {
 }
 .commentTab li {
   display: inline-block;
-
 }
 
 .commentTab li ion-icon {
@@ -717,6 +753,5 @@ ion-button {
   height: 4vw;
   width: 4vw;
   margin: 0 0.61vw 0 0;
-
 }
 </style>

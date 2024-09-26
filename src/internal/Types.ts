@@ -62,7 +62,9 @@ export class Artwork extends Discovery {
     dimensions: { fr: string[]; en: string[] } | null;
     categories: { fr: string[]; en: string[] } | null;
     techniques: { fr: string[]; en: string[] } | null;
+    mediums: { fr: string[]; en: string[] } | null;
     directions: { fr: string | null; en: string | null } | null;
+    supports: { fr: string[]; en: string[] } | null;
     accessibilities: { fr: string[]; en: string[] } | null;
   }) {
     super();
@@ -77,8 +79,10 @@ export class Artwork extends Discovery {
     this.categories = artwork.categories;
     this.techniques = artwork.techniques;
     this.directions = artwork.directions;
+    this.mediums = artwork.mediums;
     this.owner = artwork.owner;
     this.borough = artwork.borough;
+    this.supports = artwork.supports;
     this.accessibilities = artwork.accessibilities;
   }
 
@@ -94,8 +98,10 @@ export class Artwork extends Discovery {
   categories: { fr: string[]; en: string[] } | null;
   techniques: { fr: string[]; en: string[] } | null;
   directions: { fr: string | null; en: string | null } | null;
+  mediums: { fr: string[]; en: string[] } | null;
   owner: string | null;
   borough: string;
+  supports: { fr: string[]; en: string[] } | null;
   accessibilities: { fr: string[]; en: string[] } | null;
 
   public getLocation(): { lat: number; lng: number } {
@@ -153,6 +159,18 @@ export class Artwork extends Discovery {
 
     if (lang == "fr") return this.techniques.fr.join(", ");
     else return this.techniques.en.join(", ");
+  }
+  public getMediums(lang = "fr"): string {
+    if (this.mediums == null) return "";
+
+    if (lang == "fr") return this.mediums.fr.join(", ");
+    else return this.mediums.en.join(", ");
+  }
+  public getSupports(lang = "fr"): string {
+    if (this.supports == null) return "";
+
+    if (lang == "fr") return this.supports.fr.join(", ");
+    else return this.supports.en.join(", ");
   }
   public getBorough(): string {
     return this.borough;
@@ -285,6 +303,10 @@ export class Heritage extends Discovery {
   }
   public getOwner(): null {
     return null;
+  }
+
+  public getStatus(): string {
+    return this.status;
   }
 }
 
