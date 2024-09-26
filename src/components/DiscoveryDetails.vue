@@ -296,14 +296,7 @@ export default {
 
   methods: {
     openDiscoveryDetailsPage() {
-      const type =
-        this.discovery.dType === "artwork"
-          ? 0
-          : this.discovery.dType === "place"
-            ? 1
-            : /* (discovery.dType == "heritage") */ 2;
-
-      this.$router.push(`/discovery-details/${type}/${this.discovery.id}`);
+      this.$emit('view-full-details', UserData.getCollected(this.discovery.id, this.discovery.dType));
     },
 
     async activateCamera() {

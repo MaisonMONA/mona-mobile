@@ -159,7 +159,7 @@
         </ion-content>
       </ion-modal>
 
-      <!-- Selected pin discovery details modal -->
+      <!-- Selected discovery full details modal -->
       <ion-modal
         id="discoveryDetailsFullModal"
         :is-open="discoveryDetailsFullModalOpen"
@@ -172,8 +172,7 @@
           <discovery-details-full-modale :selected-discovery="listSelectedDiscovery" />
         </ion-content>
       </ion-modal>
-
-      <!-- Selected pin discovery details modal -->
+      <!-- Selected discovery full details modal -->
 
       <ion-refresher slot="fixed" @ion-refresh="refreshPage">
         <ion-refresher-content></ion-refresher-content>

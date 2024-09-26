@@ -24,16 +24,30 @@
     <!-- Put the recenter button here so that it moves with the accordion-->
     <div class="accordionButtonDiv">
       <ion-button
-      @click="this.recenterView(); this.updateClosestDiscoveries();"
-      id="recenter-button"
-      :class="{
-      'map-button': true,
-      userLocationInViewport: isUserLocationInViewport,
-      userLocationOutsideViewport: isUserLocationOutsideViewport,
-      }"
-      :fill="isUserLocationInViewport || isUserLocationOutsideViewport ? 'outline' : 'solid'"
+        @click="
+          this.recenterView();
+          this.updateClosestDiscoveries();
+        "
+        id="recenter-button"
+        :class="{
+          'map-button': true,
+          userLocationInViewport: isUserLocationInViewport,
+          userLocationOutsideViewport: isUserLocationOutsideViewport,
+        }"
+        :fill="
+          isUserLocationInViewport || isUserLocationOutsideViewport
+            ? 'outline'
+            : 'solid'
+        "
       >
-        <ion-icon :icon="isUserLocationOutsideViewport ? customLocationIconPurple : customLocationIconBlack"></ion-icon>RECENTRER LA CARTE
+        <ion-icon
+          :icon="
+            isUserLocationOutsideViewport
+              ? customLocationIconPurple
+              : customLocationIconBlack
+          "
+        ></ion-icon
+        >RECENTRER LA CARTE
       </ion-button>
     </div>
 
@@ -41,9 +55,7 @@
       <!-- TODO Move recenter button with accordion and update when position changed -->
       <!-- TODO Put between 5 and 12 discoveries depending on discoveries in viewport and add number of discoveries in header?? (to confirm with team to understand what to do) -->
       <!-- TODO Check if discoveries match with user location when it changes -->
-      <ion-item
-        slot="header"
-      >
+      <ion-item slot="header">
         <ion-label>Découvertes à proximité: </ion-label>
       </ion-item>
       <div slot="content" style="height: 20vh; width: 100vw">
@@ -51,9 +63,7 @@
           <ion-item
             v-for="discovery of closestDiscoveriesDistance"
             :key="discovery"
-            @click="
-              focusDiscovery(discovery);
-            "
+            @click="focusDiscovery(discovery)"
           >
             <!-- TODO Do border gradient like on Figma -->
             <ion-grid
@@ -124,11 +134,30 @@
     :show-backdrop="false"
   >
     <ion-content>
-      <discovery-details :selected-discovery="currentSelectedDiscovery" />
+      <discovery-details
+          :selected-discovery="currentSelectedDiscovery"
+          @view-full-details="openDiscoveryDetailsFullModale(currentSelectedDiscovery)"
+      />
     </ion-content>
   </ion-modal>
-
   <!-- Selected pin discovery details modal -->
+
+  <!-- Selected discovery full details modal -->
+  <ion-modal
+    id="discoveryDetailsFullModal"
+    :is-open="discoveryDetailsFullModalOpen"
+    @didDismiss="discoveryDetailsFullModalOpen = false"
+    :breakpoints="[0.5, 0.976]"
+    :initial-breakpoint="0.976"
+    :show-backdrop="true"
+  >
+    <ion-content>
+      <discovery-details-full-modale
+        :selected-discovery="listSelectedDiscovery"
+      />
+    </ion-content>
+  </ion-modal>
+  <!-- Selected discovery full details modal -->
 
 </template>
 
@@ -174,12 +203,13 @@ import CircleStyle from "ol/style/Circle.js";
 import { circular } from "ol/geom/Polygon.js";
 import customLocationIconBlack from "/assets/drawable/icons/location_icon_black.svg";
 import customLocationIconPurple from "/assets/drawable/icons/location_icon_purple.svg";
-import {containsCoordinate, getHeight} from "ol/extent.js";
+import { containsCoordinate, getHeight } from "ol/extent.js";
 import { Geolocation } from "@capacitor/geolocation";
 import { isPlatform } from "@ionic/vue";
 import { App } from "@capacitor/app";
 import { Distance } from "@/internal/Distance";
 import DiscoveryDetails from "@/components/DiscoveryDetails.vue";
+import DiscoveryDetailsFullModale from "@/components/DiscoveryDetailsFullModale.vue";
 
 function insertAllPins(destinationLayer, discoveryList) {
   for (const discovery of discoveryList) {
@@ -204,6 +234,7 @@ export default {
   },
 
   components: {
+    DiscoveryDetailsFullModale,
     DiscoveryDetails,
     IonModal,
     IonLabel,
@@ -242,6 +273,8 @@ export default {
 
     return {
       ionAccordionOpen: true,
+      listSelectedDiscovery: null,
+      discoveryDetailsFullModalOpen: false,
       currentSelectedDiscovery: null,
       discoveryDetailsModalOpen: false,
       isPermissionDenied: true,
@@ -288,7 +321,11 @@ export default {
     this.$watch(
       () => this.$route.params,
       () => {
-        if (this.$route.query.type && this.$route.query.id && this.$route.path !== '/discovery-review/') {
+        if (
+          this.$route.query.type &&
+          this.$route.query.id &&
+          this.$route.path !== "/discovery-review/"
+        ) {
           const discovery = Utils.getDiscovery(
             parseInt(this.$route.query.id),
             this.$route.query.type,
@@ -305,7 +342,6 @@ export default {
     setTimeout(() => {
       this.updateClosestDiscoveries();
     }, 1000);
-
   },
 
   async mounted() {
@@ -328,9 +364,20 @@ export default {
 
   methods: {
 
+    openDiscoveryDetailsFullModale(discovery) {
+      this.discoveryDetailsFullModalOpen = true;
+      this.listSelectedDiscovery = discovery;
+      // Timeout to make it look smoother
+      setTimeout(() => {
+        this.discoveryDetailsModalOpen = false;
+      }, 100);
+    },
+
     updateClosestDiscoveries() {
-      this.closestDiscoveriesDistance =
-          UserData.getSortedDiscoveriesDistance(0, 12);
+      this.closestDiscoveriesDistance = UserData.getSortedDiscoveriesDistance(
+        0,
+        12,
+      );
       // For distance between discoveries and user location
       this.lat2 = UserData.getLocation()[1];
       this.lng2 = UserData.getLocation()[0];
@@ -580,7 +627,7 @@ export default {
         // Update focus on feature closest to click
         this.focusDiscovery(discovery);
 
-      // Did not click close to features
+        // Did not click close to features
       } else {
         this.unfocusDiscovery();
       }
@@ -596,21 +643,26 @@ export default {
       this.highlightSelectedDiscoveryPin(discovery);
 
       // Center map on the selected pin with animation
-        // Get viewport height coordinates at the desired zoom level
-        // Temporarily set the zoom level
-        this.mainMap.getView().setZoom(Math.max(currentZoom, 14.25));
-        // Calculate viewport height at the temporary zoom level
-        const extentHeight = getHeight(this.mainMap.getView().calculateExtent(map.getSize()));
-        // Restore the original zoom level
-        this.mainMap.getView().setZoom(currentZoom);
+      // Get viewport height coordinates at the desired zoom level
+      // Temporarily set the zoom level
+      this.mainMap.getView().setZoom(Math.max(currentZoom, 14.25));
+      // Calculate viewport height at the temporary zoom level
+      const extentHeight = getHeight(
+        this.mainMap.getView().calculateExtent(map.getSize()),
+      );
+      // Restore the original zoom level
+      this.mainMap.getView().setZoom(currentZoom);
 
-        map.getView().animate({
-          // Center viewport a bit below the selected pin so that the pin is towards the top of viewport
-          center: [discovery.location.lng, discovery.location.lat - 0.30 * extentHeight],
-          duration: 200,
-          zoom: Math.max(currentZoom, 14.25),
-          easing: easeOut,
-        });
+      map.getView().animate({
+        // Center viewport a bit below the selected pin so that the pin is towards the top of viewport
+        center: [
+          discovery.location.lng,
+          discovery.location.lat - 0.3 * extentHeight,
+        ],
+        duration: 200,
+        zoom: Math.max(currentZoom, 14.25),
+        easing: easeOut,
+      });
 
       // Open pin discovery details description modal
       this.currentSelectedDiscovery = discovery;
@@ -637,7 +689,9 @@ export default {
     async unfocusDiscovery() {
       this.discoveryDetailsModalOpen = false;
       if (this.formerSelectedPinFeature) {
-        await this.formerSelectedPinFeature.setStyle(this.mapPinsLayer.getStyle());
+        await this.formerSelectedPinFeature.setStyle(
+          this.mapPinsLayer.getStyle(),
+        );
         this.formerSelectedPinFeature = null;
       }
     },
@@ -657,7 +711,6 @@ export default {
     setAlertOpen(state) {
       this.isAlertOpen = state;
     },
-
   },
 };
 </script>
