@@ -116,54 +116,53 @@
             <div>
               <div v-if="details4" class="detailsTabElement">
                 <p>
-                  <span class="detailsSubTitle">Dimensions</span> <br/>
+                  <span class="detailsSubTitle">Dimensions</span> <br />
                   {{ details4 }}
                 </p>
                 <hr class="separating-bar" />
               </div>
               <div v-if="details12" class="detailsTabElement">
                 <p>
-                  <span class="detailsSubTitle">Mediums</span> <br/>
+                  <span class="detailsSubTitle">Mediums</span> <br />
                   {{ details12 }}
                 </p>
                 <hr class="separating-bar" />
               </div>
               <div v-if="details5" class="detailsTabElement">
                 <p>
-                  <span class="detailsSubTitle">Matériaux</span> <br/>
+                  <span class="detailsSubTitle">Matériaux</span> <br />
                   {{ details5 }}
                 </p>
                 <hr class="separating-bar" />
               </div>
               <div v-if="details6" class="detailsTabElement">
                 <p>
-                  <span class="detailsSubTitle">Techniques</span> <br/>
+                  <span class="detailsSubTitle">Techniques</span> <br />
                   {{ details6 }}
                 </p>
                 <hr class="separating-bar" />
               </div>
               <div v-if="details11" class="detailsTabElement">
                 <p>
-                  <span class="detailsSubTitle">Support</span> <br/>
+                  <span class="detailsSubTitle">Support</span> <br />
                   {{ details11 }}
                 </p>
                 <hr class="separating-bar" />
               </div>
               <div v-if="details8" class="detailsTabElement">
                 <p>
-                  <span class="detailsSubTitle">Propriétaire</span> <br/>
+                  <span class="detailsSubTitle">Propriétaire</span> <br />
                   {{ details8 }}
                 </p>
                 <hr class="separating-bar" />
               </div>
               <div v-if="details10" class="detailsTabElement">
                 <p>
-                  <span class="detailsSubTitle">Status</span> <br/>
+                  <span class="detailsSubTitle">Status</span> <br />
                   {{ details10 }}
                 </p>
                 <hr class="separating-bar" />
               </div>
-
             </div>
 
             <p class="detailsTabBoroughElement">
@@ -303,7 +302,8 @@ export default {
       details9,
       details10,
       details11,
-      details12;
+      details12,
+      details13;
     if (this.discovery.dType === "artwork") {
       isArtwork = true;
 
@@ -324,6 +324,7 @@ export default {
       details10 = "";
       details11 = this.discovery.getSupports();
       details12 = this.discovery.getMediums();
+      details13 = this.discovery.getUrl();
 
       productionDate = this.discovery.produced_at;
     } else {
@@ -347,6 +348,7 @@ export default {
       details10 = "";
       details11 = "";
       details12 = "";
+      details13 = this.discovery.getUrl();
 
       if (this.discovery.dType === "heritage") {
         productionDate = this.discovery.produced_at;
@@ -386,6 +388,7 @@ export default {
       details10,
       details11,
       details12,
+      details13,
     };
   },
 

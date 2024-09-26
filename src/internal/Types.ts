@@ -58,6 +58,7 @@ export class Artwork extends Discovery {
     owner: string | null;
     borough: string;
     title: { fr: string | null; en: string | null };
+    url: { fr: string; en: string } | null;
     materials: { fr: string[]; en: string[] } | null;
     dimensions: { fr: string[]; en: string[] } | null;
     categories: { fr: string[]; en: string[] } | null;
@@ -70,6 +71,7 @@ export class Artwork extends Discovery {
     super();
     this.id = artwork.id;
     this.title = artwork.title;
+    this.url = artwork.url;
     this.artists = artwork.artists;
     this.location = artwork.location;
     this.produced_at = artwork.produced_at;
@@ -89,6 +91,7 @@ export class Artwork extends Discovery {
   dType = "artwork";
   id: number;
   title: { fr: string | null; en: string | null };
+  url: { fr: string; en: string } | null;
   artists: Artist[] | null;
   location: { lat: number; lng: number };
   produced_at: string | null;
@@ -116,6 +119,12 @@ export class Artwork extends Discovery {
   }
   public getTitle(): string {
     return this.title.fr || this.title.en || "(non titré)";
+  }
+  public getUrl(lang = "fr"): string {
+    if (this.url == null) return "";
+
+    if (lang == "fr") return this.url.fr;
+    else return this.url.en;
   }
 
   public getArtists(): string {
@@ -184,6 +193,7 @@ export class Place extends Discovery {
   constructor(place: {
     id: number;
     title: string;
+    website: string | null;
     usages: { fr: string[]; en: string[] };
     borough: string;
     territory: string;
@@ -194,6 +204,7 @@ export class Place extends Discovery {
     super();
     this.id = place.id;
     this.title = place.title;
+    this.website = place.website;
     this.location = place.location;
     this.usages = place.usages;
     this.borough = place.borough;
@@ -205,6 +216,7 @@ export class Place extends Discovery {
   dType = "place";
   id: number;
   title: string;
+  website: string | null;
   location: { lat: number; lng: number };
   usages: { fr: string[]; en: string[] };
   borough: string;
@@ -218,6 +230,9 @@ export class Place extends Discovery {
 
   public getTitle(): string {
     return this.title;
+  }
+  public getUrl(): string {
+    return this.website || "";
   }
 
   public getUsages(lang = "fr"): string {
@@ -241,6 +256,7 @@ export class Heritage extends Discovery {
   constructor(heritage: {
     id: number;
     title: string;
+    url: string | null;
     territory: string;
     produced_at: string | null;
     description: string | null;
@@ -256,6 +272,7 @@ export class Heritage extends Discovery {
     super();
     this.id = heritage.id;
     this.title = heritage.title;
+    this.url = heritage.url;
     this.location = heritage.location;
     this.produced_at = heritage.produced_at;
     this.functions = heritage.functions;
@@ -271,6 +288,7 @@ export class Heritage extends Discovery {
   dType = "heritage";
   id: number;
   title: string;
+  url: string | null;
   borough: string;
   territory: string;
   produced_at: string | null;
@@ -287,6 +305,9 @@ export class Heritage extends Discovery {
   }
   public getTitle(): string {
     return this.title;
+  }
+  public getUrl(): string {
+      return this.url || "";
   }
 
   public getBorough(): string {
