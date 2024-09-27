@@ -1,1 +1,1 @@
-tests
+Added new modal interface for discovery details and fixed badges not showing bug.
