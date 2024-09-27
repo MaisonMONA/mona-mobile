@@ -73,6 +73,7 @@ export class UserData {
   public static resetPreferences(resetTutorial = true) {
     this.data = {
       username: "",
+      whenAccountCreated: "",
       token: "",
       collectedWereFetched: false,
       hasSeenTutorial: resetTutorial ? false : this.data.hasSeenTutorial,
@@ -330,6 +331,31 @@ export class UserData {
 
   public static getUsername(): string {
     return this.data.username;
+  }
+
+  public static async setWhenAccountCreated() {
+
+    // Get user profile info
+    const response = await fetch(Globals.apiRoutes.userProfile, {
+      method: "GET",
+      headers: {
+        Authorization: "Bearer " + this.data.token,
+      },
+    });
+
+    if (response.ok) {
+      const parsed = await response.json();
+      // Get created_at from the user profile which is the account creation date
+      this.data.whenAccountCreated = parsed.created_at;
+      this.updateFile();
+    } else {
+      console.error(`Error fetching user profile info (with the goal of getting 'created_at'). Status: ${response.status}`);
+    }
+
+  }
+
+  public static getWhenAccountCreated(): string {
+    return this.data.whenAccountCreated;
   }
 
   public static setToken(token: string) {

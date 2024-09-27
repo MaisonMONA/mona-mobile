@@ -1,20 +1,140 @@
 @import url("@/theme/GlobalStyle.css");
 
+/* Selected pin discovery details modal */
+#discoveryDetailsModal {
+    --border-radius: 16px;
+    /*height: 90vh; --makes nav bar visible! */
+}
+/* Selected pin discovery details modal */
+
+/* Closest discoveries accordion */
+
+/* To make ion button follow accordion opening and closing */
+.accordionButtonDiv {
+    position: relative;
+}
+
+ion-accordion-group.closestDiscoveriesAccordion {
+    position: absolute;
+    bottom: 10.5vh;
+    width: 100vw
+}
+.ios ion-accordion-group.closestDiscoveriesAccordion {
+    bottom: 14.5vh;
+}
+
+ion-accordion-group.closestDiscoveriesAccordion ion-accordion {
+    border-radius: 16px 16px 0 0;
+}
+
+ion-accordion-group.closestDiscoveriesAccordion ion-accordion ion-item[slot="header"] ion-label {
+    font-size: 4vw;
+    padding: 0.8vh 0;
+}
+
+ion-accordion-group.closestDiscoveriesAccordion ion-accordion div[slot="content"] ion-list {
+    display: flex;
+    overflow-x: scroll;
+    padding: 0 2vw;
+    margin:0;
+}
+
+ion-accordion-group.closestDiscoveriesAccordion ion-accordion div[slot="content"] ion-list ion-item ion-grid {
+    height: 18.3vh;
+    width: 37vw;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 10px;
+}
+
+ion-row#closestDiscoveryTitle {
+    margin: 0.8vh 0;
+    height: 6vh;
+    font-size: 3.7vw;
+    font-weight: 500;
+    /* Only let 3 lines of text and then, ellipsis overflowing text*/
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+ion-row#closestDiscoveryArtistOrUsages {
+    height: 2.2vh;
+    margin-bottom: 0.5vh;
+    font-size: 3.7vw;
+    /* Only let 1 line of text and then, ellipsis overflowing text*/
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+ion-row#closestDiscoveryDate {
+    height: 1.6vh;
+    font-size: 3.4vw;
+    margin-bottom: 1.34vh;
+}
+
+ion-row ion-label#closestDiscoveryDistance {
+    margin-top: 0.1vh;
+    margin-left: 0.5vw;
+    height: 3.8vw;
+    font-size: 3.2vw;
+}
+
+ion-accordion-group.closestDiscoveriesAccordion ion-accordion div[slot="content"] ion-list ion-item {
+    flex: 0 0 auto;
+    --inner-padding-end: 0vw;
+    --padding-start: 2vw;
+}
+
+ion-accordion-group.closestDiscoveriesAccordion ion-accordion div[slot="content"] ion-list div#seeMoreInList {
+    margin: 0 2vw;
+    padding: 10vw;
+    height: 18vh;
+    width: 37vw;
+    font-weight: 500;
+    color: steelblue;
+    text-decoration: underline steelblue;
+    text-decoration-thickness: 0.3vw;
+    border: 2px solid cornflowerblue;
+    border-radius: 10px;
+    display:flex;
+    text-align: center;
+    vertical-align: middle;
+    align-items: center;
+}
+/* Closest discoveries accordion */
+
 .map {
     min-height: 100px;
     height: 100%;
     width: 100%;
 }
 
+.basemapLayer {
+    background-color: #ebebeb; /* background when map hasn't fully loaded when de-zooming quickly */
+    filter: grayscale(0.7); /* make map grayer */
+}
+
 .map-button {
     position: absolute;
-    right: 3vw;
+    right: 6vw;
     --background: #FFFFFF;
     --background-activated: lightgrey;
     --border-radius: 50%;
-    width: 14vw;
-    height: 14vw;
+    width: 18vw;
+    height: 18vw;
     font-size: 0; /* To hide text */
+}
+.map-button ion-icon {
+    font-size: 3.5vw;
+}
+#recenter-button {
+    bottom: 4vh;
 }
 
 /* isUserLocationInViewport = true */
@@ -25,102 +145,72 @@
 
 /* isUserLocationOutsideViewport = true */
 #recenter-button.userLocationOutsideViewport {
-    --background: #D9D9D9;
     width: 60vw;
-    height: 12vw;
+    height: 16vw;
     --border-radius: 90px;
+    --border-width: 2px;
+    --border-color: #757DD7;
     font-size: 4vw;
     letter-spacing: 0.02vw;
     font-weight: 500;
+    color: #2E389E;
+}
+.ios #recenter-button.userLocationOutsideViewport {
+    font-weight: 600;
 }
 #recenter-button.userLocationOutsideViewport ion-icon {
-    font-size: 5vw;
     margin-right: 3vw;
 }
 
-.map-button ion-icon {
-    font-size: 3.5vw;
+
+.map-alert {
+    --min-width: 90% !important;
 }
 
-#recenter-button {
-    bottom: 16vh;
+.map-alert .alert-wrapper {
+    border-radius: 20px !important;
+}
+.map-alert .alert-wrapper .alert-head h2{
+    text-align: center !important;
+    font-weight: normal !important;
+    font-size: medium !important;
 }
 
-#settings-button {
-    bottom: 25vh;
+.map-alert .alert-wrapper .alert-head {
+    text-align: center !important;
+    font-weight: normal !important;
 }
 
-div#popup.activated {
-    top: 40%;
-    width: 65vw;
-    height: 12vw;
-    border: 1px solid var(--button-outline-grey);
+.map-alert .alert-button-group {
+    display: flex !important;
+    flex-direction: column-reverse !important;
+    justify-content: center !important;
+    padding: 0 5% 5% 5% !important;
 }
 
-#popup {
-    perspective-origin: bottom;
-    background: rgba(255, 255, 255, 0.35);
-    backdrop-filter: blur(3px);
-    position: absolute;
-    left: 50%;
-    top: 40%;
-    transform: translate(-50%, -50%);
-    z-index: 1;
-    width: 0;
-    height: 0;
-    border-radius: 10vw;
-    overflow: inherit;
-    transition: all 0.1s cubic-bezier(0, .8, .2, 1);
+.alert-button-cancel {
+    color: #D82727 !important;
+    border-style: solid !important;
+    border-width: 1px !important;
+    border-color: #D82727 !important;
+    border-radius: 24px !important;
 }
 
-#popup-details {
-    position: relative;
-    left: 5vw;
-    width: 48vw;
-    height: 12vw;
-    text-overflow: ellipsis;
-    padding-top: 1vw;
+.alert-button-cancel .alert-button-inner{
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
-#popupTitle {
-    font-size: 16px;
-    font-style: italic;
-    font-weight: bold;
+.alert-button-confirm {
+    color: #FFFFFF !important;
+    background: #4D58CB !important;
+    margin-bottom: 4% !important;
+    border-radius: 24px !important;
 }
 
-#popupSubtext {
-    position: relative;
-    top: -0.5vw;
-    font-size: 11px;
-    font-weight: 400;
-}
-
-#popupTitle, #popupSubtext {
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    font-family: "OpenSans", sans-serif;
-    color: black;
-    margin: 0;
-}
-
-#popup ion-button {
-    position: absolute;
-    top: 0;
-    right: 2px;
-
-    /* For some reason, increasing this number makes the arrow icon smaller. */
-    font-size: 0;
-
-    width: 10vw;
-    height: 10vw;
-    color: black;
-    --background: none;
-    --ripple-color: var(--mona-yellow);
-    --border-radius: 50%;
-    --border-width: 0;
-}
-
-#seeMore ion-icon {
-    font-size: 32px;
+.alert-button-confirm .alert-button-inner{
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }

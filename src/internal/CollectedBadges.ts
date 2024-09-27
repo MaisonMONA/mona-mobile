@@ -27,7 +27,7 @@ export class CollectedBadge {
   private static categoryPathLocked =
     "/assets/drawable/badges/category/locked/";
 
-  public static collecteBadges() {
+  public static determineCollectedBadges() {
     const tmpBoroughContainer = new Map<string, number>();
     const tmpOwnerContainer = new Map<string, number>();
     const tmpCategoryContainer = new Map<string, number>();
@@ -78,6 +78,7 @@ export class CollectedBadge {
     this.obtainedBadges.map((badge: any) => {
       UserData.addCollectedBadge(badge);
     });
+    console.log("Collected badges fetched and set in UserData.data.collected.badges");
   }
 
   static countBadge() {

@@ -27,5 +27,6 @@ export default {
     forgotPassword:
       "https://picasso.iro.umontreal.ca/~mona/api/v3/password/email",
     getPhotos: "https://picasso.iro.umontreal.ca/~mona/api/v3/user/photo",
+    userProfile: "https://picasso.iro.umontreal.ca/~mona/api/v3/user",
   },
 };

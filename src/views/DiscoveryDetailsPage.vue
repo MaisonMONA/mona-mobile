@@ -5,7 +5,6 @@
         <ion-buttons slot="start">
           <ion-back-button></ion-back-button>
         </ion-buttons>
-        <ion-title>MONA</ion-title>
       </ion-toolbar>
     </ion-header>
 
@@ -103,7 +102,6 @@ import {
   IonHeader,
   IonIcon,
   IonPage,
-  IonTitle,
   IonToolbar,
   IonImg,
   toastController,
@@ -127,7 +125,6 @@ export default {
     IonPage,
     IonToolbar,
     IonHeader,
-    IonTitle,
     IonContent,
     IonIcon,
     IonButton,

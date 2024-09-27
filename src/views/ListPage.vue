@@ -1,21 +1,14 @@
 <template>
   <ion-page>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>MONA</ion-title>
-      </ion-toolbar>
-    </ion-header>
-
     <ion-content :fullscreen="true">
       <div class="main-content">
         <p id="tab-title">Liste des découvertes à faire</p>
-        <!-- triggerTextFilter function triggered each 500 ms when search bar value changes-->
+        <!-- triggerTextFilter function triggered each 500 ms when search bar value changes -->
         <ion-searchbar
           show-clear-button="always"
           placeholder="Chercher"
-          :debounce="500"
           @ion-clear="triggerTextFilter('')"
-          @change="triggerTextFilter($event.target.value)"
+          @ionInput="triggerTextFilter($event.target.value)"
           @keydown.enter="triggerTextFilter($event.target.value)"
         ></ion-searchbar>
         <ion-button
@@ -32,13 +25,13 @@
         <ion-list :inset="true" lines="none" :key="componentKey">
           <ion-item
             id="list"
-            v-for="discovery of getDiscoveries()"
+            v-for="discovery of getDiscoveriesToShow()"
             :key="discovery"
-            @click="openDetails(discovery)"
+            @click="openDiscoveryDetailsFullModale(discovery)"
           >
             <!-- Discovery icon -->
             <ion-avatar slot="start">
-              <img :src="getDiscoveryMedalIcon(discovery)" alt="" />
+              <img :src="getDiscoveryMedalIcon(discovery)" alt="discoveryMedalIcon" />
             </ion-avatar>
             <!-- Discovery to user distance  -->
             <ion-label id="distance" position="fixed" class="ion-text-wrap"
@@ -52,10 +45,13 @@
             <ion-label id="title">{{ discovery.getTitle() }}</ion-label>
           </ion-item>
         </ion-list>
-        <ion-infinite-scroll @ionInfinite="pullDiscoveries" :key="componentKey">
+        <ion-infinite-scroll
+          @ionInfinite="pullMoreDiscoveries"
+          :key="componentKey"
+        >
           <ion-infinite-scroll-content></ion-infinite-scroll-content>
         </ion-infinite-scroll>
-        <p class="bottom-text">{{ getDiscoveries().length }} résultats</p>
+        <p class="bottom-text">{{ getDiscoveriesToShow().length }} résultats</p>
       </div>
 
       <!-- Filtres modal window opened when clicking Filtrer button -->
@@ -80,7 +76,7 @@
               size="medium"
               slot="end"
               :src="close"
-              @click="dismiss()"
+              @click="dismissModal()"
             ></ion-icon>
           </ion-toolbar>
 
@@ -117,7 +113,7 @@
             >
               <div class="filter-category">
                 <ion-avatar>
-                  <img :src="'./assets/drawable/medals/artwork/default.svg'" />
+                  <img :src="'./assets/drawable/medals/artwork/default.svg'" alt="artwork discovery medal icon"/>
                 </ion-avatar>
                 <ion-text>Œuvres</ion-text>
               </div>
@@ -134,7 +130,7 @@
             >
               <div class="filter-category">
                 <ion-avatar>
-                  <img :src="'./assets/drawable/medals/heritage/default.svg'" />
+                  <img :src="'./assets/drawable/medals/heritage/default.svg'" alt="heritage discovery medal icon"/>
                 </ion-avatar>
                 <ion-text>Patrimoines</ion-text>
               </div>
@@ -151,7 +147,10 @@
             >
               <div class="filter-category">
                 <ion-avatar>
-                  <img :src="'./assets/drawable/medals/place/default.svg'" />
+                  <img
+                    :src="'./assets/drawable/medals/place/default.svg'"
+                    alt="place discovery medal icon"
+                  />
                 </ion-avatar>
                 <ion-text>Lieux</ion-text>
               </div>
@@ -159,6 +158,21 @@
           </ion-row>
         </ion-content>
       </ion-modal>
+
+      <!-- Selected discovery full details modal -->
+      <ion-modal
+        id="discoveryDetailsFullModal"
+        :is-open="discoveryDetailsFullModalOpen"
+        @didDismiss="discoveryDetailsFullModalOpen = false"
+        :breakpoints="[0.5, 0.976]"
+        :initial-breakpoint="0.976"
+        :show-backdrop="true"
+      >
+        <ion-content>
+          <discovery-details-full-modale :selected-discovery="listSelectedDiscovery" />
+        </ion-content>
+      </ion-modal>
+      <!-- Selected discovery full details modal -->
 
       <ion-refresher slot="fixed" @ion-refresh="refreshPage">
         <ion-refresher-content></ion-refresher-content>
@@ -173,9 +187,7 @@
 <script>
 import {
   IonPage,
-  IonHeader,
   IonToolbar,
-  IonTitle,
   IonContent,
   IonList,
   IonLabel,
@@ -191,11 +203,15 @@ import {
   IonModal,
   IonRadio,
   IonRadioGroup,
+  IonText,
+  IonCol,
+  IonRow,
 } from "@ionic/vue";
 import { filterOutline, close, optionsOutline, reload } from "ionicons/icons";
 import { UserData } from "@/internal/databases/UserData";
 import { Distance } from "../internal/Distance";
-//TODO: find out why images are not displayed
+import DiscoveryDetailsFullModale from "@/components/DiscoveryDetailsFullModale.vue";
+
 export default {
   name: "ListPage",
   computed: {
@@ -204,12 +220,11 @@ export default {
     },
   },
   components: {
+    DiscoveryDetailsFullModale,
     IonRefresher,
     IonRefresherContent,
     IonPage,
-    IonHeader,
     IonToolbar,
-    IonTitle,
     IonContent,
     IonList,
     IonLabel,
@@ -223,6 +238,9 @@ export default {
     IonModal,
     IonRadio,
     IonRadioGroup,
+    IonText,
+    IonCol,
+    IonRow,
   },
   setup() {
     return {
@@ -233,8 +251,12 @@ export default {
 
   data() {
     return {
-      offset: 0,
-      currentFilter: "",
+
+      discoveryDetailsFullModalOpen: false,
+      listSelectedDiscovery: null,
+
+      arrayOffset: 0,
+      currentTextFilter: "",
       lat2: UserData.getLocation()[1],
       lng2: UserData.getLocation()[0],
       componentKey: 0,
@@ -243,9 +265,9 @@ export default {
       filterOutline,
       syncCircleIcon: reload,
 
-      //Discoveries
-      completeDiscoveriesAZ: [],
-      completeDiscoveriesDistance: [],
+      // Discoveries arrays
+      completeDiscoveriesListByAZ: [],
+      completeDiscoveriesListByDistance: [],
       discoveriesSortByAZ: [],
       discoveriesSortByDistance: [],
       artwork: {
@@ -272,155 +294,192 @@ export default {
         sortByDistance: [],
         type: "place",
       },
-      //Trier
+      // Tri choisi par distance ou AZ (alphabetique)
       choixTrie: "Distance",
     };
   },
 
   beforeMount() {
-    this.completeDiscoveriesDistance = UserData.getSortedDiscoveriesDistance();
-    this.completeDiscoveriesAZ = UserData.getSortedDiscoveriesAZ();
-    const discoveries = [null, this.place, this.artwork, this.heritage];
+    // Setting initial values for the discoveries arrays
+    this.completeDiscoveriesListByDistance = UserData.getSortedDiscoveriesDistance();
+    this.completeDiscoveriesListByAZ = UserData.getSortedDiscoveriesAZ();
 
+    const discoveries = [null, this.place, this.artwork, this.heritage];
     for (const discovery of discoveries) {
       for (let i = 0; i < 2; i++) {
-        this.pullDiscoveriesTrier(null, i, discovery);
-        this.offset = 0;
+        this.pullSortedDiscoveries(null, i, discovery);
+        this.arrayOffset = 0;
       }
     }
   },
 
   methods: {
-    pullDiscoveries(event) {
+    pullMoreDiscoveries(event) {
       if (this.choixTrie === "Distance")
         if (this.place.selected) {
-          this.pullDiscoveriesTrier(event, false, this.place);
+          this.pullSortedDiscoveries(event, false, this.place);
         } else if (this.artwork.selected) {
-          this.pullDiscoveriesTrier(event, false, this.artwork);
+          this.pullSortedDiscoveries(event, false, this.artwork);
         } else if (this.heritage.selected) {
-          this.pullDiscoveriesTrier(event, false, this.heritage);
-        } else this.pullDiscoveriesTrier(event, false, null);
+          this.pullSortedDiscoveries(event, false, this.heritage);
+        } else this.pullSortedDiscoveries(event, false, null);
       else if (this.choixTrie === "AZ")
         if (this.place.selected) {
-          this.pullDiscoveriesTrier(event, true, this.place);
+          this.pullSortedDiscoveries(event, true, this.place);
         } else if (this.artwork.selected) {
-          this.pullDiscoveriesTrier(event, true, this.artwork);
+          this.pullSortedDiscoveries(event, true, this.artwork);
         } else if (this.heritage.selected) {
-          this.pullDiscoveriesTrier(event, true, this.heritage);
-        } else this.pullDiscoveriesTrier(event, true, null);
+          this.pullSortedDiscoveries(event, true, this.heritage);
+        } else this.pullSortedDiscoveries(event, true, null);
     },
+
     getTrierPar() {
       return this.choixTrie;
     },
-    getDiscoveries() {
-      let now = [];
+
+    getDiscoveriesToShow() {
+      let currentArray = [];
       const discoveries = [this.place, this.artwork, this.heritage];
 
+      // If no discovery type is selected
       if (this.choixTrie === "Distance") {
-        now = this.discoveriesSortByDistance;
+        currentArray = this.discoveriesSortByDistance;
       } else if (this.choixTrie === "AZ") {
-        now = this.discoveriesSortByAZ;
+        currentArray = this.discoveriesSortByAZ;
       }
+
+      // If a discovery type is selected, by distance or by AZ
       for (const discovery of discoveries) {
         if (discovery.selected) {
-          if (this.choixTrie === "Distance") now = discovery.sortByDistance;
-          else if (this.choixTrie === "AZ") now = discovery.sortByAZ;
+          if (this.choixTrie === "Distance")
+            currentArray = discovery.sortByDistance;
+          else if (this.choixTrie === "AZ") currentArray = discovery.sortByAZ;
 
           break;
         }
       }
 
-      return now;
+      return currentArray;
     },
 
-    pullDiscoveriesTrier(event, sortByAZ, typeDiscovery) {
-      let subset;
-      const type = typeDiscovery ? typeDiscovery.type : "";
+    pullSortedDiscoveries(event, sortByAZ, discoveryTypeObject) {
+      let arraySubset;
+
+      const discoveryType = discoveryTypeObject ? discoveryTypeObject.type : "";
+      const discoverySortByArray = sortByAZ ? "sortByAZ" : "sortByDistance";
+
       const completeDiscoveries = sortByAZ
-        ? "completeDiscoveriesAZ"
-        : "completeDiscoveriesDistance";
-      const sortBy = sortByAZ ? "sortByAZ" : "sortByDistance";
+        ? "completeDiscoveriesListByAZ"
+        : "completeDiscoveriesListByDistance";
       const discoverySort = sortByAZ
         ? "discoveriesSortByAZ"
         : "discoveriesSortByDistance";
-      if (typeDiscovery) {
-        subset = this[completeDiscoveries]
-          .filter((elm) => {
-            return elm
-              .getTitle()
-              .toLowerCase()
-              .normalize("NFD")
-              .replace(/\p{Diacritic}/gu, "")
-              .includes(this.currentFilter.toLowerCase());
+
+      if (discoveryTypeObject) {
+        arraySubset = this[completeDiscoveries]
+          // Filter discoveries by search bar value
+          .filter((arrayElement) => {
+            return this.handleText(arrayElement.getTitle()).includes(
+              this.currentTextFilter.toLowerCase(),
+            );
           })
-          .filter((discovery) => discovery.dType === type)
-          .slice(this.offset, this.offset + 50);
-        typeDiscovery[sortBy] = typeDiscovery[sortBy].concat(subset);
+          // Filter discoveries by discovery type
+          .filter((discovery) => discovery.dType === discoveryType)
+          // Get the next 50 discoveries in array after arrayOffset
+          .slice(this.arrayOffset, this.arrayOffset + 50);
+        // Add the arraySubset to the corresponding discovery type object array
+        discoveryTypeObject[discoverySortByArray] =
+          discoveryTypeObject[discoverySortByArray].concat(arraySubset);
       } else {
-        subset = this[completeDiscoveries]
-          .filter((elm) => {
-            return elm
-              .getTitle()
-              .toLowerCase()
-              .normalize("NFD")
-              .replace(/\p{Diacritic}/gu, "")
-              .includes(this.currentFilter.toLowerCase());
+        arraySubset = this[completeDiscoveries]
+          // Filter discoveries by search bar value
+          .filter((arrayElement) => {
+            return this.handleText(arrayElement.getTitle()).includes(
+              this.currentTextFilter.toLowerCase(),
+            );
           })
-          .slice(this.offset, this.offset + 50);
-        this[discoverySort] = this[discoverySort].concat(subset);
+          // Get the next 50 discoveries in array after arrayOffset
+          .slice(this.arrayOffset, this.arrayOffset + 50);
+        // Add the arraySubset to the corresponding array
+        this[discoverySort] = this[discoverySort].concat(arraySubset);
       }
 
       if (event && event.target && event.target.complete)
-        // Send a signal when the user reaches the bottom
+        // Send a signal when the user reaches the bottom,
+        // when finished to load more discoveries
         event.target.complete();
 
-      this.offset += 50;
+      this.arrayOffset += 50;
     },
-    openDetails(discovery) {
-      let type;
-      if (discovery.dType === "artwork") type = 0;
-      else if (discovery.dType === "place") type = 1;
-      /* (discovery.dType == "heritage") */ else type = 2;
+
+    openDiscoveryDetailsFullModale(discovery) {
+      this.discoveryDetailsFullModalOpen = true;
+      this.listSelectedDiscovery = discovery;
+    },
+
+    openDiscoveryDetailsPage(discovery) {
+      const type =
+        discovery.dType === "artwork"
+          ? 0
+          : discovery.dType === "place"
+            ? 1
+            : /* (discovery.dType == "heritage") */ 2;
 
       this.$router.push(`/discovery-details/${type}/${discovery.id}`);
     },
 
-    triggerTextFilter(searchText) {
-      // Removing whitespace and "diacritical" marks from the search input
-      this.currentFilter = searchText
-        .trim()
-        .normalize("NFD")
-        .replace(/\p{Diacritic}/gu, "");
+    handleText(text) {
+      return (
+        text
+          // Removing whitespaces at the start and the end
+          .trim()
+          // Removing "diacritical"(accents) marks from the search input
+          .normalize("NFD")
+          .replace(/\p{Diacritic}/gu, "")
+          // Replace abbreviations with full words
+          .toLowerCase()
+          .replace(/\bst\b/gi, "saint")
+          .replace(/\bste\b/gi, "sainte")
+          .replace(/\bblvd\b/gi, "boulevard")
+          // Replace special characters with spaces
+          // TODO does it cause any problems in searching discovery titles?
+          .replace(/[-,'.]/gi, " ")
+          // If there are multiple consecutive spaces, replace them with one space
+          .replace(/\s+/g, " ")
+      );
+    },
 
-      this.offset = 0;
+    triggerTextFilter(searchText) {
+      this.currentTextFilter = this.handleText(searchText);
+      this.arrayOffset = 0;
 
       // Choice "Trier par" in "Filtres"
       if (this.choixTrie === "AZ") {
         // Choice "Filtrer par" in "Filtres"
         if (this.place.selected) {
           this.place.sortByAZ = [];
-          this.pullDiscoveriesTrier(searchText, true, this.place);
+          this.pullSortedDiscoveries(searchText, true, this.place);
         } else if (this.artwork.selected) {
           this.artwork.sortByAZ = [];
-          this.pullDiscoveriesTrier(searchText, true, this.artwork);
+          this.pullSortedDiscoveries(searchText, true, this.artwork);
         } else if (this.heritage.selected) {
           this.heritage.sortByAZ = [];
-          this.pullDiscoveriesTrier(searchText, true, this.heritage);
+          this.pullSortedDiscoveries(searchText, true, this.heritage);
         } else this.discoveriesSortByAZ = [];
-        this.pullDiscoveriesTrier(searchText, true, null);
+        this.pullSortedDiscoveries(searchText, true, null);
       } else if (this.choixTrie === "Distance") {
         // Choice "Filtrer par" in "Filtres"
         if (this.place.selected) {
           this.place.sortByDistance = [];
-          this.pullDiscoveriesTrier(searchText, false, this.place);
+          this.pullSortedDiscoveries(searchText, false, this.place);
         } else if (this.artwork.selected) {
           this.artwork.sortByDistance = [];
-          this.pullDiscoveriesTrier(searchText, false, this.artwork);
+          this.pullSortedDiscoveries(searchText, false, this.artwork);
         } else if (this.heritage.selected) {
           this.heritage.sortByDistance = [];
-          this.pullDiscoveriesTrier(searchText, false, this.heritage);
+          this.pullSortedDiscoveries(searchText, false, this.heritage);
         } else this.discoveriesSortByDistance = [];
-        this.pullDiscoveriesTrier(searchText, false, null);
+        this.pullSortedDiscoveries(searchText, false, null);
       }
     },
 
@@ -432,40 +491,36 @@ export default {
       else return `./assets/drawable/medals/${discovery.dType}/default.svg`;
     },
 
-    dismiss() {
+    dismissModal() {
       this.$refs.modal.$el.dismiss();
     },
+
     forceRerender() {
       this.componentKey += 1;
     },
+
     refreshPage(event) {
       this.lat2 = UserData.getLocation()[1];
       this.lng2 = UserData.getLocation()[0];
-      this.offset = 0;
+      this.arrayOffset = 0;
 
+      // Refresh the list of discoveries according to distance
       if (this.choixTrie === "Distance") {
         this.discoveriesSortByDistance = [];
         UserData.sortByDistance();
-        this.completeDiscoveriesDistance =
-          UserData.getSortedDiscoveriesDistance().filter((elm) => {
-            return elm
-              .getTitle()
-              .toLowerCase()
-              .normalize("NFD")
-              .replace(/\p{Diacritic}/gu, "")
-              .includes(this.currentFilter.toLowerCase());
-          });
-        this.pullDiscoveriesTrier(event, false, null);
+        this.completeDiscoveriesListByDistance =
+          UserData.getSortedDiscoveriesDistance();
+        this.pullSortedDiscoveries(event, false, null);
       }
 
       this.forceRerender();
 
       if (event && event.target && event.target.complete)
-        // Signal
+        // Signal that discovery list has been refreshed
         event.target.complete();
     },
+
     selectedDiscovery(discovery) {
-      const typeDiscoveries = [this.artwork, this.heritage, this.place];
       // Toggle selected appearance of clicked selected discovery filter
       if (!discovery.selected) {
         discovery.backgroundColor = "#E0DFE4";
@@ -475,13 +530,14 @@ export default {
         discovery.color = "black";
       }
 
+      const discoveryTypeObjects = [this.artwork, this.heritage, this.place];
       // Make so that only one discovery filter is selected
-      for (const typeDiscovery of typeDiscoveries) {
-        if (typeDiscovery !== discovery) {
-          if (typeDiscovery.selected === true) {
-            typeDiscovery.backgroundColor = "transparent";
-            typeDiscovery.color = "black";
-            typeDiscovery.selected = !typeDiscovery.selected;
+      for (const discoveryTypeObject of discoveryTypeObjects) {
+        if (discoveryTypeObject !== discovery) {
+          if (discoveryTypeObject.selected === true) {
+            discoveryTypeObject.backgroundColor = "transparent";
+            discoveryTypeObject.color = "black";
+            discoveryTypeObject.selected = !discoveryTypeObject.selected;
           }
         }
       }
@@ -495,14 +551,13 @@ export default {
 <style scoped>
 @import url("@/theme/GlobalStyle.css");
 
-.ion-content {
+ion-content {
   background: #f3f2f7;
 }
 
 #tab-title {
   margin-top: 0;
-  padding-top: 24px;
-  margin-top: 0;
+  padding-top: 15%;
   margin-left: 21px;
   font-family: "Gotham Rounded Light", sans-serif;
   font-size: 5.5vw;
@@ -518,19 +573,20 @@ ion-list {
 }
 
 #list {
-  border: 5px solid #f3f2f7;
-  border-radius: 15px;
+  border-bottom: 5px solid #f3f2f7;
+  border-top: 5px solid #f3f2f7;
+  border-radius: 3vw;
   --min-height: 15vw;
 }
 
-ion-label {
-  padding-left: 15px;
+.titreTrier ion-label, .trierDistance, .trierAZ {
+  padding-left: 4%;
 }
 
 ion-avatar img {
-  margin-top: 5px;
-  max-width: 8vw;
-  max-height: 8vw;
+  margin-top: 10%;
+  max-width: 7.6vw;
+  max-height: 7.6vw;
 }
 
 ion-avatar {
@@ -574,6 +630,7 @@ p.bottom-text {
 }
 
 #title {
+  padding-left: 0.2vw;
   font-weight: bold;
   /* To do so that the title stays on one line and finishes with "..." if it's too long */
   text-overflow: ellipsis;
@@ -581,10 +638,22 @@ p.bottom-text {
   overflow: hidden;
 }
 
+.ios #title {
+  padding-left: 0;
+  font-size: 4vw;
+}
+
 #distance {
+  padding-left: 2vw;
   font-size: small;
-  max-width: 30%; /* To correct #title sticking to the right bug caused by #distance taking too much space
-   (max-width: 200px in Inspect element)*/
+  max-width: 20%;
+  /* To correct #title sticking to the right bug caused by #distance taking too much space
+    (max-width: 200px in Inspect element)*/
+  min-width: 0;
+  /* To override ionic probably shadow DOM setting min-width to 100px*/
+}
+.ios #distance {
+  max-width: 18%;
 }
 
 ion-col img {

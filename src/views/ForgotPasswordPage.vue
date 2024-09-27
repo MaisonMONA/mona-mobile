@@ -1,9 +1,6 @@
 <script setup>
 import {
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonContent,
   IonInput,
   IonButton,
@@ -95,23 +92,17 @@ async function showLoading() {
 
 <template>
   <ion-page>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>MONA</ion-title>
-      </ion-toolbar>
-    </ion-header>
 
     <ion-content>
       <div class="ion-padding">
         <ion-input
           type="email"
-          label="Nom d'utilisateur"
+          label="Entrez ici votre nom d'utilisateur"
           class="username"
           label-placement="floating"
           fill="outline"
-          placeholder="Entrer votre nom d'utilisateur"
+          placeholder="Nom d'utilisateur"
           v-model="inputUsername.value"
-          id="ion-toast-anchor"
           @keydown.enter="resetPassword"
         ></ion-input>
         <ion-button expand="block" @click="resetPassword" class="reinitialiser"
@@ -133,7 +124,6 @@ async function showLoading() {
         :class="toastCSS"
         @disDismiss="setOpenToast(false)"
         position="top"
-        position-anchor="ion-toast-anchor"
       ></ion-toast>
     </ion-content>
   </ion-page>
@@ -141,6 +131,14 @@ async function showLoading() {
 
 <style scoped>
 @import url("@/theme/TopToolbar.css");
+div.ion-padding {
+  position: relative;
+  top: 8vh;
+}
+.ios div.ion-padding {
+  top: 11vh;
+}
+
 ion-toast.status200 {
   --background: #327128;
   --box-shadow: 3px 3px 10px 0 rgba(0, 0, 0, 0.2);
@@ -156,7 +154,7 @@ ion-button.reinitialiser {
   --background-activated: #000000;
   --ripple-color: #000000;
   --color: white;
-  margin-bottom: 2%;
+  margin-bottom: 3%;
 }
 ion-button.annuler {
   --background: #d9d9d9;
@@ -165,7 +163,11 @@ ion-button.annuler {
   --color: black;
 }
 ion-input.username {
+  --color: #474747;
   --highlight-color-focused: #000000;
-  margin-bottom: 7%;
+  margin-bottom: 9%;
+}
+.ios ion-input.username {
+  border-bottom: 0.13vh solid #bfbfbf;
 }
 </style>

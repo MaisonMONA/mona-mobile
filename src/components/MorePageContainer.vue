@@ -1,10 +1,5 @@
 <template>
     <ion-page>
-        <ion-header>
-            <ion-toolbar>
-                <ion-title>MONA</ion-title>
-            </ion-toolbar>
-        </ion-header>
 
         <ion-content>
             <div class="more-page-header">
@@ -41,7 +36,7 @@
 </template>
 
 <script>
-import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonList, IonItem, IonNavLink, IonLabel, IonIcon } from "@ionic/vue";
+import { IonPage, IonContent, IonList, IonItem, IonNavLink, IonLabel, IonIcon } from "@ionic/vue";
 import { UserData } from "@/internal/databases/UserData";
 import AboutContainer from "@/components/AboutContainer.vue";
 import { arrowForward } from "ionicons/icons";
@@ -51,7 +46,7 @@ import LogoutContainer from "@/components/LogoutContainer.vue";
 export default {
     name: "MorePageContainer",
     components: {
-        IonContent, IonHeader, IonToolbar, IonTitle, IonList, IonItem, IonNavLink, IonLabel, IonIcon, IonPage
+        IonContent, IonList, IonItem, IonNavLink, IonLabel, IonIcon, IonPage
     },
 
     setup() {

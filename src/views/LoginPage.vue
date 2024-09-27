@@ -1,10 +1,5 @@
 <template>
   <ion-page>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title id="ion-toast-anchor">MONA</ion-title>
-      </ion-toolbar>
-    </ion-header>
 
     <ion-content :fullscreen="true">
       <ion-toast
@@ -14,7 +9,6 @@
         @didDismiss="ionToastErrorMessageIsOpen = false"
         color="danger"
         position="top"
-        position-anchor="ion-toast-anchor"
       ></ion-toast>
 
       <div class="main-content">
@@ -64,9 +58,6 @@
 <script>
 import {
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonContent,
   IonItem,
   IonInput,
@@ -81,9 +72,6 @@ export default {
   components: {
     IonToast,
     IonPage,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
     IonContent,
     IonItem,
     IonInput,

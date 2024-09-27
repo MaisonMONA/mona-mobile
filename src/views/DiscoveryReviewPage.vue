@@ -1,10 +1,5 @@
 <template>
   <ion-page>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>MONA</ion-title>
-      </ion-toolbar>
-    </ion-header>
 
     <ion-content class="ion-padding">
       <div id="discoveryReviewContent">
@@ -27,6 +22,7 @@
             :counter="true"
             maxlength="300"
             :auto-grow="true"
+            id="input"
           ></ion-textarea>
         </div>
 
@@ -38,10 +34,7 @@
 
 <script>
 import {
-  IonHeader,
   IonPage,
-  IonTitle,
-  IonToolbar,
   IonIcon,
   IonButton,
   IonTextarea,
@@ -58,9 +51,6 @@ export default {
   name: "DiscoveryReviewPage",
   components: {
     IonPage,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
     IonIcon,
     IonButton,
     IonTextarea,

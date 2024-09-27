@@ -1,41 +1,39 @@
 <template>
   <ion-page>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>MONA</ion-title>
-      </ion-toolbar>
-    </ion-header>
-
     <ion-content :fullscreen="true">
-      <p id="alertHolder"></p>
-      <p>Chargement des données<br />utilisateur...</p>
+      <ion-toast
+        :is-open="ionToastErrorMessageIsOpen"
+        :message="ionToastErrorMessage"
+        color="danger"
+        position="top"
+        position-anchor="ion-toast-anchor"
+      ></ion-toast>
+      <img src="/assets/animation/monaLogo.gif" />
     </ion-content>
   </ion-page>
 </template>
 
 <script>
-import {
-  IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-} from "@ionic/vue";
+import { IonPage, IonContent, IonToast } from "@ionic/vue";
 import { ArtworkDatabase } from "@/internal/databases/ArtworkDatabase";
 import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
 import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
 import { BadgeDatabase } from "@/internal/databases/BadgeDatabase";
 import { UserData } from "@/internal/databases/UserData";
-import { UserBadges } from "@/internal/UserBadges";
+import {CollectedBadge} from "@/internal/CollectedBadges.ts";
 
 export default {
   name: "DataLoadingPage",
   components: {
+    IonToast,
     IonPage,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
     IonContent,
+  },
+  data() {
+    return {
+      ionToastErrorMessageIsOpen: false,
+      ionToastErrorMessage: "",
+    };
   },
 
   mounted() {
@@ -51,13 +49,28 @@ export default {
       })
       .then(() => Promise.all([UserData.getFromServer(), UserData.loadCache()]))
       .then(() => {
-        // cache collected badges
-        UserBadges.populate();
+        // Fetch collected badges
+        CollectedBadge.determineCollectedBadges();
         // async functions, but DO NOT await (background tasks)
         UserData.checkForDBUpdate();
         UserData.tryUploadingPendingDiscoveries();
       })
-      .then(() => this.$router.replace("/tabs/map"))
+      .then(() => {
+
+        // Set when account was created
+        // TODO check if this is the right way to do it
+        try {
+          if (UserData.getWhenAccountCreated() === "") {
+            UserData.setWhenAccountCreated();
+            console.log("'whenAccountCreated' value fetched and set in UserData.");
+          }
+        } catch (error) {
+          this.showAlert("Error: couldn't get when account was created by API.");
+        }
+
+        this.ionToastErrorMessageIsOpen = false;
+        this.$router.replace("/tabs/map");
+      })
       .catch((err) => {
         throw new Error(`Could not retrieve user data (${err})`);
       });
@@ -65,10 +78,8 @@ export default {
 
   methods: {
     showAlert(alertMessage) {
-      const alertElem = document.getElementById("alertHolder");
-
-      alertElem.innerHTML = alertMessage;
-      alertElem.classList.add("show");
+      this.ionToastErrorMessageIsOpen = true;
+      this.ionToastErrorMessage = alertMessage;
     },
   },
 };

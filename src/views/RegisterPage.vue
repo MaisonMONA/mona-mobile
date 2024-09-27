@@ -1,11 +1,5 @@
 <template>
   <ion-page>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title id="ion-toast-anchor">MONA</ion-title>
-      </ion-toolbar>
-    </ion-header>
-
     <ion-content :fullscreen="true">
       <ion-toast
         :is-open="ionToastErrorMessageIsOpen"
@@ -14,8 +8,8 @@
         @didDismiss="ionToastErrorMessageIsOpen = false"
         color="danger"
         position="top"
-        position-anchor="ion-toast-anchor"
       ></ion-toast>
+
       <div class="main-content">
         <p id="welcome">Inscription</p>
         <p id="ask-for-registration">
@@ -67,9 +61,6 @@
 <script>
 import {
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonContent,
   IonItem,
   IonInput,
@@ -78,18 +69,12 @@ import {
 } from "@ionic/vue";
 import { UserData } from "@/internal/databases/UserData";
 import Globals from "@/internal/Globals";
-import { Filesystem } from "@capacitor/filesystem";
-import { Camera } from "@capacitor/camera";
-import { Geolocation } from "@capacitor/geolocation";
 import router from "@/router/index.ts";
 
 export default {
   name: "RegisterPage",
   components: {
     IonPage,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
     IonContent,
     IonItem,
     IonInput,
@@ -113,8 +98,6 @@ export default {
     } else if (UserData.getToken() !== "") {
       // If user is logged in, redirect immediately
       this.$router.replace("/loading");
-    } else {
-      await this.checkPermissions();
     }
   },
 
@@ -211,20 +194,6 @@ export default {
       this.ionToastErrorMessageIsOpen = true;
       this.ionToastErrorMessage = alertMessage;
     },
-
-    async checkPermissions() {
-      const cameraPermStatus = await Camera.checkPermissions();
-      const filePermStatus = await Filesystem.checkPermissions();
-      const locationPermStatus = await Geolocation.checkPermissions();
-
-      if (
-        cameraPermStatus.camera !== "granted" ||
-        filePermStatus.publicStorage !== "granted" ||
-        locationPermStatus.location !== "granted"
-      ) {
-        this.$router.replace("/permission-denied");
-      }
-    },
   },
 };
 </script>
@@ -249,10 +218,13 @@ label {
 .main-content {
   font-size: 14px;
   text-align: center;
-  position: relative;
-  top: 5%;
+  position: absolute;
+  top: 15%;
   width: 100%;
   height: 85%;
+}
+.ios .main-content {
+  top: 17%;
 }
 
 div.form-section {

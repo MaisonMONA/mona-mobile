@@ -51,6 +51,24 @@
           </ion-row>
         </ion-grid>
       </div>
+
+      <!-- Selected discovery full details modal -->
+      <ion-modal
+        id="discoveryDetailsFullModal"
+        :is-open="discoveryDetailsFullModalOpen"
+        @didDismiss="discoveryDetailsFullModalOpen = false"
+        :breakpoints="[0.5, 0.976]"
+        :initial-breakpoint="0.976"
+        :show-backdrop="true"
+      >
+        <ion-content>
+          <discovery-details-full-modale
+            :selected-discovery="listSelectedDiscovery"
+          />
+        </ion-content>
+      </ion-modal>
+      <!-- Selected discovery full details modal -->
+
     </ion-content>
   </ion-page>
 </template>
@@ -60,9 +78,6 @@ import { reload } from "ionicons/icons";
 import { UserData } from "@/internal/databases/UserData";
 import {
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonContent, //IonNavLink,
   IonGrid,
   IonRow,
@@ -71,19 +86,20 @@ import {
   IonButton,
   IonRefresher,
   IonRefresherContent,
+  IonModal,
 } from "@ionic/vue";
 import Utils from "@/internal/Utils";
 import customCollectionIcon from "/assets/drawable/icons/collection_white.svg";
 import { Directory, Filesystem } from "@capacitor/filesystem";
 import BadgesContainer from "@/components/BadgesContainer.vue";
+import DiscoveryDetailsFullModale from "@/components/DiscoveryDetailsFullModale.vue";
 
 export default {
   name: "CollectionContainer",
   components: {
+    DiscoveryDetailsFullModale,
+    IonModal,
     IonPage,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
     IonContent,
     IonGrid,
     IonRow,
@@ -102,6 +118,8 @@ export default {
 
   data() {
     return {
+      listSelectedDiscovery: null,
+      discoveryDetailsFullModalOpen: false,
       collected: UserData.getCollectedChronologically(),
       getDiscovery: Utils.getDiscovery,
       customCollectionIcon,
@@ -111,12 +129,8 @@ export default {
 
   methods: {
     openDetails(item) {
-      let type;
-      if (item.dType === "artwork") type = 0;
-      else if (item.dType === "place") type = 1;
-      /* (discovery.dType == "heritage") */ else type = 2;
-
-      this.$router.push(`/discovery-details/${type}/${item.id}`);
+      this.listSelectedDiscovery = item;
+      this.discoveryDetailsFullModalOpen = true;
     },
 
     formatTitle(discovery) {

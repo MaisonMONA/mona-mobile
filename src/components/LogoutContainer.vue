@@ -4,7 +4,6 @@
             <ion-buttons slot="start">
                 <ion-back-button></ion-back-button>
             </ion-buttons>
-            <ion-title>MONA</ion-title>
         </ion-toolbar>
     </ion-header>
 
@@ -35,13 +34,13 @@
 </template>
 
 <script>
-import { IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonContent, IonButton } from "@ionic/vue";
+import { IonHeader, IonToolbar, IonButtons, IonBackButton, IonContent, IonButton } from "@ionic/vue";
 import { UserData } from "@/internal/databases/UserData";
 
 export default {
     name: "LogoutContainer",
     components: {
-        IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonContent, IonButton
+        IonHeader, IonToolbar, IonButtons, IonBackButton, IonContent, IonButton
     },
 
     data() {
