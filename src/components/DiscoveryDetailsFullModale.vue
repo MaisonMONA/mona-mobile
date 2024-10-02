@@ -93,10 +93,10 @@
 
         <div class="photoContainer">
           <ion-img
-            id="defaultPhoto"
+            id="defaultPhotoFullModale"
             :src="'./assets/drawable/discoveryDetailsPhotoPlaceholder.svg'"
           ></ion-img>
-          <ion-img id="userPhoto"></ion-img>
+          <ion-img id="userPhotoFullModale"></ion-img>
         </div>
 
         <div class="segments">
@@ -232,7 +232,7 @@
         <!-- PHOTO BUTTON -->
         <ion-button
           class="discovery-button"
-          id="photoButton"
+          id="photoButtonFullModale"
           fill="solid"
           @click="activateCamera"
         >
@@ -424,8 +424,8 @@ export default {
           const url = await base64Result
             .blob()
             .then((blob) => URL.createObjectURL(blob));
-          const userImg = document.getElementById("userPhoto");
-          const defaultImg = document.getElementById("defaultPhoto");
+          const userImg = document.getElementById("userPhotoFullModale");
+          const defaultImg = document.getElementById("defaultPhotoFullModale");
 
           defaultImg.style.display = "none";
           userImg.style.display = "block";
@@ -438,7 +438,7 @@ export default {
       }
 
       // Hiding buttons
-      document.getElementById("photoButton").style.display = "none";
+      document.getElementById("photoButtonFullModale").style.display = "none";
     }
 
     // Handling target icon color
@@ -453,17 +453,17 @@ export default {
       if (img == null) return; // User cancelled
 
       // Displaying photo in container
-      const userImg = document.getElementById("userPhoto");
-      const defaultImg = document.getElementById("defaultPhoto");
+      const userImg = document.getElementById("userPhotoFullModale");
+      const defaultImg = document.getElementById("defaultPhotoFullModale");
       defaultImg.style.display = "none";
       userImg.style.display = "block";
       userImg.src = img.webPath || "";
 
       // Hiding buttons
-      const photoButton = document.getElementById("photoButton");
-      if (photoButton) {
+      const photoButtonFullModale = document.getElementById("photoButtonFullModale");
+      if (photoButtonFullModale) {
         // Same here
-        photoButton.style.display = "none";
+        photoButtonFullModale.style.display = "none";
       }
 
       // Enable image opening
@@ -564,7 +564,7 @@ export default {
   font-size: 3.8vw;
 }
 
-#photoButton {
+#photoButtonFullModale {
   height: 5.4vh;
   width: 92vw;
   margin-left: 3.9vw;
@@ -578,7 +578,7 @@ export default {
   font-size: 3.8vw;
   font-weight: 600;
 }
-#photoButton ion-icon {
+#photoButtonFullModale ion-icon {
   font-size: 3.7vw;
   margin-right: 1.8vw;
 }
@@ -652,11 +652,11 @@ ion-button {
 .photoContainer ion-img::part(image) {
   border-radius: 1.9vw;
 }
-.photoContainer ion-img#defaultPhoto {
+.photoContainer ion-img#defaultPhotoFullModale {
   position: relative;
   height: 17vh;
 }
-.photoContainer ion-img#userPhoto {
+.photoContainer ion-img#userPhotoFullModale {
   display: none;
   object-fit: cover;
   height: 42.6vh;
