@@ -207,7 +207,12 @@ export default {
       details4 = "";
       details5 = "";
       details6 = "";
-      details7 = this.discovery.getAddress();
+      details7 = this.discovery.getAddress() ||
+          "(" +
+          this.discovery.getLocation().lat +
+          ", " +
+          this.discovery.getLocation().lng +
+          ")";
 
       if (this.discovery.dType === "heritage")
         productionDate = this.discovery.produced_at;
