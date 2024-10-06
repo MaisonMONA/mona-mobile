@@ -1,19 +1,6 @@
 <template>
   <ion-page>
     <ion-content :fullscreen="true">
-      <ion-refresher slot="fixed" @ion-refresh="refreshPage">
-        <ion-refresher-content></ion-refresher-content>
-      </ion-refresher>
-
-      <ion-button @click="refreshPage" id="refresh-button">
-        <ion-icon :icon="syncCircleIcon"></ion-icon>
-      </ion-button>
-      <!--
-            <ion-nav-link router-direction="forward" :component="BadgesContainer">
-                <ion-button id="show-badges-button">
-                    Badges
-                </ion-button>
-            </ion-nav-link>-->
 
       <div class="collection-header">
         <ion-icon id="collection-icon" :icon="customCollectionIcon"></ion-icon>
@@ -74,7 +61,6 @@
 </template>
 
 <script>
-import { reload } from "ionicons/icons";
 import { UserData } from "@/internal/databases/UserData";
 import {
   IonPage,
@@ -83,9 +69,6 @@ import {
   IonRow,
   IonCol,
   IonIcon,
-  IonButton,
-  IonRefresher,
-  IonRefresherContent,
   IonModal,
 } from "@ionic/vue";
 import Utils from "@/internal/Utils";
@@ -107,9 +90,6 @@ export default {
     IonRow,
     IonCol,
     IonIcon,
-    IonButton,
-    IonRefresher,
-    IonRefresherContent, //IonNavLink,
   },
 
   setup() {
@@ -125,7 +105,6 @@ export default {
       discoveryDetailsFullModalOpen: false,
       getDiscovery: Utils.getDiscovery,
       customCollectionIcon,
-      syncCircleIcon: reload,
     };
   },
 
@@ -175,15 +154,6 @@ export default {
           });
       }
     },
-
-    refreshPage(event) {
-      this.collected = UserData.getCollectedChronologically();
-      this.$forceUpdate();
-
-      if (event && event.target && event.target.complete)
-        // Signal
-        event.target.complete();
-    },
   },
 };
 </script>
@@ -196,6 +166,7 @@ img {
   height: 45vw;
   border-top-left-radius: 15px;
   border-top-right-radius: 15px;
+  width: 100%;
 }
 
 .collection-header {
@@ -268,41 +239,4 @@ p {
   font-size: 60px;
 }
 
-#refresh-button {
-  position: fixed;
-  z-index: 2;
-  right: 10px;
-  color: #7f7f7f;
-  bottom: 10px;
-  --background: var(--toolbar-purple);
-  --background-activated: lightgrey;
-  width: 14vw;
-  height: 14vw;
-  font-size: 12px;
-  font-weight: normal;
-  --border-radius: 15px;
-}
-
-#refresh-button ion-icon {
-  font-size: 32px;
-  color: grey;
-}
-
-#show-badges-button {
-  position: absolute;
-  transform: translateX(-50%);
-  left: 50%;
-  top: 25%;
-  --background: var(--toolbar-purple);
-  --color: grey;
-  text-transform: none;
-  font-family: "Open Sans", sans-serif;
-  font-size: 16px;
-  --padding-end: 25px;
-  --padding-start: 25px;
-}
-
-img {
-  width: 100%;
-}
 </style>
