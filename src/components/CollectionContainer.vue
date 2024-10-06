@@ -93,7 +93,9 @@ import customCollectionIcon from "/assets/drawable/icons/collection_white.svg";
 import { Directory, Filesystem } from "@capacitor/filesystem";
 import BadgesContainer from "@/components/BadgesContainer.vue";
 import DiscoveryDetailsFullModale from "@/components/DiscoveryDetailsFullModale.vue";
+import {useCollection} from "@/stores/Collection.ts";
 
+const useCollectionStore = useCollection();
 export default {
   name: "CollectionContainer",
   components: {
@@ -113,6 +115,7 @@ export default {
   setup() {
     return {
       BadgesContainer,
+      useCollectionStore,
     };
   },
 
@@ -120,11 +123,16 @@ export default {
     return {
       listSelectedDiscovery: null,
       discoveryDetailsFullModalOpen: false,
-      collected: UserData.getCollectedChronologically(),
       getDiscovery: Utils.getDiscovery,
       customCollectionIcon,
       syncCircleIcon: reload,
     };
+  },
+
+  computed: {
+    collected() {
+      return useCollectionStore.collected;
+    },
   },
 
   methods: {
