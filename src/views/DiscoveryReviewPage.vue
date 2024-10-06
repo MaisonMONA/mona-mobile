@@ -44,8 +44,10 @@ import { starOutline, star, camera } from "ionicons/icons";
 import { useBadgesCollections } from "@/stores/BadgesCollections";
 import { UserData } from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
+import {useCollection} from "@/stores/Collection.ts";
 
 const badgesCollectionsStore = useBadgesCollections();
+const useCollectionStore = useCollection();
 
 export default {
   name: "DiscoveryReviewPage",
@@ -86,7 +88,8 @@ export default {
       });
       Utils.sendPictureAndDetails(id, type);
 
-      badgesCollectionsStore.newBadge(id, type);
+      badgesCollectionsStore.newBadge(id, type); // update badges in badges collection page
+      useCollectionStore.updateCollected(); // update discoveries in collection page
       // Redirect to the previous page
       this.$router.go(-1);
     },
