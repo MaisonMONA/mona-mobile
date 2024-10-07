@@ -3,8 +3,8 @@
     <div id="userInfo">
       <ion-icon id="defaultUserAvatar" :icon="defaultUserAvatar"></ion-icon>
       <div id="userInfoText">
-        <h1>{{ username }}</h1>
-        <h6>Membre depuis {{ memberSince }}</h6>
+        <h1 :style="{paddingTop: memberSince? '0' : '1.1vh'}">{{ username }}</h1>
+        <h6 v-if="memberSince">Membre depuis {{ memberSince }}</h6>
       </div>
     </div>
       <div class="ion-segment-container collectionPageSegment">
@@ -96,7 +96,7 @@ export default {
         "Novembre",
         "Décembre",
       ];
-      this.memberSince = monthsArray[month - 1] + " " + year;
+      //this.memberSince = monthsArray[month - 1] + " " + year;
     }
   },
   methods: {
