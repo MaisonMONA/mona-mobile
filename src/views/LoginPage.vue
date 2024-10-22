@@ -47,7 +47,7 @@
           <ion-button @click="login">Se connecter</ion-button>
 
           <p class="redirect-to-register" @click="goToRegister">
-            Pas de compte ? <span>En créer un</span>
+            Vous n’avez pas de compte? <span>En créer un</span>
           </p>
         </div>
       </div>
