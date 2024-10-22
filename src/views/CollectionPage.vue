@@ -96,7 +96,7 @@ export default {
         "Novembre",
         "Décembre",
       ];
-      //this.memberSince = monthsArray[month - 1] + " " + year;
+      this.memberSince = monthsArray[month - 1] + " " + year;
     }
   },
   methods: {
