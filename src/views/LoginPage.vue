@@ -17,7 +17,7 @@
 
         <div class="form-section">
           <div class="input-element username">
-            <label for="login-username">Nom d'utilisateur</label>
+            <label for="login-username">Nom d'utilisateur·rice</label>
             <ion-item id="login-username">
               <ion-input></ion-input>
             </ion-item>
