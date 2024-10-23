@@ -685,6 +685,10 @@ ion-col img {
   width: auto;
 }
 
+.filter-category ion-text {
+  font-size: 4.5vw;
+}
+
 .titreTrier {
   margin-top: 5%;
   margin-bottom: 2%;

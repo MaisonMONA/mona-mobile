@@ -1,9 +1,9 @@
 <template>
     <ion-page>
         <ion-content>
-          <div id="userInfo">
-            <ion-icon id="defaultUserAvatar" :icon="defaultUserAvatar"></ion-icon>
-            <div id="userInfoText">
+          <div id="userInfoMorePage">
+            <ion-icon id="defaultUserAvatarMorePage" :icon="defaultUserAvatar"></ion-icon>
+            <div id="userInfoTextMorePage">
               <h1 :style="{paddingTop: memberSince? '0' : '1.1vh'}">{{ username }}</h1>
               <h6 v-if="memberSince">Membre depuis {{ memberSince }}</h6>
             </div>
@@ -113,6 +113,34 @@ export default {
 
 <style scoped>
 @import url("@/theme/GlobalStyle.css");
+
+#userInfoMorePage {
+  color: black;
+  display: flex;
+  padding: 8vw 5vw 0 5vw;
+}
+.ios #userInfoMorePage {
+  margin: 9vw 0 0 0;
+}
+
+#userInfoTextMorePage {
+  margin-left: 5vw;
+  display: flex;
+  flex-direction: column;
+}
+
+#defaultUserAvatarMorePage {
+  font-size: 13vw;
+}
+
+#userInfoTextMorePage h1 {
+  font-size: 7.2vw;
+  margin: 0;
+}
+#userInfoTextMorePage h6 {
+  font-size: 3.3vw;
+  margin: 0;
+}
 
 ion-icon, ion-label {
     color: black;
