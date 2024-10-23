@@ -2,7 +2,7 @@
   <ion-header>
     <ion-toolbar>
       <ion-buttons slot="start">
-        <ion-back-button></ion-back-button>
+        <ion-back-button text="Retour"></ion-back-button>
       </ion-buttons>
     </ion-toolbar>
   </ion-header>
@@ -39,7 +39,7 @@ export default {
 @import url("@/theme/GlobalStyle.css");
 
 ion-back-button {
-  color: black;
+  color: #2E389E;
 }
 
 * {

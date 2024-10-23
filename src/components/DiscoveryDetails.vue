@@ -403,6 +403,8 @@ export default {
   --border-width: 2px;
   --border-radius: 8px;
   font-size: 3.8vw;
+  --background-activated: #ECEDF8;
+  --color-activated: #2e389e;
 }
 
 #photoButton {
@@ -416,6 +418,7 @@ export default {
   --padding-end: 2.9vw;
   font-size: 3.8vw;
   font-weight: 600;
+  --background-activated: black;
 }
 #photoButton ion-icon {
   font-size: 3.7vw;

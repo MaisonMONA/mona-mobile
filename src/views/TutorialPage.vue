@@ -64,6 +64,12 @@ div.page {
 ion-button {
   --background: #656eb8;
   --background-activated: #444a84;
+  position: absolute;
+  bottom: 5%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  --color: white;
 }
 
 img {
@@ -86,12 +92,4 @@ img.background-blurred {
 /*    height: 100%;*/
 /*    width: 100%;*/
 /*}*/
-
-ion-button {
-  position: absolute;
-  bottom: 5%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 3;
-}
 </style>

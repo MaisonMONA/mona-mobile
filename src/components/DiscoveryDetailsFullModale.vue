@@ -591,6 +591,7 @@ export default {
   --padding-end: 2.9vw;
   font-size: 3.8vw;
   font-weight: 600;
+  --background-activated: black;
 }
 #photoButtonFullModale ion-icon {
   font-size: 3.7vw;

@@ -2,7 +2,7 @@
     <ion-header>
         <ion-toolbar>
             <ion-buttons slot="start">
-                <ion-back-button></ion-back-button>
+                <ion-back-button text="Retour"></ion-back-button>
             </ion-buttons>
         </ion-toolbar>
     </ion-header>
@@ -13,13 +13,15 @@
             <p class="body">
                 <span>Vous êtes sur le point de vous déconnecter.</span><br><br>Toutes les données de
                 votre compte vont être supprimées. Si vous êtes certain·e de vouloir vous déconnecter, assurez-vous
-                de bien connaître votre mot de passe ! Ces données pourront être récupérées lors de la reconnexion.
+                de bien connaître votre mot de passe !
+              <br><br>Ces données pourront être récupérées lors de la reconnexion.
               <br><br>Votre nom d'utilisateur·rice est :
               <br>
-            </p>
-            <p class="username-container bold">
+              <span class="username-container bold">
                 {{ username }}
+              </span>
             </p>
+
             <div class="button-div">
                 <ion-button fill="outline" class="go-back bold" @click="goBack">
                     ANNULER
@@ -76,22 +78,23 @@ export default {
 }
 
 ion-back-button {
-  color: black;
+  color: #2E389E;
 }
 
 p {
     position: relative;
     font-family: 'Open Sans', sans-serif;
-    text-align: center;
     max-width: 80vw;
     left: 10vw;
+    line-height: 2.6vh;
 }
 
 .title {
     font-weight: bold;
     font-family: 'Gotham Rounded Light', sans-serif;
-    font-size: 24px;
-    margin-top: 15vh;
+    font-size: 5vw;
+    margin-top: 3.5vh;
+    text-align: center;
 }
 
 .body {
@@ -102,6 +105,7 @@ p {
     font-weight: bold;
     margin-top: 3vh;
     margin-bottom: 5vh;
+    line-height: 4vh;
 }
 
 .disconnect, .go-back {
