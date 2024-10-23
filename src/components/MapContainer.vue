@@ -6,7 +6,7 @@
   <ion-alert
     class="map-alert"
     :is-open="isAlertOpen"
-    header="Activer la localisation pour rechercher les oeuvres à proximité"
+    header="Activer la localisation pour rechercher les œuvres à proximité"
     :buttons="alertBtn"
     @didDismiss="isAlertOpen = false"
   >
@@ -154,6 +154,7 @@
     <ion-content>
       <discovery-details-full-modale
         :selected-discovery="listSelectedDiscovery"
+        @close-discovery-details-full-modale="discoveryDetailsFullModalOpen = false"
       />
     </ion-content>
   </ion-modal>
@@ -192,7 +193,6 @@ import VectorSource from "ol/source/Vector";
 import { easeOut } from "ol/easing";
 import { UserData } from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
-import { useRoute } from "vue-router";
 import {
   AndroidSettings,
   IOSSettings,

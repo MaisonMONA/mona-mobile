@@ -329,6 +329,9 @@ export class Heritage extends Discovery {
   public getStatus(): string {
     return this.status;
   }
+  public getFunction(): string {
+    return this.functions.fr.join(", ");
+  }
 }
 
 export class Badge extends Discovery {

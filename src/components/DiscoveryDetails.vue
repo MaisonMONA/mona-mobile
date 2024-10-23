@@ -18,7 +18,7 @@
               }"
               >{{
                 dType === "artwork"
-                  ? "Oeuvre d'art"
+                  ? "Œuvre d'art"
                   : dType === "heritage"
                     ? "Patrimoine"
                     : "Lieux Culturels"
@@ -348,13 +348,13 @@ export default {
         this.customTargetIcon = targetIconUnactivated;
         this.isTargeted = false;
 
-        toastMessage = "La découverte n'est plus ciblée";
+        toastMessage = "La découverte n'est plus sauvegardée";
       } else {
         UserData.addTargeted(this.discovery);
         this.customTargetIcon = targetIconActivated;
         this.isTargeted = true;
 
-        toastMessage = "La découverte est maintenant ciblée";
+        toastMessage = "La découverte est maintenant sauvegardée";
       }
 
       toastController

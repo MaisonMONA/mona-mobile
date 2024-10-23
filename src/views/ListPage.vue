@@ -169,7 +169,10 @@
         :show-backdrop="true"
       >
         <ion-content>
-          <discovery-details-full-modale :selected-discovery="listSelectedDiscovery" />
+          <discovery-details-full-modale
+              :selected-discovery="listSelectedDiscovery"
+              @close-discovery-details-full-modale="discoveryDetailsFullModalOpen = false"
+          />
         </ion-content>
       </ion-modal>
       <!-- Selected discovery full details modal -->
