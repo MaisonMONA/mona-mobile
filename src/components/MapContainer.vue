@@ -135,8 +135,10 @@
   >
     <ion-content>
       <discovery-details
-          :selected-discovery="currentSelectedDiscovery"
-          @view-full-details="openDiscoveryDetailsFullModale(currentSelectedDiscovery)"
+        :selected-discovery="currentSelectedDiscovery"
+        @view-full-details="
+          openDiscoveryDetailsFullModale(currentSelectedDiscovery)
+        "
       />
     </ion-content>
   </ion-modal>
@@ -154,12 +156,13 @@
     <ion-content>
       <discovery-details-full-modale
         :selected-discovery="listSelectedDiscovery"
-        @close-discovery-details-full-modale="discoveryDetailsFullModalOpen = false"
+        @close-discovery-details-full-modale="
+          discoveryDetailsFullModalOpen = false
+        "
       />
     </ion-content>
   </ion-modal>
   <!-- Selected discovery full details modal -->
-
 </template>
 
 <script>
@@ -342,6 +345,10 @@ export default {
     setTimeout(() => {
       this.updateClosestDiscoveries();
     }, 1000);
+  },
+
+  beforeMount() {
+    this.updateClosestDiscoveries();
   },
 
   async mounted() {
