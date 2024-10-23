@@ -6,7 +6,7 @@
   <ion-alert
     class="map-alert"
     :is-open="isAlertOpen"
-    header="Activer la localisation pour rechercher les oeuvres à proximité"
+    header="Activer la localisation pour rechercher les œuvres à proximité"
     :buttons="alertBtn"
     @didDismiss="isAlertOpen = false"
   >
@@ -135,8 +135,10 @@
   >
     <ion-content>
       <discovery-details
-          :selected-discovery="currentSelectedDiscovery"
-          @view-full-details="openDiscoveryDetailsFullModale(currentSelectedDiscovery)"
+        :selected-discovery="currentSelectedDiscovery"
+        @view-full-details="
+          openDiscoveryDetailsFullModale(currentSelectedDiscovery)
+        "
       />
     </ion-content>
   </ion-modal>
@@ -154,11 +156,13 @@
     <ion-content>
       <discovery-details-full-modale
         :selected-discovery="listSelectedDiscovery"
+        @close-discovery-details-full-modale="
+          discoveryDetailsFullModalOpen = false
+        "
       />
     </ion-content>
   </ion-modal>
   <!-- Selected discovery full details modal -->
-
 </template>
 
 <script>
@@ -192,7 +196,6 @@ import VectorSource from "ol/source/Vector";
 import { easeOut } from "ol/easing";
 import { UserData } from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
-import { useRoute } from "vue-router";
 import {
   AndroidSettings,
   IOSSettings,
@@ -344,6 +347,10 @@ export default {
     }, 1000);
   },
 
+  beforeMount() {
+    this.updateClosestDiscoveries();
+  },
+
   async mounted() {
     // Foreground app state change listener
     // After user go back to the app from app settings, check if the location permission is granted
@@ -418,9 +425,9 @@ export default {
       this.mainMap.on("singleclick", this.handleMapClick);
       this.mainMap.on("moveend", this.setCenterButtonAppearance);
 
-      this.showPins();
       // Need to put an if statement here. If not, the blue circle will show up even if the user has denied the location permission
       if (!this.isPermissionDenied) this.showLocation();
+      this.showPins();
     },
 
     setCenterButtonAppearance() {
@@ -600,7 +607,6 @@ export default {
       // Update location and accuracy radius every 5 seconds
       setInterval(() => {
         userPointFeature.getGeometry().setCoordinates(UserData.getLocation());
-        // TODO Update location accuracy layer -- how? Not sure if this works:
         locationAccuracyLayer
           .getSource()
           .getFeatures()[0]

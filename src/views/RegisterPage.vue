@@ -13,12 +13,12 @@
       <div class="main-content">
         <p id="welcome">Inscription</p>
         <p id="ask-for-registration">
-          Bienvenue !<br />Commençons par créer un compte.
+          Bienvenue !<br />Commencez par créer un compte.
         </p>
 
         <div class="form-section">
           <div class="input-element username">
-            <label for="username-input">Nom d'utilisateur</label>
+            <label for="username-input">Nom d'utilisateur·rice</label>
             <ion-item id="username-input">
               <ion-input></ion-input>
             </ion-item>
@@ -40,7 +40,7 @@
 
           <div class="input-element password-confirmation">
             <label for="password-confirmation-input"
-              >Vérifiez le mot de passe</label
+              >Confirmez le mot de passe</label
             >
             <ion-item id="password-confirmation-input">
               <ion-input type="password" @keydown.enter="register"></ion-input>
@@ -50,7 +50,7 @@
           <ion-button @click="register">S'inscrire</ion-button>
 
           <p class="redirect-to-login" @click="goToLogin">
-            Déjà un compte ? <span>Se connecter</span>
+            Avez-vous déjà un compte? <span>Se connecter</span>
           </p>
         </div>
       </div>
@@ -163,7 +163,7 @@ export default {
         "Le mot de passe doit être d'au moins 6 caractères.\n";
       const passwordsNotMatchingMessage =
         "Les mots de passe ne concordent pas.\n";
-      const usernameTakenMessage = "Le nom d'utilisateur est déjà pris.\n";
+      const usernameTakenMessage = "Le nom d'utilisateur·rice est déjà pris.\n";
       const emailTakenMessage = "Le courriel est déjà pris.\n";
       if (parsed.errors) {
         let ionToastErrorMessage = "";

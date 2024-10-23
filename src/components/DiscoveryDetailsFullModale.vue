@@ -18,7 +18,7 @@
               }"
               >{{
                 dType === "artwork"
-                  ? "Oeuvre d'art"
+                  ? "Œuvre d'art"
                   : dType === "heritage"
                     ? "Patrimoine"
                     : "Lieux Culturels"
@@ -102,7 +102,7 @@
         <div class="segments">
           <ion-segment value="details" v-model="activeTab">
             <ion-segment-button value="details">
-              <ion-label>DETAILS</ion-label>
+              <ion-label>DÉTAILS</ion-label>
             </ion-segment-button>
             <ion-segment-button value="aPropos">
               <ion-label>À PROPOS</ion-label>
@@ -156,9 +156,16 @@
                 </p>
                 <hr class="separating-bar" />
               </div>
+              <div v-if="details14" class="detailsTabElement">
+                <p>
+                  <span class="detailsSubTitle">Fonction</span> <br />
+                  {{ details14 }}
+                </p>
+                <hr class="separating-bar" />
+              </div>
               <div v-if="details10" class="detailsTabElement">
                 <p>
-                  <span class="detailsSubTitle">Status</span> <br />
+                  <span class="detailsSubTitle">Statut</span> <br />
                   {{ details10 }}
                 </p>
                 <hr class="separating-bar" />
@@ -179,7 +186,8 @@
           </div>
 
           <div v-if="activeTab === 'aPropos'" class="descriptionTab aProposTab">
-            <p id="aProposText">{{ details3 ? details3 : "—" }}</p>
+            <p id="aProposText" v-if="details3">{{ details3 }}</p>
+            <p v-if="!details3" style="color: grey; font-style: italic;">Pas d’information complémentaire disponible en ce moment.</p>
           </div>
 
           <div
@@ -199,7 +207,7 @@
                 </li>
               </ul>
               <p id="notCommentYetText">
-                Vous n'avez pas encore commenté cette oeuvre.
+                Collectionnez cette œuvre pour ajouter un commentaire et une note.
               </p>
             </div>
 
@@ -303,7 +311,8 @@ export default {
       details10,
       details11,
       details12,
-      details13;
+      details13,
+      details14;
     if (this.discovery.dType === "artwork") {
       isArtwork = true;
 
@@ -325,6 +334,7 @@ export default {
       details11 = this.discovery.getSupports();
       details12 = this.discovery.getMediums();
       details13 = this.discovery.getUrl();
+      details14 = "";
 
       productionDate = this.discovery.produced_at;
     } else {
@@ -349,10 +359,12 @@ export default {
       details11 = "";
       details12 = "";
       details13 = this.discovery.getUrl();
+      details14 = "";
 
       if (this.discovery.dType === "heritage") {
         productionDate = this.discovery.produced_at;
         details10 = this.discovery.getStatus();
+        details14 = this.discovery.getFunction();
       } else productionDate = "";
     }
 
@@ -389,6 +401,7 @@ export default {
       details11,
       details12,
       details13,
+      details14,
     };
   },
 
@@ -481,6 +494,7 @@ export default {
         },
       };
 
+      this.$emit("close-discovery-details-full-modale");
       this.$router.push(redirection);
     },
 
@@ -492,13 +506,13 @@ export default {
         this.customTargetIcon = targetIconUnactivated;
         this.isTargeted = false;
 
-        toastMessage = "La découverte n'est plus ciblée";
+        toastMessage = "La découverte n'est plus sauvegardée";
       } else {
         UserData.addTargeted(this.discovery);
         this.customTargetIcon = targetIconActivated;
         this.isTargeted = true;
 
-        toastMessage = "La découverte est maintenant ciblée";
+        toastMessage = "La découverte est maintenant sauvegardée";
       }
 
       toastController
@@ -577,6 +591,7 @@ export default {
   --padding-end: 2.9vw;
   font-size: 3.8vw;
   font-weight: 600;
+  --background-activated: black;
 }
 #photoButtonFullModale ion-icon {
   font-size: 3.7vw;
@@ -710,6 +725,7 @@ ion-button {
 
 #aProposText {
   overflow-y: scroll;
+  line-height: 22px;
   height: 38.4vh;
 }
 

@@ -3,13 +3,13 @@
     <div
       style="display: flex; justify-content: space-between; align-items: center"
     >
-      <h1 style="margin-top: 0">Badges</h1>
+      <h1 style="margin-top: 0">Nombre de découvertes</h1>
       <span>{{
         nbrCountUnlocked + "/" + badgesCollectionsStore.countCollection.length
       }}</span>
     </div>
 
-    <swiper :slides-per-view="3" :spaceBetween="10">
+    <swiper :slides-per-view="3.5" :spaceBetween="10">
       <swiper-slide
         v-for="elem in badgesCollectionsStore.countCollection"
         :key="elem"
@@ -39,10 +39,12 @@
         <div class="container_progression">
           <ion-label>{{ elem.title.fr }}</ion-label>
           <div class="progressBar ion-margin-top">
-            <span class="ion-margin-end">{{
-              elem.count + "/" + elem.requireCount
+            <span class="ion-margin-end"
+                  :style="{color: elem.count >= elem.requireCount ? '#facc00' : 'black'}">{{
+              elem.count >= elem.requireCount ? "Complété!" : elem.count + "/" + elem.requireCount
             }}</span>
             <ion-progress-bar
+               v-if="elem.count <= elem.requireCount"
               :value="(elem.count / elem.requireCount).toFixed(2)"
             ></ion-progress-bar>
           </div>
@@ -50,7 +52,7 @@
       </ion-col>
     </ion-row>
 
-    <h1>Quartier</h1>
+    <h1>Quartiers</h1>
     <ion-row
       v-for="elem in badgesCollectionsStore.boroughCollection"
       :key="elem"
@@ -63,10 +65,12 @@
         <div class="container_progression">
           <ion-label>{{ elem.title }}</ion-label>
           <div class="progressBar ion-margin-top">
-            <span class="ion-margin-end">{{
-              elem.count + "/" + elem.requireCount
+            <span class="ion-margin-end"
+                :style="{color: elem.count >= elem.requireCount ? '#facc00' : 'black'}">{{
+                elem.count >= elem.requireCount ? "Complété!" : elem.count + "/" + elem.requireCount
             }}</span>
             <ion-progress-bar
+               v-if="elem.count <= elem.requireCount"
               :value="(elem.count / elem.requireCount).toFixed(2)"
             ></ion-progress-bar>
           </div>

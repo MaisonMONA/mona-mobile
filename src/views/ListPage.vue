@@ -2,7 +2,7 @@
   <ion-page>
     <ion-content :fullscreen="true">
       <div class="main-content">
-        <p id="tab-title">Liste des découvertes à faire</p>
+        <p id="tab-title"></p>
         <!-- triggerTextFilter function triggered each 500 ms when search bar value changes -->
         <ion-searchbar
           show-clear-button="always"
@@ -87,11 +87,10 @@
 
           <div id="trierParRadioGroup">
             <ion-radio-group :value="this.getTrierPar()" v-model="choixTrie">
-              <ion-label class="trierDistance">Distance</ion-label>
-              <ion-radio mode="md" slot="end" value="Distance"></ion-radio>
+              <ion-radio mode="md" label-placement="end" value="Distance">Distance</ion-radio>
 
-              <ion-label class="trierAZ">AZ</ion-label>
-              <ion-radio mode="md" slot="end" value="AZ"></ion-radio>
+              <ion-label class="trierAZ"></ion-label>
+              <ion-radio mode="md" label-placement="end" value="AZ">Ordre alphabétique</ion-radio>
             </ion-radio-group>
           </div>
 
@@ -104,7 +103,7 @@
             <!-- Oeuvres select button -->
             <ion-col
               class="filtre"
-              size="3"
+              size="4"
               @click="selectedDiscovery(artwork)"
               :style="{
                 color: artwork.color,
@@ -115,13 +114,14 @@
                 <ion-avatar>
                   <img :src="'./assets/drawable/medals/artwork/default.svg'" alt="artwork discovery medal icon"/>
                 </ion-avatar>
-                <ion-text>Œuvres</ion-text>
+                <ion-text>Œuvres d'art</ion-text>
               </div>
             </ion-col>
-            <!-- Patrimoines select button -->
+
+            <!-- Patrimoine select button -->
             <ion-col
               class="filtre"
-              size="4"
+              size="3.3"
               @click="selectedDiscovery(heritage)"
               :style="{
                 color: heritage.color,
@@ -132,15 +132,15 @@
                 <ion-avatar>
                   <img :src="'./assets/drawable/medals/heritage/default.svg'" alt="heritage discovery medal icon"/>
                 </ion-avatar>
-                <ion-text>Patrimoines</ion-text>
+                <ion-text>Patrimoine</ion-text>
               </div>
             </ion-col>
-            <!-- Lieux select button -->
+            <!-- Lieux culturels select button -->
             <ion-col
-              class="filtre"
-              size="3"
-              @click="selectedDiscovery(place)"
-              :style="{
+                class="filtre"
+                size="4.3"
+                @click="selectedDiscovery(place)"
+                :style="{
                 color: place.color,
                 backgroundColor: place.backgroundColor,
               }"
@@ -148,11 +148,11 @@
               <div class="filter-category">
                 <ion-avatar>
                   <img
-                    :src="'./assets/drawable/medals/place/default.svg'"
-                    alt="place discovery medal icon"
+                      :src="'./assets/drawable/medals/place/default.svg'"
+                      alt="place discovery medal icon"
                   />
                 </ion-avatar>
-                <ion-text>Lieux</ion-text>
+                <ion-text>Lieux culturels</ion-text>
               </div>
             </ion-col>
           </ion-row>
@@ -169,7 +169,10 @@
         :show-backdrop="true"
       >
         <ion-content>
-          <discovery-details-full-modale :selected-discovery="listSelectedDiscovery" />
+          <discovery-details-full-modale
+              :selected-discovery="listSelectedDiscovery"
+              @close-discovery-details-full-modale="discoveryDetailsFullModalOpen = false"
+          />
         </ion-content>
       </ion-modal>
       <!-- Selected discovery full details modal -->
@@ -667,6 +670,7 @@ ion-col img {
   border-radius: 10px;
   height: 15vw;
   width: auto;
+  margin: 0vw;
 }
 
 .filter-category ion-avatar {
@@ -679,6 +683,10 @@ ion-col img {
   margin: 0;
   padding: 0;
   width: auto;
+}
+
+.filter-category ion-text {
+  font-size: 4.5vw;
 }
 
 .titreTrier {

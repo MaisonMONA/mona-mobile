@@ -10,13 +10,14 @@
               <ion-icon
                 size="large"
                 :icon="st <= givenRating ? star : starOutline"
+                :style="{ color: givenRating == null ?  '#d7d7d7': 'var(--mona-yellow)' }"
               ></ion-icon>
             </li>
           </ul>
         </div>
 
         <div class="comment">
-          <p>Commentaires :</p>
+          <p>Que pensez-vous de l’œuvre?</p>
           <ion-textarea
             label-placement="floating"
             :counter="true"
@@ -26,7 +27,7 @@
           ></ion-textarea>
         </div>
 
-        <ion-button fill="solid" @click="submitDiscovery()">Envoyer</ion-button>
+        <ion-button fill="solid" @click="submitDiscovery()">Enregistrer</ion-button>
       </div>
     </ion-content>
   </ion-page>
@@ -63,7 +64,7 @@ export default {
       starOutline,
       star,
       camera,
-      givenRating: 0,
+      givenRating: null,
     };
   },
 

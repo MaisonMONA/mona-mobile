@@ -17,7 +17,7 @@
 
         <div class="form-section">
           <div class="input-element username">
-            <label for="login-username">Nom d'utilisateur</label>
+            <label for="login-username">Nom d'utilisateur·rice</label>
             <ion-item id="login-username">
               <ion-input></ion-input>
             </ion-item>
@@ -47,7 +47,7 @@
           <ion-button @click="login">Se connecter</ion-button>
 
           <p class="redirect-to-register" @click="goToRegister">
-            Pas de compte ? <span>En créer un</span>
+            Vous n’avez pas de compte? <span>En créer un</span>
           </p>
         </div>
       </div>

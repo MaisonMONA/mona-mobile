@@ -16,7 +16,7 @@ import {
 import Globals from "../internal/Globals.ts";
 
 const msg200 = "Email de réinitialisation envoyé";
-const msg404 = "Nom d'utilisateur introuvable";
+const msg404 = "Nom d'utilisateur·rice introuvable";
 const msg400 = "Aucun email associé à votre compte";
 
 const inputUsername = reactive({ value: "" });
@@ -41,7 +41,7 @@ function resetPassword() {
 
   if (inputUsername.value === "") {
     setToast(
-      "Veuillez entrer votre nom d'utilisateur",
+      "Veuillez entrer votre nom d'utilisateur·rice",
       informationCircleOutline,
       "status40X",
       true,
@@ -97,11 +97,11 @@ async function showLoading() {
       <div class="ion-padding">
         <ion-input
           type="email"
-          label="Entrez ici votre nom d'utilisateur"
+          label="Entrez ici votre nom d'utilisateur·rice"
           class="username"
           label-placement="floating"
           fill="outline"
-          placeholder="Nom d'utilisateur"
+          placeholder="Nom d'utilisateur·rice"
           v-model="inputUsername.value"
           @keydown.enter="resetPassword"
         ></ion-input>

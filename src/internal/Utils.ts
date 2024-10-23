@@ -204,7 +204,7 @@ export default {
     const formData = new FormData();
     formData.append("id", id.toString());
     formData.append("comment", comment);
-    formData.append("rating", rating.toString());
+    formData.append("rating", rating === null ? "" : rating.toString());
     formData.append("photo", blob);
 
     let url;

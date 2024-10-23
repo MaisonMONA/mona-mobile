@@ -2,7 +2,7 @@
     <ion-header>
         <ion-toolbar>
             <ion-buttons slot="start">
-                <ion-back-button></ion-back-button>
+                <ion-back-button text="Retour"></ion-back-button>
             </ion-buttons>
         </ion-toolbar>
     </ion-header>
@@ -11,21 +11,24 @@
         <div class="content">
             <p class="title bold">Attention</p>
             <p class="body">
-                <span class="bold">Vous êtes sur le point de vous déconnecter.</span><br><br>Toutes les données de
+                <span>Vous êtes sur le point de vous déconnecter.</span><br><br>Toutes les données de
                 votre compte vont être supprimées. Si vous êtes certain·e de vouloir vous déconnecter, assurez-vous
-                de bien connaître votre mot de passe ! Ces données pourront être récupérées lors de la reconnexion.
-                Votre nom d'utilisateur est :
-            </p>
-            <p class="username-container bold">
+                de bien connaître votre mot de passe !
+              <br><br>Ces données pourront être récupérées lors de la reconnexion.
+              <br><br>Votre nom d'utilisateur·rice est :
+              <br>
+              <span class="username-container bold">
                 {{ username }}
+              </span>
             </p>
+
             <div class="button-div">
-                <ion-button color="success" class="go-back bold" @click="goBack">
-                    Revenir en arrière
+                <ion-button fill="outline" class="go-back bold" @click="goBack">
+                    ANNULER
                 </ion-button>
             </div>
             <div class="button-div">
-                <ion-button color="danger" fill="outline" class="disconnect bold" @click="disconnectUser">
+                <ion-button fill="outline" class="disconnect bold" @click="disconnectUser">
                     Se déconnecter
                 </ion-button>
             </div>
@@ -74,19 +77,24 @@ export default {
     font-weight: bold;
 }
 
+ion-back-button {
+  color: #2E389E;
+}
+
 p {
     position: relative;
     font-family: 'Open Sans', sans-serif;
-    text-align: center;
     max-width: 80vw;
     left: 10vw;
+    line-height: 2.6vh;
 }
 
 .title {
     font-weight: bold;
     font-family: 'Gotham Rounded Light', sans-serif;
-    font-size: 24px;
-    margin-top: 15vh;
+    font-size: 5vw;
+    margin-top: 3.5vh;
+    text-align: center;
 }
 
 .body {
@@ -97,17 +105,42 @@ p {
     font-weight: bold;
     margin-top: 3vh;
     margin-bottom: 5vh;
+    line-height: 4vh;
 }
 
 .disconnect, .go-back {
-    position: relative;
-    margin-top: 1vh;
-    left: 50vw;
-    transform: translateX(-50%);
+
+}
+
+.go-back {
+  --color: #757DD7;
+  --border-color: #757DD7;
+  --border-radius: 2vw;
+  --background: none;
+  width: 88vw;
+  height: 5vh;
+  position: absolute;
+  bottom: 3.7vh;
+  left: 5.7vw;
+  --background-activated : #757DD7;
+  --color-activated : white;
 }
 
 .button-div {
     display: block;
+}
+
+.disconnect {
+  --color: #D82727;
+  --border-color: #D82727;
+  --border-radius: 1vw;
+  width: 88vw;
+  height: 5vh;
+  position: absolute;
+  bottom: 10.7vh;
+  left: 5.7vw;
+  --background-activated : #D82727;
+  --color-activated : white;
 }
 
 </style>
