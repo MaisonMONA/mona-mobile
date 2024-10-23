@@ -418,9 +418,9 @@ export default {
       this.mainMap.on("singleclick", this.handleMapClick);
       this.mainMap.on("moveend", this.setCenterButtonAppearance);
 
-      this.showPins();
       // Need to put an if statement here. If not, the blue circle will show up even if the user has denied the location permission
       if (!this.isPermissionDenied) this.showLocation();
+      this.showPins();
     },
 
     setCenterButtonAppearance() {
@@ -600,7 +600,6 @@ export default {
       // Update location and accuracy radius every 5 seconds
       setInterval(() => {
         userPointFeature.getGeometry().setCoordinates(UserData.getLocation());
-        // TODO Update location accuracy layer -- how? Not sure if this works:
         locationAccuracyLayer
           .getSource()
           .getFeatures()[0]
