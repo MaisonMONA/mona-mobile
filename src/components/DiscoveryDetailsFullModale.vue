@@ -202,7 +202,7 @@
                 <li :key="st" v-for="st in 5">
                   <ion-icon
                     size="small"
-                    :icon="`public/assets/drawable/icons/greyStar.svg`"
+                    :icon="`/assets/drawable/icons/greyStar.svg`"
                   ></ion-icon>
                 </li>
               </ul>
@@ -217,7 +217,7 @@
                 <li :key="st" v-for="st in this.getRating()">
                   <ion-icon
                     size="small"
-                    :icon="`public/assets/drawable/icons/yellowStar.svg`"
+                    :icon="`/assets/drawable/icons/yellowStar.svg`"
                   ></ion-icon>
                 </li>
                 <li>
