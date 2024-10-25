@@ -176,7 +176,7 @@
               {{ details9 }}
             </p>
 
-            <div class="addressContainer">
+            <div class="addressContainer" @click="activateMap([discovery.lng, discovery.lat])">
               <!-- Discovery pin icon-->
               <ion-icon
                 :icon="`./assets/drawable/pins/${discovery.dType}/default.svg`"
@@ -461,6 +461,19 @@ export default {
   },
 
   methods: {
+    activateMap() {
+      const mapInstructions = {
+        path: "/tabs/map/",
+        query: {
+          type: this.discovery.dType,
+          id: this.discovery.id,
+        },
+      };
+
+      this.$emit("close-discovery-details-full-modale");
+      this.$router.push(mapInstructions);
+    },
+
     async activateCamera() {
       const img = await Utils.takePicture();
       if (img == null) return; // User cancelled
