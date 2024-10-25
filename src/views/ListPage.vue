@@ -30,9 +30,7 @@
             @click="openDiscoveryDetailsFullModale(discovery)"
           >
             <!-- Discovery icon -->
-            <ion-avatar slot="start">
-              <img :src="getDiscoveryMedalIcon(discovery)" alt="discoveryMedalIcon" />
-            </ion-avatar>
+            <ion-icon :icon="getDiscoveryMedalIcon(discovery)" slot="start"></ion-icon>
             <!-- Discovery to user distance  -->
             <ion-label id="distance" position="fixed" class="ion-text-wrap"
               >{{
@@ -488,10 +486,10 @@ export default {
 
     getDiscoveryMedalIcon(discovery) {
       if (UserData.isCollected(discovery.id, discovery.dType))
-        return `./assets/drawable/medals/${discovery.dType}/collected.svg`;
+        return `./assets/drawable/pins/${discovery.dType}/collected.svg`;
       else if (UserData.isTargeted(discovery.id, discovery.dType))
-        return `./assets/drawable/medals/${discovery.dType}/targeted.svg`;
-      else return `./assets/drawable/medals/${discovery.dType}/default.svg`;
+        return `./assets/drawable/pins/${discovery.dType}/targeted.svg`;
+      else return `./assets/drawable/pins/${discovery.dType}/default.svg`;
     },
 
     dismissModal() {
@@ -586,14 +584,8 @@ ion-list {
   padding-left: 4%;
 }
 
-ion-avatar img {
-  margin-top: 10%;
-  max-width: 7.6vw;
-  max-height: 7.6vw;
-}
-
-ion-avatar {
-  margin-right: 0;
+ion-icon[slot="start"] {
+  font-size: 3.9vh;
 }
 
 ion-row {
@@ -647,7 +639,6 @@ p.bottom-text {
 }
 
 #distance {
-  padding-left: 2vw;
   font-size: small;
   max-width: 20%;
   /* To correct #title sticking to the right bug caused by #distance taking too much space

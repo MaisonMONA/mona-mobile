@@ -46,7 +46,7 @@
           :class="{ 'active-tab': activeTab === 'more' }"
         >
           <ion-icon :icon="activeTab === 'more' ? activeMore : inactiveMore" />
-          <ion-label v-show="activeTab === 'more'">Compte</ion-label>
+          <ion-label v-show="activeTab === 'more'">Paramètres</ion-label>
         </ion-tab-button>
       </ion-tab-bar>
     </ion-tabs>
