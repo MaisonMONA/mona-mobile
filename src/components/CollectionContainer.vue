@@ -2,6 +2,8 @@
   <ion-page>
     <ion-content :fullscreen="true">
       <div class="collection-content">
+        <p v-if="collected.length===0" class="ion-text-center ion-padding noneCollected">Vous n’avez pas encore
+          photographié d’œuvre d’art</p>
         <ion-grid>
           <ion-row class="ion-justify-content-around">
             <ion-col
@@ -145,6 +147,12 @@ export default {
 
 <style scoped>
 @import url("@/theme/GlobalStyle.css");
+
+.noneCollected {
+  font-size: 5vw;
+  margin: 5vw;
+  margin-top: 15vw;
+}
 
 img {
   object-fit: cover;
