@@ -188,6 +188,8 @@
           <div v-if="activeTab === 'aPropos'" class="descriptionTab aProposTab">
             <p id="aProposText" v-if="details3">{{ details3 }}</p>
             <p v-if="!details3" style="color: grey; font-style: italic;">Pas d’information complémentaire disponible en ce moment.</p>
+            <span id="discoveryURL" v-if="details13">Site web de la découverte: <a  :href=details13> {{ details13 }} </a></span>
+
           </div>
 
           <div
@@ -785,5 +787,14 @@ ion-button {
   height: 4vw;
   width: 4vw;
   margin: 0 0.61vw 0 0;
+}
+
+#discoveryURL {
+  font-weight: bold;
+}
+
+a {
+  color: steelblue;
+  font-weight: normal;
 }
 </style>
