@@ -1,22 +1,7 @@
 <template>
   <ion-page>
     <ion-content :fullscreen="true">
-
-      <div class="collection-header">
-        <ion-icon id="collection-icon" :icon="customCollectionIcon"></ion-icon>
-        <p id="collected-count">
-          {{ collected.length > 0 ? collected.length : "" }}
-        </p>
-        <p>
-          {{ collected.length > 0 ? "D" : "Aucune d" }}écouverte{{
-            collected.length > 0 ? "s" : ""
-          }}
-          <br />
-          collectionnée{{ collected.length > 0 ? "s" : "" }}
-        </p>
-      </div>
       <div class="collection-content">
-        <p id="your-collection">Votre collection</p>
         <ion-grid>
           <ion-row class="ion-justify-content-around">
             <ion-col
@@ -170,8 +155,8 @@ img {
 }
 
 .collection-header {
-  height: 25%;
-  background: var(--blue-powder);
+  height: 7vh;
+  background: #FDF4B4;
   text-align: center;
 }
 
@@ -180,7 +165,7 @@ img {
   top: 50%;
   transform: translateY(-75%);
   display: inline-block;
-  color: white;
+  color: black;
   margin-top: 5%;
   vertical-align: middle;
   margin-left: 2vw;
@@ -231,8 +216,7 @@ p {
   font-size: 24px;
   line-height: 32px;
   font-weight: 600;
-  margin: 5vw 0 10px 15px;
-  padding-top: 25px;
+  margin: 0 0 10px 15px;
 }
 
 #collection-icon {

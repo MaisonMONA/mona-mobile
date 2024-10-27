@@ -44,7 +44,7 @@
               elem.count >= elem.requireCount ? "Complété!" : elem.count + "/" + elem.requireCount
             }}</span>
             <ion-progress-bar
-               v-if="elem.count <= elem.requireCount"
+               v-if="elem.count < elem.requireCount"
               :value="(elem.count / elem.requireCount).toFixed(2)"
             ></ion-progress-bar>
           </div>
@@ -70,7 +70,7 @@
                 elem.count >= elem.requireCount ? "Complété!" : elem.count + "/" + elem.requireCount
             }}</span>
             <ion-progress-bar
-               v-if="elem.count <= elem.requireCount"
+               v-if="elem.count < elem.requireCount"
               :value="(elem.count / elem.requireCount).toFixed(2)"
             ></ion-progress-bar>
           </div>
@@ -89,10 +89,12 @@
         <div class="container_progression">
           <ion-label>{{ elem.title }}</ion-label>
           <div class="progressBar ion-margin-top">
-            <span class="ion-margin-end">{{
-              elem.count + "/" + elem.requireCount
+            <span class="ion-margin-end"
+                  :style="{color: elem.count >= elem.requireCount ? '#facc00' : 'black'}">{{
+                elem.count >= elem.requireCount ? "Complété!" : elem.count + "/" + elem.requireCount
             }}</span>
             <ion-progress-bar
+                v-if="elem.count < elem.requireCount"
               :value="(elem.count / elem.requireCount).toFixed(2)"
             ></ion-progress-bar>
           </div>
@@ -140,6 +142,7 @@ export default {
       console.log("userCollectedBadges:", badgesCollectionsStore.userCollectedBadges);
       console.log("countCollection:", badgesCollectionsStore.countCollection);
       console.log("collectedCountBadgesId:", badgesCollectionsStore.collectedCountBadgesId);
+      console.log("getCompletedBadges:", badgesCollectionsStore.getCompletedBadges);
     },
   },
 };
