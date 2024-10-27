@@ -1,8 +1,8 @@
 <template>
-  <ion-header>
+  <ion-header class="ion-no-border">
     <ion-toolbar>
       <ion-buttons slot="start">
-        <ion-back-button text="Retour"></ion-back-button>
+        <ion-back-button text="RETOUR"></ion-back-button>
       </ion-buttons>
     </ion-toolbar>
   </ion-header>
@@ -38,8 +38,27 @@ export default {
 <style scoped>
 @import url("@/theme/GlobalStyle.css");
 
+ion-header {
+  --background: transparent; /* Make the background transparent */
+  height: 9vh;
+}
+
+ion-header::after { background-image: none; }
+
+ion-toolbar {
+  --background: transparent; /* Also make the toolbar transparent */
+}
+
 ion-back-button {
+  margin-left: 3.9vw;
   color: #2E389E;
+  border: solid 1px #2E389E;
+  border-radius: 1vw;
+}
+
+ion-back-button::part(native) {
+  padding: 0 2vw;
+  font-size: 3.5vw;
 }
 
 * {
@@ -49,5 +68,11 @@ ion-back-button {
 
 span.bold, h1, h2, h3, h4, h5 {
   font-weight: bold;
+}
+
+a {
+  color: steelblue;
+  text-decoration: none;
+  font-weight: normal;
 }
 </style>

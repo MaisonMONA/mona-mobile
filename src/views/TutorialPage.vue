@@ -2,11 +2,13 @@
   <ion-page>
     <ion-content>
       <div class="page">
-        <ion-button @click="nextSlide">Continuer</ion-button>
-        <img :src="`./assets/drawable/tutorial/page ${pageNumber}.jpg`" />
+        <ion-button @click="nextSlide">{{pageNumber < 9 ? "SUIVANT" : "COMMENCER L'EXPÉRIENCE" }}
+          <ion-icon :icon="chevronForwardOutline"></ion-icon></ion-button>
+        <p  @click="returnBack" id="passer">PASSER</p>
+        <img :src="`./assets/drawable/tutorial/page ${pageNumber}.svg`" />
         <img
           class="background-blurred"
-          :src="`./assets/drawable/tutorial/page ${pageNumber}.jpg`"
+          :src="`./assets/drawable/tutorial/page ${pageNumber}.svg`"
         />
       </div>
     </ion-content>
@@ -14,8 +16,9 @@
 </template>
 
 <script>
-import { IonPage, IonContent, IonButton } from "@ionic/vue";
+import {IonPage, IonContent, IonButton, IonIcon} from "@ionic/vue";
 import { UserData } from "@/internal/databases/UserData";
+import { chevronForwardOutline } from "ionicons/icons";
 
 export default {
   name: "TutorialPage",
@@ -23,28 +26,34 @@ export default {
     IonPage,
     IonContent,
     IonButton,
+    IonIcon,
+
   },
 
   data() {
     return {
       pageNumber: 1,
+      chevronForwardOutline,
     };
   },
 
   methods: {
     nextSlide() {
-      if (this.pageNumber < 12) this.pageNumber++;
+      if (this.pageNumber < 9) this.pageNumber++;
       else {
-        // The user played the tutorial form `/tabs/more`, don't check perms
-        if (this.$route.query.callbackurl) {
-          this.$router.replace(this.$route.query.callbackurl);
-          return;
-        }
-
-        UserData.setSeenTutorial(true);
-        this.$router.replace("/register");
+        this.returnBack();
       }
     },
+    returnBack() {
+      // The user played the tutorial form `/tabs/more`, don't check perms
+      if (this.$route.query.callbackurl) {
+        this.$router.replace(this.$route.query.callbackurl);
+        return;
+      }
+
+      UserData.setSeenTutorial(true);
+      this.$router.replace("/register");
+    }
   },
 };
 </script>
@@ -61,15 +70,32 @@ div.page {
   width: 100%;
 }
 
-ion-button {
-  --background: #656eb8;
-  --background-activated: #444a84;
+#passer {
   position: absolute;
-  bottom: 5%;
-  left: 50%;
+  background: #B5BAE3;
+  color: black;
+  bottom: 4.8%;
+  left: 11%;
+  z-index: 3;
+  font-size: 4.3vw;
+  font-weight: bold;
+  text-decoration: underline;
+  text-underline-offset: 0.1em;
+}
+
+ion-button {
+  --background: #4D58CB;
+  --background-activated: #444a84;
+  height: 5.4vh;
+  width: 55.5vw;
+  --border-radius: 2vw;
+  position: absolute;
+  bottom: 0.6%;
+  left: 68.3%;
   transform: translate(-50%, -50%);
   z-index: 3;
   --color: white;
+  font-size: 4vw;
 }
 
 img {

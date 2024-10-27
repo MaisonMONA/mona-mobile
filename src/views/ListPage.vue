@@ -2,11 +2,14 @@
   <ion-page>
     <ion-content :fullscreen="true">
       <div class="main-content">
-        <p id="tab-title"></p>
+
+        <div id="searchbarAndFilterButton">
         <!-- triggerTextFilter function triggered each 500 ms when search bar value changes -->
         <ion-searchbar
+            id="searchbarCustom"
+          class="custom"
           show-clear-button="always"
-          placeholder="Chercher"
+          placeholder="Rechercher par titre"
           @ion-clear="triggerTextFilter('')"
           @ionInput="triggerTextFilter($event.target.value)"
           @keydown.enter="triggerTextFilter($event.target.value)"
@@ -17,9 +20,9 @@
           shape="round"
           fill="outline"
         >
-          <ion-icon :icon="filterOutline"></ion-icon>
-          Filtrer
+          <ion-icon slot="icon-only" :icon="`/assets/drawable/icons/list_filters_icon_white.svg`"></ion-icon>
         </ion-button>
+      </div>
 
         <!-- Results list -->
         <ion-list :inset="true" lines="none" :key="componentKey">
@@ -597,10 +600,26 @@ ion-col {
   margin-bottom: 2%;
 }
 
+#searchbarAndFilterButton {
+  padding-top: 15%;
+  display: flex;
+  align-items: center;
+}
+
 ion-searchbar {
-  padding-left: 21px;
-  padding-right: 21px;
   --border-radius: 10px;
+  --padding-left: 3vw;
+  --box-shadow: none;
+  width: 87vw;
+}
+
+ion-searchbar#searchbarCustom.custom {
+  --background: white;
+  --placeholder-color: black;
+  --icon-color: black;
+  --placeholder-font-style: italic;
+  font-size: 14px;
+  --border-radius: 4px;
 }
 
 p.bottom-text {
@@ -610,18 +629,17 @@ p.bottom-text {
 }
 
 .filters-button {
-  text-transform: none;
-  color: black;
-  position: relative;
-  left: 49%;
-  transform: translateX(-50%);
   --border-width: 0;
-  --background: transparent;
+  --background: #4D58CB;
+  margin: 0;
+  --border-radius: 10px;
+  --background-activated: black;
+  width: 12vw;
+  height: 12vw;
 }
 
 .filters-button ion-icon {
-  margin-right: 6px;
-  font-size: 20px;
+  font-size: 3vw;
 }
 
 #title {
