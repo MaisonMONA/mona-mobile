@@ -33,7 +33,7 @@
             @click="openDiscoveryDetailsFullModale(discovery)"
           >
             <!-- Discovery icon -->
-            <ion-icon :icon="getDiscoveryMedalIcon(discovery)" slot="start"></ion-icon>
+            <ion-icon id="discoveryIcon" :icon="getDiscoveryMedalIcon(discovery)" slot="start"></ion-icon>
             <!-- Discovery to user distance  -->
             <ion-label id="distance" position="fixed" class="ion-text-wrap"
               >{{
@@ -587,8 +587,8 @@ ion-list {
   padding-left: 4%;
 }
 
-ion-icon[slot="start"] {
-  font-size: 3.9vh;
+#discoveryIcon {
+  font-size: 8.6vw;
 }
 
 ion-row {
@@ -606,20 +606,19 @@ ion-col {
   align-items: center;
 }
 
-ion-searchbar {
-  --border-radius: 10px;
-  --padding-left: 3vw;
-  --box-shadow: none;
-  width: 87vw;
-}
-
 ion-searchbar#searchbarCustom.custom {
   --background: white;
   --placeholder-color: black;
   --icon-color: black;
   --placeholder-font-style: italic;
-  font-size: 14px;
   --border-radius: 4px;
+  --padding-left: 3vw;
+  --box-shadow: none;
+  width: 78vw;
+  margin-left: 3vw;
+  margin-right: 3vw;
+  background: white;
+  border-radius: 4px;
 }
 
 p.bottom-text {
