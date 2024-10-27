@@ -9,8 +9,7 @@
               <ion-nav-link @click="playTutorial">
                 <ion-item>
                   <ion-icon :icon="activeList" slot="start"></ion-icon>
-
-                  <ion-label>Tutoriel</ion-label>
+                  <ion-label class="params_item_label">Tutoriel</ion-label>
                   <ion-icon :icon="arrowForward" slot="end"></ion-icon>
                 </ion-item>
               </ion-nav-link>
@@ -18,21 +17,21 @@
                 <ion-nav-link router-direction="forward" :component="confidentialityPolicy">
                     <ion-item>
                         <ion-icon id="confidentialityPolicyIcon" :icon="confidentialityPolicyIcon" slot="start"></ion-icon>
-                        <ion-label>Politique de confidentialité</ion-label>
+                        <ion-label class="params_item_label">Politique de confidentialité</ion-label>
                         <ion-icon :icon="arrowForward" slot="end"></ion-icon>
                     </ion-item>
                 </ion-nav-link>
               <ion-nav-link router-direction="forward" :component="about">
                 <ion-item lines="none">
                   <ion-icon id="aProposIcon" :icon="aPropos" slot="start"></ion-icon>
-                  <ion-label>À propos de la maison MONA</ion-label>
+                  <ion-label class="params_item_label">À propos de la maison MONA</ion-label>
                   <ion-icon :icon="arrowForward" slot="end"></ion-icon>
                 </ion-item>
               </ion-nav-link>
             </ion-list>
 
           <div id="followUsAndMediaLinks" class="ion-text-center">
-            <p>Suivez-nous!</p>
+            <span>Suivez-nous!</span>
             <div id="mediaLinks">
             <a href="https://monamontreal.org">
               <ion-icon :icon="`/assets/drawable/icons/website_icon.svg`"></ion-icon>
@@ -114,13 +113,14 @@ export default {
   background: #FDF4B4;
   border-radius: 3vw;
   width: 92vw;
+  height: 15vh;
   font-size: 5vw;
-  margin-top: 3.6vh;
-  padding: 2.6vh;
+  margin-top: 3.5vh;
+  padding-top: 2.67vh;
 }
 
 #mediaLinks {
-  margin-top: 1vh;
+  margin-top: 1.2vh;
 }
 
 #mediaLinks ion-icon {
@@ -155,10 +155,10 @@ export default {
 }
 
 img[alt="MONA logo"] {
-  width: 21.5vw;
+  max-width: 27vw;
   margin-top: 5vh;
-  margin-left: 35vw;
-  margin-bottom: 2.7vh;
+  margin-left: 33vw;
+  margin-bottom: 2vh;
 }
 
 #userInfoTextMorePage h1 {
@@ -170,7 +170,7 @@ img[alt="MONA logo"] {
   margin: 0;
 }
 
-ion-icon, ion-label {
+ion-icon {
     color: black;
     font-size: 4.5vw;
 }
@@ -199,17 +199,23 @@ ion-label {
     margin: 2vh 0;
 }
 
+.params_item_label {
+  font-size: 3.8vw;
+  font-weight: bold;
+}
+
 #disconnectButton {
   --color: #D82727;
   --border-color: #D82727;
-  --border-radius: 1vw;
-  width: 88vw;
+  --border-radius: 2vw;
+  width: 92vw;
   height: 5vh;
   position: absolute;
-  bottom: 2.7vh;
-  left: 5.7vw;
+  bottom: 1vh;
+  margin: 4vw 0;
   --background-activated : #D82727;
   --color-activated : white;
+  font-size: 4vw;
 }
 
 </style>

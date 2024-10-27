@@ -144,12 +144,11 @@ p {
   margin: 0 4vw;
   --background-activated : #757DD7;
   --color-activated : white;
+  font-size: 4vw;
 }
 
 .button-div {
     display: block;
-  font-size: 4vw;
-
 }
 
 .disconnect {
@@ -163,6 +162,7 @@ p {
   margin: 0 4vw;
   --background-activated : #D82727;
   --color-activated : white;
+  font-size: 4vw;
 }
 
 </style>
