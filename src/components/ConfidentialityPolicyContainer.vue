@@ -7,7 +7,7 @@
     </ion-toolbar>
   </ion-header>
 
-  <ion-content>
+  <ion-content :fullscreen="true">
     <div class="ion-padding">
       <h2>Politique de confidentialité</h2>
 
