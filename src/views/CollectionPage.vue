@@ -7,6 +7,31 @@
         <h6 v-if="memberSince">Membre depuis {{ memberSince }}</h6>
       </div>
     </div>
+
+    <div id="collection-and-badges-number-container">
+    <div class="collection-header">
+      <p class="collected-count">
+        {{ collected.length > 0 ? collected.length : "" }}
+      </p>
+      <p>
+        {{ collected.length > 0 ? "D" : "Aucune d" }}écouverte{{
+          collected.length > 0 ? "s" : ""
+        }}
+        <br />
+        collectionnée{{ collected.length > 0 ? "s" : "" }}
+      </p>
+    </div>
+
+    <div class="collection-header" id="badges-obtained">
+      <p class="collected-count">
+        {{ completedBadges > 0 ? completedBadges : "" }}
+      </p>
+      <p>
+        {{ completedBadges > 1 ? "Badges obtenus": (completedBadges > 0 ? "Badge obtenu" : "Aucun badge obtenu") }}
+      </p>
+    </div>
+    </div>
+
       <div class="ion-segment-container collectionPageSegment">
         <ion-segment :value="getSegment()" v-model="choixSegment" mode="ios">
           <ion-segment-button value="collection">
@@ -48,12 +73,23 @@ import {UserData} from "@/internal/databases/UserData";
 import defaultUserAvatar from "/assets/drawable/icons/defaultUserAvatar.svg";
 import Utils from "@/internal/Utils";
 import Globals from "@/internal/Globals";
+import {useCollection} from "@/stores/Collection.ts";
+import { useBadgesCollections } from "@/stores/BadgesCollections";
+
+const useCollectionStore = useCollection();
+const badgesCollectionsStore = useBadgesCollections();
 export default {
   name: "CollectionBadge",
   computed: {
     badgesContainer() {
       return badgesContainer;
     },
+    collected() {
+      return useCollectionStore.collected;
+    },
+    completedBadges() {
+      return badgesCollectionsStore.getCompletedBadges;
+    }
   },
   components: {
     BadgesContainer,
@@ -74,6 +110,7 @@ export default {
     return {
       CollectionContainer,
       BadgesContainer,
+      badgesCollectionsStore,
     };
   },
   beforeMount() {
@@ -124,6 +161,50 @@ export default {
 <style>
 @import url("@/theme/GlobalStyle.css");
 @import url("@/theme/TopToolbar.css");
+
+#collection-and-badges-number-container {
+  display: flex;
+  justify-content: space-evenly;
+  margin-top: 3vh;
+}
+
+.collection-header {
+  display:flex;
+  align-items: center;
+  height: 7vh;
+  background: #FDF4B4;
+  text-align: center;
+  width: 44vw;
+  border-radius: 2vw;
+}
+
+.collection-header * {
+  color: black;
+}
+
+.collection-header p {
+  text-align: left;
+  font-size: 4vw;
+  margin-left: 2vw;
+}
+
+.collection-header p.collected-count {
+  font-size: 10vw;
+  font-weight: 600;
+  margin-left: 4vw;
+}
+
+.collection-header ion-icon {
+  /*font-size: 80px;*/
+  --ionicon-stroke-width: 20px;
+}
+
+#badges-obtained {
+  background: #DADCF1;
+}
+#badges-obtained:last-child {
+  padding-right: 4vw;
+}
 
 * {
   font-family: "Open Sans", sans-serif;

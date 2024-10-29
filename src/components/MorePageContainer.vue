@@ -2,7 +2,7 @@
     <ion-page>
         <ion-content class="ion-padding ion-text-left">
           <img src="/assets/drawable/mona_logo_med.png" alt="MONA logo">
-          <p id="mona_description">L'application MONA est projet libre et open source pour découvrir l'art public,
+          <p id="mona_description">L'application MONA est un projet libre et open source pour découvrir l'art public,
             les lieux culturels et le patrimoine du Québec. Elle est produite par la Maison MONA,
             un organisme à but non lucratif basé à Montréal (Québec, Canada).</p>
             <ion-list lines="full">
@@ -114,7 +114,7 @@ export default {
   border-radius: 3vw;
   width: 92vw;
   height: 15vh;
-  font-size: 5vw;
+  font-size: 4vw;
   margin-top: 3.5vh;
   padding-top: 2.67vh;
 }
@@ -155,9 +155,9 @@ export default {
 }
 
 img[alt="MONA logo"] {
-  max-width: 27vw;
+  max-width: 30vw;
   margin-top: 5vh;
-  margin-left: 33vw;
+  margin-left: 32vw;
   margin-bottom: 2vh;
 }
 
