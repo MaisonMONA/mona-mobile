@@ -1,1 +1,1 @@
-New interface for Parameters page.
+Added new tutorial
