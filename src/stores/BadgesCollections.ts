@@ -33,6 +33,14 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
     };
   },
   getters: {
+
+    getCompletedBadges(): number {
+      return this.userCollectedBadges.filter((badge: any) => {
+        // Check if the badge is collected and its src contains 'unlocked'
+        return badge.src.includes('unlocked');
+      }).length;
+    },
+
     getBoroughOwnerCollection(): any[] {
       return this.boroughCollection.concat(this.ownerCollection);
     },

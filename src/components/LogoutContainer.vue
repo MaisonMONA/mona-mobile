@@ -7,7 +7,7 @@
         </ion-toolbar>
     </ion-header>
 
-    <ion-content>
+    <ion-content :fullscreen="true">
         <div class="content">
             <p class="title bold">Attention</p>
             <p class="body">
@@ -140,7 +140,7 @@ p {
   width: 92vw;
   height: 5vh;
   position: absolute;
-  bottom: 3.7vh;
+  bottom: 17.7vh;
   margin: 0 4vw;
   --background-activated : #757DD7;
   --color-activated : white;
@@ -158,7 +158,7 @@ p {
   width: 92vw;
   height: 5vh;
   position: absolute;
-  bottom: 11.7vh;
+  bottom: 25.7vh;
   margin: 0 4vw;
   --background-activated : #D82727;
   --color-activated : white;
