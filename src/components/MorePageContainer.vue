@@ -2,7 +2,7 @@
     <ion-page>
         <ion-content class="ion-padding ion-text-left">
           <img src="/assets/drawable/mona_logo_med.png" alt="MONA logo">
-          <p id="mona_description">L'application MONA est projet libre et open source pour découvrir l'art public,
+          <p id="mona_description">L'application MONA est un projet libre et open source pour découvrir l'art public,
             les lieux culturels et le patrimoine du Québec. Elle est produite par la Maison MONA,
             un organisme à but non lucratif basé à Montréal (Québec, Canada).</p>
             <ion-list lines="full">
