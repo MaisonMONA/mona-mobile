@@ -110,7 +110,7 @@ export default {
 }
 
 #followUsAndMediaLinks {
-  background: #FDF4B4;
+  background-color: #FDF4B4;
   border-radius: 3vw;
   width: 92vw;
   height: 15vh;
@@ -210,9 +210,8 @@ ion-label {
   --border-radius: 2vw;
   width: 92vw;
   height: 5vh;
-  position: absolute;
-  bottom: 1vh;
   margin: 4vw 0;
+  margin-top: 7vh;
   --background-activated : #D82727;
   --color-activated : white;
   font-size: 4vw;
