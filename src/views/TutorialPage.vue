@@ -1,7 +1,57 @@
 <template>
   <ion-page>
     <ion-content :fullscreen="true">
-      <img src="/assets/drawable/mona_logo_med.png" alt="MONA logo" />
+      <p
+          v-if="!(pageNumber === 2 || pageNumber === 9)"
+          :class="(pageNumber > 2 && pageNumber < 9) ? 'toTopRight' : 'toBottomLeft'"
+          @click="returnBack"
+          id="passer"
+      >
+        PASSER
+      </p>
+      <ion-progress-bar class="progressBarTutorial"
+                        v-if="!(pageNumber === 1 || pageNumber === 9)"
+                        :value="(pageNumber / 9).toFixed(2)"
+      ></ion-progress-bar>
+
+      <div
+        class="page"
+        @click="
+          !(pageNumber === 1 || pageNumber === 9) ? pageNumber++ : pageNumber
+        "
+      >
+        <div class="tutorialHeader">
+          <img src="/assets/drawable/mona_logo_med.png" alt="MONA logo"/>
+          <p class="tutorialTitle">
+            {{
+                pageNumber === 1
+                ? "Bienvenue dans le tutoriel"
+                : pageNumber < 9
+                    ? "Découvrez l'art qui vous entoure"
+                    : "C’est parti!"
+            }}
+          </p>
+      </div>
+<!--        <img
+          class="background-blurred"
+          :src="`./assets/drawable/tutorial/page ${pageNumber}.svg`"
+        />-->
+
+        <div v-if="!(pageNumber===9)" :style="{height: pageNumber===1 ? '45.5vh' :  '55.4vh'}" class="tutorial_content">
+          <img v-if="pageNumber!==9" :style="{height: pageNumber===1 ? '45.5vh' :  '55.4vh'}" :src="`./assets/drawable/tutorial/page ${pageNumber}.svg`" alt="tutorial background content"/>
+          <img v-if="pageNumber===3" :src="`./assets/drawable/tutorial/page 3 photo.jpeg`" alt="page 3 photo">
+          <img v-if="pageNumber===4" :src="`./assets/drawable/tutorial/page 4 photo.png`" alt="page 4 photo">
+          <img v-if="pageNumber===6" :src="`./assets/drawable/tutorial/page 6 photo.png`" alt="page 6 photo">
+          <img v-if="pageNumber===7" :src="`./assets/drawable/tutorial/page 7 photo.png`" alt="page 7 photo">
+          <img v-if="pageNumber===8" :src="`./assets/drawable/tutorial/page 8 photo.png`" alt="page 8 photo">
+        </div>
+        <img v-if="pageNumber===9" :src="`./assets/drawable/tutorial/page 9 photo.png`" alt="page 9 photo">
+
+        </div>
+
+      <p v-if="pageNumber===9" id="termsAndConditions">En poursuivant, vous indiquez que vous avez lu et compris
+        <a href="https://monamontreal.org/politique-confidentialite.html" class="underline">les conditions d’utilisation</a>
+        et que vous acceptez de les respecter pour utiliser l'application.</p>
       <ion-button
           @click="nextSlide"
           v-if="pageNumber === 1 || pageNumber === 9"
@@ -15,52 +65,6 @@
             :icon="chevronForwardOutline"
         ></ion-icon>
       </ion-button>
-      <div
-        class="page"
-        @click="
-          !(pageNumber === 1 || pageNumber === 9) ? pageNumber++ : pageNumber
-        "
-      >
-        <p id="tutorialTitle">
-          {{
-            pageNumber === 1
-              ? "Bienvenue dans le tutoriel"
-              : pageNumber < 9
-                ? "Découvrez l'art qui vous entoure"
-                : "C’est parti!"
-          }}
-        </p>
-        <p
-          v-if="!(pageNumber === 2 || pageNumber === 9)"
-          :style="{
-            bottom: pageNumber > 2 && pageNumber < 9 ? '90vh' : '4.8vh',
-            left: pageNumber > 2 && pageNumber < 9 ? '78vw' : '11vw',
-          }"
-          @click="returnBack"
-          id="passer"
-        >
-          PASSER
-        </p>
-
-<!--        <img
-          class="background-blurred"
-          :src="`./assets/drawable/tutorial/page ${pageNumber}.svg`"
-        />-->
-        <ion-progress-bar class="progressBarTutorial"
-          v-if="!(pageNumber === 1 || pageNumber === 9)"
-          :value="(pageNumber / 9).toFixed(2)"
-        ></ion-progress-bar>
-        <div class="content"
-        :style="{height: pageNumber===1 ? '45.5vh' : (pageNumber === 9 ? '50vh' : '55.4vh'),
-        width: pageNumber === 9 ? '50vw' : '92vw', left: pageNumber === 9 ? '25vw' : '3.9vw',
-        top: pageNumber===9 ? '25vh' : '31vh'}">
-          <img v-if="pageNumber!==9" :src="`./assets/drawable/tutorial/page ${pageNumber}.svg`" alt="tutorial content"/>
-          <img v-if="pageNumber===3" :src="`./assets/drawable/tutorial/map_example.png`" alt="map example">
-          <img v-if="pageNumber===4" :src="`./assets/drawable/tutorial/nearest_discoveries_example.png`" alt="example closest discoveries app photo">
-          <img v-if="pageNumber===9" :style="{borderRadius: '4vw'}" :src="`./assets/drawable/tutorial/closest_discoveries_fullscreen.PNG`" alt="example closest discoveries fullscreen app photo">
-        </div>
-        <p v-if="pageNumber===9" id="termsAndConditions">En poursuivant, vous indiquez que vous avez lu et compris <span class="underline">les conditions d’utilisation</span> et que vous acceptez de les respecter pour utiliser l'application.</p>
-        </div>
     </ion-content>
   </ion-page>
 </template>
@@ -116,7 +120,13 @@ export default {
 
 <style scoped>
 
+* {
+  margin: 0;
+  padding: 0;
+}
+
 .underline {
+  color: black;
   text-decoration: underline;
   text-underline-offset: 0.3vw;
 }
@@ -130,14 +140,12 @@ export default {
   text-align: center;
 }
 
-.content {
-  position: absolute;
-  background: white;
+.tutorial_content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 92vw;
-  left: 3.9vw;
-  height: 45.5vh;
-  top: 28vh;
-  border-radius: 7vw;
 }
 
 ion-progress-bar.progressBarTutorial {
@@ -155,50 +163,54 @@ ion-progress-bar.progressBarTutorial {
   --background: #F3F2F7;
   --progress-background: #171C4F;
 }
-
 ion-progress-bar::part(progress) {
   border-radius: 90vw;
 }
 
-#tutorialTitle {
-  position: absolute;
+.tutorialTitle {
+  /*position: absolute;
   top: 13.4vh;
-  left: 7.7vw;
+  left: 7.7vw;*/
   font-size: 9.7vw;
-  font-weight: bold;
+  font-weight: 500;
   z-index: 3;
 }
 
-img[alt="MONA logo"] {
-  position: absolute;
-  left: 4vw;
-  top: 7vh;
-  max-width: 35vw;
-  max-height: 4vh;
-  z-index: 3;
-}
-
-* {
-  margin: 0;
-  padding: 0;
+ion-content {
+  --background: none;
+  background: linear-gradient(#dadcf1, #b5bae3);
 }
 
 div.page {
-  overflow: hidden;
+
+  /*overflow: hidden;
   height: 100%;
   width: 100%;
-  background: linear-gradient(#dadcf1, #b5bae3);
+  background: linear-gradient(#dadcf1, #b5bae3);*/
+  padding: 3vh 4vw;
+}
+.ios div.page {
+  padding: 0 4vw;
+  padding-top: 6vh;
 }
 
 #passer {
   position: absolute;
   color: black;
   left: 11vw;
+  bottom: 4.8vh;
   z-index: 3;
   font-size: 4.3vw;
   font-weight: bold;
   text-decoration: underline;
   text-underline-offset: 0.1em;
+}
+#passer.toTopRight {
+  bottom: 94vh;
+  left: 78vw;
+}
+.ios #passer.toTopRight {
+  bottom: 91vh;
 }
 
 ion-button {
@@ -216,31 +228,77 @@ ion-button {
   font-size: 4vw;
 }
 
-img {
+.tutorialHeader {
+  padding: 0 4vw;
+  margin-right: 4.8vw;
+  margin-bottom: 8vh;
+}
+
+img[alt="MONA logo"] {
+  margin-bottom: 2.7vh;
+  max-width: 30vw;
+  max-height: 4vh;
+  z-index: 3;
+}
+
+img[alt="page 9 photo"] {
+  border-radius: 4vw;
+  height: 50vh;
   position: absolute;
-  object-fit: contain;
-  z-index: 2;
+  top:0;
   bottom: 0;
+  left: 0;
+  right: 0;
+
+  margin: auto;
 }
 
-img[alt="example closest discoveries fullscreen app photo"] {
-  object-fit: contain;
-  overflow: hidden;
+
+img[alt="page 8 photo"] {
+  margin: 0 5.8vw;
+  position: absolute;
+  margin-top: 51%;
+  height: 51%;
+  border-radius: 4vw;
+  border: 1px solid #BFBFBF;
 }
 
-img[alt="example closest discoveries app photo"] {
-  left: 5.8vw;
-  top: 10vh;
-  width: 81vw;
+img[alt="page 7 photo"] {
+  margin: 5% 5.8vw;
+  position: absolute;
+  margin-top: 55%;
+  height: 49%;
+  border-radius: 4vw;
+  border: 1px solid #BFBFBF;
+}
+
+img[alt="page 6 photo"] {
+  margin: 5% 5.8vw;
+  position: absolute;
+  margin-top: 40%;
+  height: 60%;
   border-radius: 4vw;
 }
 
-img[alt="map example"] {
-  width: 81vw;
-  left: 5.8vw;
-  bottom: 5vh;
-  height: 24vh;
+img[alt="page 4 photo"] {
+  margin: 0 5.8vw;
+  position: absolute;
+  margin-top: 11%;
+  height: 78%;
   border-radius: 4vw;
+}
+
+img[alt="page 3 photo"] {
+  height: 43%;
+  margin: 0 5.8vw;
+  position: absolute;
+  margin-top: 50%;
+  border-radius: 4vw;
+}
+
+img[alt="tutorial background content"] {
+  width: 92vw;
+  z-index: 0;
 }
 
 img.background-blurred {
