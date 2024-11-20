@@ -78,7 +78,6 @@
             <span class="details title">{{ discovery.getTitle() }}</span>
           </div>
 
-          <hr class="separating-bar" />
 
           <div id="artistsAndDate">
             <!-- Artists or usages -->
