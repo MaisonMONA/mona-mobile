@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>$(PRODUCT_NAME) photo use</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>CFBundleDevelopmentRegion</key>
@@ -27,13 +25,15 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>$(PRODUCT_NAME) camera use</string>
+	<string>Autoriser l&apos;accès à la caméra pour photographier vos découvertes.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Autoriser l'accès à la géolocalisation pour trouver des découvertes à proximité.</string>
+	<string>Autoriser l&apos;accès à la géolocalisation pour trouver des découvertes à proximité.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Autoriser l'accès à la géolocalisation pour trouver des découvertes à proximité.</string>
+	<string>Autoriser l&apos;accès à la géolocalisation pour trouver des découvertes à proximité.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>$(PRODUCT_NAME) photo use</string>
+	<string>Autoriser l&apos;accès aux fichiers pour ajouter vos photographies.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Autoriser l&apos;accès aux fichiers pour enregistrer vos photographies.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
