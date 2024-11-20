@@ -29,9 +29,9 @@
 	<key>NSCameraUsageDescription</key>
 	<string>$(PRODUCT_NAME) camera use</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>$(PRODUCT_NAME) location use</string>
+	<string>Autoriser l'accès à la géolocalisation pour trouver des découvertes à proximité.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>$(PRODUCT_NAME) location use</string>
+	<string>Autoriser l'accès à la géolocalisation pour trouver des découvertes à proximité.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>$(PRODUCT_NAME) photo use</string>
 	<key>UILaunchStoryboardName</key>
