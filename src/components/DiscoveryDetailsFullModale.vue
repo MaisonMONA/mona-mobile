@@ -188,7 +188,7 @@
           <div v-if="activeTab === 'aPropos'" class="descriptionTab aProposTab">
             <p id="aProposText" v-if="details3">{{ details3 }}</p>
             <p v-if="!details3" style="color: grey; font-style: italic;">Pas d’information complémentaire disponible en ce moment.</p>
-<!--            <span id="discoveryURL" v-if="details13">Site web de la découverte: <a  :href=details13> {{ details13 }} </a></span>-->
+            <span id="discoveryURL" v-if="details13"><a  :href=details13> Pour en savoir plus <ion-icon :icon="`/assets/drawable/icons/url_icon.svg`"></ion-icon></a></span>
 
           </div>
 
@@ -534,7 +534,7 @@ export default {
         .create({
           message: toastMessage,
           duration: 2000,
-          position: "bottom",
+          position: "top",
         })
         .then((toast) => toast.present());
     },
@@ -789,12 +789,19 @@ ion-button {
   margin: 0 0.61vw 0 0;
 }
 
-#discoveryURL {
-  font-weight: bold;
+#discoveryURL a {
+  font-size: 3.4vw;
+  color: #333333;
+}
+
+#discoveryURL ion-icon {
+  margin-left: 0.5em;
+  vertical-align: -0.2em;
 }
 
 a {
-  color: steelblue;
+  text-underline-offset: 2px;
+  color: black;
   font-weight: normal;
 }
 </style>

@@ -360,7 +360,7 @@ export default {
         .create({
           message: toastMessage,
           duration: 2000,
-          position: "bottom",
+          position: "top",
         })
         .then((toast) => toast.present());
     },
