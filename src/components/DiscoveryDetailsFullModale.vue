@@ -583,7 +583,10 @@ export default {
   border-radius: 1.9vw;
 }
 #showImgModale div ion-button {
-  position:absolute; top:6vh; right:4vw; --border-radius:50%; height: 12vw; width: 12vw;
+  position:absolute; top:1.8vh; right:4vw; --border-radius:50%; height: 12vw; width: 12vw;
+}
+.ios #showImgModale div ion-button {
+  top:6vh;
 }
 #showImgModale div ion-button ion-icon {
   font-size:3.4vw;
