@@ -98,6 +98,17 @@
           <ion-img id="userPhotoFullModale"></ion-img>
         </div>
 
+        <!-- Show full image modale -->
+        <ion-modal id="showImgModale" :is-open="isShowImgModalOpen" @didDismiss="isShowImgModalOpen = false">
+          <div>
+            <ion-button @click="isShowImgModalOpen=false" fill="default" shape="round">
+              <ion-icon slot="icon-only" :icon="`./assets/drawable/icons/navigation_close.svg`"></ion-icon>
+            </ion-button>
+            <img :src="fullModaleUserImage.src" alt="full modale user image" />
+          </div>
+        </ion-modal>
+        <!-- Show full image modale -->
+
         <div class="segments">
           <ion-segment value="details" v-model="activeTab">
             <ion-segment-button value="details">
@@ -259,8 +270,8 @@
 import {
   IonButton,
   IonContent,
+  IonModal,
   IonIcon,
-  IonPage,
   IonLabel,
   IonImg,
   toastController,
@@ -285,7 +296,7 @@ export default {
   },
 
   components: {
-    IonPage,
+    IonModal,
     IonContent,
     IonIcon,
     IonLabel,
@@ -402,6 +413,8 @@ export default {
       details12,
       details13,
       details14,
+      isShowImgModalOpen: false,
+      fullModaleUserImage : document.getElementById("userPhotoFullModale"),
     };
   },
 
@@ -445,8 +458,8 @@ export default {
           userImg.src = url;
 
           // Enable image opening
-          // TODO uncomment line below after implementing showImg
-          // userImg.onclick = this.showImg;
+          this.fullModaleUserImage = document.getElementById("userPhotoFullModale");
+          userImg.onclick = this.showImg;
         });
       }
 
@@ -493,6 +506,7 @@ export default {
       }
 
       // Enable image opening
+      this.fullModaleUserImage = document.getElementById("userPhotoFullModale")
       userImg.onclick = this.showImg;
 
       const filename = await Utils.savePicture(img);
@@ -538,7 +552,8 @@ export default {
     },
 
     showImg() {
-      // TODO
+      this.fullModaleUserImage = document.getElementById("userPhotoFullModale");
+      this.isShowImgModalOpen = true;
     },
     getComment() {
       const userData = UserData.getCollected(
@@ -560,6 +575,20 @@ export default {
 </script>
 
 <style scoped>
+
+#showImgModale div {
+  padding: 0 4vw; height: 100%; background: black; display: flex; justify-content: center; align-items: center;
+}
+#showImgModale div img {
+  border-radius: 1.9vw;
+}
+#showImgModale div ion-button {
+  position:absolute; top:6vh; right:4vw; --border-radius:50%; height: 12vw; width: 12vw;
+}
+#showImgModale div ion-button ion-icon {
+  font-size:3.4vw;
+}
+
 div.discoveryDetailsContainer {
   overscroll-behavior: none;
 }
@@ -741,9 +770,7 @@ ion-button {
 }
 
 #aProposText {
-  overflow-y: scroll;
   line-height: 22px;
-  max-height: 38.4vh;
 }
 
 .detailsSubTitle {
