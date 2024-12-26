@@ -2,8 +2,12 @@
 
 /* Selected pin discovery details modal */
 #discoveryDetailsModal {
+    --height: auto;
     --border-radius: 16px;
     /*height: 90vh; --makes nav bar visible! */
+}
+#discoveryDetailsFullModal {
+    --border-radius: 16px;
 }
 /* Selected pin discovery details modal */
 

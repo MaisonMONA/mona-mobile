@@ -129,18 +129,16 @@
     id="discoveryDetailsModal"
     :is-open="discoveryDetailsModalOpen"
     @didDismiss="this.unfocusDiscovery"
-    :breakpoints="[0.663, 0.79]"
-    :initial-breakpoint="0.663"
+    :breakpoints="[0, .9]"
+    :initial-breakpoint=".9"
     :show-backdrop="false"
   >
-    <ion-content>
       <discovery-details
         :selected-discovery="currentSelectedDiscovery"
         @view-full-details="
           openDiscoveryDetailsFullModale(currentSelectedDiscovery)
         "
       />
-    </ion-content>
   </ion-modal>
   <!-- Selected pin discovery details modal -->
 
@@ -149,18 +147,16 @@
     id="discoveryDetailsFullModal"
     :is-open="discoveryDetailsFullModalOpen"
     @didDismiss="discoveryDetailsFullModalOpen = false"
-    :breakpoints="[0.5, 0.976]"
-    :initial-breakpoint="0.976"
+    :breakpoints="[0, 1]"
+    :initial-breakpoint="1"
     :show-backdrop="true"
   >
-    <ion-content>
       <discovery-details-full-modale
         :selected-discovery="listSelectedDiscovery"
         @close-discovery-details-full-modale="
           discoveryDetailsFullModalOpen = false
         "
       />
-    </ion-content>
   </ion-modal>
   <!-- Selected discovery full details modal -->
 </template>

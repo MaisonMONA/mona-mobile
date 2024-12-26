@@ -1,6 +1,4 @@
 <template>
-  <ion-page>
-    <ion-content>
       <div class="discoveryDetailsContainer">
         <div class="discoverydetails">
           <div class="chipsContainer">
@@ -136,8 +134,6 @@
           PHOTOGRAPHIER
         </ion-button>
       </div>
-    </ion-content>
-  </ion-page>
 </template>
 
 <script>
@@ -373,6 +369,10 @@ export default {
 </script>
 
 <style scoped>
+div.discoveryDetailsContainer {
+  padding-bottom: 10vh;
+}
+
 .chipsContainer {
   position: relative;
   right: 2vw;

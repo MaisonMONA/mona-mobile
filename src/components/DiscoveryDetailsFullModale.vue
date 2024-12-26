@@ -1,6 +1,5 @@
 <template>
-  <ion-page>
-    <ion-content>
+  <ion-content>
       <div class="discoveryDetailsContainer">
         <div class="discoverydetails">
           <div class="chipsContainer">
@@ -253,8 +252,7 @@
           PHOTOGRAPHIER
         </ion-button>
       </div>
-    </ion-content>
-  </ion-page>
+  </ion-content>
 </template>
 
 <script>
@@ -562,6 +560,10 @@ export default {
 </script>
 
 <style scoped>
+div.discoveryDetailsContainer {
+  overscroll-behavior: none;
+}
+
 .chipsContainer {
   position: relative;
   right: 2vw;
@@ -741,7 +743,7 @@ ion-button {
 #aProposText {
   overflow-y: scroll;
   line-height: 22px;
-  height: 38.4vh;
+  max-height: 38.4vh;
 }
 
 .detailsSubTitle {
