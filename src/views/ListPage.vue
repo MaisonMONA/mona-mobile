@@ -755,9 +755,10 @@ ion-modal {
 }
 
 #refresh-button {
-  position: fixed;
+  float: right;
+  right: 3vw;
+  position: sticky;
   z-index: 2;
-  right: 10px;
   color: #7f7f7f;
   bottom: 10px;
   --background: var(--toolbar-purple);
