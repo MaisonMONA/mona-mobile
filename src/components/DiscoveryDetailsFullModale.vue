@@ -1,6 +1,5 @@
 <template>
-  <ion-page>
-    <ion-content>
+  <ion-content>
       <div class="discoveryDetailsContainer">
         <div class="discoverydetails">
           <div class="chipsContainer">
@@ -99,6 +98,17 @@
           <ion-img id="userPhotoFullModale"></ion-img>
         </div>
 
+        <!-- Show full image modale -->
+        <ion-modal id="showImgModale" :is-open="isShowImgModalOpen" @didDismiss="isShowImgModalOpen = false">
+          <div>
+            <ion-button @click="isShowImgModalOpen=false" fill="default" shape="round">
+              <ion-icon slot="icon-only" :icon="`./assets/drawable/icons/navigation_close.svg`"></ion-icon>
+            </ion-button>
+            <img :src="fullModaleUserImage.src" alt="full modale user image" />
+          </div>
+        </ion-modal>
+        <!-- Show full image modale -->
+
         <div class="segments">
           <ion-segment value="details" v-model="activeTab">
             <ion-segment-button value="details">
@@ -188,7 +198,7 @@
           <div v-if="activeTab === 'aPropos'" class="descriptionTab aProposTab">
             <p id="aProposText" v-if="details3">{{ details3 }}</p>
             <p v-if="!details3" style="color: grey; font-style: italic;">Pas d’information complémentaire disponible en ce moment.</p>
-<!--            <span id="discoveryURL" v-if="details13">Site web de la découverte: <a  :href=details13> {{ details13 }} </a></span>-->
+            <span id="discoveryURL" v-if="details13"><a  :href=details13> Pour en savoir plus <ion-icon :icon="`/assets/drawable/icons/url_icon.svg`"></ion-icon></a></span>
 
           </div>
 
@@ -253,16 +263,15 @@
           PHOTOGRAPHIER
         </ion-button>
       </div>
-    </ion-content>
-  </ion-page>
+  </ion-content>
 </template>
 
 <script>
 import {
   IonButton,
   IonContent,
+  IonModal,
   IonIcon,
-  IonPage,
   IonLabel,
   IonImg,
   toastController,
@@ -287,7 +296,7 @@ export default {
   },
 
   components: {
-    IonPage,
+    IonModal,
     IonContent,
     IonIcon,
     IonLabel,
@@ -404,6 +413,8 @@ export default {
       details12,
       details13,
       details14,
+      isShowImgModalOpen: false,
+      fullModaleUserImage : document.getElementById("userPhotoFullModale"),
     };
   },
 
@@ -447,8 +458,8 @@ export default {
           userImg.src = url;
 
           // Enable image opening
-          // TODO uncomment line below after implementing showImg
-          // userImg.onclick = this.showImg;
+          this.fullModaleUserImage = document.getElementById("userPhotoFullModale");
+          userImg.onclick = this.showImg;
         });
       }
 
@@ -495,6 +506,7 @@ export default {
       }
 
       // Enable image opening
+      this.fullModaleUserImage = document.getElementById("userPhotoFullModale")
       userImg.onclick = this.showImg;
 
       const filename = await Utils.savePicture(img);
@@ -534,13 +546,14 @@ export default {
         .create({
           message: toastMessage,
           duration: 2000,
-          position: "bottom",
+          position: "top",
         })
         .then((toast) => toast.present());
     },
 
     showImg() {
-      // TODO
+      this.fullModaleUserImage = document.getElementById("userPhotoFullModale");
+      this.isShowImgModalOpen = true;
     },
     getComment() {
       const userData = UserData.getCollected(
@@ -562,6 +575,27 @@ export default {
 </script>
 
 <style scoped>
+
+#showImgModale div {
+  padding: 0 4vw; height: 100%; background: black; display: flex; justify-content: center; align-items: center;
+}
+#showImgModale div img {
+  border-radius: 1.9vw;
+}
+#showImgModale div ion-button {
+  position:absolute; top:1.8vh; right:4vw; --border-radius:50%; height: 12vw; width: 12vw;
+}
+.ios #showImgModale div ion-button {
+  top:6vh;
+}
+#showImgModale div ion-button ion-icon {
+  font-size:3.4vw;
+}
+
+div.discoveryDetailsContainer {
+  overscroll-behavior: none;
+}
+
 .chipsContainer {
   position: relative;
   right: 2vw;
@@ -739,9 +773,7 @@ ion-button {
 }
 
 #aProposText {
-  overflow-y: scroll;
   line-height: 22px;
-  height: 38.4vh;
 }
 
 .detailsSubTitle {
@@ -789,12 +821,19 @@ ion-button {
   margin: 0 0.61vw 0 0;
 }
 
-#discoveryURL {
-  font-weight: bold;
+#discoveryURL a {
+  font-size: 3.4vw;
+  color: #333333;
+}
+
+#discoveryURL ion-icon {
+  margin-left: 0.5em;
+  vertical-align: -0.2em;
 }
 
 a {
-  color: steelblue;
+  text-underline-offset: 2px;
+  color: black;
   font-weight: normal;
 }
 </style>

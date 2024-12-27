@@ -1,6 +1,4 @@
 <template>
-  <ion-page>
-    <ion-content>
       <div class="discoveryDetailsContainer">
         <div class="discoverydetails">
           <div class="chipsContainer">
@@ -78,7 +76,6 @@
             <span class="details title">{{ discovery.getTitle() }}</span>
           </div>
 
-          <hr class="separating-bar" />
 
           <div id="artistsAndDate">
             <!-- Artists or usages -->
@@ -137,8 +134,6 @@
           PHOTOGRAPHIER
         </ion-button>
       </div>
-    </ion-content>
-  </ion-page>
 </template>
 
 <script>
@@ -361,7 +356,7 @@ export default {
         .create({
           message: toastMessage,
           duration: 2000,
-          position: "bottom",
+          position: "top",
         })
         .then((toast) => toast.present());
     },
@@ -374,6 +369,10 @@ export default {
 </script>
 
 <style scoped>
+div.discoveryDetailsContainer {
+  padding-bottom: 10vh;
+}
+
 .chipsContainer {
   position: relative;
   right: 2vw;
