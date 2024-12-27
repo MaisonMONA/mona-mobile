@@ -1,0 +1,33 @@
+/* src/global.css */
+
+/* Difficult to modify ion-searchbar's style, so this is to override Ionic's ion-searchbar's style */
+ion-searchbar#listIonSearchBar {
+    margin-right: 1.3vw;
+}
+
+ion-searchbar#listIonSearchBar input.searchbar-input {
+    border: 1px solid #E6E6E6 !important;
+    font-size: 3.8vw !important;
+    /* for space in searchbar */
+    padding: 2.5vw 0 2.5vw 9.6vw !important;
+}
+.ios ion-searchbar#listIonSearchBar input.searchbar-input {
+    /* for space in searchbar */
+    padding-top: 3.7vw !important;
+    padding-bottom: 3.7vw !important;
+}
+ion-searchbar#listIonSearchBar input.searchbar-input::placeholder {
+    color: black !important;
+    opacity: 1 !important;
+}
+
+ion-searchbar#listIonSearchBar .searchbar-search-icon {
+    top: 28% !important; /* for vertical centering */
+    height: 5vw !important;
+    width: 5vw !important;
+}
+.ios ion-searchbar#listIonSearchBar .searchbar-search-icon {
+    /* for centering */
+    top: 31% !important;
+    margin-left: 2vw !important;
+}

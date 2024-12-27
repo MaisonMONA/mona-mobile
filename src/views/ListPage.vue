@@ -6,10 +6,9 @@
         <div id="searchbarAndFilterButton">
         <!-- triggerTextFilter function triggered each 500 ms when search bar value changes -->
         <ion-searchbar
-            id="searchbarCustom"
-          class="custom"
+          id="listIonSearchBar"
           show-clear-button="always"
-          placeholder="Rechercher par titre"
+          placeholder="Rechercher par titre de découverte"
           @ion-clear="triggerTextFilter('')"
           @ionInput="triggerTextFilter($event.target.value)"
           @keydown.enter="triggerTextFilter($event.target.value)"
@@ -599,23 +598,25 @@ ion-col {
 }
 
 #searchbarAndFilterButton {
-  padding-top: 15%;
+  padding-top: 6%;
   display: flex;
   align-items: center;
+  margin-left: 4vw;
+}
+.ios #searchbarAndFilterButton {
+  padding-top: 15%;
 }
 
-ion-searchbar#searchbarCustom.custom {
+/* Also modified in global.css*/
+ion-searchbar#listIonSearchBar {
   --background: white;
   --placeholder-color: black;
   --icon-color: black;
   --placeholder-font-style: italic;
-  --border-radius: 4px;
-  --padding-left: 3vw;
+  --border-radius: 2vw;
   --box-shadow: none;
-  width: 78vw;
-  margin-left: 3vw;
-  margin-right: 3vw;
-  background: white;
+  padding: 0;
+  width: 79vw;
   border-radius: 4px;
 }
 
