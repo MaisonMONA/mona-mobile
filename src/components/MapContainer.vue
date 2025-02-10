@@ -520,7 +520,8 @@ export default {
       return [style];
     },
 
-    // Makes selected discovery pin bigger, makes it red, and re-establishes former selected pin's size
+    // Makes selected discovery pin bigger, makes it red, makes it appear on top of the other pins, 
+    // and re-establishes former selected pin's size
     highlightSelectedDiscoveryPin(selectedPinDiscovery) {
       // if there was a selected pin before, make former selected pin back to normal scale
       if (this.formerSelectedPinFeature) {
