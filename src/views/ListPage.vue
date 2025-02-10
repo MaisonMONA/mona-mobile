@@ -571,6 +571,8 @@ div.main-content {
 
 ion-list {
   background: #f3f2f7;
+  /* To override ionic setting margin-top to 16px, since padding-bottom was added to the search bar */
+  margin-top: 12px!important;
 }
 
 #list {
@@ -598,10 +600,18 @@ ion-col {
 }
 
 #searchbarAndFilterButton {
+  background: #f3f2f7;
   padding-top: 6%;
   display: flex;
   align-items: center;
-  margin-left: 4vw;
+  padding-left: 4vw;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding-bottom: 1%;
+  /* To prevent thin white line from appearing in-between the search bar and the list
+    due to fractional pixel gap. */
+  border-bottom: 1px solid #f3f2f7;
 }
 .ios #searchbarAndFilterButton {
   padding-top: 15%;
