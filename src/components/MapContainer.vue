@@ -542,6 +542,7 @@ export default {
           src: `./assets/drawable/pins/selected_pin.svg`,
           scale: 0.83, // Augment selected pin size
         }),
+        zIndex: 2, // Ensures selected pin appears on top
       });
       selectedFeature.setStyle(selectedPinStyle);
 
