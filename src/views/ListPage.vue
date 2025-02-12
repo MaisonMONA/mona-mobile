@@ -572,7 +572,7 @@ div.main-content {
 ion-list {
   background: #f3f2f7;
   /* To override ionic setting margin-top to 16px, since padding-bottom was added to the search bar */
-  margin-top: 12px!important;
+  margin-top: 3%!important;
 }
 
 #list {
