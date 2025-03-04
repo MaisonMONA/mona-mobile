@@ -277,6 +277,10 @@ export default {
       currentSelectedDiscovery: null,
       discoveryDetailsModalOpen: false,
       isPermissionDenied: true,
+      userLocationLayer: null,
+      locationAccuracyLayer: null,
+      userPointFeature: null,
+      locationUpdateInterval: null,
       mapPinsLayer: null,
       lat2: UserData.getLocation()[1],
       lng2: UserData.getLocation()[0],
@@ -551,8 +555,17 @@ export default {
     },
 
     showLocation() {
-      //User location accuracy radius in meters (transparent blue circle)
-      const locationAccuracyLayer = new VectorLayer({
+      // Remove existing layers if they exist
+      if (this.locationAccuracyLayer) {
+        this.mainMap.removeLayer(this.locationAccuracyLayer);
+      }
+      
+      if (this.userLocationLayer) {
+        this.mainMap.removeLayer(this.userLocationLayer);
+      }
+
+      // User location accuracy radius in meters (transparent blue circle)
+      this.locationAccuracyLayer = new VectorLayer({
         source: new VectorSource(),
         style: [
           new Style({
@@ -562,15 +575,17 @@ export default {
           }),
         ],
       });
-      locationAccuracyLayer.getSource().addFeature(
+      
+      this.locationAccuracyLayer.getSource().addFeature(
         new Feature({
           geometry: circular(UserData.getLocation(), UserData.getAccuracy()),
-        }),
+        })
       );
-      this.mainMap.addLayer(locationAccuracyLayer);
+      
+      this.mainMap.addLayer(this.locationAccuracyLayer);
 
-      //User location icon (blue opaque circle with white outline)
-      const userLocationLayer = new VectorLayer({
+      // User location icon (blue opaque circle with white outline)
+      this.userLocationLayer = new VectorLayer({
         source: new VectorSource(),
         style: [
           // Trying to put a slight shadow behind user location image to see it better on the map
@@ -596,22 +611,34 @@ export default {
           }),
         ],
       });
-      const userPointFeature = new Feature({
+      
+      this.userPointFeature = new Feature({
         geometry: new Point(UserData.getLocation()),
       });
-      userLocationLayer.getSource().addFeature(userPointFeature);
-      this.mainMap.addLayer(userLocationLayer);
+      
+      this.userLocationLayer.getSource().addFeature(this.userPointFeature);
+      this.mainMap.addLayer(this.userLocationLayer);
 
       // Update location and accuracy radius every 5 seconds
-      setInterval(() => {
-        userPointFeature.getGeometry().setCoordinates(UserData.getLocation());
-        locationAccuracyLayer
-          .getSource()
-          .getFeatures()[0]
-          .setGeometry(
-            circular(UserData.getLocation(), UserData.getAccuracy()),
-          );
+      clearInterval(this.locationUpdateInterval); // Clear any existing interval
+      this.locationUpdateInterval = setInterval(() => {
+        if (this.userPointFeature && this.locationAccuracyLayer) {
+          this.userPointFeature.getGeometry().setCoordinates(UserData.getLocation());
+          const accuracyFeature = this.locationAccuracyLayer.getSource().getFeatures()[0];
+          if (accuracyFeature) {
+            accuracyFeature.setGeometry(
+              circular(UserData.getLocation(), UserData.getAccuracy())
+            );
+          }
+        }
       }, 5000);
+    },
+
+    beforeDestroy() {
+      // Clean up interval when component is destroyed
+      if (this.locationUpdateInterval) {
+       clearInterval(this.locationUpdateInterval);
+      }
     },
 
     // Handles click on the map
