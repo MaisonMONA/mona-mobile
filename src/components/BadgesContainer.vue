@@ -1,8 +1,6 @@
 <template v-if="badgesCollectionsStore.countCollection.length">
   <div class="main-container">
-    <div
-      style="display: flex; justify-content: space-between; align-items: center"
-    >
+    <div style="display: flex; justify-content: space-between; align-items: center">
       <h1 style="margin-top: 0">Nombre de découvertes</h1>
       <span>{{
         nbrCountUnlocked + "/" + badgesCollectionsStore.countCollection.length
@@ -26,90 +24,101 @@
       </swiper-slide>
     </swiper>
 
-    <h1>Catégories</h1>
-    <ion-row
-      v-for="elem in badgesCollectionsStore.categoryCollection"
-      :key="elem"
-      class="ion-margin-bottom ion-margin-top border"
-    >
-      <ion-col size="auto">
-        <img :alt="elem.message" :src="elem.src" />
-      </ion-col>
-      <ion-col>
-        <div class="container_progression">
-          <ion-label>{{ elem.title.fr }}</ion-label>
-          <div class="progressBar ion-margin-top">
-            <span class="ion-margin-end"
-                  :style="{color: elem.count >= elem.requireCount ? '#facc00' : 'black'}">{{
-              elem.count >= elem.requireCount ? "Complété!" : elem.count + "/" + elem.requireCount
-            }}</span>
-            <ion-progress-bar
-               v-if="elem.count < elem.requireCount"
-              :value="(elem.count / elem.requireCount).toFixed(2)"
-            ></ion-progress-bar>
-          </div>
-        </div>
-      </ion-col>
-    </ion-row>
-
-    <h1>Quartiers</h1>
-    <ion-row
-      v-for="elem in badgesCollectionsStore.boroughCollection"
-      :key="elem"
-      class="ion-margin-bottom ion-margin-top border"
-    >
-      <ion-col size="auto">
-        <img :alt="elem.message" :src="elem.src" />
-      </ion-col>
-      <ion-col>
-        <div class="container_progression">
-          <ion-label>{{ elem.title }}</ion-label>
-          <div class="progressBar ion-margin-top">
-            <span class="ion-margin-end"
-                :style="{color: elem.count >= elem.requireCount ? '#facc00' : 'black'}">{{
+    <div class="section-header" @click="toggleCategories">
+      <h1>Catégories</h1>
+      <ion-icon :icon="showCategories ? chevronUpOutline : chevronDownOutline"></ion-icon>
+    </div>
+    <div v-if="showCategories">
+      <ion-row
+        v-for="elem in badgesCollectionsStore.categoryCollection"
+        :key="elem"
+        class="ion-margin-bottom ion-margin-top border"
+      >
+        <ion-col size="auto">
+          <img :alt="elem.message" :src="elem.src" />
+        </ion-col>
+        <ion-col>
+          <div class="container_progression">
+            <ion-label>{{ elem.title.fr }}</ion-label>
+            <div class="progressBar ion-margin-top">
+              <span class="ion-margin-end"
+                    :style="{color: elem.count >= elem.requireCount ? '#facc00' : 'black'}">{{
                 elem.count >= elem.requireCount ? "Complété!" : elem.count + "/" + elem.requireCount
-            }}</span>
-            <ion-progress-bar
-               v-if="elem.count < elem.requireCount"
-              :value="(elem.count / elem.requireCount).toFixed(2)"
-            ></ion-progress-bar>
-          </div>
-        </div>
-      </ion-col>
-    </ion-row>
-    <ion-row
-      v-for="elem in badgesCollectionsStore.ownerCollection"
-      :key="elem"
-      class="ion-margin-bottom ion-margin-top border"
-    >
-      <ion-col size="auto">
-        <img :alt="elem.message" :src="elem.src" />
-      </ion-col>
-      <ion-col>
-        <div class="container_progression">
-          <ion-label>{{ elem.title }}</ion-label>
-          <div class="progressBar ion-margin-top">
-            <span class="ion-margin-end"
-                  :style="{color: elem.count >= elem.requireCount ? '#facc00' : 'black'}">{{
-                elem.count >= elem.requireCount ? "Complété!" : elem.count + "/" + elem.requireCount
-            }}</span>
-            <ion-progress-bar
+              }}</span>
+              <ion-progress-bar
                 v-if="elem.count < elem.requireCount"
-              :value="(elem.count / elem.requireCount).toFixed(2)"
-            ></ion-progress-bar>
+                :value="(elem.count / elem.requireCount).toFixed(2)"
+              ></ion-progress-bar>
+            </div>
           </div>
-        </div>
-      </ion-col>
-    </ion-row>
+        </ion-col>
+      </ion-row>
+    </div>
+
+    <div class="section-header" @click="toggleNeighborhoods">
+      <h1>Quartiers</h1>
+      <ion-icon :icon="showNeighborhoods ? chevronUpOutline : chevronDownOutline"></ion-icon>
+    </div>
+    <div v-if="showNeighborhoods">
+      <ion-row
+        v-for="elem in badgesCollectionsStore.boroughCollection"
+        :key="elem"
+        class="ion-margin-bottom ion-margin-top border"
+      >
+        <ion-col size="auto">
+          <img :alt="elem.message" :src="elem.src" />
+        </ion-col>
+        <ion-col>
+          <div class="container_progression">
+            <ion-label>{{ elem.title }}</ion-label>
+            <div class="progressBar ion-margin-top">
+              <span class="ion-margin-end"
+                  :style="{color: elem.count >= elem.requireCount ? '#facc00' : 'black'}">{{
+                  elem.count >= elem.requireCount ? "Complété!" : elem.count + "/" + elem.requireCount
+              }}</span>
+              <ion-progress-bar
+                v-if="elem.count < elem.requireCount"
+                :value="(elem.count / elem.requireCount).toFixed(2)"
+              ></ion-progress-bar>
+            </div>
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row
+        v-for="elem in badgesCollectionsStore.ownerCollection"
+        :key="elem"
+        class="ion-margin-bottom ion-margin-top border"
+      >
+        <ion-col size="auto">
+          <img :alt="elem.message" :src="elem.src" />
+        </ion-col>
+        <ion-col>
+          <div class="container_progression">
+            <ion-label>{{ elem.title }}</ion-label>
+            <div class="progressBar ion-margin-top">
+              <span class="ion-margin-end"
+                    :style="{color: elem.count >= elem.requireCount ? '#facc00' : 'black'}">{{
+                  elem.count >= elem.requireCount ? "Complété!" : elem.count + "/" + elem.requireCount
+              }}</span>
+              <ion-progress-bar
+                  v-if="elem.count < elem.requireCount"
+                :value="(elem.count / elem.requireCount).toFixed(2)"
+              ></ion-progress-bar>
+            </div>
+          </div>
+        </ion-col>
+      </ion-row>
+    </div>
   </div>
 </template>
 
 <script>
-import { IonLabel, IonProgressBar, IonRow, IonCol } from "@ionic/vue";
+import { IonLabel, IonProgressBar, IonRow, IonCol, IonIcon } from "@ionic/vue";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
 import "@ionic/vue/css/ionic-swiper.css";
 import { useBadgesCollections } from "@/stores/BadgesCollections";
+import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
 
 const badgesCollectionsStore = useBadgesCollections();
 export default {
@@ -119,11 +128,16 @@ export default {
     IonProgressBar,
     IonRow,
     IonCol,
+    IonIcon,
     Swiper,
     SwiperSlide,
   },
   setup() {
-    return { badgesCollectionsStore };
+    return { 
+      badgesCollectionsStore, 
+      chevronDownOutline, 
+      chevronUpOutline 
+    };
   },
   beforeMount() {
     badgesCollectionsStore.instantiateBadgesToShow();
@@ -131,12 +145,24 @@ export default {
       badgesCollectionsStore.ownerCollection,
     );
   },
+  data() {
+    return {
+      showCategories: true,
+      showNeighborhoods: true
+    };
+  },
   computed: {
     nbrCountUnlocked() {
       return badgesCollectionsStore.collectedCountBadgesId.length;
     },
   },
   methods: {
+    toggleCategories() {
+      this.showCategories = !this.showCategories;
+    },
+    toggleNeighborhoods() {
+      this.showNeighborhoods = !this.showNeighborhoods;
+    },
     debuggingToDelete() {
       console.log("userCollectedDiscovery:", badgesCollectionsStore.userCollectedDiscovery);
       console.log("userCollectedBadges:", badgesCollectionsStore.userCollectedBadges);
@@ -204,5 +230,16 @@ a {
 }
 .swiper .swiper-slide {
   height: auto !important;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.section-header ion-icon {
+  font-size: 24px;
 }
 </style>
