@@ -38,9 +38,6 @@ export default {
   },
 
   mounted() {
-    // TODO enlever ca et le .then delay en prod. ajoute delay pour tester la page loading
-    const DEV_DELAY = 100000; // en ms. 1000ms = 1s
-
     /* Initializing all databases */
     Promise.all([
       ArtworkDatabase.populate(),
@@ -48,10 +45,6 @@ export default {
       HeritageDatabase.populate(),
       BadgeDatabase.populate(),
     ])
-    .then(() => {
-      // TODO enlever ce .then en prod. ajoute delay
-      return new Promise(resolve => setTimeout(resolve, DEV_DELAY));
-    })
       .catch(() => {
         this.showAlert("Impossible de se connecter à internet !");
       })
