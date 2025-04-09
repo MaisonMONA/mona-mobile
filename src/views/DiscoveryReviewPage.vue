@@ -4,20 +4,21 @@
     <ion-content class="ion-padding">
       <div id="discoveryReviewContent">
         <div class="rating">
-          <p class="">Notez l'œuvre</p>
+          <p class="rating-label">Notez l'œuvre</p>
           <ul>
             <li :key="st" v-for="st in 5" @click="updateRating(st)">
               <ion-icon
                 size="large"
                 :icon="st <= givenRating ? star : starOutline"
-                :style="{ color: givenRating == null ?  '#d7d7d7': 'var(--mona-yellow)' }"
+                :style="{ color: givenRating == null ? '#d7d7d7': 'var(--mona-yellow)' }"
               ></ion-icon>
             </li>
           </ul>
+          <p v-if="!isRatingSelected" class="rating-hint">Veuillez sélectionner une note</p>
         </div>
 
         <div class="comment">
-          <p>Que pensez-vous de l’œuvre?</p>
+          <p>Que pensez-vous de l'œuvre? <span class="optional">(optionnel)</span></p>
           <ion-textarea
             label-placement="floating"
             :counter="true"
@@ -27,7 +28,13 @@
           ></ion-textarea>
         </div>
 
-        <ion-button fill="solid" @click="submitDiscovery()">Enregistrer</ion-button>
+        <ion-button
+          fill="solid"
+          @click="submitDiscovery()"
+          :disabled="!isRatingSelected"
+          class="save-button"
+          :class="{ 'button-enabled': isRatingSelected, 'button-disabled': !isRatingSelected }"
+        >Enregistrer</ion-button>
       </div>
     </ion-content>
   </ion-page>
@@ -68,12 +75,23 @@ export default {
     };
   },
 
+  computed: {
+    isRatingSelected() {
+      return this.givenRating !== null;
+    }
+  },
+
   methods: {
     updateRating(rating) {
       this.givenRating = rating;
     },
 
     submitDiscovery() {
+      // Don't proceed if no rating is selected
+      if (!this.isRatingSelected) {
+        return;
+      }
+      
       const id = this.$route.query.id;
       const type = this.$route.query.type;
 
@@ -116,6 +134,24 @@ ion-icon {
   margin-top: 40%;
 }
 
+.rating-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rating-hint {
+  color: #FF6B6B;
+  font-size: small;
+  margin-top: 8px;
+}
+
+.optional {
+  color: #888888;
+  font-size: 0.9em;
+  font-style: italic;
+}
+
 ul {
   padding: 0;
 }
@@ -128,7 +164,17 @@ li {
   margin: 20% 10% 20% 10%;
 }
 
-ion-button {
+.save-button {
   --background: var(--mona-yellow);
+}
+
+.button-disabled {
+  --background: #d7d7d7 !important;
+  --color: #a0a0a0 !important;
+  opacity: 0.8;
+}
+
+.button-enabled {
+  --background: var(--mona-yellow) !important;
 }
 </style>
