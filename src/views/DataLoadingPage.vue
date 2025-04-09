@@ -8,7 +8,8 @@
         position="top"
         position-anchor="ion-toast-anchor"
       ></ion-toast>
-      <img src="/assets/animation/monaLogo.gif" />
+        <img src="/assets/animation/monaLogo.gif" />
+        <p class="loading-text">Chargement en cours...</p>
     </ion-content>
   </ion-page>
 </template>
@@ -37,6 +38,9 @@ export default {
   },
 
   mounted() {
+    // TODO enlever ca et le .then delay en prod. ajoute delay pour tester la page loading
+    const DEV_DELAY = 0; // en ms. 1000ms = 1s
+
     /* Initializing all databases */
     Promise.all([
       ArtworkDatabase.populate(),
@@ -44,6 +48,10 @@ export default {
       HeritageDatabase.populate(),
       BadgeDatabase.populate(),
     ])
+    .then(() => {
+      // TODO enlever ce .then en prod. ajoute delay
+      return new Promise(resolve => setTimeout(resolve, DEV_DELAY));
+    })
       .catch(() => {
         this.showAlert("Impossible de se connecter à internet !");
       })
@@ -122,5 +130,19 @@ p {
 #alertHolder.show {
   color: darkred;
   background: #e6b1b1;
+}
+
+.loading-text {
+  font-family: "Gotham Rounded Light", sans-serif;
+  font-size: 1.125rem;
+  color: #555;
+  margin-top: -15rem;
+  animation: pulse 2.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
 }
 </style>
