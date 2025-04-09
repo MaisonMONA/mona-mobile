@@ -39,7 +39,7 @@ export default {
 
   mounted() {
     // TODO enlever ca et le .then delay en prod. ajoute delay pour tester la page loading
-    const DEV_DELAY = 0; // en ms. 1000ms = 1s
+    const DEV_DELAY = 100000; // en ms. 1000ms = 1s
 
     /* Initializing all databases */
     Promise.all([
