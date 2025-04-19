@@ -555,6 +555,8 @@ export default {
     },
 
     showLocation() {
+      const MAX_ACCURACY_RADIUS = 200; // Maximum radius in meters
+
       // Remove existing layers if they exist
       if (this.locationAccuracyLayer) {
         this.mainMap.removeLayer(this.locationAccuracyLayer);
@@ -578,7 +580,10 @@ export default {
       
       this.locationAccuracyLayer.getSource().addFeature(
         new Feature({
-          geometry: circular(UserData.getLocation(), UserData.getAccuracy()),
+          geometry: circular(
+            UserData.getLocation(), 
+            Math.min(UserData.getAccuracy(), MAX_ACCURACY_RADIUS) // Cap radius to avoid too big circle
+          ),
         })
       );
       
@@ -619,7 +624,7 @@ export default {
       this.userLocationLayer.getSource().addFeature(this.userPointFeature);
       this.mainMap.addLayer(this.userLocationLayer);
 
-      // Update location and accuracy radius every 5 seconds
+      // Update location and accuracy radius regularly
       clearInterval(this.locationUpdateInterval); // Clear any existing interval
       this.locationUpdateInterval = setInterval(() => {
         if (this.userPointFeature && this.locationAccuracyLayer) {
@@ -627,11 +632,14 @@ export default {
           const accuracyFeature = this.locationAccuracyLayer.getSource().getFeatures()[0];
           if (accuracyFeature) {
             accuracyFeature.setGeometry(
-              circular(UserData.getLocation(), UserData.getAccuracy())
+              circular(
+                UserData.getLocation(), 
+                Math.min(UserData.getAccuracy(), MAX_ACCURACY_RADIUS) // Cap radius to avoid too big circle
+              )
             );
           }
         }
-      }, 5000);
+      }, 2000); // Update every 2 seconds (1000 ms = 1 second)
     },
 
     beforeDestroy() {
