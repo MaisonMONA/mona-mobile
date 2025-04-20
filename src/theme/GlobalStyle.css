@@ -36,8 +36,17 @@
     --border-style: solid;
     --border-width: 2px;
     --border-color: #dabb00;
+    margin-top: 10px; /* Create space between toasts */
   }
   
   .badge-notification-toast::part(message) {
     padding: 12px 8px;
   }
+  /* TODO: make multiple toasts appear one after the other instead of one after the other */
+  
+  /* Override Ionic's default toast container to allow proper stacking of badge notification toast */
+  ion-toast.badge-notification-toast {
+    position: static !important;
+    transform: none !important;
+  }
+  
