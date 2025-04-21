@@ -3,6 +3,7 @@ import { useBadgesDB } from "@/stores/BadgesDB";
 import { Artwork, Heritage, Place } from "@/internal/Types";
 import Utils from "@/internal/Utils";
 import { BadgeDatabase } from "@/internal/databases/BadgeDatabase";
+import { useBadgesCollections } from "@/stores/BadgesCollections";
 
 export class CollectedBadge {
   private static badgesDB = useBadgesDB();
@@ -31,6 +32,7 @@ export class CollectedBadge {
     const tmpBoroughContainer = new Map<string, number>();
     const tmpOwnerContainer = new Map<string, number>();
     const tmpCategoryContainer = new Map<string, number>();
+    const badgesCollectionsStore = useBadgesCollections();
 
     this.badgesDB = useBadgesDB();
     this.userCollection = UserData.getCollectedChronologically();

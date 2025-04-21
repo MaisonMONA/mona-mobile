@@ -23,3 +23,30 @@
     --ion-color-primary: var(--mona-yellow);
     --ion-color-primary-contrast: #000000;
 }
+
+/* For notification toast upon obtention of new badge, which could appear in any page. */
+.badge-notification-toast {
+    font-weight: 500;
+    --background: var(--mona-yellow);
+    --color: black;
+    --border-radius: 8px;
+    --box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    --width: 90%;
+    --border-style: solid;
+    --border-width: 2px;
+    --border-color: #dabb00;
+    margin-top: 10px; /* Create space between toasts */
+  }
+  
+  .badge-notification-toast::part(message) {
+    padding: 12px 8px;
+  }
+  /* TODO: make multiple toasts appear one after the other instead of one after the other */
+  
+  /* Override Ionic's default toast container to allow proper stacking of badge notification toast */
+  ion-toast.badge-notification-toast {
+    position: static !important;
+    transform: none !important;
+  }
+  

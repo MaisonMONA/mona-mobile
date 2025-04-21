@@ -4,6 +4,7 @@ import { useBadgesDB } from "@/stores/BadgesDB";
 import { UserData } from "@/internal/databases/UserData";
 import { BadgeDatabase } from "@/internal/databases/BadgeDatabase";
 import { Artwork, Heritage, Place } from "@/internal/Types";
+import { toastController } from "@ionic/vue";
 
 const countPathLocked = "/assets/drawable/badges/count/locked/";
 const countPathUnlocked = "/assets/drawable/badges/count/unlocked/";
@@ -69,6 +70,23 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
   },
 
   actions: {
+    // Show a toast notification when a badge is unlocked
+    async showBadgeNotification(badgeId: number) {
+      const badge = BadgeDatabase.getFromId(badgeId);
+      if (!badge) return;
+      
+      const notificationText = badge.notification?.fr || badge.title?.fr || "Nouveau badge débloqué !";
+      
+      const toast = await toastController.create({
+        message: notificationText,
+        duration: 4000, // Duration in milliseconds
+        position: 'top',
+        color: 'warning',
+        cssClass: 'badge-notification-toast'
+      });
+      
+      await toast.present();
+    },
 
     // Instantiate the badges to show for each type of badges
     instantiateBadgesToShow() {
@@ -210,9 +228,12 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
         for (const elem of this.boroughCollection) {
           if (elem.title === borough) {
             elem.count++;
+            // Check if the badge is newly completed
             if (elem.count === elem.requireCount) {
               elem.src = boroughPathUnlocked + elem.id + ".svg";
               console.log("borough unlocked");
+              // Show notification for newly unlocked badge
+              this.showBadgeNotification(elem.id);
             }
             UserData.addCollectedBadge(elem);
           }
@@ -224,9 +245,12 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
         for (const elem of this.categoryCollection) {
           if (elem.dType === category) {
             elem.count++;
+            // Check if the badge is newly completed
             if (elem.count === elem.requireCount) {
               elem.src = categoryPathUnlocked + elem.id + ".svg";
               console.log("category unlocked");
+              // Show notification for newly unlocked badge
+              this.showBadgeNotification(elem.id);
             }
             UserData.addCollectedBadge(elem);
           }
@@ -240,9 +264,12 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
           if (elem.title === owner) {
             console.log("in if");
             elem.count++;
+            // Check if the badge is newly completed
             if (elem.count === elem.requireCount) {
               elem.src = ownerPathUnlocked + elem.id + ".svg";
               console.log("owner unlocked");
+              // Show notification for newly unlocked badge
+              this.showBadgeNotification(elem.id);
             }
             UserData.addCollectedBadge(elem);
           }
@@ -256,13 +283,12 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
           if (elem.requireCount === this.userCollectedDiscovery.length) {
             elem.src = countPathUnlocked + elem.id + ".svg";
             console.log("count unlocked");
+            // Show notification for newly unlocked badge
+            this.showBadgeNotification(elem.id);
             UserData.addCollectedBadge(elem);
           }
         }
       }
     },
-    // newBadgeCompleted() {
-    //   return (this.newBadgeAnimation = true);
-    // },
   },
 });
