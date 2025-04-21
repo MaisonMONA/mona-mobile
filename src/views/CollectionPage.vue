@@ -9,27 +9,27 @@
     </div>
 
     <div id="collection-and-badges-number-container">
-    <div class="collection-header">
-      <p class="collected-count">
-        {{ collected.length > 0 ? collected.length : "" }}
-      </p>
-      <p>
-        {{ collected.length > 0 ? "D" : "Aucune d" }}écouverte{{
-          collected.length > 0 ? "s" : ""
-        }}
-        <br />
-        collectionnée{{ collected.length > 0 ? "s" : "" }}
-      </p>
-    </div>
+      <div class="collection-header" :style="{ width: collectionsHeaderWidth }">
+        <p class="collected-count">
+          {{ collected.length > 0 ? collected.length : "" }}
+        </p>
+        <p>
+          {{ collected.length > 0 ? "D" : "Aucune d" }}écouverte{{
+            collected.length > 0 ? "s" : ""
+          }}
+          <br />
+          collectionnée{{ collected.length > 0 ? "s" : "" }}
+        </p>
+      </div>
 
-    <div class="collection-header" id="badges-obtained">
-      <p class="collected-count">
-        {{ completedBadges > 0 ? completedBadges : "" }}
-      </p>
-      <p>
-        {{ completedBadges > 1 ? "Badges obtenus": (completedBadges > 0 ? "Badge obtenu" : "Aucun badge obtenu") }}
-      </p>
-    </div>
+      <div class="collection-header" id="badges-obtained" :style="{ width: badgesHeaderWidth }">
+        <p class="collected-count">
+          {{ completedBadges > 0 ? completedBadges : "" }}
+        </p>
+        <p>
+          {{ completedBadges > 1 ? "Badges obtenus": (completedBadges > 0 ? "Badge obtenu" : "Aucun badge obtenu") }}
+        </p>
+      </div>
     </div>
 
       <div class="ion-segment-container collectionPageSegment">
@@ -89,7 +89,27 @@ export default {
     },
     completedBadges() {
       return badgesCollectionsStore.getCompletedBadges;
-    }
+    },
+    collectionsHeaderWidth() {
+      // Adjust Discoveries amount container width based on number of discoveries
+      if (this.collected.length >= 100) {
+        return '52vw';
+      } else if (this.collected.length >= 10) {
+        return '48vw';
+      } else {
+        return '44vw';
+      }
+    },
+    badgesHeaderWidth() {
+      // Adjust Badges amount container width based on number of discoveries
+      if (this.collected.length >= 100) {
+        return '36vw';
+      } else if (this.collected.length >= 10) {
+        return '40vw';
+      } else {
+        return '44vw';
+      }
+    },
   },
   components: {
     BadgesContainer,
@@ -164,17 +184,17 @@ export default {
 
 #collection-and-badges-number-container {
   display: flex;
-  justify-content: space-evenly;
-  margin-top: 3vh;
+  justify-content: space-between;
+  margin: 3vh 5vw;
+  max-width: 90vw;
 }
 
 .collection-header {
-  display:flex;
+  display: flex;
   align-items: center;
   height: 7vh;
   background: #FDF4B4;
   text-align: center;
-  width: 44vw;
   border-radius: 2vw;
 }
 
