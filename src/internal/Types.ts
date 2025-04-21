@@ -379,4 +379,8 @@ export class Badge extends Discovery {
   public getNotification(lang = "fr"): string {
     return lang === "fr" ? this.notification.fr : this.notification.en;
   }
+
+  public getDescription(lang = "fr"): string {
+    return lang === "fr" ? this.description.fr : this.description.en;
+  }
 }
