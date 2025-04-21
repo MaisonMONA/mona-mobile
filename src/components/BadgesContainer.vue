@@ -13,12 +13,12 @@
         :key="elem"
         class="badgeContainer ion-margin-end border ion-padding"
         style="height: 100%"
+        @click="openBadgeDetails(elem)"
       >
         <img
           :alt="elem.message"
           :src="elem.src"
           style="max-width: none"
-          @click="openBadgeDetails(elem)"
         />
         <span style="margin-top: 2%; font-size: small"> {{ elem.title }} </span>
       </swiper-slide>
@@ -32,14 +32,15 @@
       <ion-row
         v-for="elem in badgesCollectionsStore.categoryCollection"
         :key="elem"
-        class="ion-margin-bottom ion-margin-top border"
+        class="ion-margin-bottom ion-margin-top border badge-row"
+        @click="openBadgeDetails(elem)"
       >
         <ion-col size="auto">
-          <img :alt="elem.message" :src="elem.src" @click="openBadgeDetails(elem)" />
+          <img :alt="elem.message" :src="elem.src" />
         </ion-col>
         <ion-col>
           <div class="container_progression">
-            <ion-label>{{ elem.title.fr }}</ion-label>
+            <ion-label>{{ typeof elem.title === 'object' ? elem.title.fr : elem.title }}</ion-label>
             <div class="progressBar ion-margin-top">
               <span class="ion-margin-end"
                     :style="{color: elem.count >= elem.requireCount ? '#facc00' : 'black'}">{{
@@ -63,10 +64,11 @@
       <ion-row
         v-for="elem in badgesCollectionsStore.boroughCollection"
         :key="elem"
-        class="ion-margin-bottom ion-margin-top border"
+        class="ion-margin-bottom ion-margin-top border badge-row"
+        @click="openBadgeDetails(elem)"
       >
         <ion-col size="auto">
-          <img :alt="elem.message" :src="elem.src" @click="openBadgeDetails(elem)" />
+          <img :alt="elem.message" :src="elem.src" />
         </ion-col>
         <ion-col>
           <div class="container_progression">
@@ -87,10 +89,11 @@
       <ion-row
         v-for="elem in badgesCollectionsStore.ownerCollection"
         :key="elem"
-        class="ion-margin-bottom ion-margin-top border"
+        class="ion-margin-bottom ion-margin-top border badge-row"
+        @click="openBadgeDetails(elem)"
       >
         <ion-col size="auto">
-          <img :alt="elem.message" :src="elem.src" @click="openBadgeDetails(elem)" />
+          <img :alt="elem.message" :src="elem.src" />
         </ion-col>
         <ion-col>
           <div class="container_progression">
@@ -116,11 +119,11 @@
     <div class="badge-modal-content">
       <div class="badge-header">
         <img :src="selectedBadge?.src" alt="Badge" class="badge-image" />
-        <h2>{{ selectedBadge?.title }}</h2>
+        <h2>{{ getBadgeTitle(selectedBadge) }}</h2>
       </div>
       
       <div class="badge-description">
-        <p>{{ selectedBadge?.description }}</p>
+        <p>{{ getBadgeDescription(selectedBadge) }}</p>
         
         <div class="badge-progress" v-if="selectedBadge?.requireCount">
           <p v-if="selectedBadge.count >= selectedBadge.requireCount" class="completed-badge">
@@ -186,6 +189,30 @@ export default {
     },
   },
   methods: {
+    getBadgeTitle(badge) {
+      if (!badge) return '';
+      
+      // Check if title is an object with 'fr' property
+      if (badge.title && typeof badge.title === 'object' && badge.title.fr) {
+        return badge.title.fr;
+      }
+      
+      // Return title as is if it's a string
+      return badge.title;
+    },
+    
+    getBadgeDescription(badge) {
+      if (!badge) return '';
+      
+      // Check if description is an object with 'fr' property
+      if (badge.description && typeof badge.description === 'object' && badge.description.fr) {
+        return badge.description.fr;
+      }
+      
+      // Return description as is if it's a string
+      return badge.description;
+    },
+    
     toggleCategories() {
       this.showCategories = !this.showCategories;
     },
@@ -263,6 +290,7 @@ a {
   justify-content: center;
   align-items: center;
   padding: 1%;
+  cursor: pointer;
 }
 .swiper .swiper-slide {
   height: auto !important;
@@ -279,7 +307,12 @@ a {
   font-size: 24px;
 }
 
-/* Badge Modal Styles */
+/* Make rows clickable */
+.badge-row {
+  cursor: pointer;
+}
+
+/* Badge Modal Styles with relative units */
 .badge-details-modal {
   --height: auto;
   --width: 80%;
@@ -347,28 +380,18 @@ a {
   height: 5vh;
 }
 
-img[alt="Badge"] {
-  cursor: pointer;
-}
-
 /* For badges in the swiper */
 .badgeContainer img {
-  cursor: pointer;
   transition: transform 0.2s, filter 0.2s;
 }
 
-.badgeContainer img:hover {
+.badgeContainer:hover img {
   transform: scale(1.05);
   filter: brightness(1.1);
 }
 
 /* For badges in the lists */
-ion-col img {
-  cursor: pointer;
-  transition: transform 0.2s, filter 0.2s;
-}
-
-ion-col img:hover {
+.badge-row:hover img {
   transform: scale(1.05);
   filter: brightness(1.1);
 }
