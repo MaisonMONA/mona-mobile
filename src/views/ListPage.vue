@@ -58,8 +58,8 @@
       <ion-modal
         ref="modal"
         trigger="open-modal"
-        :initial-breakpoint="0.4"
-        :breakpoints="[0, 0.2, 0.4]"
+        :initial-breakpoint="0.5"
+        :breakpoints="[0, 0.2, 0.5, 0.7]"
       >
         <!-- Filtres modal window content -->
         <ion-content>
@@ -104,6 +104,7 @@
             <ion-col
               class="filtre"
               size="4"
+              size-xs="3.8"
               @click="selectedDiscovery(artwork)"
               :style="{
                 color: artwork.color,
@@ -122,6 +123,7 @@
             <ion-col
               class="filtre"
               size="3.3"
+              size-xs="3.2"
               @click="selectedDiscovery(heritage)"
               :style="{
                 color: heritage.color,
@@ -139,6 +141,7 @@
             <ion-col
                 class="filtre"
                 size="4.3"
+                size-xs="4"
                 @click="selectedDiscovery(place)"
                 :style="{
                 color: place.color,
@@ -703,7 +706,20 @@ ion-col img {
 }
 
 .filter-category ion-text {
-  font-size: 4.5vw;
+  font-size: clamp(10px, 3.5vw, 14px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+  display: block;
+}
+
+/* Make filter columns more flexible */
+ion-col.filtre {
+  min-width: 70px;
+  height: auto !important;
+  min-height: 15vw;
+  padding: 5px 2px;
 }
 
 .titreTrier {
@@ -752,6 +768,43 @@ ion-modal {
   --border-radius: 16px;
   --box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
     0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Adjust modal height on smaller screens */
+@media (max-height: 700px) {
+  ion-modal::part(content) {
+    --height: 90vh !important;
+  }
+}
+@media (max-height: 560px) {
+  ion-modal::part(content) {
+    --height: 110vh !important;
+  }
+}
+
+/* Ensure content is scrollable if needed */
+ion-modal ion-content {
+  --overflow: auto;
+}
+
+/* Further adjustments for tiny screens */
+@media (max-width: 320px) {
+  .filter-category ion-avatar {
+    height: 6vw;
+  }
+  
+  .filter-category ion-text {
+    font-size: 10px;
+  }
+  
+  ion-col.filtre {
+    padding: 6px 1px;
+  }
+}
+
+/* Small adjustment to modal initial sizing */
+ion-modal[trigger="open-modal"] {
+  --height: auto;
 }
 
 #modal-heading p {
