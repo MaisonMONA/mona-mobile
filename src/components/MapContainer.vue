@@ -468,6 +468,7 @@ export default {
       const pinsLayer = new VectorLayer({
         source: new VectorSource(),
         style: this.pinStyleFunction, // style that features (pins) will take
+        zIndex: 300, // Set to a value between location accuracy radius (100) and user location pin (1000)
       });
 
       this.mapPinsLayer = pinsLayer;
@@ -547,7 +548,7 @@ export default {
           src: `./assets/drawable/pins/selected_pin.svg`,
           scale: 0.83, // Augment selected pin size
         }),
-        zIndex: 2, // Ensures selected pin appears on top
+        zIndex: 500, // Ensures selected discovery pin appears on top of other discovery pins
       });
       selectedFeature.setStyle(selectedPinStyle);
 
@@ -574,6 +575,10 @@ export default {
             }),
           }),
         ],
+        // Set low z-index to ensure it stays behind other pins. 
+        //  (If, in the future, we implement area highlights - e.g. Mont Royal highlight instead of one single pin - 
+        //   then set the highlight zIndex lower than this one.)
+        zIndex: 100,
       });
       
       this.locationAccuracyLayer.getSource().addFeature(
@@ -610,6 +615,7 @@ export default {
             }),
           }),
         ],
+        zIndex: 1000, // Set high z-index to ensure it stays on top of all other pins
       });
       
       this.userPointFeature = new Feature({
