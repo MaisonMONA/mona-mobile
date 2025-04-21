@@ -283,6 +283,11 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
           if (elem.requireCount === this.userCollectedDiscovery.length) {
             elem.src = countPathUnlocked + elem.id + ".svg";
             console.log("count unlocked");
+            // Ensure the badge has its description for the modal
+            const badgeFromDB = BadgeDatabase.getFromId(elem.id);
+            if (badgeFromDB && badgeFromDB.description?.fr) {
+              elem.description = badgeFromDB.description.fr;
+            }
             // Show notification for newly unlocked badge
             this.showBadgeNotification(elem.id);
             UserData.addCollectedBadge(elem);

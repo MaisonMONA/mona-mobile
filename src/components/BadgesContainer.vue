@@ -18,7 +18,7 @@
           :alt="elem.message"
           :src="elem.src"
           style="max-width: none"
-          @click="debuggingToDelete"
+          @click="openBadgeDetails(elem)"
         />
         <span style="margin-top: 2%; font-size: small"> {{ elem.title }} </span>
       </swiper-slide>
@@ -35,7 +35,7 @@
         class="ion-margin-bottom ion-margin-top border"
       >
         <ion-col size="auto">
-          <img :alt="elem.message" :src="elem.src" />
+          <img :alt="elem.message" :src="elem.src" @click="openBadgeDetails(elem)" />
         </ion-col>
         <ion-col>
           <div class="container_progression">
@@ -66,7 +66,7 @@
         class="ion-margin-bottom ion-margin-top border"
       >
         <ion-col size="auto">
-          <img :alt="elem.message" :src="elem.src" />
+          <img :alt="elem.message" :src="elem.src" @click="openBadgeDetails(elem)" />
         </ion-col>
         <ion-col>
           <div class="container_progression">
@@ -90,7 +90,7 @@
         class="ion-margin-bottom ion-margin-top border"
       >
         <ion-col size="auto">
-          <img :alt="elem.message" :src="elem.src" />
+          <img :alt="elem.message" :src="elem.src" @click="openBadgeDetails(elem)" />
         </ion-col>
         <ion-col>
           <div class="container_progression">
@@ -110,10 +110,35 @@
       </ion-row>
     </div>
   </div>
+
+  <!-- Badge Details Modal -->
+  <ion-modal :is-open="isBadgeModalOpen" @didDismiss="closeBadgeModal" class="badge-details-modal">
+    <div class="badge-modal-content">
+      <div class="badge-header">
+        <img :src="selectedBadge?.src" alt="Badge" class="badge-image" />
+        <h2>{{ selectedBadge?.title }}</h2>
+      </div>
+      
+      <div class="badge-description">
+        <p>{{ selectedBadge?.description }}</p>
+        
+        <div class="badge-progress" v-if="selectedBadge?.requireCount">
+          <p v-if="selectedBadge.count >= selectedBadge.requireCount" class="completed-badge">
+            Badge complété!
+          </p>
+          <p v-else>
+            Progression: {{ selectedBadge.count || 0 }}/{{ selectedBadge.requireCount }}
+          </p>
+        </div>
+      </div>
+      
+      <ion-button expand="block" @click="closeBadgeModal" class="close-button">Fermer</ion-button>
+    </div>
+  </ion-modal>
 </template>
 
 <script>
-import { IonLabel, IonProgressBar, IonRow, IonCol, IonIcon } from "@ionic/vue";
+import { IonLabel, IonProgressBar, IonRow, IonCol, IonIcon, IonModal, IonButton } from "@ionic/vue";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
 import "@ionic/vue/css/ionic-swiper.css";
@@ -129,6 +154,8 @@ export default {
     IonRow,
     IonCol,
     IonIcon,
+    IonModal,
+    IonButton,
     Swiper,
     SwiperSlide,
   },
@@ -148,7 +175,9 @@ export default {
   data() {
     return {
       showCategories: true,
-      showNeighborhoods: true
+      showNeighborhoods: true,
+      isBadgeModalOpen: false,
+      selectedBadge: null
     };
   },
   computed: {
@@ -162,6 +191,13 @@ export default {
     },
     toggleNeighborhoods() {
       this.showNeighborhoods = !this.showNeighborhoods;
+    },
+    openBadgeDetails(badge) {
+      this.selectedBadge = badge;
+      this.isBadgeModalOpen = true;
+    },
+    closeBadgeModal() {
+      this.isBadgeModalOpen = false;
     },
     debuggingToDelete() {
       console.log("userCollectedDiscovery:", badgesCollectionsStore.userCollectedDiscovery);
@@ -241,5 +277,108 @@ a {
 
 .section-header ion-icon {
   font-size: 24px;
+}
+
+/* Badge Modal Styles */
+.badge-details-modal {
+  --height: auto;
+  --width: 80%;
+  --border-radius: 4vw;
+  --box-shadow: 0 2vh 3vh rgba(0, 0, 0, 0.2);
+}
+
+.badge-modal-content {
+  padding: 5vh 5vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: white;
+  border-radius: 4vw;
+}
+
+.badge-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 3vh;
+  text-align: center;
+}
+
+.badge-image {
+  width: 30vw;
+  height: auto;
+  margin-bottom: 2vh;
+}
+
+.badge-header h2 {
+  font-size: 5vw;
+  font-weight: bold;
+  margin: 0;
+}
+
+.badge-description {
+  text-align: center;
+  margin-bottom: 4vh;
+  width: 90%;
+}
+
+.badge-description p {
+  font-size: 3.8vw;
+  line-height: 1.4;
+  color: #444;
+}
+
+.badge-progress {
+  margin-top: 2vh;
+  font-weight: 500;
+}
+
+.completed-badge {
+  color: #facc00;
+  font-weight: bold;
+}
+
+.close-button {
+  --background: var(--mona-yellow);
+  --color: black;
+  --border-radius: 2vw;
+  font-weight: 500;
+  margin-top: 2vh;
+  height: 5vh;
+}
+
+img[alt="Badge"] {
+  cursor: pointer;
+}
+
+/* For badges in the swiper */
+.badgeContainer img {
+  cursor: pointer;
+  transition: transform 0.2s, filter 0.2s;
+}
+
+.badgeContainer img:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+
+/* For badges in the lists */
+ion-col img {
+  cursor: pointer;
+  transition: transform 0.2s, filter 0.2s;
+}
+
+ion-col img:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+
+/* For badge title/name in the swiper */
+.badgeContainer span {
+  transition: color 0.2s;
+}
+
+.badgeContainer:hover span {
+  color: #4D58CB;
 }
 </style>
