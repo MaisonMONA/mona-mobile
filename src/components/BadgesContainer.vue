@@ -204,13 +204,27 @@ export default {
     getBadgeDescription(badge) {
       if (!badge) return '';
       
-      // Check if description is an object with 'fr' property
-      if (badge.description && typeof badge.description === 'object' && badge.description.fr) {
-        return badge.description.fr;
-      }
+      // Check if badge is unlocked (either count meets requirement or image shows unlocked badge)
+      const isUnlocked = 
+        (badge.count && badge.requireCount && (badge.count >= badge.requireCount));
       
-      // Return description as is if it's a string
-      return badge.description;
+      // If unlocked, show notification text, otherwise show description
+      if (isUnlocked && badge.notification) {
+        // Badge is unlocked, show notification text
+        if (typeof badge.notification === 'object' && badge.notification.fr) {
+          return badge.notification.fr;
+        }
+        return badge.notification;
+
+      } else {
+        // Check if description is an object with 'fr' property
+        if (badge.description && typeof badge.description === 'object' && badge.description.fr) {
+          return badge.description.fr;
+        }
+        
+        // Return description as is if it's a string
+        return badge.description;
+      }
     },
     
     toggleCategories() {

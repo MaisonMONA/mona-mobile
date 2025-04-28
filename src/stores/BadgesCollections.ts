@@ -99,11 +99,14 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
 
     instantiateCountBadges() {
       const countBadgesArray = [];
-
+      const discoveryCount = this.userCollectedDiscovery.length;
+    
       for (const countBadge of this.badgesDB.getCount()) {
         if (this.collectedCountBadgesId.includes(countBadge.id)) {
-          // Collected badge
-          countBadgesArray.push(UserData.getCollectedBadge(countBadge.id));
+          // Get badge from UserData but ensure it has count property
+          const collectedBadge = UserData.getCollectedBadge(countBadge.id);
+          collectedBadge.count = discoveryCount; // Set proper count
+          countBadgesArray.push(collectedBadge);
         } else {
           // Uncollected badge
           countBadgesArray.push({
@@ -116,6 +119,7 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
             title: countBadge?.title.fr,
             dType: null,
             type: "count",
+            count: discoveryCount // Add count property
           });
         }
       }
@@ -243,7 +247,8 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
     newCategoryBadge(category: string | undefined) {
       if (category) {
         for (const elem of this.categoryCollection) {
-          if (elem.dType === category) {
+          if (elem.dType === category || 
+              (elem.dType === "places" && category === "place")) {
             elem.count++;
             // Check if the badge is newly completed
             if (elem.count === elem.requireCount) {
