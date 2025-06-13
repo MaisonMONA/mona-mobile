@@ -54,6 +54,9 @@ ion-back-button {
   color: #2E389E;
   border: solid 1px #2E389E;
   border-radius: 1vw;
+  z-index: 5;
+  position: relative;
+  background-color: white;
 }
 
 ion-back-button::part(native) {
