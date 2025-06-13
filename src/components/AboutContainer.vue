@@ -45,9 +45,11 @@
             <li><strong>Valeria Guadalupe Márquez Reynoso</strong> Co-responsable des activités de médiation</li>
             <li><strong>Sarah Heng</strong> Développeuse mobile</li>
             <li><strong>Simon Janssen</strong> Développeur serveur</li>
+            <li><strong>Christian Lungescu</strong> Développeur mobile</li>
             <li><strong>Barbara Marche</strong> Designer UI/UX</li>
             <li><strong>Tiffany Maynard</strong> Stage de maîtrise en informatique</li>
             <li><strong>Anna Papakostidis</strong> Co-responsable des activités de médiation</li>
+            <li><strong>Vi Phung</strong> Développeur serveur</li>
             <li><strong>David Valentine</strong> Consultant en sciences de l&#39;information</li>
           </ul>
           <h3 id="membres-du-conseil-d-administration">Membres du conseil d&#39;administration</h3>
