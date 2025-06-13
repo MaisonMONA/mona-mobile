@@ -117,25 +117,52 @@
   <!-- Badge Details Modal -->
   <ion-modal :is-open="isBadgeModalOpen" @didDismiss="closeBadgeModal" class="badge-details-modal">
     <div class="badge-modal-content">
+      <!-- Close button at top right -->
+      <div class="close-button-container" @click="closeBadgeModal">
+        <button class="close-icon">✕</button>
+      </div>
+      
       <div class="badge-header">
         <img :src="selectedBadge?.src" alt="Badge" class="badge-image" />
-        <h2>{{ getBadgeTitle(selectedBadge) }}</h2>
+        <!-- Larger badge title -->
+        <h1>{{ getBadgeTitle(selectedBadge) }}</h1>
       </div>
       
       <div class="badge-description">
         <p>{{ getBadgeDescription(selectedBadge) }}</p>
         
         <div class="badge-progress" v-if="selectedBadge?.requireCount">
-          <p v-if="selectedBadge.count >= selectedBadge.requireCount" class="completed-badge">
-            Badge complété!
-          </p>
-          <p v-else>
-            Progression: {{ selectedBadge.count || 0 }}/{{ selectedBadge.requireCount }}
-          </p>
+          <div v-if="selectedBadge.count >= selectedBadge.requireCount" class="completed-badge">
+            <p>Badge complété!</p>
+          </div>
+          <div v-else>
+            <!-- Progress bar -->
+            <p>Progression:</p>
+            <div class="custom-progress-bar">
+              <div 
+                v-for="step in selectedBadge.requireCount" 
+                :key="step" 
+                class="progress-segment"
+                :class="{'completed-segment': step <= selectedBadge.count}"
+              >
+                <div class="segment-fill" v-if="step <= selectedBadge.count"></div>
+                <div class="ridge" v-if="step < selectedBadge.requireCount"></div>
+              </div>
+              
+              <!-- Yellow bubble indicator -->
+              <div 
+                class="bubble-indicator" 
+                :style="{ left: `calc(${(selectedBadge.count / selectedBadge.requireCount) * 100}% - 15px)` }"
+                :class="{ 'zero-progress': selectedBadge.count === 0 }"
+              >
+                <div class="bubble">
+                  <ion-icon :icon="checkmarkOutline"></ion-icon>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      
-      <ion-button expand="block" @click="closeBadgeModal" class="close-button">Fermer</ion-button>
     </div>
   </ion-modal>
 </template>
@@ -146,7 +173,7 @@ import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
 import "@ionic/vue/css/ionic-swiper.css";
 import { useBadgesCollections } from "@/stores/BadgesCollections";
-import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
+import { chevronDownOutline, chevronUpOutline, checkmarkOutline } from 'ionicons/icons';
 
 const badgesCollectionsStore = useBadgesCollections();
 export default {
@@ -166,7 +193,8 @@ export default {
     return { 
       badgesCollectionsStore, 
       chevronDownOutline, 
-      chevronUpOutline 
+      chevronUpOutline,
+      checkmarkOutline
     };
   },
   beforeMount() {
@@ -329,13 +357,14 @@ a {
 /* Badge Modal Styles with relative units */
 .badge-details-modal {
   --height: auto;
-  --width: 80%;
+  --width: 90%;
   --border-radius: 4vw;
   --box-shadow: 0 2vh 3vh rgba(0, 0, 0, 0.2);
 }
 
 .badge-modal-content {
-  padding: 5vh 5vw;
+  position: relative;
+  padding: 3vh 2vw;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -343,11 +372,58 @@ a {
   border-radius: 4vw;
 }
 
+.close-button-container {
+  position: absolute;
+  top: 4.5vw;
+  right: 4.5vw;
+  background: none;
+  border: none;
+  font-size: 5vw;
+  color: #888;
+  cursor: pointer;
+}
+
+.close-icon {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #888;
+  padding: 0; /* Remove any default padding */
+  margin: 0; /* Remove any default margin */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+/* Progress bar styling */
+.progress-container {
+  display: flex;
+  align-items: center;
+  gap: 3vw;
+  width: 100%;
+  margin-top: 1vh;
+}
+
+.progress-container ion-progress-bar {
+  flex: 1;
+  height: 1.5vh;
+  --progress-background: #facc00;
+  --background: #e0e0e0;
+}
+
+.progress-fraction {
+  font-size: 3.8vw;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
 .badge-header {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 3vh;
+  margin-bottom: 0vh;
   text-align: center;
 }
 
@@ -357,15 +433,22 @@ a {
   margin-bottom: 2vh;
 }
 
-.badge-header h2 {
+/* .badge-header h2 {
   font-size: 5vw;
   font-weight: bold;
   margin: 0;
+} */
+
+.badge-header h1 {
+  font-size: 6.5vw;
+  font-weight: bold;
+  margin: 2vh 0 0 0;
+  text-align: center;
 }
 
 .badge-description {
   text-align: center;
-  margin-bottom: 4vh;
+  margin-bottom: vh;
   width: 90%;
 }
 
@@ -376,12 +459,12 @@ a {
 }
 
 .badge-progress {
-  margin-top: 2vh;
+  margin-top: 4vh;
   font-weight: 500;
 }
 
 .completed-badge {
-  color: #facc00;
+  color: var(--mona-yellow);
   font-weight: bold;
 }
 
@@ -417,5 +500,70 @@ a {
 
 .badgeContainer:hover span {
   color: #4D58CB;
+}
+
+.custom-progress-bar {
+  position: relative;
+  display: flex;
+  height: 15px;
+  margin: 12px 0 8px 0;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  overflow: visible;
+}
+
+.progress-segment {
+  flex: 1;
+  position: relative;
+  height: 100%;
+}
+
+.segment-fill {
+  height: 100%;
+  background-color: var(--mona-yellow);
+}
+
+/* White ridges between segments */
+.ridge {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 3px;
+  background-color: white;
+}
+
+/* Yellow bubble indicator */
+.bubble-indicator {
+  position: absolute;
+  top: -0.5vh;
+}
+
+.bubble {
+  width: 19px;
+  height: 19px;
+  background-color: var(--mona-yellow);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+  font-weight: bold;
+  color: black;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Different bubble style when progress is zero  */
+.bubble-indicator.zero-progress .bubble {
+  background-color: #e1e1e1; /* Grey color */
+  /* visibility: hidden; */
+}
+
+.bubble ion-icon {
+  color: black;
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  --ionicon-stroke-width: 50px; /* Makes the icon bolder */
 }
 </style>
