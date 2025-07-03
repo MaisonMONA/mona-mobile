@@ -163,8 +163,9 @@ export default {
     
     handleImageError(event) {
       // Fallback to a default badge image if the image fails to load
+      console.warn(`Badge image failed to load: ${event.target.src}, using fallback`);
       const img = event.target;
-      img.src = '/assets/drawable/badges/count/unlocked/1.svg';
+      img.src = '/assets/drawable/badges/fallback-badge.svg';
     },
   },
   
