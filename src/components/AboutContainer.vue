@@ -30,63 +30,84 @@
 
           <div class="encadre">
           <h2>L'équipe</h2>
-          <h3 id="directrices">Directrices</h3>
           <ul>
+            <li><strong>Camila De Oliveira Savoi</strong> Direction de la recherche</li>
             <li><strong>Camille Delattre</strong> Direction des opérations et coordinatrice à la structuration des données</li>
             <li><strong>Julie Graff</strong> Direction artistique</li>
             <li><strong>Lena Krause</strong> Direction technique et fondatrice</li>
             <li><strong>Alexia Pinto Ferretti</strong> Direction des publics</li>
-          </ul>
-          <h3 id="collaborateur-rice-s">Collaborateur·rice·s</h3>
-          <ul>
             <li><strong>Marguerite Chiarello</strong> Responsable des communications et consultante en médiation</li>
-            <li><strong>Camila De Oliveira Savoi</strong> Coordinatrice à la recherche et aux partenariats</li>
-            <li><strong>Corélie Godefroy</strong> Développeuse serveur</li>
-            <li><strong>Valeria Guadalupe Márquez Reynoso</strong> Co-responsable des activités de médiation</li>
             <li><strong>Sarah Heng</strong> Développeuse mobile</li>
-            <li><strong>Simon Janssen</strong> Développeur serveur</li>
+            <li><strong>Simon Janssen</strong> Responsable de la base de données</li>
             <li><strong>Christian Lungescu</strong> Développeur mobile</li>
             <li><strong>Barbara Marche</strong> Designer UI/UX</li>
-            <li><strong>Tiffany Maynard</strong> Stage de maîtrise en informatique</li>
-            <li><strong>Anna Papakostidis</strong> Co-responsable des activités de médiation</li>
-            <li><strong>Vi Phung</strong> Développeur serveur</li>
-            <li><strong>David Valentine</strong> Consultant en sciences de l&#39;information</li>
+            <li><strong>Tiffany Maynard</strong> Responsable de l'alignement avec Wikidata</li>
+            <li><strong>Laurent Tousignant</strong> Stagiaire en muséologie</li>
+            <li><strong>David Valentine</strong> Consultant en sciences de l'information</li>
           </ul>
-          <h3 id="membres-du-conseil-d-administration">Membres du conseil d&#39;administration</h3>
+          
+          <h3 id="ancien-ne-s-contributeur-rice-s">Ancien·ne·s contributeur·rice·s</h3>
           <ul>
-            <li><strong>Sarah Dumaresq</strong> Secrétaire </li>
-            <li><strong>Aurore Lerouge</strong> Trésorière</li>
-            <li><strong>Frédéric Limoges</strong> Président</li>
-            <li><strong>Lena Krause</strong> Vice-Présidente</li>
-          </ul>
-          <h2 id="ancien-ne-s-contributeur-rice-s">Ancien·ne·s contributeur·rice·s</h2>
-          <ul>
-            <li>Marie Achille. Consultante en accessibilité</li>
+            <li>Miliya Ai, développeuse serveur</li>
             <li>Philippe Auclair, développeur Android</li>
             <li>Vincent Beauregard, développeur serveur et Android</li>
-            <li>Aurélie Bezacier, communications</li>
+            <li>Dina Benkirane, développeuse Android</li>
+            <li>Thomas Bui, développeur serveur</li>
+            <li>Gaspard Damoiseau-Malraux, développeur Android</li>
+            <li>Ming-Xia Delvas, développeuse Android</li>
             <li>Paul Chaffanet, développeur iOS</li>
-            <li>Émy Charron-Milot, stagiaire en recherche et communication</li>
-            <li>Craig Commanda, artiste en résidence</li>
             <li>Matija Dabić, développeur Android</li>
-            <li>Gilbert Fortin, graphiste</li>
-            <li>Kim Gobeil, présidente du C.A. 2020-2021</li>
-            <li>Aurélie Guye-Perrault, recherche en histoire de l&#39;art</li>
+            <li>Corélie Godefroid, développeuse serveur</li>
             <li>Théodore Jordan, développeur Android</li>
+            <li>Emma June Huebner, consultante en éducation</li>
+            <li>Isabel Leon Arriz, développeuse iOS</li>
             <li>Émile Labbé, développeur Android</li>
-            <li>Roberto Martinez, graphiste</li>
-            <li>Nemanja Mitrovic, développeur Android</li>
+            <li>Manping Li, développeuse serveur</li>
+            <li>Mohammed Naim, développeur Android</li>
             <li>Bojan Odobasic, développeur iOS</li>
-            <li>Mathieu Perron, développeur serveur</li>
+            <li>Vi Phung, développeur serveur</li>
+            <li>Jean-Marc Prud'homme, développeur iOS</li>
             <li>Abdelhakim Qbaich, développeur serveur</li>
-            <li>Sandrine Rodrigue, graphiste</li>
+            <li>Nemanja Mitrovic, développeur Android</li>
+            <li>Mathieu Perron, développeur serveur</li>
+            <li>Natacha Rivière, développeuse serveur</li>
             <li>Yuning Sun, développeuse serveur</li>
-            <li>Kim Trinh, Développeuse mobile</li>
-            <li>VahMiré, artiste en résidence </li>
-            <li>Kijâtai-Alexandra Veillette-Cheezo, artiste en résidence</li>
+            <li>Kim Trinh, développeuse mobile</li>
+            <li>Xiaoqian Wang, développeuse iOS</li>
             <li>Quentin Wolak, développeur iOS</li>
+            <li>Jianxin You, développeur serveur</li>
+            <li>Yan Zhuang, développeur iOS</li>
+
+            <br>
+
+            <li>Kim Gobeil, présidente du C.A. 2020-2021</li>
+            <li>Sébastien Provencher, secrétaire du C.A. 2020-2022</li>
+            <li>Cathyane Dufort, trésorière du C.A. 2020-2022</li>
+            
+            <br>
+
+            <li>Shadi Abdoli, responsable à la structuration des données</li>
+            <li>Marie Achille, consultante en accessibilité</li>
+            <li>Émy Charron-Milot, stagiaire en recherche et communication</li>
+            <li>Sarah Dumaresq, responsable des partenariats pédagogiques et des réseaux sociaux</li>
+            <li>Valeria Guadalupe Márquez Reynoso, co-responsable des activités de médiation</li>
+            <li>Aurélie Guye-Perrault, recherche en histoire de l'art</li>
+            <li>Anna Papakostidis, co-responsable des activités de médiation</li>
+            <li>Tristan Quiniou, stagiaire en recherche et développement</li>
+            <li>Aurélie Bezacier, communications</li>
+            <li>Roberto Martinez, graphiste</li>
+            <li>Gilbert Fortin, graphiste</li>
+            <li>Sandrine Rodrigue, graphiste</li>
+            <li>Zuzanna Rokita, graphiste</li>
           </ul>
-        </div>
+
+          <h3 id="artistes-en-residence">Artistes en résidence</h3>
+          <ul>
+            <li>Kijâtai-Alexandra Veillette-Cheezo</li>
+            <li>VahMiré</li>
+            <li>Craig Commanda</li>
+          </ul>
+          </div>
         </div>
     </ion-content>
 </template>
