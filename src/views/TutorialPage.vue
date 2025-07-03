@@ -2,17 +2,21 @@
   <ion-page>
     <ion-content :fullscreen="true">
       <p
-          v-if="!(pageNumber === 2 || pageNumber === 9)"
-          :class="(pageNumber > 2 && pageNumber < 9) ? 'toTopRight' : 'toBottomLeft'"
+          v-if="pageNumber !== 9"
+          :class="pageNumber >= 1 && pageNumber < 9 ? 'toTopRight' : 'toBottomLeft'"
           @click="returnBack"
           id="passer"
       >
         PASSER
       </p>
-      <ion-progress-bar class="progressBarTutorial"
-                        v-if="!(pageNumber === 1 || pageNumber === 9)"
-                        :value="(pageNumber / 9).toFixed(2)"
-      ></ion-progress-bar>
+      <div class="progress-dots">
+        <div 
+          v-for="n in 9" 
+          :key="n" 
+          class="progress-dot"
+          :class="{ 'active': pageNumber === n }"
+        ></div>
+      </div>
 
       <div
         class="page"
@@ -32,10 +36,10 @@
             }}
           </p>
       </div>
-<!--        <img
+       <!-- <img
           class="background-blurred"
           :src="`./assets/drawable/tutorial/page ${pageNumber}.svg`"
-        />-->
+        /> -->
 
         <div v-if="!(pageNumber===9)" :style="{height: pageNumber===1 ? '45.5vh' :  '55.4vh'}" class="tutorial_content">
           <img v-if="pageNumber!==9" :style="{height: pageNumber===1 ? '45.5vh' :  '55.4vh'}" :src="`./assets/drawable/tutorial/page ${pageNumber}.svg`" alt="tutorial background content"/>
@@ -49,17 +53,19 @@
 
         </div>
 
-      <p v-if="pageNumber===9" id="termsAndConditions">En poursuivant, vous indiquez que vous avez lu et compris
+      <p v-if="pageNumber===9" id="termsAndConditions">
+        En poursuivant, vous indiquez que vous avez lu et compris
         <a href="https://monamontreal.org/politique-confidentialite.html" class="underline">les conditions d’utilisation</a>
-        et que vous acceptez de les respecter pour utiliser l'application.</p>
+        et que vous acceptez de les respecter pour utiliser l'application.
+      </p>
       <ion-button
-          @click="nextSlide"
-          v-if="pageNumber === 1 || pageNumber === 9"
-          :style="{
-            width: pageNumber === 9 ? '92vw' : '55.5vw',
-            left: pageNumber === 9 ? '50vw' : '68.3vw',
-          }"
-      >{{ pageNumber < 9 ? "SUIVANT" : "COMMENCER L'EXPÉRIENCE" }}
+        @click="nextSlide"
+        :style="{
+          width: '92vw',
+          left: '50vw',
+        }"
+      >
+        {{ pageNumber === 1 ? "COMMENCER" : (pageNumber < 9 ? "SUIVANT" : "COMMENCER L'EXPÉRIENCE") }}
         <ion-icon
             v-if="pageNumber === 1"
             :icon="chevronForwardOutline"
@@ -134,7 +140,7 @@ export default {
 #termsAndConditions {
   position: absolute;
   margin: 0 4vw;
-  bottom: 10vh;
+  bottom: 14vh;
   font-size: 3.4vw;
   line-height: 4.8vw;
   text-align: center;
@@ -148,23 +154,30 @@ export default {
   width: 92vw;
 }
 
-ion-progress-bar.progressBarTutorial {
-  margin: 0 19vw;
+.progress-dots {
   position: absolute;
-  bottom: 3.6vh;
-  max-width: 61vw;
-  min-height: 1vh;
-  left: 1.5vw;
+  bottom: 11vh;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   z-index: 5;
-  --background: #F3F2F7;
-  --progress-background: #171C4F;
+  width: 70vw;
 }
-ion-progress-bar::part(progress) {
-  border-radius: 90vw;
+
+.progress-dot {
+  width: 2vw;
+  height: 2vw;
+  border-radius: 50%;
+  background-color: #F3F2F7;
+  margin: 0 1vw;
+  transition: all 0.3s ease;
+}
+
+.progress-dot.active {
+  background-color: #171C4F;
+  transform: scale(1.3);
 }
 
 .tutorialTitle {
