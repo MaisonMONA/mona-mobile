@@ -34,10 +34,13 @@
         <div class="comment">
           <p>Qu'en pensez-vous? <br><span class="optional">(optionnel)</span></p>
           <ion-textarea
-            label-placement="floating"
+            label-placement="stacked"
             :counter="true"
             maxlength="300"
             :auto-grow="true"
+              rows="3"
+              placeholder="Partagez votre expérience..."
+            fill="outline"
             id="input"
           ></ion-textarea>
         </div>
@@ -262,6 +265,22 @@ ion-icon {
 
 .comment {
   margin: 20% 10% 20% 10%;
+}
+
+.comment ion-textarea {
+  --background: #ffffff;
+  --border-width: 2px;
+  --border-style: solid;
+  --border-radius: 12px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+  margin-top: 8px;
+  min-height: 120px;
+  font-size: 16px;
+  line-height: 1.5;
+  text-align: left;
 }
 
 .button-container {
