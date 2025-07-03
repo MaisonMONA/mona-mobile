@@ -2,7 +2,7 @@
   <div class="main-container">
     <div style="display: flex; justify-content: space-between; align-items: center">
       <h1 style="margin-top: 0">Nombre de découvertes</h1>
-      <span>{{
+      <span class="count-span">{{
         nbrCountUnlocked + "/" + badgesCollectionsStore.countCollection.length
       }}</span>
     </div>
@@ -588,5 +588,9 @@ a {
   width: 16px;
   height: 16px;
   --ionicon-stroke-width: 50px; /* Makes the icon bolder */
+}
+
+.count-span {
+  margin-bottom: 0.85vh;
 }
 </style>
