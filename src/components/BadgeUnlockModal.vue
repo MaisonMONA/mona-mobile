@@ -7,6 +7,11 @@
     :backdrop-dismiss="true"
   >
     <div class="badge-unlock-content">
+      <!-- Close button at top right -->
+      <div class="close-button-container" @click="closeBadgeUnlockModal">
+        <button class="close-icon">✕</button>
+      </div>
+      
       <div class="unlock-animation">
         <img 
           :src="unlockedBadge?.src || '/assets/drawable/badges/count/unlocked/1.svg'" 
@@ -18,7 +23,7 @@
       </div>
       
       <h2 class="unlock-title">Nouveau badge débloqué!</h2>
-      <h3>{{ getBadgeTitle(unlockedBadge) }}</h3>
+      <h1>{{ getBadgeTitle(unlockedBadge) }}</h1>
       
       <div class="unlock-description">
         <p>{{ getBadgeNotification(unlockedBadge) }}</p>
@@ -96,7 +101,20 @@ export default {
       if (badge.notification && typeof badge.notification === 'object' && badge.notification.fr) {
         return badge.notification.fr;
       }
-      return badge.notification || 'Félicitations!';
+      if (badge.notification) {
+        return badge.notification;
+      }
+      
+      // Fallback for count badges - use description if available
+      if (badge.description && typeof badge.description === 'object' && badge.description.fr) {
+        return badge.description.fr;
+      }
+      if (badge.description) {
+        return badge.description;
+      }
+      
+      // Final fallback
+      return 'Félicitations! Vous avez débloqué ce badge!';
     },
     
     showNextBadge() {
@@ -153,6 +171,10 @@ export default {
   mounted() {
     // Listen for badge unlock events
     eventBus.on('badge-unlocked', (badge) => {
+      console.log('Badge unlock modal received badge:', badge);
+      console.log('Badge notification field:', badge.notification);
+      console.log('Badge description field:', badge.description);
+      
       // Add badge to queue
       this.badgeQueue.push(badge);
       
@@ -174,19 +196,45 @@ export default {
 /* Badge Unlock Modal Styles */
 .badge-unlock-modal {
   --height: auto;
-  --width: 85%;
-  --border-radius: 5vw;
-  --box-shadow: 0 3vh 4vh rgba(0, 0, 0, 0.3);
+  --width: 90%;
+  --border-radius: 4vw;
+  --box-shadow: 0 2vh 3vh rgba(0, 0, 0, 0.2);
 }
 
 .badge-unlock-content {
-  padding: 6vh 5vw;
+  position: relative;
+  padding: 3vh 2vw;
   display: flex;
   flex-direction: column;
   align-items: center;
   background-color: white;
-  border-radius: 5vw;
+  border-radius: 4vw;
   text-align: center;
+}
+
+.close-button-container {
+  position: absolute;
+  top: 4.5vw;
+  right: 4.5vw;
+  background: none;
+  border: none;
+  font-size: 5vw;
+  color: #888;
+  cursor: pointer;
+}
+
+.close-icon {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #888;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
 }
 
 .unlock-animation {
@@ -195,7 +243,7 @@ export default {
 }
 
 .unlock-animation .badge-image {
-  width: 35vw;
+  width: 30vw;
   height: auto;
 }
 
@@ -250,30 +298,30 @@ export default {
   margin: 0 0 1vh 0;
 }
 
-.badge-unlock-content h3 {
-  font-size: 5vw;
-  font-weight: 600;
-  margin: 2vh 0 2vh 0;
-  color: #333;
+.badge-unlock-content h1 {
+  font-size: 6.5vw;
+  font-weight: bold;
+  margin: 2vh 0 0 0;
+  text-align: center;
 }
 
 .unlock-description {
-  margin-bottom: 3vh;
+  margin-bottom: 4vh;
   width: 90%;
 }
 
 .unlock-description p {
-  font-size: 4vw;
-  line-height: 1.5;
-  color: #555;
+  font-size: 3.8vw;
+  line-height: 1.4;
+  color: #444;
 }
 
 .unlock-buttons {
   display: flex !important;
   flex-direction: row !important;
   gap: 3vw;
-  width: 100%;
-  margin-top: 3vh;
+  width: 80%;
+  margin: 3vh auto 0 auto;
   justify-content: center;
   align-items: center;
 }
@@ -289,8 +337,9 @@ export default {
   font-weight: 500;
   height: 5vh;
   font-size: 0.8rem;
-  flex: 1;
-  max-width: 40vw;
+  flex: none;
+  width: 35vw;
+  max-width: 120px;
 }
 
 .unlock-badges-page-button {
@@ -300,15 +349,15 @@ export default {
   font-weight: 500;
   height: 5vh;
   font-size: 0.8rem;
-  flex: 1;
-  max-width: 40vw;
+  flex: none;
+  width: 35vw;
+  max-width: 120px;
 }
 
 /* Single button when multiple badges (smaller width) */
 .unlock-buttons .single-button {
-  max-width: 50vw !important;
-  width: 40vw;
-  flex: none;
+  width: 35vw !important;
+  max-width: 140px !important;
 }
 
 /* Responsive design for smaller screens */

@@ -1,18 +1,5 @@
 <template v-if="badgesCollectionsStore.countCollection.length">
   <div class="main-container">
-    <!-- Debug buttons for testing badge notifications -->
-    <div style="margin-bottom: 20px;">
-      <ion-button @click="testBadgeNotification" color="warning" size="small">
-        🧪 Test Badge Notification (Direct)
-      </ion-button>
-      <ion-button @click="testBadgeNotificationFromStore" color="success" size="small">
-        🧪 Test Badge Notification (Store)
-      </ion-button>
-      <ion-button @click="testNewBadge" color="primary" size="small">
-        🧪 Test New Badge Flow
-      </ion-button>
-    </div>
-
     <div style="display: flex; justify-content: space-between; align-items: center">
       <h1 style="margin-top: 0">Nombre de découvertes</h1>
       <span>{{
@@ -292,43 +279,6 @@ export default {
     closeBadgeModal() {
       this.isBadgeModalOpen = false;
     },
-    
-    // Debug methods for testing badge notifications
-    testBadgeNotification() {
-      // For testing: manually trigger a badge notification using eventBus
-      const testBadge = {
-        title: { fr: "Badge de Test" },
-        notification: { fr: "Ceci est une notification de badge de test!" },
-        description: { fr: "Description du badge de test." },
-        src: "/assets/drawable/badges/count/unlocked/1.svg", // Use a real badge image path
-        count: 1,
-        requireCount: 1
-      };
-      
-      console.log("Testing badge notification with:", testBadge);
-      
-      // Directly emit the event to test the modal
-      eventBus.emit('badge-unlocked', testBadge);
-    },
-    
-    testBadgeNotificationFromStore() {
-      // Test using the store's showBadgeNotification method
-      // Use a real badge ID from the count collection
-      const firstCountBadge = badgesCollectionsStore.countCollection[0];
-      if (firstCountBadge) {
-        console.log("Testing with real badge:", firstCountBadge);
-        badgesCollectionsStore.showBadgeNotification(firstCountBadge.id);
-      } else {
-        console.log("No badges available in countCollection");
-      }
-    },
-    
-    testNewBadge() {
-      // Test the complete newBadge flow
-      console.log("Testing newBadge flow...");
-      // Use test data - this simulates collecting a discovery
-      badgesCollectionsStore.newBadge(4, 'artwork');
-    },
   },
 };
 </script>
@@ -578,7 +528,7 @@ a {
 .custom-progress-bar {
   position: relative;
   display: flex;
-  height: 15px;
+  height: 13px;
   margin: 12px 0 8px 0;
   background-color: #f0f0f0;
   border-radius: 8px;
@@ -609,7 +559,7 @@ a {
 /* Yellow bubble indicator */
 .bubble-indicator {
   position: absolute;
-  top: -0.5vh;
+  top: -0.6vh;
 }
 
 .bubble {

@@ -294,10 +294,15 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
         if (elem.src.includes(countPathLocked)) {
           if (elem.requireCount === this.userCollectedDiscovery.length) {
             elem.src = countPathUnlocked + elem.id + ".svg";
-            // Ensure the badge has its description for the modal
+            // Ensure the badge has its description and notification for the modal
             const badgeFromDB = BadgeDatabase.getFromId(elem.id);
-            if (badgeFromDB && badgeFromDB.description?.fr) {
-              elem.description = badgeFromDB.description.fr;
+            if (badgeFromDB) {
+              if (badgeFromDB.description?.fr) {
+                elem.description = badgeFromDB.description.fr;
+              }
+              if (badgeFromDB.notification?.fr) {
+                elem.notification = badgeFromDB.notification.fr;
+              }
             }
             // Show notification for newly unlocked badge
             this.showBadgeNotification(elem.id);
