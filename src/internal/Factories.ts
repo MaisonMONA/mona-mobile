@@ -6,7 +6,9 @@ export class ArtworkFactory {
         const artists: Artist[] = [];
         if (artwork.artists) {
             for (const artist of artwork.artists) {
-                artists.push(new Artist(artist.id, artist.name))
+                // Handle both v2 API (artist.alias) and v3 API (artist.artist?.alias)
+                const alias = artist.alias || artist.artist?.alias;
+                artists.push(new Artist(artist.id, artist.name, alias))
             }
         }
 

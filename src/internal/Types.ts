@@ -35,15 +35,25 @@ export abstract class Discovery {
 }
 
 export class Artist {
-  constructor(id: number, name: string) {
+  constructor(id: number, name: string, alias?: string | null) {
     this.id = id;
     this.name = name;
+    this.alias = alias || null;
   }
 
   id: number;
   name: string;
+  alias: string | null;
 
   public toString() {
+    return this.getDisplayName();
+  }
+
+  // If the artist has an alias, the artist will be displayed as "alias (name)"
+  public getDisplayName(): string {
+    if (this.alias) {
+      return `${this.alias} (${this.name})`;
+    }
     return this.name;
   }
 }
@@ -132,7 +142,7 @@ export class Artwork extends Discovery {
 
   public getArtists(): string {
     if (this.artists != undefined)
-      return this.artists.map((artist) => artist.name).join(", ");
+      return this.artists.map((artist) => artist.getDisplayName()).join(", ");
 
     return "";
   }
