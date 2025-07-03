@@ -4,24 +4,35 @@
       <div class="main-content">
 
         <div id="searchbarAndFilterButton">
-        <!-- triggerTextFilter function triggered each 500 ms when search bar value changes -->
-        <ion-searchbar
-          id="listIonSearchBar"
-          show-clear-button="always"
-          placeholder="Rechercher par titre de découverte"
-          @ion-clear="triggerTextFilter('')"
-          @ionInput="triggerTextFilter($event.target.value)"
-          @keydown.enter="triggerTextFilter($event.target.value)"
-        ></ion-searchbar>
-        <ion-button
-          id="open-modal"
-          class="filters-button"
-          shape="round"
-          fill="outline"
-        >
-          <ion-icon slot="icon-only" :icon="`/assets/drawable/icons/list_filters_icon_white.svg`"></ion-icon>
-        </ion-button>
-      </div>
+          <!-- triggerTextFilter function triggered each 500 ms when search bar value changes -->
+          <ion-searchbar
+            id="listIonSearchBar"
+            show-clear-button="always"
+            placeholder="Rechercher par titre de découverte"
+            @ion-clear="triggerTextFilter('')"
+            @ionInput="triggerTextFilter($event.target.value)"
+            @keydown.enter="triggerTextFilter($event.target.value)"
+          ></ion-searchbar>
+          
+          <!-- Filter options button -->
+          <ion-button
+            id="open-modal"
+            class="filters-button"
+            shape="round"
+            fill="outline"
+          >
+            <ion-icon slot="icon-only" :icon="`/assets/drawable/icons/list_filters_icon_white.svg`"></ion-icon>
+          </ion-button>
+          
+          <!-- Refresh button -->
+          <ion-button
+            @click="refreshPage"
+            id="refresh-button"
+            class="filters-button"
+          >
+            <ion-icon :icon="syncCircleIcon"></ion-icon>
+          </ion-button>
+        </div>
 
         <!-- Results list -->
         <ion-list :inset="true" lines="none" :key="componentKey">
@@ -629,7 +640,7 @@ ion-searchbar#listIonSearchBar {
   --border-radius: 2vw;
   --box-shadow: none;
   padding: 0;
-  width: 79vw;
+  width: 63vw;
   border-radius: 4px;
 }
 
@@ -642,7 +653,7 @@ p.bottom-text {
 .filters-button {
   --border-width: 0;
   --background: #4D58CB;
-  margin: 0;
+  margin: 0 1vw;
   --border-radius: 10px;
   --background-activated: black;
   width: 12vw;
@@ -818,23 +829,16 @@ ion-modal[trigger="open-modal"] {
 }
 
 #refresh-button {
-  float: right;
-  right: 3vw;
-  position: sticky;
-  z-index: 2;
-  color: #7f7f7f;
-  bottom: 10px;
   --background: var(--toolbar-purple);
   --background-activated: lightgrey;
-  width: 14vw;
-  height: 14vw;
-  font-size: 12px;
-  font-weight: normal;
-  --border-radius: 15px;
+  width: 12vw; /* Match the filters-button width */
+  height: 12vw; /* Match the filters-button height */
+  --border-radius: 10px;
+  margin: 0 1vw;
 }
 
 #refresh-button ion-icon {
-  font-size: 32px;
+  transform: scale(1.3);
   color: grey;
 }
 

@@ -367,6 +367,11 @@ export default {
     // If the permission is granted, this.askForPermissions() will not ask for permission again
     await this.askForPermissions();
     this.myMap();
+
+    // Update closest discoveries every 2 minutes
+    this.discoveryUpdateInterval = setInterval(() => {
+      this.updateClosestDiscoveries();
+    }, 120000); // 120000 ms = 2 minutes
   },
 
   methods: {
