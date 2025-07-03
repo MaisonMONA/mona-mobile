@@ -1,5 +1,18 @@
 <template v-if="badgesCollectionsStore.countCollection.length">
   <div class="main-container">
+    <!-- Debug buttons for testing badge notifications -->
+    <div style="margin-bottom: 20px;">
+      <ion-button @click="testBadgeNotification" color="warning" size="small">
+        🧪 Test Badge Notification (Direct)
+      </ion-button>
+      <ion-button @click="testBadgeNotificationFromStore" color="success" size="small">
+        🧪 Test Badge Notification (Store)
+      </ion-button>
+      <ion-button @click="testNewBadge" color="primary" size="small">
+        🧪 Test New Badge Flow
+      </ion-button>
+    </div>
+
     <div style="display: flex; justify-content: space-between; align-items: center">
       <h1 style="margin-top: 0">Nombre de découvertes</h1>
       <span>{{
@@ -147,6 +160,7 @@ import "swiper/css";
 import "@ionic/vue/css/ionic-swiper.css";
 import { useBadgesCollections } from "@/stores/BadgesCollections";
 import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
+import { eventBus } from '@/internal/eventBus';
 
 const badgesCollectionsStore = useBadgesCollections();
 export default {
@@ -180,7 +194,7 @@ export default {
       showCategories: true,
       showNeighborhoods: true,
       isBadgeModalOpen: false,
-      selectedBadge: null
+      selectedBadge: null,
     };
   },
   computed: {
@@ -227,6 +241,16 @@ export default {
       }
     },
     
+    getBadgeNotification(badge) {
+      if (!badge) return 'Félicitations!';
+      
+      // Handle notification structure  
+      if (badge.notification && typeof badge.notification === 'object' && badge.notification.fr) {
+        return badge.notification.fr;
+      }
+      return badge.notification || 'Félicitations!';
+    },
+    
     toggleCategories() {
       this.showCategories = !this.showCategories;
     },
@@ -240,12 +264,42 @@ export default {
     closeBadgeModal() {
       this.isBadgeModalOpen = false;
     },
-    debuggingToDelete() {
-      console.log("userCollectedDiscovery:", badgesCollectionsStore.userCollectedDiscovery);
-      console.log("userCollectedBadges:", badgesCollectionsStore.userCollectedBadges);
-      console.log("countCollection:", badgesCollectionsStore.countCollection);
-      console.log("collectedCountBadgesId:", badgesCollectionsStore.collectedCountBadgesId);
-      console.log("getCompletedBadges:", badgesCollectionsStore.getCompletedBadges);
+    
+    // Debug methods for testing badge notifications
+    testBadgeNotification() {
+      // For testing: manually trigger a badge notification using eventBus
+      const testBadge = {
+        title: { fr: "Badge de Test" },
+        notification: { fr: "Ceci est une notification de badge de test!" },
+        description: { fr: "Description du badge de test." },
+        src: "/assets/drawable/badges/count/unlocked/1.svg", // Use a real badge image path
+        count: 1,
+        requireCount: 1
+      };
+      
+      console.log("Testing badge notification with:", testBadge);
+      
+      // Directly emit the event to test the modal
+      eventBus.emit('badge-unlocked', testBadge);
+    },
+    
+    testBadgeNotificationFromStore() {
+      // Test using the store's showBadgeNotification method
+      // Use a real badge ID from the count collection
+      const firstCountBadge = badgesCollectionsStore.countCollection[0];
+      if (firstCountBadge) {
+        console.log("Testing with real badge:", firstCountBadge);
+        badgesCollectionsStore.showBadgeNotification(firstCountBadge.id);
+      } else {
+        console.log("No badges available in countCollection");
+      }
+    },
+    
+    testNewBadge() {
+      // Test the complete newBadge flow
+      console.log("Testing newBadge flow...");
+      // Use test data - this simulates collecting a discovery
+      badgesCollectionsStore.newBadge(4, 'artwork');
     },
   },
 };
@@ -417,5 +471,24 @@ a {
 
 .badgeContainer:hover span {
   color: #4D58CB;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .badge-details-modal {
+    --width: 95%;
+  }
+
+  .badge-header h2 {
+    font-size: 6vw;
+  }
+
+  .badge-description p {
+    font-size: 4.2vw;
+  }
+
+  .badge-progress {
+    font-size: 4vw;
+  }
 }
 </style>
