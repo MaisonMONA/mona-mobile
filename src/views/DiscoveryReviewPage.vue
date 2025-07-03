@@ -274,8 +274,8 @@ ion-icon {
   --border-radius: 12px;
   --padding-start: 16px;
   --padding-end: 16px;
-  --padding-top: 16px;
-  --padding-bottom: 16px;
+  --padding-top: 5px;
+  --padding-bottom: 17px;
   margin-top: 8px;
   min-height: 120px;
   font-size: 16px;
