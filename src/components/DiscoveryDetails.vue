@@ -110,8 +110,8 @@
         </div>
 
         <!-- Only show artworks' directions (place/directions from API) on main page -->
-        <div v-if="isArtworkDirections()" class="description-section">
-          <p class="description-text" v-html="details3.replace(/\n/g, '<br>')"></p>
+        <div v-if="isArtworkDirections()" class="directions-section">
+          <p class="directions-text" v-html="details3.replace(/\n/g, '<br>')"></p>
         </div>
 
         <!-- FICHE COMPLETE BUTTON -->
@@ -508,12 +508,12 @@ ion-button {
   border-top: 1px solid #e6e6e6;
 }
 
-/* New styles for description and URL sections */
-.description-section {
-  margin: 0 2vh 2.8vh 2vh;
+/* New styles for directions section */
+.directions-section {
+  margin: 0 3.9vw 2.8vh 3.9vw;
 }
 
-.description-text {
+.directions-text {
   font-size: 3.6vw;
   line-height: 1.4;
   margin: 0;
