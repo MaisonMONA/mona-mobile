@@ -35,15 +35,25 @@ export abstract class Discovery {
 }
 
 export class Artist {
-  constructor(id: number, name: string) {
+  constructor(id: number, name: string, alias?: string | null) {
     this.id = id;
     this.name = name;
+    this.alias = alias || null;
   }
 
   id: number;
   name: string;
+  alias: string | null;
 
   public toString() {
+    return this.getDisplayName();
+  }
+
+  // If the artist has an alias, the artist will be displayed as "alias (name)"
+  public getDisplayName(): string {
+    if (this.alias) {
+      return `${this.alias} (${this.name})`;
+    }
     return this.name;
   }
 }
@@ -65,6 +75,7 @@ export class Artwork extends Discovery {
     techniques: { fr: string[]; en: string[] } | null;
     mediums: { fr: string[]; en: string[] } | null;
     directions: { fr: string | null; en: string | null } | null;
+    place: { fr: string | null; en: string | null } | null;
     supports: { fr: string[]; en: string[] } | null;
     accessibilities: { fr: string[]; en: string[] } | null;
   }) {
@@ -81,6 +92,7 @@ export class Artwork extends Discovery {
     this.categories = artwork.categories;
     this.techniques = artwork.techniques;
     this.directions = artwork.directions;
+    this.place = artwork.place;
     this.mediums = artwork.mediums;
     this.owner = artwork.owner;
     this.borough = artwork.borough;
@@ -101,6 +113,7 @@ export class Artwork extends Discovery {
   categories: { fr: string[]; en: string[] } | null;
   techniques: { fr: string[]; en: string[] } | null;
   directions: { fr: string | null; en: string | null } | null;
+  place: { fr: string | null; en: string | null } | null;
   mediums: { fr: string[]; en: string[] } | null;
   owner: string | null;
   borough: string;
@@ -129,7 +142,7 @@ export class Artwork extends Discovery {
 
   public getArtists(): string {
     if (this.artists != undefined)
-      return this.artists.map((artist) => artist.name).join(", ");
+      return this.artists.map((artist) => artist.getDisplayName()).join(", ");
 
     return "";
   }
@@ -145,6 +158,13 @@ export class Artwork extends Discovery {
     if (this.directions)
       // `direction` can also be null
       return this.directions.fr || this.directions.en || ""; // In case both `fr` and `en` are null
+
+    return "";
+  }
+
+  public getPlace(): string {
+    if (this.place)
+      return this.place.fr || this.place.en || "";
 
     return "";
   }
@@ -183,6 +203,9 @@ export class Artwork extends Discovery {
   }
   public getBorough(): string {
     return this.borough;
+  }
+  public getTerritory(): string {
+    return this.territory;
   }
   public getOwner(): string | null {
     return this.owner;
@@ -242,6 +265,9 @@ export class Place extends Discovery {
 
   public getBorough(): string {
     return this.borough;
+  }
+  public getTerritory(): string {
+    return this.territory;
   }
 
   public getAddress(): string | null {
@@ -312,6 +338,9 @@ export class Heritage extends Discovery {
 
   public getBorough(): string {
     return this.borough;
+  }
+  public getTerritory(): string {
+    return this.territory;
   }
 
   public getUsages(): string {

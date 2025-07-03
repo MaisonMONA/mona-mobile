@@ -123,6 +123,25 @@
           </ion-segment>
 
           <div v-if="activeTab === 'details'" class="descriptionTab detailsTab">
+            <!-- Move address to top of details tab -->
+            <div class="addressContainer" @click="activateMap([discovery.lng, discovery.lat])">
+              <!-- Discovery pin icon-->
+              <ion-icon
+                :icon="`./assets/drawable/pins/${discovery.dType}/default.svg`"
+              ></ion-icon>
+              <span>{{ details7 }}</span>
+            </div>
+            <hr class="separating-bar" />
+
+            <!-- Only show artworks' directions (place/directions from API) in details tab -->
+            <div v-if="isArtworkDirections()" class="detailsTabElement">
+              <p>
+                <span class="detailsSubTitle">Directions</span> <br />
+                <span v-html="details3.replace(/\n/g, '<br>')"></span>
+              </p>
+              <hr class="separating-bar" />
+            </div>
+
             <div>
               <div v-if="details4" class="detailsTabElement">
                 <p>
@@ -162,7 +181,18 @@
               <div v-if="details8" class="detailsTabElement">
                 <p>
                   <span class="detailsSubTitle">Propriétaire</span> <br />
-                  {{ details8 }}
+                  <div 
+                    class="detailsTabBoroughElement"
+                    :class="{ 'with-badge': getOwnerBadge(details8), 'without-badge': !getOwnerBadge(details8) }"
+                  >
+                    <img 
+                      v-if="getOwnerBadge(details8)" 
+                      :src="getOwnerBadge(details8).src" 
+                      :alt="getOwnerBadge(details8).title"
+                      class="borough-badge-icon"
+                    />
+                    {{ details8 }}
+                  </div>
                 </p>
                 <hr class="separating-bar" />
               </div>
@@ -182,24 +212,31 @@
               </div>
             </div>
 
-            <p class="detailsTabBoroughElement">
-              {{ details9 }}
-            </p>
-
-            <div class="addressContainer" @click="activateMap([discovery.lng, discovery.lat])">
-              <!-- Discovery pin icon-->
-              <ion-icon
-                :icon="`./assets/drawable/pins/${discovery.dType}/default.svg`"
-              ></ion-icon>
-              <span>{{ details7 }}</span>
+            <!-- Borough with badge icon if applicable, or Territory (Ville) if no borough -->
+            <div v-if="details9 || territoryName" class="detailsTabElement">
+              <p>
+                <span class="detailsSubTitle">{{ details9 ? 'Quartier' : 'Ville' }}</span> <br />
+                <div 
+                  class="detailsTabBoroughElement" 
+                  :class="{ 'with-badge': details9 && getBoroughBadge(details9), 'without-badge': !details9 || !getBoroughBadge(details9) }"
+                >
+                  <img 
+                    v-if="details9 && getBoroughBadge(details9)" 
+                    :src="getBoroughBadge(details9).src" 
+                    :alt="getBoroughBadge(details9).title"
+                    class="borough-badge-icon"
+                  />
+                  {{ details9 || territoryName }}
+                </div>
+              </p>
+              <hr class="separating-bar" />
             </div>
           </div>
 
           <div v-if="activeTab === 'aPropos'" class="descriptionTab aProposTab">
-            <p id="aProposText" v-if="details3">{{ details3 }}</p>
-            <p v-if="!details3" style="color: grey; font-style: italic;">Pas d’information complémentaire disponible en ce moment.</p>
-            <span id="discoveryURL" v-if="details13"><a  :href=details13> Pour en savoir plus <ion-icon :icon="`/assets/drawable/icons/url_icon.svg`"></ion-icon></a></span>
-
+            <p id="aProposText" v-if="shouldShowInAProposTab()">{{ details3 }}</p>
+            <p v-if="!shouldShowInAProposTab() && !details13" style="color: grey; font-style: italic;">Pas d'information complémentaire disponible en ce moment.</p>
+            <span id="discoveryURL" v-if="details13"><a :href="details13"> Pour en savoir plus <ion-icon :icon="`/assets/drawable/icons/url_icon.svg`"></ion-icon></a></span>
           </div>
 
           <div
@@ -287,6 +324,7 @@ import { Directory, Filesystem } from "@capacitor/filesystem";
 import targetIconUnactivated from "/assets/drawable/icons/target_unactivated.svg";
 import targetIconActivated from "/assets/drawable/icons/target_activated.svg";
 import customMapIcon from "/assets/drawable/icons/map.svg";
+import { useBadgesCollections } from "@/stores/BadgesCollections";
 
 export default {
   name: "discovery-details-full-modale",
@@ -329,7 +367,17 @@ export default {
 
       details1 = this.discovery.getArtists();
       details2 = this.discovery.getCategories();
-      details3 = this.discovery.getDirections();
+      // Combine place and directions for artworks
+      const place = this.discovery.getPlace();
+      const directions = this.discovery.getDirections();
+      details3 = '';
+      if (place && directions) {
+        details3 = place + '\n' + directions;
+      } else if (place) {
+        details3 = place;
+      } else if (directions) {
+        details3 = directions;
+      }
       details4 = this.discovery.getDimensions();
       details5 = this.discovery.getMaterials();
       details6 = this.discovery.getTechniques();
@@ -415,6 +463,8 @@ export default {
       details14,
       isShowImgModalOpen: false,
       fullModaleUserImage : document.getElementById("userPhotoFullModale"),
+      badgesCollectionsStore: useBadgesCollections(),
+      territoryName: this.discovery.getTerritory(),
     };
   },
 
@@ -430,6 +480,11 @@ export default {
       discovery,
       DiscoveryEnum,
     };
+  },
+
+  beforeMount() {
+    // Ensure badges are loaded
+    this.badgesCollectionsStore.instantiateBadgesToShow();
   },
 
   mounted() {
@@ -474,6 +529,34 @@ export default {
   },
 
   methods: {
+    // Method to get the unlocked borough badge icon if it exists
+    getBoroughBadge(boroughName) {
+      if (!boroughName || !this.badgesCollectionsStore.boroughCollection) return null;
+      
+      const badge = this.badgesCollectionsStore.boroughCollection.find(badge => badge.title === boroughName);
+      if (!badge) return null;
+      
+      // Return unlocked version
+      return {
+        ...badge,
+        src: badge.src.replace('/locked/', '/unlocked/')
+      };
+    },
+
+    // Method to get the owner badge if it exists (unlocked version)
+    getOwnerBadge(ownerName) {
+      if (!ownerName || !this.badgesCollectionsStore.ownerCollection) return null;
+      
+      const badge = this.badgesCollectionsStore.ownerCollection.find(badge => badge.title === ownerName);
+      if (!badge) return null;
+      
+      // Return unlocked version
+      return {
+        ...badge,
+        src: badge.src.replace('/locked/', '/unlocked/')
+      };
+    },
+
     activateMap() {
       const mapInstructions = {
         path: "/tabs/map/",
@@ -569,6 +652,24 @@ export default {
         this.discovery.dType,
       );
       return userData.rating;
+    },
+
+    isArtworkDirections() {
+      // Only for artworks' directions (place/directions from API)
+      return this.dType === 'artwork' && this.details3 && this.details3.trim() !== '';
+    },
+
+    shouldShowInAProposTab() {
+      // Show in À propos for all cases EXCEPT artworks' directions
+      // For artworks: only exclude directions (place/directions from API), but allow descriptions if they exist
+      // For places/heritage: show description in À propos tab (as before)
+      if (this.dType === 'artwork') {
+        // For artworks, we need to check if details3 contains directions or description
+        // Since artworks only have directions field (no separate description), exclude from À propos
+        return false;
+      }
+      // For places/heritage, show description in À propos
+      return this.details3 && this.details3.trim() !== '';
     },
   },
 };
@@ -755,9 +856,31 @@ ion-button {
   font-weight: 400;
 }
 
-.aProposTab,
 .commentTab {
   margin: 3.5vh 0;
+}
+.aProposTab {
+  margin: 3.5vh 0;
+  font-size: 3.86vw;
+  line-height: 1.4;
+}
+.aProposTab p {
+  margin: 0 0 2vh 0;
+  color: #555;
+}
+
+#aProposText {
+  line-height: 22px;
+}
+
+#discoveryURL a {
+  font-size: 3.4vw;
+  color: #333333;
+}
+
+#discoveryURL ion-icon {
+  margin-left: 0.5em;
+  vertical-align: -0.2em;
 }
 .detailsTab {
   margin: 1.8vh 0;
@@ -767,13 +890,38 @@ ion-button {
   line-height: 2.67vh;
 }
 .detailsTabBoroughElement {
+  display: flex;
+  align-items: center;
   margin: 1.78vh 0;
   font-size: 3.8vw;
   line-height: 2.67vh;
 }
 
-#aProposText {
-  line-height: 22px;
+.detailsTabBoroughElement.with-badge {
+  margin: 0;
+}
+
+/* Borough badge icon styling */
+.borough-badge-icon {
+  width: 14vw;
+  height: 14vw;
+  margin-right: 2vw;
+  object-fit: contain;
+}
+
+/* URL link styling in details tab */
+.details-url-link {
+  color: #333333;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 3.6vw;
+}
+
+.details-url-link ion-icon {
+  margin-left: 0.5em;
+  font-size: 3.2vw;
 }
 
 .detailsSubTitle {
@@ -794,7 +942,7 @@ ion-button {
 .addressContainer {
   display: flex;
   align-items: center;
-  margin: 0 0 2.7vh 0;
+  margin: 0 0 1.8vh 0;
   font-size: 3.4vw;
 }
 .addressContainer ion-icon {
@@ -819,16 +967,6 @@ ion-button {
   height: 4vw;
   width: 4vw;
   margin: 0 0.61vw 0 0;
-}
-
-#discoveryURL a {
-  font-size: 3.4vw;
-  color: #333333;
-}
-
-#discoveryURL ion-icon {
-  margin-left: 0.5em;
-  vertical-align: -0.2em;
 }
 
 a {
