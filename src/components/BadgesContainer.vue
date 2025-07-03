@@ -18,6 +18,7 @@
         <img
           :alt="elem.message"
           :src="elem.src"
+          @error="handleImageError($event, elem)"
           style="max-width: none"
         />
         <span style="margin-top: 2%; font-size: small"> {{ elem.title }} </span>
@@ -36,7 +37,7 @@
         @click="openBadgeDetails(elem)"
       >
         <ion-col size="auto">
-          <img :alt="elem.message" :src="elem.src" />
+          <img :alt="elem.message" :src="elem.src" @error="handleImageError($event, elem)" />
         </ion-col>
         <ion-col>
           <div class="container_progression">
@@ -68,7 +69,7 @@
         @click="openBadgeDetails(elem)"
       >
         <ion-col size="auto">
-          <img :alt="elem.message" :src="elem.src" />
+          <img :alt="elem.message" :src="elem.src" @error="handleImageError($event, elem)" />
         </ion-col>
         <ion-col>
           <div class="container_progression">
@@ -93,7 +94,7 @@
         @click="openBadgeDetails(elem)"
       >
         <ion-col size="auto">
-          <img :alt="elem.message" :src="elem.src" />
+          <img :alt="elem.message" :src="elem.src" @error="handleImageError($event, elem)" />
         </ion-col>
         <ion-col>
           <div class="container_progression">
@@ -118,7 +119,7 @@
   <ion-modal :is-open="isBadgeModalOpen" @didDismiss="closeBadgeModal" class="badge-details-modal">
     <div class="badge-modal-content">
       <div class="badge-header">
-        <img :src="selectedBadge?.src" alt="Badge" class="badge-image" />
+        <img :src="selectedBadge?.src" alt="Badge" class="badge-image" @error="handleImageError($event, selectedBadge)" />
         <h2>{{ getBadgeTitle(selectedBadge) }}</h2>
       </div>
       
@@ -239,6 +240,11 @@ export default {
     },
     closeBadgeModal() {
       this.isBadgeModalOpen = false;
+    },
+    handleImageError(event, badge) {
+      // When an image fails to load, replace it with the fallback badge image
+      console.warn(`Badge image failed to load: ${badge?.src || 'unknown'}, using fallback`);
+      event.target.src = badgesCollectionsStore.getFallbackBadgePath;
     },
     debuggingToDelete() {
       console.log("userCollectedDiscovery:", badgesCollectionsStore.userCollectedDiscovery);

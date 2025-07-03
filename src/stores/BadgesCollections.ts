@@ -18,6 +18,8 @@ const ownerPathLocked = "/assets/drawable/badges/owner/locked/";
 const categoryPathUnlocked = "/assets/drawable/badges/category/unlocked/";
 const categoryPathLocked = "/assets/drawable/badges/category/locked/";
 
+const fallbackBadgePath = "/assets/drawable/badges/fallback-badge.svg";
+
 export const useBadgesCollections = defineStore("badgesCollectionStore", {
   state: () => {
     return {
@@ -34,6 +36,9 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
     };
   },
   getters: {
+    getFallbackBadgePath(): string {
+      return fallbackBadgePath;
+    },
 
     getCompletedBadges(): number {
       return this.userCollectedBadges.filter((badge: any) => {
