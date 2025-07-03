@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import Utils from "@/internal/Utils";
+import { eventBus } from "@/internal/eventBus";
 import { useBadgesDB } from "@/stores/BadgesDB";
 import { UserData } from "@/internal/databases/UserData";
 import { BadgeDatabase } from "@/internal/databases/BadgeDatabase";
@@ -73,19 +74,30 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
     // Show a toast notification when a badge is unlocked
     async showBadgeNotification(badgeId: number) {
       const badge = BadgeDatabase.getFromId(badgeId);
-      if (!badge) return;
+      if (!badge) {
+        return;
+      }
       
-      const notificationText = badge.notification?.fr || badge.title?.fr || "Nouveau badge débloqué !";
+      // Find the full badge data with the unlocked image
+      const allBadges = [
+        ...this.countCollection,
+        ...this.boroughCollection,
+        ...this.categoryCollection,
+        ...this.ownerCollection
+      ];
       
-      const toast = await toastController.create({
-        message: notificationText,
-        duration: 4000, // Duration in milliseconds
-        position: 'top',
-        color: 'warning',
-        cssClass: 'badge-notification-toast'
-      });
+      const fullBadgeData = allBadges.find(b => b.id === badgeId);
       
-      await toast.present();
+      if (fullBadgeData) {
+        const eventData = {
+          ...fullBadgeData,
+          notification: badge.notification,
+          title: badge.title
+        };
+        
+        // Emit event to show modal globally
+        eventBus.emit('badge-unlocked', eventData);
+      }
     },
 
     // Instantiate the badges to show for each type of badges
@@ -235,7 +247,6 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
             // Check if the badge is newly completed
             if (elem.count === elem.requireCount) {
               elem.src = boroughPathUnlocked + elem.id + ".svg";
-              console.log("borough unlocked");
               // Show notification for newly unlocked badge
               this.showBadgeNotification(elem.id);
             }
@@ -253,7 +264,6 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
             // Check if the badge is newly completed
             if (elem.count === elem.requireCount) {
               elem.src = categoryPathUnlocked + elem.id + ".svg";
-              console.log("category unlocked");
               // Show notification for newly unlocked badge
               this.showBadgeNotification(elem.id);
             }
@@ -265,14 +275,11 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
     newOwnerBadge(owner: string | null | undefined) {
       if (owner) {
         for (const elem of this.ownerCollection) {
-          console.log(elem.title === owner);
           if (elem.title === owner) {
-            console.log("in if");
             elem.count++;
             // Check if the badge is newly completed
             if (elem.count === elem.requireCount) {
               elem.src = ownerPathUnlocked + elem.id + ".svg";
-              console.log("owner unlocked");
               // Show notification for newly unlocked badge
               this.showBadgeNotification(elem.id);
             }
@@ -287,7 +294,6 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
         if (elem.src.includes(countPathLocked)) {
           if (elem.requireCount === this.userCollectedDiscovery.length) {
             elem.src = countPathUnlocked + elem.id + ".svg";
-            console.log("count unlocked");
             // Ensure the badge has its description for the modal
             const badgeFromDB = BadgeDatabase.getFromId(elem.id);
             if (badgeFromDB && badgeFromDB.description?.fr) {
