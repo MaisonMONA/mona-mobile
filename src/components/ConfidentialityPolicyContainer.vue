@@ -28,7 +28,7 @@
 import { IonHeader, IonContent, IonToolbar, IonButtons, IonBackButton, IonTitle } from "@ionic/vue";
 
 export default {
-  name: "WhoWeAreContainer",
+  name: "ConfidentialityPolicyContainer",
   components: {
     IonHeader, IonContent, IonToolbar, IonButtons, IonBackButton, IonTitle
   }
