@@ -1,5 +1,5 @@
 <template>
-    <div class="discoveryDetailsContainer">
+      <div class="discoveryDetailsContainer">
         <div class="discoverydetails">
           <div class="chipsContainer">
             <!-- Type -->
@@ -109,11 +109,6 @@
           <span>{{ details7 }}</span>
         </div>
 
-        <!-- Only show artworks' directions (place/directions from API) on main page -->
-        <div v-if="isArtworkDirections()" class="directions-section">
-          <p class="directions-text" v-html="details3.replace(/\n/g, '<br>')"></p>
-        </div>
-
         <!-- FICHE COMPLETE BUTTON -->
         <ion-button
           class="discovery-button"
@@ -185,29 +180,17 @@ export default {
       details4,
       details5,
       details6,
-      details7,
-      details13;
+      details7;
     if (this.discovery.dType === "artwork") {
       isArtwork = true;
 
       details1 = this.discovery.getArtists();
       details2 = this.discovery.getCategories();
-      // Combine place and directions for artworks
-      const place = this.discovery.getPlace();
-      const directions = this.discovery.getDirections();
-      details3 = '';
-      if (place && directions) {
-        details3 = place + '\n' + directions;
-      } else if (place) {
-        details3 = place;
-      } else if (directions) {
-        details3 = directions;
-      }
+      details3 = this.discovery.getDirections();
       details4 = this.discovery.getDimensions();
       details5 = this.discovery.getMaterials();
       details6 = this.discovery.getTechniques();
       details7 = "(" + this.discovery.getLocation().lat + ", " + this.discovery.getLocation().lng + ")";
-      details13 = this.discovery.getUrl();
 
       productionDate = this.discovery.produced_at;
     } else {
@@ -225,7 +208,6 @@ export default {
           ", " +
           this.discovery.getLocation().lng +
           ")";
-      details13 = this.discovery.getUrl();
 
       if (this.discovery.dType === "heritage")
         productionDate = this.discovery.produced_at;
@@ -254,7 +236,6 @@ export default {
       details5,
       details6,
       details7,
-      details13,
     };
   },
 
@@ -383,11 +364,6 @@ export default {
     showImg() {
       // TODO
     },
-
-    isArtworkDirections() {
-      // Only show for artworks' directions (place/directions from API)
-      return this.dType === 'artwork' && this.details3 && this.details3.trim() !== '';
-    },
   },
 };
 </script>
@@ -508,35 +484,6 @@ ion-button {
   border-top: 1px solid #e6e6e6;
 }
 
-/* New styles for directions section */
-.directions-section {
-  margin: 0 3.9vw 2.8vh 3.9vw;
-}
-
-.directions-text {
-  font-size: 3.6vw;
-  line-height: 1.4;
-  margin: 0;
-}
-
-.url-section {
-  margin: 1.5vh 0;
-}
-
-.discovery-url {
-  font-size: 3.4vw;
-  color: #333333;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  display: inline-flex;
-  align-items: center;
-}
-
-.discovery-url ion-icon {
-  margin-left: 0.5em;
-  font-size: 3.2vw;
-}
-
 .photoContainer {
   position: relative;
   height: 100%;
@@ -559,7 +506,7 @@ ion-button {
 .addressContainer {
   display: flex;
   align-items: center;
-  margin: 0 1.8vh 1.7vh 1.8vh;
+  margin: 0 1.8vh 2.7vh 1.8vh;
   font-size: 3.4vw;
 }
 .addressContainer ion-icon {
