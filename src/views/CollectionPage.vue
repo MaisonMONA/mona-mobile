@@ -185,7 +185,7 @@ export default {
 #collection-and-badges-number-container {
   display: flex;
   justify-content: space-between;
-  margin: 3vh 5vw;
+  margin: 3vh 5vw 1vh 5vw;
   max-width: 90vw;
 }
 
@@ -262,7 +262,8 @@ a {
 }
 
 #defaultUserAvatar {
-  font-size: 13vw;
+  font-size: 11vw;
+  margin-top: 1%;
 }
 
 #userInfoText h1 {

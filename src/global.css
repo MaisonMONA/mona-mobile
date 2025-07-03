@@ -7,7 +7,7 @@ ion-searchbar#listIonSearchBar {
 
 ion-searchbar#listIonSearchBar input.searchbar-input {
     border: 1px solid #E6E6E6 !important;
-    font-size: 3.8vw !important;
+    font-size: 3.2vw !important;
     /* for space in searchbar */
     padding: 2.5vw 0 2.5vw 9.6vw !important;
 }

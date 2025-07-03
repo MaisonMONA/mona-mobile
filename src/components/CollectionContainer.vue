@@ -5,11 +5,12 @@
         <p v-if="collected.length===0" class="ion-text-center ion-padding noneCollected">Vous n’avez pas encore
           photographié d’œuvre d’art</p>
         <ion-grid>
-          <ion-row class="ion-justify-content-around">
+          <ion-row class="ion-justify-content-start padded-row">
             <ion-col
               v-for="item in collected"
               :key="item"
               size="5.5"
+              class="collection-item"
               @click="openDetails(item)"
             >
               <div class="img-card">
@@ -193,6 +194,15 @@ img {
   --ionicon-stroke-width: 20px;
 }
 
+.collection-item {
+  margin-right: 3.6vw;
+  margin-bottom: 2.1vh;
+}
+
+.padded-row {
+  padding-left: 4vw;
+}
+
 ion-grid {
   --ion-grid-column-padding: 0;
 }
@@ -201,7 +211,7 @@ ion-col {
   border: 1px solid var(--button-outline-grey);
   border-radius: 15px;
   text-align: center;
-  margin-bottom: 16px;
+  margin-right: 3vw;
 }
 
 p {
