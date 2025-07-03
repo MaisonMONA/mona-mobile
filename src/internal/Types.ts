@@ -65,6 +65,7 @@ export class Artwork extends Discovery {
     techniques: { fr: string[]; en: string[] } | null;
     mediums: { fr: string[]; en: string[] } | null;
     directions: { fr: string | null; en: string | null } | null;
+    place: { fr: string | null; en: string | null } | null;
     supports: { fr: string[]; en: string[] } | null;
     accessibilities: { fr: string[]; en: string[] } | null;
   }) {
@@ -81,6 +82,7 @@ export class Artwork extends Discovery {
     this.categories = artwork.categories;
     this.techniques = artwork.techniques;
     this.directions = artwork.directions;
+    this.place = artwork.place;
     this.mediums = artwork.mediums;
     this.owner = artwork.owner;
     this.borough = artwork.borough;
@@ -101,6 +103,7 @@ export class Artwork extends Discovery {
   categories: { fr: string[]; en: string[] } | null;
   techniques: { fr: string[]; en: string[] } | null;
   directions: { fr: string | null; en: string | null } | null;
+  place: { fr: string | null; en: string | null } | null;
   mediums: { fr: string[]; en: string[] } | null;
   owner: string | null;
   borough: string;
@@ -145,6 +148,13 @@ export class Artwork extends Discovery {
     if (this.directions)
       // `direction` can also be null
       return this.directions.fr || this.directions.en || ""; // In case both `fr` and `en` are null
+
+    return "";
+  }
+
+  public getPlace(): string {
+    if (this.place)
+      return this.place.fr || this.place.en || "";
 
     return "";
   }
