@@ -212,21 +212,21 @@
               </div>
             </div>
 
-            <!-- Borough with badge icon if applicable -->
-            <div v-if="details9" class="detailsTabElement">
+            <!-- Borough with badge icon if applicable, or Territory (Ville) if no borough -->
+            <div v-if="details9 || territoryName" class="detailsTabElement">
               <p>
-                <span class="detailsSubTitle">Quartier</span> <br />
+                <span class="detailsSubTitle">{{ details9 ? 'Quartier' : 'Ville' }}</span> <br />
                 <div 
                   class="detailsTabBoroughElement" 
-                  :class="{ 'with-badge': getBoroughBadge(details9), 'without-badge': !getBoroughBadge(details9) }"
+                  :class="{ 'with-badge': details9 && getBoroughBadge(details9), 'without-badge': !details9 || !getBoroughBadge(details9) }"
                 >
                   <img 
-                    v-if="getBoroughBadge(details9)" 
+                    v-if="details9 && getBoroughBadge(details9)" 
                     :src="getBoroughBadge(details9).src" 
                     :alt="getBoroughBadge(details9).title"
                     class="borough-badge-icon"
                   />
-                  {{ details9 }}
+                  {{ details9 || territoryName }}
                 </div>
               </p>
               <hr class="separating-bar" />
@@ -464,6 +464,7 @@ export default {
       isShowImgModalOpen: false,
       fullModaleUserImage : document.getElementById("userPhotoFullModale"),
       badgesCollectionsStore: useBadgesCollections(),
+      territoryName: this.discovery.getTerritory(),
     };
   },
 

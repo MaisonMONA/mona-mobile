@@ -194,6 +194,9 @@ export class Artwork extends Discovery {
   public getBorough(): string {
     return this.borough;
   }
+  public getTerritory(): string {
+    return this.territory;
+  }
   public getOwner(): string | null {
     return this.owner;
   }
@@ -252,6 +255,9 @@ export class Place extends Discovery {
 
   public getBorough(): string {
     return this.borough;
+  }
+  public getTerritory(): string {
+    return this.territory;
   }
 
   public getAddress(): string | null {
@@ -322,6 +328,9 @@ export class Heritage extends Discovery {
 
   public getBorough(): string {
     return this.borough;
+  }
+  public getTerritory(): string {
+    return this.territory;
   }
 
   public getUsages(): string {
