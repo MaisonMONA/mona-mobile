@@ -8,7 +8,7 @@ export const useCollection = defineStore("collectionStore", {
         };
     },
     actions: {
-        updateCollected(): any[] {
+        updateCollected(): void {
             this.collected = UserData.getCollectedChronologically(); // Update userCollectedDiscovery
         }
     },
