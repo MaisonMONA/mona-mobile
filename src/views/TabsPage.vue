@@ -148,6 +148,6 @@ ion-tab-button ion-label {
 }
 
 ion-tab-button.active-tab {
-  --background: #fada00;
+  --background: var(--mona-yellow);
 }
 </style>

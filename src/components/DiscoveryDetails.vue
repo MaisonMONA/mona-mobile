@@ -481,7 +481,7 @@ ion-button {
 
 #bigDotBetweenArtistsAndDate {
   font-size: 20px;
-  color: #fada00;
+  color: var(--mona-yellow);
 }
 
 #artistsAndDate {

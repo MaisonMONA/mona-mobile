@@ -1,15 +1,13 @@
 <template v-if="badgesCollectionsStore.countCollection.length">
   <div class="main-container">
-    <div style="display: flex; justify-content: space-between; align-items: center">
-      <h1 style="margin-top: 0">Nombre de découvertes</h1>
-      <span class="count-span">{{
-        nbrCountUnlocked + "/" + badgesCollectionsStore.countCollection.length
-      }}</span>
+    <div class="section-header" @click="toggleCountBadges">
+      <h1>Nombre de découvertes</h1>
+      <ion-icon :icon="showCountBadges ? chevronUpOutline : chevronDownOutline"></ion-icon>
     </div>
 
-    <div class="count-badges-grid">
+    <div v-if="showCountBadges" class="count-badges-grid">
       <div
-        v-for="elem in badgesCollectionsStore.countCollection.slice(0, 6)"
+        v-for="elem in badgesCollectionsStore.countCollection"
         :key="elem"
         class="count-badge-item"
         @click="openBadgeDetails(elem)"
@@ -39,21 +37,22 @@
         <div class="circular-badge-container">
           <svg class="progress-ring" viewBox="0 0 120 120">
             <circle
+              v-if="elem.count < elem.requireCount"
               class="progress-ring__circle-bg"
-              stroke-width="6"
+              stroke-width="10"
               fill="transparent"
-              r="54"
+              r="52"
               cx="60"
               cy="60"
             />
             <circle
               class="progress-ring__circle"
-              :stroke="elem.count >= elem.requireCount ? '#FADA00' : '#E0E0E0'"
-              stroke-width="6"
+              :stroke="elem.count > 0 ? 'var(--mona-yellow)' : '#E0E0E0'"
+              stroke-width="10"
               :stroke-dasharray="circumference + ' ' + circumference"
-              :stroke-dashoffset="getProgressOffset(elem.count, elem.requireCount)"
+              :stroke-dashoffset="elem.count >= elem.requireCount ? 0 : getProgressOffset(elem.count, elem.requireCount)"
               fill="transparent"
-              r="54"
+              r="52"
               cx="60"
               cy="60"
             />
@@ -62,8 +61,8 @@
             <img :alt="elem.message" :src="getRoundBadgeImageSrc(elem)" @error="handleImageError($event, elem)" />
           </div>
         </div>
-        <span class="badge-progress">{{ elem.count >= elem.requireCount ? "Complété!" : elem.count + "/" + elem.requireCount }}</span>
         <span class="badge-title">{{ typeof elem.title === 'object' ? elem.title.fr : elem.title }}</span>
+        <span class="badge-progress" :class="{ 'completed': elem.count >= elem.requireCount }">{{ elem.count >= elem.requireCount ? elem.requireCount + "/" + elem.requireCount : elem.count + "/" + elem.requireCount }}</span>
       </div>
     </div>
 
@@ -81,21 +80,22 @@
         <div class="circular-badge-container">
           <svg class="progress-ring" viewBox="0 0 120 120">
             <circle
+              v-if="elem.count < elem.requireCount"
               class="progress-ring__circle-bg"
-              stroke-width="6"
+              stroke-width="10"
               fill="transparent"
-              r="54"
+              r="52"
               cx="60"
               cy="60"
             />
             <circle
               class="progress-ring__circle"
-              :stroke="elem.count >= elem.requireCount ? '#FADA00' : '#E0E0E0'"
-              stroke-width="6"
+              :stroke="elem.count > 0 ? 'var(--mona-yellow)' : '#E0E0E0'"
+              stroke-width="10"
               :stroke-dasharray="circumference + ' ' + circumference"
-              :stroke-dashoffset="getProgressOffset(elem.count, elem.requireCount)"
+              :stroke-dashoffset="elem.count >= elem.requireCount ? 0 : getProgressOffset(elem.count, elem.requireCount)"
               fill="transparent"
-              r="54"
+              r="52"
               cx="60"
               cy="60"
             />
@@ -104,8 +104,8 @@
             <img :alt="elem.message" :src="getRoundBadgeImageSrc(elem)" @error="handleImageError($event, elem)" />
           </div>
         </div>
-        <span class="badge-progress">{{ elem.count >= elem.requireCount ? "Complété!" : elem.count + "/" + elem.requireCount }}</span>
         <span class="badge-title">{{ elem.title }}</span>
+        <span class="badge-progress" :class="{ 'completed': elem.count >= elem.requireCount }">{{ elem.count >= elem.requireCount ? elem.requireCount + "/" + elem.requireCount : elem.count + "/" + elem.requireCount }}</span>
       </div>
     </div>
   </div>
@@ -147,7 +147,7 @@
               <!-- Yellow bubble indicator -->
               <div 
                 class="bubble-indicator" 
-                :style="{ left: `calc(${(selectedBadge.count / selectedBadge.requireCount) * 100}% - 15px)` }"
+                :style="{ '--progress-percentage': (selectedBadge.count / selectedBadge.requireCount) * 100 }"
                 :class="{ 'zero-progress': selectedBadge.count === 0 }"
               >
                 <div class="bubble">
@@ -196,11 +196,12 @@ export default {
   },
   data() {
     return {
+      showCountBadges: true,
       showCategories: true,
       showNeighborhoods: true,
       isBadgeModalOpen: false,
       selectedBadge: null,
-      circumference: 2 * Math.PI * 54, // 2πr where r=54
+      circumference: 2 * Math.PI * 52, // 2πr where r=52
     };
   },
   computed: {
@@ -283,6 +284,9 @@ export default {
     toggleNeighborhoods() {
       this.showNeighborhoods = !this.showNeighborhoods;
     },
+    toggleCountBadges() {
+      this.showCountBadges = !this.showCountBadges;
+    },
     openBadgeDetails(badge) {
       this.selectedBadge = badge;
       this.isBadgeModalOpen = true;
@@ -304,7 +308,7 @@ export default {
 @import url("@/theme/TopToolbar.css");
 
 .main-container {
-  padding: 5vw;
+  padding: 0 5vw;
 }
 
 ion-title {
@@ -313,11 +317,6 @@ ion-title {
 
 * {
   font-family: "Open Sans", sans-serif;
-}
-
-h1 {
-  font-size: 5vw;
-  font-weight: bold;
 }
 
 p {
@@ -356,7 +355,7 @@ a {
 .count-badge-container {
   width: 25vw;
   height: 25vw;
-  border-radius: 3vw;
+  border-radius: 2vw;
   background-color: #FFFFFF;
   border: 0.3vw solid #E0E0E0;
   display: flex;
@@ -369,8 +368,8 @@ a {
 }
 
 .count-badge-container.unlocked {
-  background-color: #FADA00;
-  border-color: #FADA00;
+  background-color: var(--mona-yellow);
+  border-color: var(--mona-yellow);
 }
 
 .count-badge-container img {
@@ -381,7 +380,7 @@ a {
 }
 
 .count-badge-title {
-  font-size: 3vw;
+  font-size: 2.7vw;
   text-align: center;
   color: #333;
   max-width: 20vw;
@@ -391,11 +390,10 @@ a {
 
 /* Circular badge styles for categories */
 .circular-badge {
-  width: 25vw;
-  height: 25vw;
+  width: 28vw;
+  height: 28vw;
   border-radius: 50%;
   background-color: #FFFFFF;
-  border: 0.3vw solid #E0E0E0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -403,8 +401,8 @@ a {
 }
 
 .circular-badge.unlocked {
-  background-color: #FADA00;
-  border-color: #FADA00;
+  background-color: var(--mona-yellow);
+  border-color: var(--mona-yellow);
 }
 
 .circular-badge img {
@@ -417,7 +415,7 @@ a {
 .badge-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 5vw;
+  gap: 2vw 1vw; /* row gap, column gap */
   margin: 3vw 0;
 }
 
@@ -426,13 +424,13 @@ a {
   flex-direction: column;
   align-items: center;
   cursor: pointer;
-  padding: 2.5vw;
+  padding: 0vw;
 }
 
 .circular-badge-container {
   position: relative;
-  width: 30vw;
-  height: 30vw;
+  width: 35vw;
+  height: 35vw;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -460,22 +458,28 @@ a {
 }
 
 .badge-item .circular-badge img {
-  width: 15vw;
-  height: 15vw;
+  width: 19vw;
+  height: 19vw;
 }
 
 .badge-item .badge-progress {
   margin-top: 1vw;
-  font-size: 3.5vw;
+  font-size: 3vw;
   font-weight: 500;
-  color: #333;
+  color: #666;
 }
+
+/* Make completed round badge progress counter bolder and darker */
+/* .badge-item .badge-progress.completed {
+  font-weight: bold;
+  color: #333;
+} */
 
 .badge-item .badge-title {
   margin-top: 0.5vw;
-  font-size: 3vw;
+  font-size: 3.5vw;
   text-align: center;
-  color: #666;
+  color: #333;
   max-width: 30vw;
   word-wrap: break-word;
 }
@@ -598,17 +602,10 @@ a {
   margin-bottom: 2vh;
 }
 
-/* .badge-header h2 {
-  font-size: 5vw;
-  font-weight: bold;
-  margin: 0;
-} */
-
-.badge-header h1 {
-  font-size: 6.5vw;
-  font-weight: bold;
-  margin: 2vh 0 0 0;
-  text-align: center;
+.section-header h1 {
+  font-size: 6vw;
+  margin-top: 10px!important;
+  text-align: left;
 }
 
 .badge-description {
@@ -696,6 +693,7 @@ a {
 .bubble-indicator {
   position: absolute;
   top: -0.6vh;
+  left: calc(var(--progress-percentage, 0) * 1% - 15px);
 }
 
 .bubble {
@@ -724,6 +722,14 @@ a {
   width: 4vw;
   height: 4vw;
   --ionicon-stroke-width: 50px; /* Makes the icon bolder */
+}
+
+/* Smartphone specific styling - adjust bubble position to avoid hiding progress */
+@media (max-width: 767px) {
+  .bubble-indicator {
+    /* Offset bubble slightly to the right so it doesn't hide the latest progress segment */
+    transform: translateX(5px);
+  }
 }
 
 .count-span {
