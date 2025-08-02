@@ -20,14 +20,18 @@ export class CollectedBadge {
   private static boroughPathUnlocked =
     "/assets/drawable/badges/borough/unlocked/";
   private static boroughPathLocked = "/assets/drawable/badges/borough/locked/";
+  private static boroughPathBlack = "/assets/drawable/badges/borough/black/";
 
   private static ownerPathUnlocked = "/assets/drawable/badges/owner/unlocked/";
   private static ownerPathLocked = "/assets/drawable/badges/owner/locked/";
+  private static ownerPathBlack = "/assets/drawable/badges/owner/black/";
 
   private static categoryPathUnlocked =
     "/assets/drawable/badges/category/unlocked/";
   private static categoryPathLocked =
     "/assets/drawable/badges/category/locked/";
+  private static categoryPathBlack =
+    "/assets/drawable/badges/category/black/";
 
   public static determineCollectedBadges() {
     const tmpBoroughContainer = new Map<string, number>();
@@ -113,15 +117,23 @@ export class CollectedBadge {
       const title = boroughElement?.getTitle();
       if (title) {
         if (elements.has(title)) {
+          const count = elements.get(title);
+          const requireCount = boroughElement?.required_count;
           boroughCollected.push({
             id: boroughElementID,
             notification: boroughElement?.notification.fr,
             description: boroughElement?.description.fr,
-            requireCount: boroughElement?.required_count,
-            count: elements.get(title),
+            requireCount: requireCount,
+            count: count,
             src: this.findPath(
-              boroughElement?.required_count,
-              elements.get(title),
+              requireCount,
+              count,
+              boroughElementID,
+              "borough",
+            ),
+            gridSrc: this.findGridPath(
+              requireCount,
+              count,
               boroughElementID,
               "borough",
             ),
@@ -143,15 +155,23 @@ export class CollectedBadge {
       const categoryName = e[1];
       const categoryElement = BadgeDatabase.getFromId(categoryElementID);
       if (elements.has(categoryName)) {
+        const count = elements.get(categoryName);
+        const requireCount = categoryElement?.required_count;
         categoryCollected.push({
           id: categoryElementID,
           notification: categoryElement?.notification.fr,
           description: categoryElement?.description.fr,
-          requireCount: categoryElement?.required_count,
-          count: elements.get(categoryName),
+          requireCount: requireCount,
+          count: count,
           src: this.findPath(
-            categoryElement?.required_count,
-            elements.get(categoryName),
+            requireCount,
+            count,
+            categoryElementID,
+            "category",
+          ),
+          gridSrc: this.findGridPath(
+            requireCount,
+            count,
             categoryElementID,
             "category",
           ),
@@ -172,15 +192,23 @@ export class CollectedBadge {
       const ownerName = e[1];
       const ownerElement = BadgeDatabase.getFromId(ownerElementID);
       if (elements.has(ownerName)) {
+        const count = elements.get(ownerName);
+        const requireCount = ownerElement?.required_count;
         ownerCollected.push({
           id: ownerElementID,
           notification: ownerElement?.notification.fr,
           description: ownerElement?.description.fr,
-          requireCount: ownerElement?.required_count,
-          count: elements.get(ownerName),
+          requireCount: requireCount,
+          count: count,
           src: this.findPath(
-            ownerElement?.required_count,
-            elements.get(ownerName),
+            requireCount,
+            count,
+            ownerElementID,
+            "owner",
+          ),
+          gridSrc: this.findGridPath(
+            requireCount,
+            count,
             ownerElementID,
             "owner",
           ),
@@ -222,6 +250,48 @@ export class CollectedBadge {
         this.obtainedBadges.push(BadgeDatabase.getFromId(id));
         return pathUnlocked + id + ".svg";
       } else {
+        return pathLocked + id + ".svg";
+      }
+    }
+    return pathLocked + id + ".svg";
+  }
+
+  static findGridPath(
+    requireCount: number | undefined,
+    count: number | undefined,
+    id: number,
+    type: string,
+  ) {
+    let pathLocked = "";
+    let pathUnlocked = "";
+    let pathBlack = "";
+    switch (type) {
+      case "borough":
+        pathLocked = this.boroughPathLocked;
+        pathUnlocked = this.boroughPathUnlocked;
+        pathBlack = this.boroughPathBlack;
+        break;
+      case "owner":
+        pathLocked = this.ownerPathLocked;
+        pathUnlocked = this.ownerPathUnlocked;
+        pathBlack = this.ownerPathBlack;
+        break;
+      case "category":
+        pathLocked = this.categoryPathLocked;
+        pathUnlocked = this.categoryPathUnlocked;
+        pathBlack = this.categoryPathBlack;
+        break;
+    }
+
+    if (requireCount && count) {
+      if (count >= requireCount) {
+        // Badge is UNLOCKED - use black for grid
+        return pathBlack + id + ".svg";
+      } else if (count > 0) {
+        // Badge is IN PROGRESS - use unlocked for grid
+        return pathUnlocked + id + ".svg";
+      } else {
+        // Badge is LOCKED - use locked for grid
         return pathLocked + id + ".svg";
       }
     }

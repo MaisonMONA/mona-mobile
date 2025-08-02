@@ -59,7 +59,7 @@
             />
           </svg>
           <div class="circular-badge" :class="{ unlocked: elem.count >= elem.requireCount }">
-            <img :alt="elem.message" :src="elem.src" @error="handleImageError($event, elem)" />
+            <img :alt="elem.message" :src="getRoundBadgeImageSrc(elem)" @error="handleImageError($event, elem)" />
           </div>
         </div>
         <span class="badge-progress">{{ elem.count >= elem.requireCount ? "Complété!" : elem.count + "/" + elem.requireCount }}</span>
@@ -101,7 +101,7 @@
             />
           </svg>
           <div class="circular-badge" :class="{ unlocked: elem.count >= elem.requireCount }">
-            <img :alt="elem.message" :src="elem.src" @error="handleImageError($event, elem)" />
+            <img :alt="elem.message" :src="getRoundBadgeImageSrc(elem)" @error="handleImageError($event, elem)" />
           </div>
         </div>
         <span class="badge-progress">{{ elem.count >= elem.requireCount ? "Complété!" : elem.count + "/" + elem.requireCount }}</span>
@@ -267,6 +267,13 @@ export default {
       if (!badge || !badge.gridSrc) return badge?.src || '';
       
       // Use the dedicated gridSrc property for grid display
+      return badge.gridSrc;
+    },
+    
+    getRoundBadgeImageSrc(badge) {
+      if (!badge || !badge.gridSrc) return badge?.src || '';
+      
+      // Use the dedicated gridSrc property for grid display of round badges
       return badge.gridSrc;
     },
     

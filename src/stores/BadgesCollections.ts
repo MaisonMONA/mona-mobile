@@ -13,12 +13,15 @@ const countPathUnlockedGrid = "/assets/drawable/badges/count/unlocked-grid/";
 
 const boroughPathUnlocked = "/assets/drawable/badges/borough/unlocked/";
 const boroughPathLocked = "/assets/drawable/badges/borough/locked/";
+const boroughPathBlack = "/assets/drawable/badges/borough/black/";
 
 const ownerPathUnlocked = "/assets/drawable/badges/owner/unlocked/";
 const ownerPathLocked = "/assets/drawable/badges/owner/locked/";
+const ownerPathBlack = "/assets/drawable/badges/owner/black/";
 
 const categoryPathUnlocked = "/assets/drawable/badges/category/unlocked/";
 const categoryPathLocked = "/assets/drawable/badges/category/locked/";
+const categoryPathBlack = "/assets/drawable/badges/category/black/";
 
 const fallbackBadgePath = "/assets/drawable/badges/fallback-badge.svg";
 
@@ -154,7 +157,16 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
         const title = boroughElement?.getTitle();
         if (this.collectedBoroughBadgesId.includes(boroughElementID)) {
           // Collected or in progress badge
-          boroughBadgesArray.push(UserData.getCollectedBadge(boroughElementID));
+          const collectedBadge = UserData.getCollectedBadge(boroughElementID);
+          // Add gridSrc for round grid badges
+          if (collectedBadge.count >= collectedBadge.requireCount) {
+            // Badge is UNLOCKED - use black for grid
+            collectedBadge.gridSrc = boroughPathBlack + boroughElementID + ".svg";
+          } else {
+            // Badge is IN PROGRESS - use unlocked for grid
+            collectedBadge.gridSrc = boroughPathUnlocked + boroughElementID + ".svg";
+          }
+          boroughBadgesArray.push(collectedBadge);
         } else {
           // Uncollected badge
           boroughBadgesArray.push({
@@ -164,6 +176,7 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
             requireCount: boroughElement?.required_count,
             count: 0,
             src: boroughPathLocked + boroughElementID + ".svg",
+            gridSrc: boroughPathLocked + boroughElementID + ".svg", // Locked badges use same for grid
             message: boroughElement?.description.fr,
             title: title,
             dType: null,
@@ -182,7 +195,16 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
 
         if (this.collectedCategoryBadgesId.includes(categoryElementID)) {
           // Collected or in progress badge
-          categoryBadgesArray.push(UserData.getCollectedBadge(categoryElementID));
+          const collectedBadge = UserData.getCollectedBadge(categoryElementID);
+          // Add gridSrc for round grid badges
+          if (collectedBadge.count >= collectedBadge.requireCount) {
+            // Badge is UNLOCKED - use black for grid
+            collectedBadge.gridSrc = categoryPathBlack + categoryElementID + ".svg";
+          } else {
+            // Badge is IN PROGRESS - use unlocked for grid
+            collectedBadge.gridSrc = categoryPathUnlocked + categoryElementID + ".svg";
+          }
+          categoryBadgesArray.push(collectedBadge);
         } else {
           // Uncollected badge
           categoryBadgesArray.push({
@@ -192,6 +214,7 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
             requireCount: categoryElement?.required_count,
             count: 0,
             src: categoryPathLocked + categoryElementID + ".svg",
+            gridSrc: categoryPathLocked + categoryElementID + ".svg", // Locked badges use same for grid
             message: categoryElement?.description.fr,
             title: categoryElement?.title,
             dType: this.badgesDB.category.get(categoryElementID),
@@ -209,7 +232,16 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
         const ownerElement = BadgeDatabase.getFromId(ownerElementID);
         if (this.ownerCategoryBadgesId.includes(ownerElementID)) {
           // Collected or in progress badge
-          ownerBadgesArray.push(UserData.getCollectedBadge(ownerElementID));
+          const collectedBadge = UserData.getCollectedBadge(ownerElementID);
+          // Add gridSrc for round grid badges
+          if (collectedBadge.count >= collectedBadge.requireCount) {
+            // Badge is UNLOCKED - use black for grid
+            collectedBadge.gridSrc = ownerPathBlack + ownerElementID + ".svg";
+          } else {
+            // Badge is IN PROGRESS - use unlocked for grid
+            collectedBadge.gridSrc = ownerPathUnlocked + ownerElementID + ".svg";
+          }
+          ownerBadgesArray.push(collectedBadge);
         } else {
           // Uncollected badge
           ownerBadgesArray.push({
@@ -219,6 +251,7 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
             requireCount: ownerElement?.required_count,
             count: 0,
             src: ownerPathLocked + ownerElementID + ".svg",
+            gridSrc: ownerPathLocked + ownerElementID + ".svg", // Locked badges use same for grid
             message: ownerElement?.description.fr,
             title: this.badgesDB.owner.get(ownerElementID),
             dType: null,
@@ -254,9 +287,13 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
             elem.count++;
             // Check if the badge is newly completed
             if (elem.count === elem.requireCount) {
-              elem.src = boroughPathUnlocked + elem.id + ".svg";
+              elem.src = boroughPathUnlocked + elem.id + ".svg"; // Modal uses unlocked
+              elem.gridSrc = boroughPathBlack + elem.id + ".svg"; // Grid uses black when unlocked
               // Show notification for newly unlocked badge
               this.showBadgeNotification(elem.id);
+            } else {
+              // Badge is in progress - grid uses unlocked, modal keeps locked
+              elem.gridSrc = boroughPathUnlocked + elem.id + ".svg";
             }
             UserData.addCollectedBadge(elem);
           }
@@ -271,9 +308,13 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
             elem.count++;
             // Check if the badge is newly completed
             if (elem.count === elem.requireCount) {
-              elem.src = categoryPathUnlocked + elem.id + ".svg";
+              elem.src = categoryPathUnlocked + elem.id + ".svg"; // Modal uses unlocked
+              elem.gridSrc = categoryPathBlack + elem.id + ".svg"; // Grid uses black when unlocked
               // Show notification for newly unlocked badge
               this.showBadgeNotification(elem.id);
+            } else {
+              // Badge is in progress - grid uses unlocked, modal keeps locked
+              elem.gridSrc = categoryPathUnlocked + elem.id + ".svg";
             }
             UserData.addCollectedBadge(elem);
           }
@@ -287,9 +328,13 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
             elem.count++;
             // Check if the badge is newly completed
             if (elem.count === elem.requireCount) {
-              elem.src = ownerPathUnlocked + elem.id + ".svg";
+              elem.src = ownerPathUnlocked + elem.id + ".svg"; // Modal uses unlocked
+              elem.gridSrc = ownerPathBlack + elem.id + ".svg"; // Grid uses black when unlocked
               // Show notification for newly unlocked badge
               this.showBadgeNotification(elem.id);
+            } else {
+              // Badge is in progress - grid uses unlocked, modal keeps locked
+              elem.gridSrc = ownerPathUnlocked + elem.id + ".svg";
             }
             UserData.addCollectedBadge(elem);
           }
