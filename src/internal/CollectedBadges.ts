@@ -15,6 +15,7 @@ export class CollectedBadge {
   private static ownerCollection = [] as any;
   private static countPathLocked = "/assets/drawable/badges/count/locked/";
   private static countPathUnlocked = "/assets/drawable/badges/count/unlocked/";
+  private static countPathUnlockedGrid = "/assets/drawable/badges/count/unlocked-grid/";
 
   private static boroughPathUnlocked =
     "/assets/drawable/badges/borough/unlocked/";
@@ -90,6 +91,7 @@ export class CollectedBadge {
         countCollected.push({
           id: element.id,
           src: this.countPathUnlocked + element.id + ".svg",
+          gridSrc: this.countPathUnlockedGrid + element.id + ".svg",
           notification: element?.notification.fr,
           description: element?.description.fr,
           message: element?.notification.fr,

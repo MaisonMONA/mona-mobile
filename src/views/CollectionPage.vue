@@ -14,11 +14,7 @@
           {{ collected.length > 0 ? collected.length : "" }}
         </p>
         <p>
-          {{ collected.length > 0 ? "D" : "Aucune d" }}écouverte{{
-            collected.length > 0 ? "s" : ""
-          }}
-          <br />
-          collectionnée{{ collected.length > 0 ? "s" : "" }}
+          {{ collected.length > 1 ? "Découvertes collectionnées" : (collected.length > 0 ? "Découverte collectionnée" : "Aucune découverte collectionnée") }}
         </p>
       </div>
 

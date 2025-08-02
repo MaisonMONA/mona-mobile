@@ -9,6 +9,7 @@ import { toastController } from "@ionic/vue";
 
 const countPathLocked = "/assets/drawable/badges/count/locked/";
 const countPathUnlocked = "/assets/drawable/badges/count/unlocked/";
+const countPathUnlockedGrid = "/assets/drawable/badges/count/unlocked-grid/";
 
 const boroughPathUnlocked = "/assets/drawable/badges/borough/unlocked/";
 const boroughPathLocked = "/assets/drawable/badges/borough/locked/";
@@ -123,12 +124,14 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
           // Get badge from UserData but ensure it has count property
           const collectedBadge = UserData.getCollectedBadge(countBadge.id);
           collectedBadge.count = discoveryCount; // Set proper count
+          collectedBadge.gridSrc = countPathUnlockedGrid + countBadge.id + ".svg"; // Add grid source
           countBadgesArray.push(collectedBadge);
         } else {
           // Uncollected badge
           countBadgesArray.push({
             id: countBadge.id,
             src: countPathLocked + countBadge.id + ".svg",
+            gridSrc: countPathLocked + countBadge.id + ".svg", // Locked badges use same image for grid
             notification: countBadge?.notification.fr,
             description: countBadge?.description.fr,
             message: countBadge?.notification.fr,
@@ -299,6 +302,7 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
         if (elem.src.includes(countPathLocked)) {
           if (elem.requireCount === this.userCollectedDiscovery.length) {
             elem.src = countPathUnlocked + elem.id + ".svg";
+            elem.gridSrc = countPathUnlockedGrid + elem.id + ".svg"; // Update grid source too
             // Ensure the badge has its description and notification for the modal
             const badgeFromDB = BadgeDatabase.getFromId(elem.id);
             if (badgeFromDB) {

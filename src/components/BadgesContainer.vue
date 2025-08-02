@@ -7,111 +7,106 @@
       }}</span>
     </div>
 
-    <swiper :slides-per-view="3.5" :spaceBetween="10">
-      <swiper-slide
-        v-for="elem in badgesCollectionsStore.countCollection"
+    <div class="count-badges-grid">
+      <div
+        v-for="elem in badgesCollectionsStore.countCollection.slice(0, 6)"
         :key="elem"
-        class="badgeContainer ion-margin-end border ion-padding"
-        style="height: 100%"
+        class="count-badge-item"
         @click="openBadgeDetails(elem)"
       >
-        <img
-          :alt="elem.message"
-          :src="elem.src"
-          @error="handleImageError($event, elem)"
-          style="max-width: none"
-        />
-        <span style="margin-top: 2%; font-size: small"> {{ elem.title }} </span>
-      </swiper-slide>
-    </swiper>
+        <div class="count-badge-container" :class="{ unlocked: elem.src.includes('unlocked') }">
+          <img
+            :alt="elem.message"
+            :src="getCountBadgeImageSrc(elem)"
+            @error="handleImageError($event, elem)"
+          />
+          <span class="count-badge-title">{{ elem.title }}</span>
+        </div>
+      </div>
+    </div>
 
     <div class="section-header" @click="toggleCategories">
       <h1>Catégories</h1>
       <ion-icon :icon="showCategories ? chevronUpOutline : chevronDownOutline"></ion-icon>
     </div>
-    <div v-if="showCategories">
-      <ion-row
+    <div v-if="showCategories" class="badge-grid">
+      <div
         v-for="elem in badgesCollectionsStore.categoryCollection"
         :key="elem"
-        class="ion-margin-bottom ion-margin-top border badge-row"
+        class="badge-item"
         @click="openBadgeDetails(elem)"
       >
-        <ion-col size="auto">
-          <img :alt="elem.message" :src="elem.src" @error="handleImageError($event, elem)" />
-        </ion-col>
-        <ion-col>
-          <div class="container_progression">
-            <ion-label>{{ typeof elem.title === 'object' ? elem.title.fr : elem.title }}</ion-label>
-            <div class="progressBar ion-margin-top">
-              <span class="ion-margin-end"
-                    :style="{color: elem.count >= elem.requireCount ? '#facc00' : 'black'}">{{
-                elem.count >= elem.requireCount ? "Complété!" : elem.count + "/" + elem.requireCount
-              }}</span>
-              <ion-progress-bar
-                v-if="elem.count < elem.requireCount"
-                :value="(elem.count / elem.requireCount).toFixed(2)"
-              ></ion-progress-bar>
-            </div>
+        <div class="circular-badge-container">
+          <svg class="progress-ring" viewBox="0 0 120 120">
+            <circle
+              class="progress-ring__circle-bg"
+              stroke-width="6"
+              fill="transparent"
+              r="54"
+              cx="60"
+              cy="60"
+            />
+            <circle
+              class="progress-ring__circle"
+              :stroke="elem.count >= elem.requireCount ? '#FADA00' : '#E0E0E0'"
+              stroke-width="6"
+              :stroke-dasharray="circumference + ' ' + circumference"
+              :stroke-dashoffset="getProgressOffset(elem.count, elem.requireCount)"
+              fill="transparent"
+              r="54"
+              cx="60"
+              cy="60"
+            />
+          </svg>
+          <div class="circular-badge" :class="{ unlocked: elem.count >= elem.requireCount }">
+            <img :alt="elem.message" :src="elem.src" @error="handleImageError($event, elem)" />
           </div>
-        </ion-col>
-      </ion-row>
+        </div>
+        <span class="badge-progress">{{ elem.count >= elem.requireCount ? "Complété!" : elem.count + "/" + elem.requireCount }}</span>
+        <span class="badge-title">{{ typeof elem.title === 'object' ? elem.title.fr : elem.title }}</span>
+      </div>
     </div>
 
     <div class="section-header" @click="toggleNeighborhoods">
       <h1>Quartiers</h1>
       <ion-icon :icon="showNeighborhoods ? chevronUpOutline : chevronDownOutline"></ion-icon>
     </div>
-    <div v-if="showNeighborhoods">
-      <ion-row
-        v-for="elem in badgesCollectionsStore.boroughCollection"
+    <div v-if="showNeighborhoods" class="badge-grid">
+      <div
+        v-for="elem in [...badgesCollectionsStore.boroughCollection, ...badgesCollectionsStore.ownerCollection]"
         :key="elem"
-        class="ion-margin-bottom ion-margin-top border badge-row"
+        class="badge-item"
         @click="openBadgeDetails(elem)"
       >
-        <ion-col size="auto">
-          <img :alt="elem.message" :src="elem.src" @error="handleImageError($event, elem)" />
-        </ion-col>
-        <ion-col>
-          <div class="container_progression">
-            <ion-label>{{ elem.title }}</ion-label>
-            <div class="progressBar ion-margin-top">
-              <span class="ion-margin-end"
-                  :style="{color: elem.count >= elem.requireCount ? '#facc00' : 'black'}">{{
-                  elem.count >= elem.requireCount ? "Complété!" : elem.count + "/" + elem.requireCount
-              }}</span>
-              <ion-progress-bar
-                v-if="elem.count < elem.requireCount"
-                :value="(elem.count / elem.requireCount).toFixed(2)"
-              ></ion-progress-bar>
-            </div>
+        <div class="circular-badge-container">
+          <svg class="progress-ring" viewBox="0 0 120 120">
+            <circle
+              class="progress-ring__circle-bg"
+              stroke-width="6"
+              fill="transparent"
+              r="54"
+              cx="60"
+              cy="60"
+            />
+            <circle
+              class="progress-ring__circle"
+              :stroke="elem.count >= elem.requireCount ? '#FADA00' : '#E0E0E0'"
+              stroke-width="6"
+              :stroke-dasharray="circumference + ' ' + circumference"
+              :stroke-dashoffset="getProgressOffset(elem.count, elem.requireCount)"
+              fill="transparent"
+              r="54"
+              cx="60"
+              cy="60"
+            />
+          </svg>
+          <div class="circular-badge" :class="{ unlocked: elem.count >= elem.requireCount }">
+            <img :alt="elem.message" :src="elem.src" @error="handleImageError($event, elem)" />
           </div>
-        </ion-col>
-      </ion-row>
-      <ion-row
-        v-for="elem in badgesCollectionsStore.ownerCollection"
-        :key="elem"
-        class="ion-margin-bottom ion-margin-top border badge-row"
-        @click="openBadgeDetails(elem)"
-      >
-        <ion-col size="auto">
-          <img :alt="elem.message" :src="elem.src" @error="handleImageError($event, elem)" />
-        </ion-col>
-        <ion-col>
-          <div class="container_progression">
-            <ion-label>{{ elem.title }}</ion-label>
-            <div class="progressBar ion-margin-top">
-              <span class="ion-margin-end"
-                    :style="{color: elem.count >= elem.requireCount ? '#facc00' : 'black'}">{{
-                  elem.count >= elem.requireCount ? "Complété!" : elem.count + "/" + elem.requireCount
-              }}</span>
-              <ion-progress-bar
-                  v-if="elem.count < elem.requireCount"
-                :value="(elem.count / elem.requireCount).toFixed(2)"
-              ></ion-progress-bar>
-            </div>
-          </div>
-        </ion-col>
-      </ion-row>
+        </div>
+        <span class="badge-progress">{{ elem.count >= elem.requireCount ? "Complété!" : elem.count + "/" + elem.requireCount }}</span>
+        <span class="badge-title">{{ elem.title }}</span>
+      </div>
     </div>
   </div>
 
@@ -169,9 +164,6 @@
 
 <script>
 import { IonLabel, IonProgressBar, IonRow, IonCol, IonIcon, IonModal, IonButton } from "@ionic/vue";
-import { Swiper, SwiperSlide } from "swiper/vue";
-import "swiper/css";
-import "@ionic/vue/css/ionic-swiper.css";
 import { useBadgesCollections } from "@/stores/BadgesCollections";
 import { chevronDownOutline, chevronUpOutline, checkmarkOutline } from 'ionicons/icons';
 import { eventBus } from '@/internal/eventBus';
@@ -187,8 +179,6 @@ export default {
     IonIcon,
     IonModal,
     IonButton,
-    Swiper,
-    SwiperSlide,
   },
   setup() {
     return { 
@@ -210,6 +200,7 @@ export default {
       showNeighborhoods: true,
       isBadgeModalOpen: false,
       selectedBadge: null,
+      circumference: 2 * Math.PI * 54, // 2πr where r=54
     };
   },
   computed: {
@@ -266,6 +257,19 @@ export default {
       return badge.notification || 'Félicitations!';
     },
     
+    getProgressOffset(count, requireCount) {
+      if (!requireCount || requireCount === 0) return this.circumference;
+      const progress = count / requireCount;
+      return this.circumference - (progress * this.circumference);
+    },
+    
+    getCountBadgeImageSrc(badge) {
+      if (!badge || !badge.gridSrc) return badge?.src || '';
+      
+      // Use the dedicated gridSrc property for grid display
+      return badge.gridSrc;
+    },
+    
     toggleCategories() {
       this.showCategories = !this.showCategories;
     },
@@ -304,6 +308,11 @@ ion-title {
   font-family: "Open Sans", sans-serif;
 }
 
+h1 {
+  font-size: 5vw;
+  font-weight: bold;
+}
+
 p {
   margin-top: 2vw;
   margin-bottom: 2vw;
@@ -322,29 +331,160 @@ a {
   border-width: 1.4px;
 }
 
+/* Count badges grid */
+.count-badges-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3vw;
+  margin: 3vw 0;
+}
+
+.count-badge-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+.count-badge-container {
+  width: 25vw;
+  height: 25vw;
+  border-radius: 3vw;
+  background-color: #FFFFFF;
+  border: 0.3vw solid #E0E0E0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  margin-bottom: 2vw;
+  padding: 2vw;
+}
+
+.count-badge-container.unlocked {
+  background-color: #FADA00;
+  border-color: #FADA00;
+}
+
+.count-badge-container img {
+  width: 12vw;
+  height: 12vw;
+  object-fit: contain;
+  margin-bottom: 1vw;
+}
+
+.count-badge-title {
+  font-size: 3vw;
+  text-align: center;
+  color: #333;
+  max-width: 20vw;
+  word-wrap: break-word;
+  line-height: 1.2;
+}
+
+/* Circular badge styles for categories */
+.circular-badge {
+  width: 25vw;
+  height: 25vw;
+  border-radius: 50%;
+  background-color: #FFFFFF;
+  border: 0.3vw solid #E0E0E0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.circular-badge.unlocked {
+  background-color: #FADA00;
+  border-color: #FADA00;
+}
+
+.circular-badge img {
+  width: 15vw;
+  height: 15vw;
+  object-fit: contain;
+}
+
+/* Badge grid for categories and neighborhoods */
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 5vw;
+  margin: 3vw 0;
+}
+
+.badge-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  padding: 2.5vw;
+}
+
+.circular-badge-container {
+  position: relative;
+  width: 30vw;
+  height: 30vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-ring {
+  position: absolute;
+  transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
+}
+
+.progress-ring__circle-bg {
+  stroke: #E0E0E0;
+}
+
+.progress-ring__circle {
+  transition: stroke-dashoffset 0.35s;
+  transform-origin: 50% 50%;
+}
+
+.badge-item .circular-badge {
+  position: relative;
+  z-index: 1;
+}
+
+.badge-item .circular-badge img {
+  width: 15vw;
+  height: 15vw;
+}
+
+.badge-item .badge-progress {
+  margin-top: 1vw;
+  font-size: 3.5vw;
+  font-weight: 500;
+  color: #333;
+}
+
+.badge-item .badge-title {
+  margin-top: 0.5vw;
+  font-size: 3vw;
+  text-align: center;
+  color: #666;
+  max-width: 30vw;
+  word-wrap: break-word;
+}
+
 .container_progression {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   width: 95%;
 }
+
 .progressBar {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-}
-.badgeContainer {
-  display: flex;
-  flex-direction: column;
-  min-width: 25%;
-  justify-content: center;
-  align-items: center;
-  padding: 1%;
-  cursor: pointer;
-}
-.swiper .swiper-slide {
-  height: auto !important;
 }
 
 .section-header {
@@ -355,12 +495,21 @@ a {
 }
 
 .section-header ion-icon {
-  font-size: 24px;
+  font-size: 6vw;
 }
 
 /* Make rows clickable */
 .badge-row {
   cursor: pointer;
+}
+
+/* Hover effects for round badges */
+.badge-item:hover .circular-badge {
+  transform: scale(1.05);
+}
+
+.count-badge-item:hover .count-badge-container {
+  transform: scale(1.05);
 }
 
 /* Badge Modal Styles with relative units */
@@ -467,7 +616,7 @@ a {
   color: #444;
 }
 
-.badge-progress {
+.badge-description .badge-progress {
   margin-top: 4vh;
   font-weight: 500;
 }
@@ -484,31 +633,6 @@ a {
   font-weight: 500;
   margin-top: 2vh;
   height: 5vh;
-}
-
-/* For badges in the swiper */
-.badgeContainer img {
-  transition: transform 0.2s, filter 0.2s;
-}
-
-.badgeContainer:hover img {
-  transform: scale(1.05);
-  filter: brightness(1.1);
-}
-
-/* For badges in the lists */
-.badge-row:hover img {
-  transform: scale(1.05);
-  filter: brightness(1.1);
-}
-
-/* For badge title/name in the swiper */
-.badgeContainer span {
-  transition: color 0.2s;
-}
-
-.badgeContainer:hover span {
-  color: #4D58CB;
 }
 
 /* Responsive adjustments */
@@ -533,10 +657,10 @@ a {
 .custom-progress-bar {
   position: relative;
   display: flex;
-  height: 13px;
-  margin: 12px 0 8px 0;
+  height: 3vw;
+  margin: 3vw 0 2vw 0;
   background-color: #f0f0f0;
-  border-radius: 8px;
+  border-radius: 2vw;
   overflow: visible;
 }
 
@@ -557,7 +681,7 @@ a {
   right: 0;
   top: 0;
   height: 100%;
-  width: 3px;
+  width: 0.8vw;
   background-color: white;
 }
 
@@ -568,17 +692,17 @@ a {
 }
 
 .bubble {
-  width: 19px;
-  height: 19px;
+  width: 5vw;
+  height: 5vw;
   background-color: var(--mona-yellow);
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 12px;
+  font-size: 3vw;
   font-weight: bold;
   color: black;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 0.5vw 1vw rgba(0,0,0,0.2);
 }
 
 /* Different bubble style when progress is zero  */
@@ -589,13 +713,15 @@ a {
 
 .bubble ion-icon {
   color: black;
-  font-size: 16px;
-  width: 16px;
-  height: 16px;
+  font-size: 4vw;
+  width: 4vw;
+  height: 4vw;
   --ionicon-stroke-width: 50px; /* Makes the icon bolder */
 }
 
 .count-span {
   margin-bottom: 0.85vh;
+  font-size: 4vw;
 }
+
 </style>
