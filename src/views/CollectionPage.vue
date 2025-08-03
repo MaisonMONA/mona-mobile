@@ -9,7 +9,7 @@
     </div>
 
     <div id="collection-and-badges-number-container">
-      <div class="collection-header" :style="{ width: collectionsHeaderWidth }">
+      <div class="collection-header" :style="{ width: collectionsHeaderWidth }" @click="switchToCollection">
         <p class="collected-count">
           {{ collected.length > 0 ? collected.length : "" }}
         </p>
@@ -22,7 +22,7 @@
         </p>
       </div>
 
-      <div class="collection-header" id="badges-obtained" :style="{ width: badgesHeaderWidth }">
+      <div class="collection-header" id="badges-obtained" :style="{ width: badgesHeaderWidth }" @click="switchToBadges">
         <p class="collected-count">
           {{ completedBadges > 0 ? completedBadges : "" }}
         </p>
@@ -164,6 +164,14 @@ export default {
         this.component = markRaw(BadgesContainer);
       }
       return this.choixSegment;
+    },
+    switchToCollection() {
+      this.choixSegment = "collection";
+      this.component = markRaw(CollectionContainer);
+    },
+    switchToBadges() {
+      this.choixSegment = "badge";
+      this.component = markRaw(BadgesContainer);
     },
   },
   data() {
