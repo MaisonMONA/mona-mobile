@@ -93,7 +93,7 @@ export default {
                 const isWeb = !window.Capacitor || window.Capacitor.platform === 'web';
                 
                 if (isWeb) {
-                    versionText.value = `Version web de test`;
+                    versionText.value = `Version test web`;
                     return;
                 }
                 
