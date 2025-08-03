@@ -179,7 +179,7 @@ export default {
 }
 
 #versionInfo {
-  margin-top: 3vh;
+  margin-top: 2vh;
   margin-bottom: 1vh;
 }
 
@@ -212,7 +212,7 @@ export default {
 
 img[alt="MONA logo"] {
   max-width: 30vw;
-  margin-top: 5vh;
+  margin-top: 3vh;
   margin-left: 32vw;
   margin-bottom: 2vh;
 }
@@ -266,8 +266,7 @@ ion-label {
   --border-radius: 2vw;
   width: 92vw;
   height: 5vh;
-  margin: 4vw 0;
-  margin-top: 7vh;
+  margin: 1vh 0 2vh 0;
   --background-activated : #D82727;
   --color-activated : white;
   font-size: 4vw;
