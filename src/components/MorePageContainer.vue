@@ -212,7 +212,7 @@ export default {
 
 img[alt="MONA logo"] {
   max-width: 30vw;
-  margin-top: 3vh;
+  margin-top: 5vh;
   margin-left: 32vw;
   margin-bottom: 2vh;
 }
