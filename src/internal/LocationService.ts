@@ -39,7 +39,7 @@ export class LocationService {
             const newPosition = {
               lat: position.coords.latitude,
               lng: position.coords.longitude,
-              accuracy: position.coords.accuracy || LocationService.DEFAULT_ACCURACY
+              accuracy: position.coords.accuracy || LocationService.DEFAULT_ACCURACY,
             };
 
             this.currentPosition = newPosition;
@@ -120,7 +120,7 @@ export class LocationService {
       return {
         lat: position.coords.latitude,
         lng: position.coords.longitude,
-        accuracy: position.coords.accuracy || LocationService.DEFAULT_ACCURACY
+        accuracy: position.coords.accuracy || LocationService.DEFAULT_ACCURACY,
       };
     } catch (error) {
       console.error('Failed to get one-time position:', error);
