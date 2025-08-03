@@ -204,6 +204,7 @@ import customLocationIconBlack from "/assets/drawable/icons/location_icon_black.
 import customLocationIconPurple from "/assets/drawable/icons/location_icon_purple.svg";
 import { containsCoordinate, getHeight } from "ol/extent.js";
 import { Geolocation } from "@capacitor/geolocation";
+import { LocationService } from "@/internal/LocationService";
 import { isPlatform } from "@ionic/vue";
 import { App } from "@capacitor/app";
 import { Distance } from "@/internal/Distance";
@@ -281,9 +282,10 @@ export default {
       locationAccuracyLayer: null,
       userPointFeature: null,
       locationUpdateInterval: null,
+      locationUnsubscribe: null, // Function to unsubscribe from location updates
       mapPinsLayer: null,
-      lat2: UserData.getLocation()[1],
-      lng2: UserData.getLocation()[0],
+      lat2: UserData.getLocation(false)[1],
+      lng2: UserData.getLocation(false)[0],
       closestDiscoveriesDistance: [],
       formerSelectedPinFeature: null,
       isUserLocationInViewport: false,
@@ -291,7 +293,7 @@ export default {
       mainMap: null,
       INITIAL_COORDS: discovery
         ? [discovery.location.lng, discovery.location.lat]
-        : UserData.getLocation(),
+        : UserData.getLocation(false),
       // if location is not available, use the initial coordinates = [-68.2075, 52.8131]
       DEFAULT_ZOOM_LEVEL: discovery ? 17 : 14, // If the map was opened by the DOD page we want to zoom more
       // if location is not available, use the default zoom level = 4.5
@@ -361,12 +363,19 @@ export default {
 
         if (!this.isPermissionDenied) {
           this.showLocation();
+          // Restart location service if needed
+          if (!LocationService.isWatching()) {
+            await this.startLocationService();
+          }
         }
       }
     });
     // If the permission is granted, this.askForPermissions() will not ask for permission again
     await this.askForPermissions();
     this.myMap();
+
+    // Start location service
+    await this.startLocationService();
 
     // Update closest discoveries every 2 minutes
     this.discoveryUpdateInterval = setInterval(() => {
@@ -635,29 +644,67 @@ export default {
       this.userLocationLayer.getSource().addFeature(this.userPointFeature);
       this.mainMap.addLayer(this.userLocationLayer);
 
-      // Update location and accuracy radius regularly
-      clearInterval(this.locationUpdateInterval); // Clear any existing interval
-      this.locationUpdateInterval = setInterval(() => {
+      // Subscribe to location updates instead of using setInterval
+      if (this.locationUnsubscribe) {
+        this.locationUnsubscribe(); // Clean up existing subscription
+      }
+      
+      this.locationUnsubscribe = LocationService.subscribe((position) => {
         if (this.userPointFeature && this.locationAccuracyLayer) {
-          this.userPointFeature.getGeometry().setCoordinates(UserData.getLocation());
+          const coords = [position.lng, position.lat];
+          this.userPointFeature.getGeometry().setCoordinates(coords);
+          
           const accuracyFeature = this.locationAccuracyLayer.getSource().getFeatures()[0];
           if (accuracyFeature) {
             accuracyFeature.setGeometry(
               circular(
-                UserData.getLocation(), 
-                Math.min(UserData.getAccuracy(), MAX_ACCURACY_RADIUS) // Cap radius to avoid too big circle
+                coords, 
+                Math.min(position.accuracy, MAX_ACCURACY_RADIUS) // Cap radius to avoid too big circle
               )
             );
           }
+          
+          // Update the viewport state
+          this.updateUserLocationViewportState();
         }
-      }, 2000); // Update every 2 seconds (1000 ms = 1 second)
+      });
     },
 
     beforeDestroy() {
+      // Clean up location subscription
+      if (this.locationUnsubscribe) {
+        this.locationUnsubscribe();
+      }
+      
+      // Stop location service
+      LocationService.stopWatching();
+      
       // Clean up interval when component is destroyed
       if (this.locationUpdateInterval) {
-       clearInterval(this.locationUpdateInterval);
+        clearInterval(this.locationUpdateInterval);
       }
+    },
+
+    async startLocationService() {
+      try {
+        if (!this.isPermissionDenied) {
+          await LocationService.startWatching();
+        }
+      } catch (error) {
+        console.error('Failed to start location service:', error);
+      }
+    },
+
+    updateUserLocationViewportState() {
+      if (!this.userPointFeature || !this.mainMap) return;
+      
+      const userCoords = this.userPointFeature.getGeometry().getCoordinates();
+      const mapView = this.mainMap.getView();
+      const extent = mapView.calculateExtent(this.mainMap.getSize());
+      
+      const isInViewport = containsCoordinate(extent, userCoords);
+      this.isUserLocationInViewport = isInViewport;
+      this.isUserLocationOutsideViewport = !isInViewport;
     },
 
     // Handles click on the map
@@ -723,9 +770,12 @@ export default {
     recenterView() {
       if (!this.isPermissionDenied) {
         const mapView = this.mainMap.getView();
+        
+        // Get current location from LocationService or fallback to UserData
+        const currentLocation = LocationService.getCurrentLocationArray() || UserData.getLocation(false);
 
         mapView.animate({
-          center: UserData.getLocation(),
+          center: currentLocation,
           duration: 200,
           zoom: Math.max(mapView.getZoom(), 14.25),
           easing: easeOut,
