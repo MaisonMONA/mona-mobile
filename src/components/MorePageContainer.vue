@@ -215,6 +215,7 @@ ion-label {
   --background-activated : #D82727;
   --color-activated : white;
   font-size: 4vw;
+  font-weight: bold;
 }
 
 </style>

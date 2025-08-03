@@ -34,7 +34,13 @@
           <div class="input-element password">
             <label for="password-input">Mot de passe</label>
             <ion-item id="password-input">
-              <ion-input type="password"></ion-input>
+              <ion-input :type="showPassword ? 'text' : 'password'"></ion-input>
+              <ion-icon 
+                slot="end" 
+                :icon="showPassword ? eyeOff : eye" 
+                @click="showPassword = !showPassword"
+                class="password-toggle-icon"
+              ></ion-icon>
             </ion-item>
           </div>
 
@@ -43,7 +49,13 @@
               >Confirmez le mot de passe</label
             >
             <ion-item id="password-confirmation-input">
-              <ion-input type="password" @keydown.enter="register"></ion-input>
+              <ion-input :type="showPasswordConfirm ? 'text' : 'password'" @keydown.enter="register"></ion-input>
+              <ion-icon 
+                slot="end" 
+                :icon="showPasswordConfirm ? eyeOff : eye" 
+                @click="showPasswordConfirm = !showPasswordConfirm"
+                class="password-toggle-icon"
+              ></ion-icon>
             </ion-item>
           </div>
 
@@ -66,10 +78,12 @@ import {
   IonInput,
   IonButton,
   IonToast,
+  IonIcon,
 } from "@ionic/vue";
 import { UserData } from "@/internal/databases/UserData";
 import Globals from "@/internal/Globals";
 import router from "@/router/index.ts";
+import { eye, eyeOff } from "ionicons/icons";
 
 export default {
   name: "RegisterPage",
@@ -80,12 +94,17 @@ export default {
     IonInput,
     IonButton,
     IonToast,
+    IonIcon,
   },
 
   data() {
     return {
       ionToastErrorMessageIsOpen: false,
       ionToastErrorMessage: "",
+      showPassword: false,
+      showPasswordConfirm: false,
+      eye,
+      eyeOff,
     };
   },
 
@@ -258,5 +277,15 @@ label {
 
 ion-toast::part(message) {
   white-space: pre;
+}
+
+.password-toggle-icon {
+  cursor: pointer;
+  color: #666;
+  font-size: 1.2em;
+}
+
+.password-toggle-icon:hover {
+  color: #333;
 }
 </style>
