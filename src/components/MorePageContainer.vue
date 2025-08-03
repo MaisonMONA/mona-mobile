@@ -48,6 +48,10 @@
           </div>
           </div>
 
+          <div id="versionInfo" class="ion-text-center">
+            <p>{{ versionText }}</p>
+          </div>
+
           <ion-nav-link router-direction="forward" :component="logout">
             <ion-button id="disconnectButton" fill="outline">
                   DÉCONNEXION
@@ -69,6 +73,10 @@ import defaultUserAvatar from "/assets/drawable/icons/defaultUserAvatar.svg";
 import activeList from "/assets/drawable/icons/active_list_tab_icon.svg";
 import aPropos from "/assets/drawable/icons/a_propos_icon.svg";
 import confidentialityPolicyIcon from "/assets/drawable/icons/confidentiality_policy_icon.svg";
+import { App } from '@capacitor/app';
+import { Device } from '@capacitor/device';
+import { Capacitor } from '@capacitor/core';
+import { ref, onMounted } from 'vue';
 
 export default {
     name: "MorePageContainer",
@@ -77,10 +85,45 @@ export default {
     },
 
     setup() {
+        const versionText = ref('Version number unavailable'); // Default text
+        
+        onMounted(async () => {
+            try {
+                // Check if we're running on web (development mode)
+                const isWeb = !window.Capacitor || window.Capacitor.platform === 'web';
+                
+                if (isWeb) {
+                    versionText.value = `Version web de test`;
+                    return;
+                }
+                
+                // Get device platform and app info for native platforms
+                const [deviceInfo, appInfo] = await Promise.all([
+                    Device.getInfo(),
+                    App.getInfo()
+                ]);
+                
+                const platform = deviceInfo.platform;
+                const version = appInfo.version;    // MARKETING_VERSION for iOS, versionName for Android
+                
+                if (platform === 'android') {
+                    versionText.value = `Version Android ${version}`;
+                } else if (platform === 'ios') {
+                    versionText.value = `Version iOS ${version}`;
+                } else {
+                    versionText.value = `Version ${version}`;
+                }
+            } catch (error) {
+                console.error('Error loading version:', error);
+                versionText.value = 'Version number unavailable'; // Fallback
+            }
+        });
+        
         return {
             about: AboutContainer,
             confidentialityPolicy: ConfidentialityPolicyContainer,
             logout: LogoutContainer,
+            versionText
         }
     },
     data() {
@@ -133,6 +176,19 @@ export default {
 
 #mediaLinks a:first-child {
   margin-left: 0;
+}
+
+#versionInfo {
+  margin-top: 3vh;
+  margin-bottom: 1vh;
+}
+
+#versionInfo p {
+  font-size: 3.5vw;
+  color: #666;
+  margin: 0;
+  white-space: pre-line;
+  line-height: 1.4;
 }
 
 #userInfoMorePage {
