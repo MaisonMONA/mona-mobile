@@ -26,7 +26,13 @@
           <div class="input-element password">
             <label for="login-password">Mot de passe</label>
             <ion-item id="login-password">
-              <ion-input type="password" @keydown.enter="login"></ion-input>
+              <ion-input :type="showPassword ? 'text' : 'password'" @keydown.enter="login"></ion-input>
+              <ion-icon 
+                slot="end" 
+                :icon="showPassword ? eyeOff : eye" 
+                @click="showPassword = !showPassword"
+                class="password-toggle-icon"
+              ></ion-icon>
             </ion-item>
 
             <p
@@ -63,9 +69,11 @@ import {
   IonInput,
   IonButton,
   IonToast,
+  IonIcon,
 } from "@ionic/vue";
 import { UserData } from "@/internal/databases/UserData";
 import Globals from "@/internal/Globals";
+import { eye, eyeOff } from "ionicons/icons";
 
 export default {
   name: "LoginPage",
@@ -76,12 +84,16 @@ export default {
     IonItem,
     IonInput,
     IonButton,
+    IonIcon,
   },
 
   data() {
     return {
       ionToastErrorMessageIsOpen: false,
       ionToastErrorMessage: "",
+      showPassword: false,
+      eye,
+      eyeOff,
     };
   },
 
@@ -205,5 +217,15 @@ label {
 .redirect-to-register span {
   font-weight: bolder;
   border-bottom: 1px solid black;
+}
+
+.password-toggle-icon {
+  cursor: pointer;
+  color: #666;
+  font-size: 1.2em;
+}
+
+.password-toggle-icon:hover {
+  color: #333;
 }
 </style>
