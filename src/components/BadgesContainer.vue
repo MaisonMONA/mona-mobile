@@ -1,7 +1,7 @@
 <template v-if="badgesCollectionsStore.countCollection.length">
   <div class="main-container">
     <div class="section-header" @click="toggleCountBadges">
-      <h1>Nombre de découvertes</h1>
+      <h1>Trophées</h1>
       <ion-icon :icon="showCountBadges ? chevronUpOutline : chevronDownOutline"></ion-icon>
     </div>
 
@@ -341,8 +341,8 @@ a {
 .count-badges-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 3vw;
-  margin: 3vw 0;
+  gap: 3vw 0;
+  margin: 0 3vw 2vw 3vw;
 }
 
 .count-badge-item {
@@ -363,7 +363,6 @@ a {
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-  margin-bottom: 2vw;
   padding: 2vw;
 }
 

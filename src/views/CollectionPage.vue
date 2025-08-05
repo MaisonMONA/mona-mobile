@@ -8,33 +8,13 @@
       </div>
     </div>
 
-    <div id="collection-and-badges-number-container">
-      <div class="collection-header" :style="{ width: collectionsHeaderWidth }" @click="switchToCollection">
-        <p class="collected-count">
-          {{ collected.length > 0 ? collected.length : "" }}
-        </p>
-        <p>
-          {{ collected.length > 1 ? "Découvertes collectionnées" : (collected.length > 0 ? "Découverte collectionnée" : "Aucune découverte collectionnée") }}
-        </p>
-      </div>
-
-      <div class="collection-header" id="badges-obtained" :style="{ width: badgesHeaderWidth }" @click="switchToBadges">
-        <p class="collected-count">
-          {{ completedBadges > 0 ? completedBadges : "" }}
-        </p>
-        <p>
-          {{ completedBadges > 1 ? "Badges obtenus": (completedBadges > 0 ? "Badge obtenu" : "Aucun badge obtenu") }}
-        </p>
-      </div>
-    </div>
-
       <div class="ion-segment-container collectionPageSegment">
         <ion-segment :value="getSegment()" v-model="choixSegment" mode="ios">
           <ion-segment-button value="collection">
-            <ion-label>Ma collection</ion-label>
+            <ion-label>Ma collection ({{ collected.length }})</ion-label>
           </ion-segment-button>
           <ion-segment-button value="badge" id="badge">
-            <ion-label>Mes badges</ion-label>
+            <ion-label>Mes badges ({{ completedBadges }})</ion-label>
           </ion-segment-button>
         </ion-segment>
       </div>
@@ -85,26 +65,6 @@ export default {
     },
     completedBadges() {
       return badgesCollectionsStore.getCompletedBadges;
-    },
-    collectionsHeaderWidth() {
-      // Adjust Discoveries amount container width based on number of discoveries
-      if (this.collected.length >= 100) {
-        return '52vw';
-      } else if (this.collected.length >= 10) {
-        return '48vw';
-      } else {
-        return '44vw';
-      }
-    },
-    badgesHeaderWidth() {
-      // Adjust Badges amount container width based on number of discoveries
-      if (this.collected.length >= 100) {
-        return '36vw';
-      } else if (this.collected.length >= 10) {
-        return '40vw';
-      } else {
-        return '44vw';
-      }
     },
   },
   components: {
@@ -295,11 +255,11 @@ a {
   --color: black;
 
   height: 5vh;
-  font-size: 1.9vh;
+  font-size: 1.8vh;
   font-weight: 500;
-  letter-spacing: 0.1vw;
-  width: 39vw;
-  padding: 0 3vw;
+  letter-spacing: 0.05vw;
+  width: 43vw;
+  padding: 0 1vw;
   margin-left: 0.5%; /* for "Ma collection" button*/
 
   --indicator-color: var(--mona-yellow);
@@ -307,8 +267,15 @@ a {
   --border-radius: 20vw;
 }
 
-#badge {
-  margin-left: 14%;
+.collectionPageSegment ion-segment-button ion-label {
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+  font-size: inherit;
+}
 
+#badge {
+  margin-left: 8%;
+  margin-right: 4vw;
 }
 </style>
