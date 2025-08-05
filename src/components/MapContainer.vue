@@ -400,8 +400,8 @@ export default {
         12,
       );
       // For distance between discoveries and user location
-      this.lat2 = UserData.getLocation()[1];
-      this.lng2 = UserData.getLocation()[0];
+      this.lat2 = UserData.getLocation(true)[1];
+      this.lng2 = UserData.getLocation(true)[0];
     },
 
     async askForPermissions() {
@@ -446,8 +446,8 @@ export default {
 
     setCenterButtonAppearance() {
       // Reducing decimals to make '===' possible because UserData.getLocation and this.mainMap.getView.getCenter return different numbers of decimals
-      const userLocationX = UserData.getLocation()[0].toFixed(7);
-      const userLocationY = UserData.getLocation()[1].toFixed(7);
+      const userLocationX = UserData.getLocation(false)[0].toFixed(7);
+      const userLocationY = UserData.getLocation(false)[1].toFixed(7);
       const viewCenterX = this.mainMap.getView().getCenter()[0].toFixed(7);
       const viewCenterY = this.mainMap.getView().getCenter()[1].toFixed(7);
 
@@ -458,7 +458,7 @@ export default {
 
       // userLocationOutsideViewport button
       // User location out of viewport
-      if (!containsCoordinate(viewportExtent, UserData.getLocation())) {
+      if (!containsCoordinate(viewportExtent, UserData.getLocation(false))) {
         this.isUserLocationInViewport = false;
         this.isUserLocationOutsideViewport = true;
       }
@@ -600,7 +600,7 @@ export default {
       this.locationAccuracyLayer.getSource().addFeature(
         new Feature({
           geometry: circular(
-            UserData.getLocation(), 
+            UserData.getLocation(false), 
             Math.min(UserData.getAccuracy(), MAX_ACCURACY_RADIUS) // Cap radius to avoid too big circle
           ),
         })
@@ -638,7 +638,7 @@ export default {
       });
       
       this.userPointFeature = new Feature({
-        geometry: new Point(UserData.getLocation()),
+        geometry: new Point(UserData.getLocation(false)),
       });
       
       this.userLocationLayer.getSource().addFeature(this.userPointFeature);

@@ -176,8 +176,8 @@ export class UserData {
     this.sortedDiscoveriesDistance = this.sortedDiscoveriesDistance.concat(
       HeritageDatabase.getSubset(0, HeritageDatabase.getSize()),
     );
-    const lat2 = UserData.getLocation()[1];
-    const lng2 = UserData.getLocation()[0];
+    const lat2 = UserData.getLocation(true)[1];
+    const lng2 = UserData.getLocation(true)[0];
     this.sortedDiscoveriesDistance.sort((a, b) => {
       return (
         Distance.calculateDistance(a, lat2, lng2) -

@@ -272,8 +272,8 @@ export default {
 
       arrayOffset: 0,
       currentTextFilter: "",
-      lat2: UserData.getLocation()[1],
-      lng2: UserData.getLocation()[0],
+      lat2: UserData.getLocation(false)[1],
+      lng2: UserData.getLocation(false)[0],
       componentKey: 0,
 
       // Icon
@@ -515,8 +515,8 @@ export default {
     },
 
     refreshPage(event) {
-      this.lat2 = UserData.getLocation()[1];
-      this.lng2 = UserData.getLocation()[0];
+      this.lat2 = UserData.getLocation(true)[1];
+      this.lng2 = UserData.getLocation(true)[0];
       this.arrayOffset = 0;
 
       // Refresh the list of discoveries according to distance

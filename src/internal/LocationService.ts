@@ -1,6 +1,7 @@
 import { Geolocation } from '@capacitor/geolocation';
 
 export class LocationService {
+  private static readonly DEFAULT_ACCURACY = 10; // Default accuracy in meters when not provided by GPS
   private static watchId: string | null = null;
   private static currentPosition: { lat: number, lng: number, accuracy: number } | null = null;
   private static callbacks: Set<(position: { lat: number, lng: number, accuracy: number }) => void> = new Set();
@@ -38,7 +39,7 @@ export class LocationService {
             const newPosition = {
               lat: position.coords.latitude,
               lng: position.coords.longitude,
-              accuracy: position.coords.accuracy || 10
+              accuracy: position.coords.accuracy || LocationService.DEFAULT_ACCURACY
             };
 
             this.currentPosition = newPosition;
@@ -119,7 +120,7 @@ export class LocationService {
       return {
         lat: position.coords.latitude,
         lng: position.coords.longitude,
-        accuracy: position.coords.accuracy || 10
+        accuracy: position.coords.accuracy || LocationService.DEFAULT_ACCURACY
       };
     } catch (error) {
       console.error('Failed to get one-time position:', error);
