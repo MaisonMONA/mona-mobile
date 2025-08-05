@@ -676,7 +676,7 @@ a {
 
 .segment-fill {
   height: 100%;
-  background-color: var(--mona-yellow);
+  background-color: #2E389E;
 }
 
 /* White ridges between segments */
@@ -699,7 +699,7 @@ a {
 .bubble {
   width: 5vw;
   height: 5vw;
-  background-color: var(--mona-yellow);
+  background-color: #2E389E;
   border-radius: 50%;
   display: flex;
   justify-content: center;
@@ -717,7 +717,7 @@ a {
 }
 
 .bubble ion-icon {
-  color: black;
+  color: white;
   font-size: 4vw;
   width: 4vw;
   height: 4vw;

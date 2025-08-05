@@ -15,23 +15,15 @@ export class CollectedBadge {
   private static ownerCollection = [] as any;
   private static countPathLocked = "/assets/drawable/badges/count/locked/";
   private static countPathUnlocked = "/assets/drawable/badges/count/unlocked/";
-  private static countPathUnlockedGrid = "/assets/drawable/badges/count/unlocked-grid/";
 
-  private static boroughPathUnlocked =
-    "/assets/drawable/badges/borough/unlocked/";
+  private static boroughPathUnlocked = "/assets/drawable/badges/borough/unlocked/";
   private static boroughPathLocked = "/assets/drawable/badges/borough/locked/";
-  private static boroughPathBlack = "/assets/drawable/badges/borough/black/";
 
   private static ownerPathUnlocked = "/assets/drawable/badges/owner/unlocked/";
   private static ownerPathLocked = "/assets/drawable/badges/owner/locked/";
-  private static ownerPathBlack = "/assets/drawable/badges/owner/black/";
 
-  private static categoryPathUnlocked =
-    "/assets/drawable/badges/category/unlocked/";
-  private static categoryPathLocked =
-    "/assets/drawable/badges/category/locked/";
-  private static categoryPathBlack =
-    "/assets/drawable/badges/category/black/";
+  private static categoryPathUnlocked = "/assets/drawable/badges/category/unlocked/";
+  private static categoryPathLocked = "/assets/drawable/badges/category/locked/";
 
   public static determineCollectedBadges() {
     const tmpBoroughContainer = new Map<string, number>();
@@ -95,7 +87,6 @@ export class CollectedBadge {
         countCollected.push({
           id: element.id,
           src: this.countPathUnlocked + element.id + ".svg",
-          gridSrc: this.countPathUnlockedGrid + element.id + ".svg",
           notification: element?.notification.fr,
           description: element?.description.fr,
           message: element?.notification.fr,
@@ -126,12 +117,6 @@ export class CollectedBadge {
             requireCount: requireCount,
             count: count,
             src: this.findPath(
-              requireCount,
-              count,
-              boroughElementID,
-              "borough",
-            ),
-            gridSrc: this.findGridPath(
               requireCount,
               count,
               boroughElementID,
@@ -169,12 +154,6 @@ export class CollectedBadge {
             categoryElementID,
             "category",
           ),
-          gridSrc: this.findGridPath(
-            requireCount,
-            count,
-            categoryElementID,
-            "category",
-          ),
           message: categoryElement?.description.fr,
           title: categoryElement?.title,
           dType: this.badgesDB.category.get(categoryElementID),
@@ -201,12 +180,6 @@ export class CollectedBadge {
           requireCount: requireCount,
           count: count,
           src: this.findPath(
-            requireCount,
-            count,
-            ownerElementID,
-            "owner",
-          ),
-          gridSrc: this.findGridPath(
             requireCount,
             count,
             ownerElementID,
@@ -264,29 +237,25 @@ export class CollectedBadge {
   ) {
     let pathLocked = "";
     let pathUnlocked = "";
-    let pathBlack = "";
     switch (type) {
       case "borough":
         pathLocked = this.boroughPathLocked;
         pathUnlocked = this.boroughPathUnlocked;
-        pathBlack = this.boroughPathBlack;
         break;
       case "owner":
         pathLocked = this.ownerPathLocked;
         pathUnlocked = this.ownerPathUnlocked;
-        pathBlack = this.ownerPathBlack;
         break;
       case "category":
         pathLocked = this.categoryPathLocked;
         pathUnlocked = this.categoryPathUnlocked;
-        pathBlack = this.categoryPathBlack;
         break;
     }
 
     if (requireCount && count) {
       if (count >= requireCount) {
-        // Badge is UNLOCKED - use black for grid
-        return pathBlack + id + ".svg";
+        // Badge is UNLOCKED - use unlocked for grid
+        return pathUnlocked + id + ".svg";
       } else if (count > 0) {
         // Badge is IN PROGRESS - use unlocked for grid
         return pathUnlocked + id + ".svg";

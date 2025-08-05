@@ -9,19 +9,15 @@ import { toastController } from "@ionic/vue";
 
 const countPathLocked = "/assets/drawable/badges/count/locked/";
 const countPathUnlocked = "/assets/drawable/badges/count/unlocked/";
-const countPathUnlockedGrid = "/assets/drawable/badges/count/unlocked-grid/";
 
 const boroughPathUnlocked = "/assets/drawable/badges/borough/unlocked/";
 const boroughPathLocked = "/assets/drawable/badges/borough/locked/";
-const boroughPathBlack = "/assets/drawable/badges/borough/black/";
 
 const ownerPathUnlocked = "/assets/drawable/badges/owner/unlocked/";
 const ownerPathLocked = "/assets/drawable/badges/owner/locked/";
-const ownerPathBlack = "/assets/drawable/badges/owner/black/";
 
 const categoryPathUnlocked = "/assets/drawable/badges/category/unlocked/";
 const categoryPathLocked = "/assets/drawable/badges/category/locked/";
-const categoryPathBlack = "/assets/drawable/badges/category/black/";
 
 const fallbackBadgePath = "/assets/drawable/badges/fallback-badge.svg";
 
@@ -127,7 +123,7 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
           // Get badge from UserData but ensure it has count property
           const collectedBadge = UserData.getCollectedBadge(countBadge.id);
           collectedBadge.count = discoveryCount; // Set proper count
-          collectedBadge.gridSrc = countPathUnlockedGrid + countBadge.id + ".svg"; // Add grid source
+          collectedBadge.gridSrc = countPathUnlocked + countBadge.id + ".svg"; // Add grid source
           countBadgesArray.push(collectedBadge);
         } else {
           // Uncollected badge
@@ -160,8 +156,8 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
           const collectedBadge = UserData.getCollectedBadge(boroughElementID);
           // Add gridSrc for round grid badges
           if (collectedBadge.count >= collectedBadge.requireCount) {
-            // Badge is UNLOCKED - use black for grid
-            collectedBadge.gridSrc = boroughPathBlack + boroughElementID + ".svg";
+            // Badge is UNLOCKED - use unlocked for grid
+            collectedBadge.gridSrc = boroughPathUnlocked + boroughElementID + ".svg";
           } else {
             // Badge is IN PROGRESS - use unlocked for grid
             collectedBadge.gridSrc = boroughPathUnlocked + boroughElementID + ".svg";
@@ -198,8 +194,8 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
           const collectedBadge = UserData.getCollectedBadge(categoryElementID);
           // Add gridSrc for round grid badges
           if (collectedBadge.count >= collectedBadge.requireCount) {
-            // Badge is UNLOCKED - use black for grid
-            collectedBadge.gridSrc = categoryPathBlack + categoryElementID + ".svg";
+            // Badge is UNLOCKED - use unlocked for grid
+            collectedBadge.gridSrc = categoryPathUnlocked + categoryElementID + ".svg";
           } else {
             // Badge is IN PROGRESS - use unlocked for grid
             collectedBadge.gridSrc = categoryPathUnlocked + categoryElementID + ".svg";
@@ -235,8 +231,8 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
           const collectedBadge = UserData.getCollectedBadge(ownerElementID);
           // Add gridSrc for round grid badges
           if (collectedBadge.count >= collectedBadge.requireCount) {
-            // Badge is UNLOCKED - use black for grid
-            collectedBadge.gridSrc = ownerPathBlack + ownerElementID + ".svg";
+            // Badge is UNLOCKED - use unlocked for grid
+            collectedBadge.gridSrc = ownerPathUnlocked + ownerElementID + ".svg";
           } else {
             // Badge is IN PROGRESS - use unlocked for grid
             collectedBadge.gridSrc = ownerPathUnlocked + ownerElementID + ".svg";
@@ -287,8 +283,8 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
             elem.count++;
             // Check if the badge is newly completed
             if (elem.count === elem.requireCount) {
-              elem.src = boroughPathUnlocked + elem.id + ".svg"; // Modal uses unlocked
-              elem.gridSrc = boroughPathBlack + elem.id + ".svg"; // Grid uses black when unlocked
+              elem.src = boroughPathUnlocked + elem.id + ".svg";
+              elem.gridSrc = boroughPathUnlocked + elem.id + ".svg";
               // Show notification for newly unlocked badge
               this.showBadgeNotification(elem.id);
             } else {
@@ -309,7 +305,7 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
             // Check if the badge is newly completed
             if (elem.count === elem.requireCount) {
               elem.src = categoryPathUnlocked + elem.id + ".svg"; // Modal uses unlocked
-              elem.gridSrc = categoryPathBlack + elem.id + ".svg"; // Grid uses black when unlocked
+              elem.gridSrc = categoryPathUnlocked + elem.id + ".svg";
               // Show notification for newly unlocked badge
               this.showBadgeNotification(elem.id);
             } else {
@@ -329,7 +325,7 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
             // Check if the badge is newly completed
             if (elem.count === elem.requireCount) {
               elem.src = ownerPathUnlocked + elem.id + ".svg"; // Modal uses unlocked
-              elem.gridSrc = ownerPathBlack + elem.id + ".svg"; // Grid uses black when unlocked
+              elem.gridSrc = ownerPathUnlocked + elem.id + ".svg";
               // Show notification for newly unlocked badge
               this.showBadgeNotification(elem.id);
             } else {
@@ -347,7 +343,7 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
         if (elem.src.includes(countPathLocked)) {
           if (elem.requireCount === this.userCollectedDiscovery.length) {
             elem.src = countPathUnlocked + elem.id + ".svg";
-            elem.gridSrc = countPathUnlockedGrid + elem.id + ".svg"; // Update grid source too
+            elem.gridSrc = countPathUnlocked + elem.id + ".svg"; // Update grid source too
             // Ensure the badge has its description and notification for the modal
             const badgeFromDB = BadgeDatabase.getFromId(elem.id);
             if (badgeFromDB) {
