@@ -3,6 +3,7 @@ import { Discovery, DiscoveryEnum, Heritage } from "@/internal/Types";
 import Utils from "@/internal/Utils";
 import Globals from "@/internal/Globals";
 import { Geolocation } from "@capacitor/geolocation";
+import { LocationService } from "../LocationService";
 import { ArtworkDatabase } from "@/internal/databases/ArtworkDatabase";
 import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
 import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
@@ -175,8 +176,8 @@ export class UserData {
     this.sortedDiscoveriesDistance = this.sortedDiscoveriesDistance.concat(
       HeritageDatabase.getSubset(0, HeritageDatabase.getSize()),
     );
-    const lat2 = UserData.getLocation()[1];
-    const lng2 = UserData.getLocation()[0];
+    const lat2 = UserData.getLocation(true)[1];
+    const lng2 = UserData.getLocation(true)[0];
     this.sortedDiscoveriesDistance.sort((a, b) => {
       return (
         Distance.calculateDistance(a, lat2, lng2) -
@@ -378,24 +379,46 @@ export class UserData {
   }
 
   public static async setLocation() {
-    const geoloc = await Geolocation.getCurrentPosition({
-      enableHighAccuracy: true,
-      timeout: 30000,
-    });
-
-    // TODO: use `accuracy` to be displayed as a feature on the map (choose the layer with the location icon)
-    this.data.location.lng = geoloc.coords.longitude;
-    this.data.location.lat = geoloc.coords.latitude;
-    this.data.location.accuracy = geoloc.coords.accuracy;
-
-    this.updateFile();
+    try {
+      const position = await LocationService.getOneTimePosition();
+      this.data.location.lng = position.lng;
+      this.data.location.lat = position.lat;
+      this.data.location.accuracy = position.accuracy;
+      this.updateFile();
+    } catch (error) {
+      console.error('Failed to set location:', error);
+      // Fallback to old method if new service fails
+      const geoloc = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 30000,
+      });
+      this.data.location.lng = geoloc.coords.longitude;
+      this.data.location.lat = geoloc.coords.latitude;
+      this.data.location.accuracy = geoloc.coords.accuracy;
+      this.updateFile();
+    }
   }
 
-  public static getLocation(update = true) {
-    if (update)
+  public static getLocation(update = false): [number, number] {
+    // Try to get current position from LocationService first
+    const currentPos = LocationService.getCurrentLocationArray();
+    if (currentPos) {
+      // Update our stored location with the latest from LocationService
+      this.data.location.lng = currentPos[0];
+      this.data.location.lat = currentPos[1];
+      const position = LocationService.getCurrentPosition();
+      if (position) {
+        this.data.location.accuracy = position.accuracy;
+      }
+      return currentPos;
+    }
+
+    // Fallback to stored location
+    if (update) {
       this.setLocation().catch(() => {
         /* Ignore fail */
       });
+    }
 
     return [this.data.location.lng, this.data.location.lat];
   }
