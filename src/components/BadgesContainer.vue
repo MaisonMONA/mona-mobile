@@ -47,7 +47,7 @@
             />
             <circle
               class="progress-ring__circle"
-              :stroke="elem.count > 0 ? 'var(--mona-yellow)' : '#E0E0E0'"
+              :stroke="elem.count >= elem.requireCount ? 'var(--mona-yellow)' : (elem.count > 0 ? 'var(--mona-yellow)' : '#E0E0E0')"
               stroke-width="10"
               :stroke-dasharray="circumference + ' ' + circumference"
               :stroke-dashoffset="elem.count >= elem.requireCount ? 0 : getProgressOffset(elem.count, elem.requireCount)"
@@ -62,7 +62,7 @@
           </div>
         </div>
         <span class="badge-title">{{ typeof elem.title === 'object' ? elem.title.fr : elem.title }}</span>
-        <span class="badge-progress" :class="{ 'completed': elem.count >= elem.requireCount }">{{ elem.count >= elem.requireCount ? elem.requireCount + "/" + elem.requireCount : elem.count + "/" + elem.requireCount }}</span>
+        <span class="badge-progress" :class="{ 'completed': elem.count >= elem.requireCount }">{{ elem.count >= elem.requireCount ? 'COMPLÉTÉ!' : elem.count + "/" + elem.requireCount }}</span>
       </div>
     </div>
 
@@ -90,7 +90,7 @@
             />
             <circle
               class="progress-ring__circle"
-              :stroke="elem.count > 0 ? 'var(--mona-yellow)' : '#E0E0E0'"
+              :stroke="elem.count >= elem.requireCount ? 'var(--mona-yellow)' : (elem.count > 0 ? 'var(--mona-yellow)' : '#E0E0E0')"
               stroke-width="10"
               :stroke-dasharray="circumference + ' ' + circumference"
               :stroke-dashoffset="elem.count >= elem.requireCount ? 0 : getProgressOffset(elem.count, elem.requireCount)"
@@ -105,7 +105,7 @@
           </div>
         </div>
         <span class="badge-title">{{ elem.title }}</span>
-        <span class="badge-progress" :class="{ 'completed': elem.count >= elem.requireCount }">{{ elem.count >= elem.requireCount ? elem.requireCount + "/" + elem.requireCount : elem.count + "/" + elem.requireCount }}</span>
+        <span class="badge-progress" :class="{ 'completed': elem.count >= elem.requireCount }">{{ elem.count >= elem.requireCount ? 'COMPLÉTÉ!' : elem.count + "/" + elem.requireCount }}</span>
       </div>
     </div>
   </div>
@@ -368,8 +368,8 @@ a {
 }
 
 .count-badge-container.unlocked {
-  background-color: var(--mona-yellow);
-  border-color: var(--mona-yellow);
+  background-color: #FDF5B4;
+  border-color: #FDF5B4;
 }
 
 .count-badge-container img {
@@ -401,8 +401,8 @@ a {
 }
 
 .circular-badge.unlocked {
-  background-color: var(--mona-yellow);
-  border-color: var(--mona-yellow);
+  background-color: white;
+  border-color: white;
 }
 
 .circular-badge img {
@@ -470,10 +470,10 @@ a {
 }
 
 /* Make completed round badge progress counter bolder and darker */
-/* .badge-item .badge-progress.completed {
+.badge-item .badge-progress.completed {
   font-weight: bold;
   color: #333;
-} */
+}
 
 .badge-item .badge-title {
   margin-top: 0.5vw;
