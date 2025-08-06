@@ -4,23 +4,21 @@
       <div class="collection-content">
         <p v-if="collected.length===0" class="ion-text-center ion-padding noneCollected">Vous n’avez pas encore
           photographié d’œuvre d’art</p>
-        <ion-grid>
-          <ion-row class="ion-justify-content-start padded-row">
+        <ion-grid class="square-grid">
+          <ion-row class="square-row">
             <ion-col
               v-for="item in collected"
               :key="item"
-              size="5.5"
-              class="collection-item"
+              size="4"
+              class="square-item"
               @click="openDetails(item)"
             >
-              <div class="img-card">
+              <div class="square-container">
                 <img
                   :id="`user-photo-${item.id}-${item.dType}`"
                   :src="getPhotoThumbnail(item.id, item.dType)"
+                  class="square-img"
                 />
-                <div class="title-holder">
-                  <p>{{ formatTitle(getDiscovery(item.id, item.dType)) }}</p>
-                </div>
               </div>
             </ion-col>
           </ion-row>
@@ -237,6 +235,41 @@ p {
 
 #collection-icon {
   font-size: 60px;
+}
+
+/* Square grid layout */
+.square-grid {
+  --ion-grid-padding: 0;
+  --ion-grid-column-padding: 2px;
+  padding: 0 3.8vw; /* Align with collection toggle border */
+}
+
+.square-row {
+  margin: 0;
+}
+
+.square-item {
+  padding: 2px;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+}
+
+.square-container {
+  position: relative;
+  width: 100%;
+  padding-bottom: 100%; /* Creates 1:1 aspect ratio */
+  overflow: hidden;
+}
+
+.square-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
 }
 
 </style>
