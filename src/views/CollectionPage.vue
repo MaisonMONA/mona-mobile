@@ -248,12 +248,15 @@ a {
   border: 1px solid black;
   border-radius: 90px;
   padding: 1px;
+  /* background-image: url('/assets/drawable/icons/collection_toggle_background.svg');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center; */
 }
 
 .collectionPageSegment ion-segment-button {
   /* Override dark mode */
   --color: black;
-
   height: 5vh;
   font-size: 1.8vh;
   font-weight: 500;
@@ -261,10 +264,41 @@ a {
   width: 43vw;
   padding: 0 1vw;
   margin-left: 0.5%; /* for "Ma collection" button*/
-
-  --indicator-color: var(--mona-yellow);
+  margin-top: 0;
+  margin-bottom: 0;
+  --indicator-color: transparent; /* make indictator invisible. Replaced with SVG below. */
   --indicator-box-shadow: none;
   --border-radius: 20vw;
+}
+
+/* Irregular SVG background for toggle indicator */
+.collectionPageSegment ion-segment-button::part(indicator) {
+  background-image: url('/assets/drawable/icons/collection_toggle_background.svg');
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Regular yellow background for small screens */
+@media (max-width: 280px) {
+  .collectionPageSegment ion-segment-button {
+    --indicator-color: var(--mona-yellow);
+  }
+  
+  .collectionPageSegment ion-segment-button::part(indicator) {
+    background-image: none;
+  }
+}
+
+/* Use regular yellow background for tablets/large screens */
+@media (min-width: 500px) {
+  .collectionPageSegment ion-segment-button {
+    --indicator-color: var(--mona-yellow);
+  }
+  
+  .collectionPageSegment ion-segment-button::part(indicator) {
+    background-image: none;
+  }
 }
 
 .collectionPageSegment ion-segment-button ion-label {
