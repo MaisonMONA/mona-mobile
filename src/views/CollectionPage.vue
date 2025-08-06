@@ -256,7 +256,7 @@ a {
 
 .collectionPageSegment ion-segment-button {
   /* Override dark mode */
-  --color: black;
+  --color: #595959; /* Inactive button color */
   height: 5vh;
   font-size: 1.8vh;
   font-weight: 500;
@@ -269,6 +269,11 @@ a {
   --indicator-color: transparent; /* make indictator invisible. Replaced with SVG below. */
   --indicator-box-shadow: none;
   --border-radius: 20vw;
+}
+
+/* Active segment button - black text */
+.collectionPageSegment ion-segment-button.segment-button-checked {
+  --color: black;
 }
 
 /* Irregular SVG background for toggle indicator */
