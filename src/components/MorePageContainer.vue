@@ -33,17 +33,17 @@
           <div id="followUsAndMediaLinks" class="ion-text-center">
             <span>Suivez-nous!</span>
             <div id="mediaLinks">
-            <a href="https://monamontreal.org">
-              <ion-icon :icon="`/assets/drawable/icons/website_icon.svg`"></ion-icon>
-            </a>
-            <a href='mailto: data@monamontreal.org'>
-              <ion-icon :icon="`/assets/drawable/icons/mail.svg`"></ion-icon>
-            </a>
             <a href="https://m.facebook.com/MONA.ArtPublic/">
               <ion-icon :icon="`/assets/drawable/icons/facebook_icon.svg`"></ion-icon>
             </a>
             <a href="https://www.instagram.com/mona.artpublic/">
               <ion-icon :icon="`/assets/drawable/icons/instagram_icon.svg`"></ion-icon>
+            </a>
+            <a href="https://monamontreal.org">
+              <ion-icon :icon="`/assets/drawable/icons/website_icon.svg`"></ion-icon>
+            </a>
+            <a href='mailto: data@monamontreal.org'>
+              <ion-icon :icon="`/assets/drawable/icons/mail.svg`"></ion-icon>
             </a>
           </div>
           </div>
