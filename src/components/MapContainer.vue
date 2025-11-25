@@ -184,6 +184,7 @@ import TileLayer from "ol/layer/Tile";
 import { Group as layerGroup } from "ol/layer";
 import { useGeographic } from "ol/proj";
 import Point from "ol/geom/Point";
+import MultiPolygon from "ol/geom/MultiPolygon";
 import Feature from "ol/Feature";
 import { OSM } from "ol/source";
 import { defaults as defaultControls } from "ol/control";
@@ -203,6 +204,7 @@ import { circular } from "ol/geom/Polygon.js";
 import customLocationIconBlack from "/assets/drawable/icons/location_icon_black.svg";
 import customLocationIconPurple from "/assets/drawable/icons/location_icon_purple.svg";
 import { containsCoordinate, getHeight } from "ol/extent.js";
+import { unByKey } from "ol/Observable.js";
 import { Geolocation } from "@capacitor/geolocation";
 import { LocationService } from "@/internal/LocationService";
 import { isPlatform } from "@ionic/vue";
@@ -211,15 +213,95 @@ import { Distance } from "@/internal/Distance";
 import DiscoveryDetails from "@/components/DiscoveryDetails.vue";
 import DiscoveryDetailsFullModale from "@/components/DiscoveryDetailsFullModale.vue";
 
-function insertAllPins(destinationLayer, discoveryList) {
+const buildDiscoveryKey = (dType, id) => `${dType}:${id}`;
+
+function getDiscoveryLocation(discovery) {
+  if (!discovery) return null;
+
+  const location =
+    discovery.location ??
+    (typeof discovery.getLocation === "function"
+      ? discovery.getLocation()
+      : null);
+
+  if (
+    !location ||
+    typeof location.lng !== "number" ||
+    typeof location.lat !== "number"
+  ) {
+    return null;
+  }
+
+  return location;
+}
+
+function getDiscoveryPolygon(discovery) {
+  if (!discovery) return null;
+
+  const polygon =
+    discovery.geoAreaPolygon ??
+    (typeof discovery.getGeoAreaPolygon === "function"
+      ? discovery.getGeoAreaPolygon()
+      : null);
+
+  if (
+    !polygon ||
+    polygon.type !== "MultiPolygon" ||
+    !Array.isArray(polygon.coordinates) ||
+    polygon.coordinates.length === 0
+  ) {
+    return null;
+  }
+
+  return polygon;
+}
+
+function insertAllPins(
+  destinationLayer,
+  discoveryList,
+  polygonKeys = new Set(),
+) {
   for (const discovery of discoveryList) {
+    const key = buildDiscoveryKey(discovery.dType, discovery.id);
+    const hasPolygon = polygonKeys.has(key);
+
+    const location = getDiscoveryLocation(discovery);
+    if (!location) continue;
+
     const feature = new Feature({
-      geometry: new Point([discovery.location.lng, discovery.location.lat]),
+      geometry: new Point([location.lng, location.lat]),
       id: discovery.id,
       dType: discovery.dType,
+      hasPolygon,
     });
     destinationLayer.getSource().addFeature(feature);
   }
+}
+
+function insertAllPolygons(destinationLayer, discoveryList) {
+  const polygonKeys = new Set();
+
+  for (const discovery of discoveryList) {
+    const polygon = getDiscoveryPolygon(discovery);
+    if (!polygon) continue;
+
+    try {
+      const feature = new Feature({
+        geometry: new MultiPolygon(polygon.coordinates),
+        id: discovery.id,
+        dType: discovery.dType,
+      });
+      destinationLayer.getSource().addFeature(feature);
+      polygonKeys.add(buildDiscoveryKey(discovery.dType, discovery.id));
+    } catch (error) {
+      console.warn(
+        `[MapContainer] Failed to render polygon for ${discovery.dType}#${discovery.id}`,
+        error,
+      );
+    }
+  }
+
+  return polygonKeys;
 }
 
 export default {
@@ -261,6 +343,7 @@ export default {
     });
 
     let discovery = null;
+    let discoveryLocation = null;
 
     // If URL has discovery (because clicked on it from its description card), focus on it
     if (this.$route.query.type && this.$route.query.id) {
@@ -268,6 +351,7 @@ export default {
         parseInt(this.$route.query.id),
         this.$route.query.type,
       );
+      discoveryLocation = getDiscoveryLocation(discovery);
       setTimeout(() => this.focusDiscovery(discovery), 100);
     }
 
@@ -284,24 +368,29 @@ export default {
       locationUpdateInterval: null,
       locationUnsubscribe: null, // Function to unsubscribe from location updates
       mapPinsLayer: null,
+      mapPolygonsLayer: null,
       lat2: UserData.getLocation(false)[1],
       lng2: UserData.getLocation(false)[0],
       closestDiscoveriesDistance: [],
       formerSelectedPinFeature: null,
+      formerSelectedPolygonFeature: null,
       isUserLocationInViewport: false,
       isUserLocationOutsideViewport: false,
       mainMap: null,
-      INITIAL_COORDS: discovery
-        ? [discovery.location.lng, discovery.location.lat]
+      INITIAL_COORDS: discoveryLocation
+        ? [discoveryLocation.lng, discoveryLocation.lat]
         : UserData.getLocation(false),
       // if location is not available, use the initial coordinates = [-68.2075, 52.8131]
       DEFAULT_ZOOM_LEVEL: discovery ? 17 : 14, // If the map was opened by the DOD page we want to zoom more
+      polygonVisibilityZoomThreshold: 15,
+      vectorRenderBuffer: 512,
       // if location is not available, use the default zoom level = 4.5
       TILE_LAYER: layer,
       arrowRightIcon,
       customLocationIconBlack,
       customLocationIconPurple,
       isAlertOpen: false,
+      viewResolutionListenerKey: null,
       alertBtn: [
         {
           text: "Annuler",
@@ -426,7 +515,7 @@ export default {
             ? [-68.2075, 52.8131]
             : this.INITIAL_COORDS,
           zoom: this.isPermissionDenied ? 4.5 : this.DEFAULT_ZOOM_LEVEL,
-          maxZoom: 20,
+          maxZoom: 30,
           minZoom: 3,
 
           // Disable rotation on map
@@ -439,9 +528,18 @@ export default {
       this.mainMap.on("singleclick", this.handleMapClick);
       this.mainMap.on("moveend", this.setCenterButtonAppearance);
 
+      const view = this.mainMap.getView();
+      this.viewResolutionListenerKey = view.on(
+        "change:resolution",
+        () => {
+          this.updateDiscoveryLayerVisibility();
+        },
+      );
+
       // Need to put an if statement here. If not, the blue circle will show up even if the user has denied the location permission
       if (!this.isPermissionDenied) this.showLocation();
       this.showPins();
+      this.updateDiscoveryLayerVisibility();
     },
 
     setCenterButtonAppearance() {
@@ -479,23 +577,67 @@ export default {
     // Shows pins on the map
     // Called in created()
     showPins(discoveries = []) {
+      if (this.mapPolygonsLayer) {
+        this.mainMap.removeLayer(this.mapPolygonsLayer);
+      }
+      if (this.mapPinsLayer) {
+        this.mainMap.removeLayer(this.mapPinsLayer);
+      }
+
+      const polygonLayer = new VectorLayer({
+        source: new VectorSource(),
+        style: this.polygonStyleFunction,
+        zIndex: 250,
+        renderBuffer: this.vectorRenderBuffer,
+        updateWhileInteracting: true,
+        updateWhileAnimating: true,
+      });
+
       const pinsLayer = new VectorLayer({
         source: new VectorSource(),
         style: this.pinStyleFunction, // style that features (pins) will take
         zIndex: 300, // Set to a value between location accuracy radius (100) and user location pin (1000)
+        renderBuffer: this.vectorRenderBuffer,
+        updateWhileInteracting: false,
+        updateWhileAnimating: false,
       });
 
+      this.mapPolygonsLayer = polygonLayer;
       this.mapPinsLayer = pinsLayer;
 
-      if (discoveries.length > 0) {
-        // Show a subset of discoveries (used with filters)
-        insertAllPins(pinsLayer, discoveries);
-      } else {
-        // Show all discoveries
-        insertAllPins(pinsLayer, UserData.getSortedDiscoveriesAZ());
+      const baseDiscoveries =
+        discoveries.length > 0
+          ? discoveries
+          : UserData.getSortedDiscoveriesAZ();
+
+      const polygonKeys = insertAllPolygons(
+        polygonLayer,
+        baseDiscoveries,
+      );
+      insertAllPins(pinsLayer, baseDiscoveries, polygonKeys);
+
+      this.mainMap.addLayer(polygonLayer);
+      this.mainMap.addLayer(pinsLayer);
+      this.updateDiscoveryLayerVisibility();
+    },
+
+    updateDiscoveryLayerVisibility() {
+      if (!this.mainMap) return;
+
+      const zoom = this.mainMap.getView().getZoom();
+      const showPolygons =
+        typeof zoom === "number" &&
+        zoom >= this.polygonVisibilityZoomThreshold;
+
+      if (this.mapPolygonsLayer) {
+        this.mapPolygonsLayer.setVisible(!!showPolygons);
+        this.mapPolygonsLayer.changed();
       }
 
-      this.mainMap.addLayer(pinsLayer);
+      if (this.mapPinsLayer) {
+        this.mapPinsLayer.setVisible(true);
+        this.mapPinsLayer.changed();
+      }
     },
 
     // Taken from Utils.ts
@@ -511,11 +653,7 @@ export default {
       const id = feature.get("id");
       const type = feature.get("dType");
 
-      const status = UserData.isCollected(id, type)
-        ? "collected"
-        : UserData.isTargeted(id, type)
-          ? "targeted"
-          : "default";
+      const status = this.resolveDiscoveryStatus(id, type);
 
       const zoomLevel = this.mainMap.getView().getZoom();
 
@@ -539,22 +677,75 @@ export default {
       return [style];
     },
 
-    // Makes selected discovery pin bigger, makes it red, makes it appear on top of the other pins, 
+    polygonStyleFunction(feature) {
+      const id = feature.get("id");
+      const type = feature.get("dType");
+      const status = this.resolveDiscoveryStatus(id, type);
+
+      const strokeColors = {
+        default: "#f9a186",
+        targeted: "#f4a259",
+        collected: "#f26e5e",
+      };
+
+      const fillColors = {
+        default: "rgba(249, 161, 134, 0.28)",
+        targeted: "rgba(244, 162, 89, 0.28)",
+        collected: "rgba(242, 110, 94, 0.35)",
+      };
+
+      return [
+        new Style({
+          stroke: new Stroke({
+            color: strokeColors[status] ?? strokeColors.default,
+            width: status === "collected" ? 2.8 : 2.2,
+          }),
+          fill: new Fill({
+            color: fillColors[status] ?? fillColors.default,
+          }),
+          zIndex: 260,
+        }),
+      ];
+    },
+
+    resolveDiscoveryStatus(id, type) {
+      if (UserData.isCollected(id, type)) return "collected";
+      if (UserData.isTargeted(id, type)) return "targeted";
+      return "default";
+    },
+
+    // Makes selected discovery pin bigger, makes it red, makes it appear on top of the other pins,
     // and re-establishes former selected pin's size
-    highlightSelectedDiscoveryPin(selectedPinDiscovery) {
+    highlightSelectedDiscoveryPin(selectedDiscovery) {
+      const hasPolygon =
+        getDiscoveryPolygon(selectedDiscovery) && this.mapPolygonsLayer;
+
+      if (hasPolygon) {
+        this.highlightSelectedDiscoveryPolygon(selectedDiscovery);
+      } else if (this.formerSelectedPolygonFeature && this.mapPolygonsLayer) {
+        this.formerSelectedPolygonFeature.setStyle(
+          this.mapPolygonsLayer.getStyle(),
+        );
+        this.formerSelectedPolygonFeature = null;
+      }
+
+      if (!this.mapPinsLayer) return;
+
       // if there was a selected pin before, make former selected pin back to normal scale
       if (this.formerSelectedPinFeature) {
         this.formerSelectedPinFeature.setStyle(this.mapPinsLayer.getStyle());
       }
 
+      const location = getDiscoveryLocation(selectedDiscovery);
+      if (!location) return;
+
       // Setting new style for selected pin
       // Get feature on the map that corresponds to selected pin
       const selectedFeature = this.mapPinsLayer
         .getSource()
-        .getClosestFeatureToCoordinate([
-          selectedPinDiscovery.location.lng,
-          selectedPinDiscovery.location.lat,
-        ]);
+        .getClosestFeatureToCoordinate([location.lng, location.lat]);
+
+      if (!selectedFeature) return;
 
       const selectedPinStyle = new Style({
         image: new Icon({
@@ -567,6 +758,56 @@ export default {
       selectedFeature.setStyle(selectedPinStyle);
 
       this.formerSelectedPinFeature = selectedFeature; // assign currently selected pin as former selected pin
+    },
+
+    highlightSelectedDiscoveryPolygon(selectedDiscovery) {
+      if (!this.mapPolygonsLayer) return;
+
+      const polygonFeature = this.getPolygonFeatureForDiscovery(
+        selectedDiscovery,
+      );
+      if (!polygonFeature) return;
+
+      if (
+        this.formerSelectedPolygonFeature &&
+        this.formerSelectedPolygonFeature !== polygonFeature
+      ) {
+        this.formerSelectedPolygonFeature.setStyle(
+          this.mapPolygonsLayer.getStyle(),
+        );
+      }
+
+      polygonFeature.setStyle(
+        new Style({
+          stroke: new Stroke({
+            color: "#d74f3f",
+            width: 3,
+          }),
+          fill: new Fill({
+            color: "rgba(247, 140, 111, 0.5)",
+          }),
+          zIndex: 400,
+        }),
+      );
+
+      this.formerSelectedPolygonFeature = polygonFeature;
+    },
+
+    getPolygonFeatureForDiscovery(discovery) {
+      if (!this.mapPolygonsLayer) return null;
+
+      const targetKey = buildDiscoveryKey(discovery.dType, discovery.id);
+      const features = this.mapPolygonsLayer.getSource().getFeatures();
+
+      return (
+        features.find((feature) => {
+          const featureKey = buildDiscoveryKey(
+            feature.get("dType"),
+            feature.get("id"),
+          );
+          return featureKey === targetKey;
+        }) || null
+      );
     },
 
     showLocation() {
@@ -683,6 +924,11 @@ export default {
       if (this.locationUpdateInterval) {
         clearInterval(this.locationUpdateInterval);
       }
+
+      if (this.viewResolutionListenerKey) {
+        unByKey(this.viewResolutionListenerKey);
+        this.viewResolutionListenerKey = null;
+      }
     },
 
     async startLocationService() {
@@ -721,6 +967,8 @@ export default {
         const id = features[0].get("id");
         const discovery = Utils.getDiscovery(id, dType);
 
+        if (!discovery) return;
+
         // Update focus on feature closest to click
         this.focusDiscovery(discovery);
 
@@ -732,34 +980,44 @@ export default {
 
     // Highlights discovery, centers on it, and opens its description modal
     focusDiscovery(discovery, map = this.mainMap) {
-      if (!discovery) return;
+      if (!discovery || !map) return;
 
-      const currentZoom = map.getView().getZoom();
+      const mapView = map.getView();
+      const currentZoom = mapView.getZoom();
 
-      // Highlight clicked pin
+      // Highlight clicked discovery
       this.highlightSelectedDiscoveryPin(discovery);
 
-      // Center map on the selected pin with animation
-      // Get viewport height coordinates at the desired zoom level
-      // Temporarily set the zoom level
-      this.mainMap.getView().setZoom(Math.max(currentZoom, 14.25));
-      // Calculate viewport height at the temporary zoom level
-      const extentHeight = getHeight(
-        this.mainMap.getView().calculateExtent(map.getSize()),
-      );
-      // Restore the original zoom level
-      this.mainMap.getView().setZoom(currentZoom);
+      const polygon = getDiscoveryPolygon(discovery);
+      if (polygon && this.mapPolygonsLayer) {
+        const polygonFeature = this.getPolygonFeatureForDiscovery(discovery);
+        if (polygonFeature) {
+          mapView.fit(polygonFeature.getGeometry().getExtent(), {
+            duration: 200,
+            padding: [100, 80, 320, 80],
+            maxZoom: Math.max(currentZoom, 17),
+            easing: easeOut,
+          });
+        }
+      } else {
+        const location = getDiscoveryLocation(discovery);
+        if (location) {
+          // Center map on the selected pin with animation
+          mapView.setZoom(Math.max(currentZoom, 14.25));
+          const extentHeight = getHeight(
+            mapView.calculateExtent(map.getSize()),
+          );
+          mapView.setZoom(currentZoom);
 
-      map.getView().animate({
-        // Center viewport a bit below the selected pin so that the pin is towards the top of viewport
-        center: [
-          discovery.location.lng,
-          discovery.location.lat - 0.3 * extentHeight,
-        ],
-        duration: 200,
-        zoom: Math.max(currentZoom, 14.25),
-        easing: easeOut,
-      });
+          mapView.animate({
+            // Center viewport a bit below the selected pin so that the pin is towards the top of viewport
+            center: [location.lng, location.lat - 0.3 * extentHeight],
+            duration: 200,
+            zoom: Math.max(currentZoom, 14.25),
+            easing: easeOut,
+          });
+        }
+      }
 
       // Open pin discovery details description modal
       this.currentSelectedDiscovery = discovery;
@@ -788,11 +1046,17 @@ export default {
     // Close modal, make former selected pin back to normal scale if there was a selected pin before, and put formerSelectedPinFeature to null because there are no more selected pin
     async unfocusDiscovery() {
       this.discoveryDetailsModalOpen = false;
-      if (this.formerSelectedPinFeature) {
+      if (this.formerSelectedPinFeature && this.mapPinsLayer) {
         await this.formerSelectedPinFeature.setStyle(
           this.mapPinsLayer.getStyle(),
         );
         this.formerSelectedPinFeature = null;
+      }
+      if (this.formerSelectedPolygonFeature && this.mapPolygonsLayer) {
+        this.formerSelectedPolygonFeature.setStyle(
+          this.mapPolygonsLayer.getStyle(),
+        );
+        this.formerSelectedPolygonFeature = null;
       }
     },
 

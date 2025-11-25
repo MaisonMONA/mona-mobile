@@ -263,7 +263,8 @@ export default {
     const type = props.selectedDiscovery.dType || "-1";
     //former: const type = parseInt(props.selectedDiscoveryType.toString() || "-1");
 
-    const discovery = Utils.getDiscovery(id, type);
+    const discovery =
+      Utils.getDiscovery(id, type) || props.selectedDiscovery || null;
 
     return {
       dType: type,
