@@ -456,7 +456,7 @@ export class UserData {
     if (index !== -1) {
       // Merge the latest badge data (counts, assets, etc.) with the stored one
       this.data.collected.badges[index] = {
-        ...this.data.collected.badges[index],x§
+        ...this.data.collected.badges[index],
         ...badge,
       };
     } else {
