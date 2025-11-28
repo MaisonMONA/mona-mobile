@@ -166,14 +166,14 @@ export default {
 </script>
 
 <style scoped>
-@import url("@/theme/TopToolbar.css");
+
 .forgotPasswordLink {
   color: #595959 !important;
 }
 
 p,
 label {
-  font-family: "Gotham Rounded Light", sans-serif;
+  font-family: 'Gotham Rounded Light', sans-serif;
 }
 
 #welcome {

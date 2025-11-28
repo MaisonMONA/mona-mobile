@@ -125,7 +125,6 @@ export default {
 
 <style scoped>
 @import url("@/theme/GlobalStyle.css");
-@import url("@/theme/TopToolbar.css");
 
 ion-header {
   --background: transparent; /* Make the background transparent */
@@ -201,10 +200,6 @@ ion-back-button::part(native) {
 
 .main-container {
     padding: 5vw;
-}
-
-ion-title {
-    font-family: 'Gotham Rounded Light', sans-serif;
 }
 
 * {

@@ -1,10 +1,26 @@
-import { mount } from '@vue/test-utils'
-import HomePage from '@/views/RegisterPage.vue'
-import { describe, expect, test } from 'vitest'
+import { mount } from "@vue/test-utils";
+import RegisterPage from "@/views/RegisterPage.vue";
+import { describe, expect, it, vi } from "vitest";
 
-describe('HomePage.vue', () => {
-  test('renders home vue', () => {
-    const wrapper = mount(HomePage)
-    expect(wrapper.text()).toMatch('Ready to create an app?')
-  })
-})
+vi.mock("@/internal/databases/UserData", () => ({
+  UserData: {
+    populate: vi.fn().mockResolvedValue(undefined),
+    hasSeenTutorial: vi.fn().mockReturnValue(true),
+    getToken: vi.fn().mockReturnValue(""),
+  },
+}));
+
+describe("RegisterPage.vue", () => {
+  it("shows the registration hero copy", async () => {
+    const wrapper = mount(RegisterPage, {
+      global: {
+        mocks: {
+          $router: { replace: vi.fn() },
+        },
+      },
+    });
+
+    expect(wrapper.text()).toContain("Inscription");
+    expect(wrapper.text()).toContain("Bienvenue !");
+  });
+});

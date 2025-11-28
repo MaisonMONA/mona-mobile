@@ -78,7 +78,7 @@ export default {
 
 p,
 li {
-  font-family: "Open Sans", sans-serif;
+  font-family: 'Open Sans', sans-serif;
 }
 
 p {

@@ -449,15 +449,20 @@ export class UserData {
     return this.data.collected.badges.find((badge: any) => badge.id == id);
   }
   public static addCollectedBadge(badge: any) {
-    const insertFirst = (element: any, list: any[]) => {
-      /* Only inserts if the element is not in `list` */
-      if (!list.some((e) => e.id === badge.id)) {
-        return [element, ...list];
-      }
-      return list;
-    };
+    const index = this.data.collected.badges.findIndex(
+      (storedBadge: any) => storedBadge.id === badge.id,
+    );
 
-    this.data.collected.badges = insertFirst(badge, this.data.collected.badges);
+    if (index !== -1) {
+      // Merge the latest badge data (counts, assets, etc.) with the stored one
+      this.data.collected.badges[index] = {
+        ...this.data.collected.badges[index],
+        ...badge,
+      };
+    } else {
+      // Insert new badge at the beginning to keep reverse chronological order
+      this.data.collected.badges = [badge, ...this.data.collected.badges];
+    }
 
     this.updateFile();
   }

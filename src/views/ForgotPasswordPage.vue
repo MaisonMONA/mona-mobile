@@ -130,7 +130,7 @@ async function showLoading() {
 </template>
 
 <style scoped>
-@import url("@/theme/TopToolbar.css");
+
 div.ion-padding {
   position: relative;
   top: 8vh;

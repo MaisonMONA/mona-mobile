@@ -91,7 +91,7 @@ export default {
 
 p {
   position: relative;
-  font-family: "Gotham Rounded Light", sans-serif;
+  font-family: 'Gotham Rounded Light', sans-serif;
   text-align: center;
   top: 35%;
 }
@@ -126,7 +126,7 @@ p {
 }
 
 .loading-text {
-  font-family: "Gotham Rounded Light", sans-serif;
+  font-family: 'Gotham Rounded Light', sans-serif;
   font-size: 1.125rem;
   color: #555;
   margin-top: -15rem;

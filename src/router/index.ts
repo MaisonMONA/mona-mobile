@@ -69,6 +69,18 @@ const routes: RouteRecordRaw[] = [
     path: "/forgot-password",
     component: () => import("@/views/ForgotPasswordPage.vue"),
   },
+  {
+    path: "/trophees",
+    component: () => import("@/views/TropheesPage.vue"),
+  },
+  {
+    path: "/categories",
+    component: () => import("@/views/CategoriesPage.vue"),
+  },
+  {
+    path: "/quartiers",
+    component: () => import("@/views/QuartiersPage.vue"),
+  },
 ];
 
 const router = createRouter({

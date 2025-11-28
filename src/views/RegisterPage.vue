@@ -218,7 +218,6 @@ export default {
 </script>
 
 <style scoped>
-@import url("@/theme/TopToolbar.css");
 
 .ion-page {
   background: white;
@@ -226,7 +225,7 @@ export default {
 
 p,
 label {
-  font-family: "Gotham Rounded Light", sans-serif;
+  font-family: 'Gotham Rounded Light', sans-serif;
 }
 
 #welcome {

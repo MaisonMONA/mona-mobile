@@ -409,7 +409,7 @@ ion-button {
 
 .discoverydetails {
   margin: 5% 5% 30px 5%;
-  font-family: "OpenSans", sans-serif;
+  font-family: 'Open Sans', sans-serif;
 }
 
 .details.title {

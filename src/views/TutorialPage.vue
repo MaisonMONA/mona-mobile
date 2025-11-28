@@ -320,10 +320,4 @@ img.background-blurred {
   z-index: 1;
 }
 
-/*.background {*/
-/*    z-index: 1;*/
-/*    background: linear-gradient(to top right, #656EB8, #55F454, #FADA00);*/
-/*    height: 100%;*/
-/*    width: 100%;*/
-/*}*/
 </style>

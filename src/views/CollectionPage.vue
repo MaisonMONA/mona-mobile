@@ -1,5 +1,5 @@
 <template>
-  <ion-page id="collectionPage">
+  <ion-page id="collectionPage" :class="{ 'badges-view': choixSegment === 'badge' }">
     <div id="userInfo">
       <ion-icon id="defaultUserAvatar" :icon="defaultUserAvatar"></ion-icon>
       <div id="userInfoText">
@@ -8,37 +8,13 @@
       </div>
     </div>
 
-    <div id="collection-and-badges-number-container">
-      <div class="collection-header" :style="{ width: collectionsHeaderWidth }" @click="switchToCollection">
-        <p class="collected-count">
-          {{ collected.length > 0 ? collected.length : "" }}
-        </p>
-        <p>
-          {{ collected.length > 0 ? "D" : "Aucune d" }}écouverte{{
-            collected.length > 0 ? "s" : ""
-          }}
-          <br />
-          collectionnée{{ collected.length > 0 ? "s" : "" }}
-        </p>
-      </div>
-
-      <div class="collection-header" id="badges-obtained" :style="{ width: badgesHeaderWidth }" @click="switchToBadges">
-        <p class="collected-count">
-          {{ completedBadges > 0 ? completedBadges : "" }}
-        </p>
-        <p>
-          {{ completedBadges > 1 ? "Badges obtenus": (completedBadges > 0 ? "Badge obtenu" : "Aucun badge obtenu") }}
-        </p>
-      </div>
-    </div>
-
       <div class="ion-segment-container collectionPageSegment">
         <ion-segment :value="getSegment()" v-model="choixSegment" mode="ios">
           <ion-segment-button value="collection">
-            <ion-label>Ma collection</ion-label>
+            <ion-label>Ma collection ({{ collected.length }})</ion-label>
           </ion-segment-button>
           <ion-segment-button value="badge" id="badge">
-            <ion-label>Mes badges</ion-label>
+            <ion-label>Mes badges ({{ completedBadges }})</ion-label>
           </ion-segment-button>
         </ion-segment>
       </div>
@@ -89,26 +65,6 @@ export default {
     },
     completedBadges() {
       return badgesCollectionsStore.getCompletedBadges;
-    },
-    collectionsHeaderWidth() {
-      // Adjust Discoveries amount container width based on number of discoveries
-      if (this.collected.length >= 100) {
-        return '52vw';
-      } else if (this.collected.length >= 10) {
-        return '48vw';
-      } else {
-        return '44vw';
-      }
-    },
-    badgesHeaderWidth() {
-      // Adjust Badges amount container width based on number of discoveries
-      if (this.collected.length >= 100) {
-        return '36vw';
-      } else if (this.collected.length >= 10) {
-        return '40vw';
-      } else {
-        return '44vw';
-      }
     },
   },
   components: {
@@ -188,7 +144,6 @@ export default {
 
 <style>
 @import url("@/theme/GlobalStyle.css");
-@import url("@/theme/TopToolbar.css");
 
 #collection-and-badges-number-container {
   display: flex;
@@ -235,7 +190,7 @@ export default {
 }
 
 * {
-  font-family: "Open Sans", sans-serif;
+  font-family: 'Open Sans', sans-serif;
 }
 
 p {
@@ -252,6 +207,14 @@ a {
 #collectionPage {
   /* Override dark mode */
   background: white;
+}
+
+#collectionPage.badges-view {
+  background: #F2F2F2;
+}
+
+#collectionPage.badges-view ion-content {
+  --background: #F2F2F2;
 }
 
 #userInfo {
@@ -292,27 +255,73 @@ a {
   border: 1px solid black;
   border-radius: 90px;
   padding: 1px;
+  /* background-image: url('/assets/drawable/icons/collection_toggle_background.svg');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center; */
 }
 
 .collectionPageSegment ion-segment-button {
   /* Override dark mode */
-  --color: black;
-
+  --color: #595959; /* Inactive button color */
   height: 5vh;
-  font-size: 1.9vh;
+  font-size: 1.8vh;
   font-weight: 500;
-  letter-spacing: 0.1vw;
-  width: 39vw;
-  padding: 0 3vw;
+  letter-spacing: 0.05vw;
+  width: 43vw;
+  padding: 0 1vw;
   margin-left: 0.5%; /* for "Ma collection" button*/
-
-  --indicator-color: var(--mona-yellow);
+  margin-top: 0;
+  margin-bottom: 0;
+  --indicator-color: transparent; /* make indictator invisible. Replaced with SVG below. */
   --indicator-box-shadow: none;
   --border-radius: 20vw;
 }
 
-#badge {
-  margin-left: 14%;
+/* Active segment button - black text */
+.collectionPageSegment ion-segment-button.segment-button-checked {
+  --color: black;
+}
 
+/* Irregular SVG background for toggle indicator */
+.collectionPageSegment ion-segment-button::part(indicator) {
+  background-image: url('/assets/drawable/icons/collection_toggle_background.svg');
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Regular yellow background for small screens */
+@media (max-width: 280px) {
+  .collectionPageSegment ion-segment-button {
+    --indicator-color: var(--mona-yellow);
+  }
+  
+  .collectionPageSegment ion-segment-button::part(indicator) {
+    background-image: none;
+  }
+}
+
+/* Use regular yellow background for tablets/large screens */
+@media (min-width: 500px) {
+  .collectionPageSegment ion-segment-button {
+    --indicator-color: var(--mona-yellow);
+  }
+  
+  .collectionPageSegment ion-segment-button::part(indicator) {
+    background-image: none;
+  }
+}
+
+.collectionPageSegment ion-segment-button ion-label {
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+  font-size: inherit;
+}
+
+#badge {
+  margin-left: 8%;
+  margin-right: 4vw;
 }
 </style>

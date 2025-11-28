@@ -180,7 +180,6 @@ export default {
 
 <style scoped>
 @import url("@/theme/GlobalStyle.css");
-@import url("@/theme/TopToolbar.css");
 
 #discoveryReviewContent {
   position: relative;

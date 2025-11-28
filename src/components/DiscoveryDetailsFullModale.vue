@@ -91,10 +91,13 @@
         </div>
 
         <div class="photoContainer">
-          <ion-img
-            id="defaultPhotoFullModale"
-            :src="'./assets/drawable/discoveryDetailsPhotoPlaceholder.svg'"
-          ></ion-img>
+          <div class="photoPlaceholder">
+            <ion-img
+              id="defaultPhotoFullModale"
+              :src="'./assets/drawable/mascots/mascot_17.svg'"
+            ></ion-img>
+            <p class="photoPlaceholderText">Ajoutez cette découverte à votre collection<br>en la prenant en photo</p>
+          </div>
           <ion-img id="userPhotoFullModale"></ion-img>
         </div>
 
@@ -218,12 +221,15 @@
                 <span class="detailsSubTitle">{{ details9 ? 'Quartier' : 'Ville' }}</span> <br />
                 <div 
                   class="detailsTabBoroughElement" 
-                  :class="{ 'with-badge': details9 && getBoroughBadge(details9), 'without-badge': !details9 || !getBoroughBadge(details9) }"
+                  :class="{
+                    'with-badge': !!getRegionBadge(details9, territoryName),
+                    'without-badge': !getRegionBadge(details9, territoryName)
+                  }"
                 >
                   <img 
-                    v-if="details9 && getBoroughBadge(details9)" 
-                    :src="getBoroughBadge(details9).src" 
-                    :alt="getBoroughBadge(details9).title"
+                    v-if="getRegionBadge(details9, territoryName)" 
+                    :src="getRegionBadge(details9, territoryName).src" 
+                    :alt="getRegionBadge(details9, territoryName).title"
                     class="borough-badge-icon"
                   />
                   {{ details9 || territoryName }}
@@ -530,32 +536,54 @@ export default {
   },
 
   methods: {
-    // Method to get the unlocked borough badge icon if it exists
+    // Method to get the borough badge icon (always progress version)
     getBoroughBadge(boroughName) {
       if (!boroughName || !this.badgesCollectionsStore.boroughCollection) return null;
       
       const badge = this.badgesCollectionsStore.boroughCollection.find(badge => badge.title === boroughName);
       if (!badge) return null;
       
-      // Return unlocked version
+      // Always return progress version
       return {
         ...badge,
-        src: badge.src.replace('/locked/', '/unlocked/')
+        src: badge.src.replace('/locked/', '/progress/').replace('/unlocked/', '/progress/')
       };
     },
 
-    // Method to get the owner badge if it exists (unlocked version)
+    // Method to get the owner badge (always progress version)
     getOwnerBadge(ownerName) {
       if (!ownerName || !this.badgesCollectionsStore.ownerCollection) return null;
       
       const badge = this.badgesCollectionsStore.ownerCollection.find(badge => badge.title === ownerName);
       if (!badge) return null;
       
-      // Return unlocked version
+      // Always return progress version
       return {
         ...badge,
-        src: badge.src.replace('/locked/', '/unlocked/')
+        src: badge.src.replace('/locked/', '/progress/').replace('/unlocked/', '/progress/')
       };
+    },
+
+    // Method to get the territory badge (always progress version)
+    getTerritoryBadge(territoryName) {
+      if (!territoryName || !this.badgesCollectionsStore.territoryCollection) return null;
+
+      const badge = this.badgesCollectionsStore.territoryCollection.find(
+        badge => badge.title === territoryName,
+      );
+      if (!badge) return null;
+
+      return {
+        ...badge,
+        src: badge.src.replace('/locked/', '/progress/').replace('/unlocked/', '/progress/')
+      };
+    },
+
+    getRegionBadge(boroughName, territoryName) {
+      if (boroughName) {
+        return this.getBoroughBadge(boroughName); 
+      }
+      return this.getTerritoryBadge(territoryName);
     },
 
     activateMap() {
@@ -763,13 +791,14 @@ ion-button {
 
 .discoverydetails {
   margin: 5% 5% 1.8vh 5%;
-  font-family: "OpenSans", sans-serif;
+  font-family: 'Open Sans', sans-serif;
 }
 
 #titleAndTargetIcon {
   margin: 1.7vh 0;
 }
 .details.title {
+  font-family: "Playfair Display", serif;
   font-size: 32px;
   font-weight: 500;
   line-height: 9.6vw;
@@ -782,7 +811,7 @@ ion-button {
 
 #bigDotBetweenArtistsAndDate {
   font-size: 20px;
-  color: #fada00;
+  color: var(--mona-yellow);
 }
 
 #artistsAndDate {
@@ -811,21 +840,37 @@ ion-button {
 
 .photoContainer {
   position: relative;
-  height: 100%;
   width: 92vw;
   margin: 0 0 1.8vh 3.9vw;
+  background-color: #F2F2F2;
+  border-radius: 1.9vw;
 }
 .photoContainer ion-img::part(image) {
   border-radius: 1.9vw;
 }
-.photoContainer ion-img#defaultPhotoFullModale {
-  position: relative;
-  height: 17vh;
+.photoPlaceholder {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 3vh 0;
+}
+.photoPlaceholder ion-img#defaultPhotoFullModale {
+  height: 12vh;
+  width: auto;
+}
+.photoPlaceholderText {
+  margin: 1.5vh 0 0 0;
+  text-align: center;
+  font-size: 3.6vw;
+  color: #666;
+  line-height: 1.5;
 }
 .photoContainer ion-img#userPhotoFullModale {
   display: none;
   object-fit: cover;
   height: 42.6vh;
+  width: 100%;
 }
 
 .segments {
