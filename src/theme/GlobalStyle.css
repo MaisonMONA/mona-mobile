@@ -4,13 +4,18 @@
 }
 
 @font-face {
-    font-family: 'OpenSans';
+    font-family: 'Open Sans';
     src: url("@/assets/fonts/OpenSans-Variable.ttf");
 }
 
 @font-face {
-    font-family: 'OpenSans Italic';
+    font-family: 'Open Sans Italic';
     src: url("@/assets/fonts/OpenSans-Variable-Italic.ttf");
+}
+
+@font-face {
+    font-family: 'Playfair Display';
+    src: url("@/assets/fonts/PlayfairDisplay-VariableFont_wght.ttf");
 }
 
 :root {

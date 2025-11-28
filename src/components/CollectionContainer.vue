@@ -213,7 +213,7 @@ ion-col {
 }
 
 p {
-  font-family: "Open Sans", sans-serif;
+  font-family: 'Open Sans', sans-serif;
 }
 
 .title-holder {

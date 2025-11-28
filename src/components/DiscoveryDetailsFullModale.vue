@@ -532,35 +532,35 @@ export default {
   },
 
   methods: {
-    // Method to get the unlocked borough badge icon if it exists
+    // Method to get the borough badge icon (always progress version)
     getBoroughBadge(boroughName) {
       if (!boroughName || !this.badgesCollectionsStore.boroughCollection) return null;
       
       const badge = this.badgesCollectionsStore.boroughCollection.find(badge => badge.title === boroughName);
       if (!badge) return null;
       
-      // Return unlocked version
+      // Always return progress version
       return {
         ...badge,
-        src: badge.src.replace('/locked/', '/unlocked/')
+        src: badge.src.replace('/locked/', '/progress/').replace('/unlocked/', '/progress/')
       };
     },
 
-    // Method to get the owner badge if it exists (unlocked version)
+    // Method to get the owner badge (always progress version)
     getOwnerBadge(ownerName) {
       if (!ownerName || !this.badgesCollectionsStore.ownerCollection) return null;
       
       const badge = this.badgesCollectionsStore.ownerCollection.find(badge => badge.title === ownerName);
       if (!badge) return null;
       
-      // Return unlocked version
+      // Always return progress version
       return {
         ...badge,
-        src: badge.src.replace('/locked/', '/unlocked/')
+        src: badge.src.replace('/locked/', '/progress/').replace('/unlocked/', '/progress/')
       };
     },
 
-    // Method to get the territory badge if it exists (unlocked version)
+    // Method to get the territory badge (always progress version)
     getTerritoryBadge(territoryName) {
       if (!territoryName || !this.badgesCollectionsStore.territoryCollection) return null;
 
@@ -571,13 +571,13 @@ export default {
 
       return {
         ...badge,
-        src: badge.src.replace('/locked/', '/unlocked/')
+        src: badge.src.replace('/locked/', '/progress/').replace('/unlocked/', '/progress/')
       };
     },
 
     getRegionBadge(boroughName, territoryName) {
       if (boroughName) {
-        return this.getBoroughBadge(boroughName);
+        return this.getBoroughBadge(boroughName); 
       }
       return this.getTerritoryBadge(territoryName);
     },
@@ -787,13 +787,14 @@ ion-button {
 
 .discoverydetails {
   margin: 5% 5% 1.8vh 5%;
-  font-family: "Open Sans", sans-serif;
+  font-family: 'Open Sans', sans-serif;
 }
 
 #titleAndTargetIcon {
   margin: 1.7vh 0;
 }
 .details.title {
+  font-family: "Playfair Display", serif;
   font-size: 32px;
   font-weight: 500;
   line-height: 9.6vw;

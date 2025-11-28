@@ -190,7 +190,7 @@ export default {
 }
 
 * {
-  font-family: "Open Sans", sans-serif;
+  font-family: 'Open Sans', sans-serif;
 }
 
 p {

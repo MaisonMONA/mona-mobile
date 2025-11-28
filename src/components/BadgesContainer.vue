@@ -229,7 +229,7 @@ export default {
 }
 
 .section-header h1 {
-  font-family: "Open Sans", sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 5.5vw;
   font-weight: 600;
   margin: 0;
@@ -322,6 +322,6 @@ export default {
 }
 
 * {
-  font-family: "Open Sans", sans-serif;
+  font-family: 'Open Sans', sans-serif;
 }
 </style>

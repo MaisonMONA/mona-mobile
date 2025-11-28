@@ -574,7 +574,7 @@ ion-content {
   margin-top: 0;
   padding-top: 15%;
   margin-left: 21px;
-  font-family: "Gotham Rounded Light", sans-serif;
+  font-family: 'Gotham Rounded Light', sans-serif;
   font-size: 5.5vw;
 }
 
@@ -647,7 +647,7 @@ ion-searchbar#listIonSearchBar {
 p.bottom-text {
   font-size: 32px;
   text-align: center;
-  font-family: "Gotham Rounded Light", sans-serif;
+  font-family: 'Gotham Rounded Light', sans-serif;
 }
 
 .filters-button {

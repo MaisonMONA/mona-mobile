@@ -82,9 +82,6 @@ ion-toolbar {
 }
 
 .bold {
-    /*display: block;*/
-    /*font-family: 'Gotham Rounded Light', sans-serif;*/
-    /*font-family: 'Open Sans', sans-serif;*/
     font-weight: bold;
 }
 

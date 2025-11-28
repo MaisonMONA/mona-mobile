@@ -225,7 +225,7 @@ export default {
 
 p,
 label {
-  font-family: "Gotham Rounded Light", sans-serif;
+  font-family: 'Gotham Rounded Light', sans-serif;
 }
 
 #welcome {

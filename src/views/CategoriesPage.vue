@@ -200,7 +200,7 @@ ion-toolbar {
 }
 
 ion-title {
-  font-family: "Open Sans", sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-weight: 600;
   font-size: 5.6vw;
   position: absolute;
@@ -218,7 +218,7 @@ ion-back-button {
 
 .description {
   text-align: center;
-  color: #666;
+  color: black;
   font-size: 4vw;
   margin: 9vw 4vw 5vw 4vw;
   padding: 0 2vw;

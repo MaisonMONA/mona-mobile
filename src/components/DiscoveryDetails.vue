@@ -462,13 +462,14 @@ ion-button {
 
 .discoverydetails {
   margin: 5% 5% 1.8vh 5%;
-  font-family: "Open Sans", sans-serif;
+  font-family: 'Open Sans', sans-serif;
 }
 
 #titleAndTargetIcon {
   margin: 1.7vh 0;
 }
 .details.title {
+  font-family: "Playfair Display", serif;
   font-size: 32px;
   font-weight: 500;
   line-height: 9.6vw;
