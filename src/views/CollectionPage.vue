@@ -1,5 +1,5 @@
 <template>
-  <ion-page id="collectionPage">
+  <ion-page id="collectionPage" :class="{ 'badges-view': choixSegment === 'badge' }">
     <div id="userInfo">
       <ion-icon id="defaultUserAvatar" :icon="defaultUserAvatar"></ion-icon>
       <div id="userInfoText">
@@ -144,7 +144,6 @@ export default {
 
 <style>
 @import url("@/theme/GlobalStyle.css");
-@import url("@/theme/TopToolbar.css");
 
 #collection-and-badges-number-container {
   display: flex;
@@ -208,6 +207,14 @@ a {
 #collectionPage {
   /* Override dark mode */
   background: white;
+}
+
+#collectionPage.badges-view {
+  background: #F2F2F2;
+}
+
+#collectionPage.badges-view ion-content {
+  --background: #F2F2F2;
 }
 
 #userInfo {
