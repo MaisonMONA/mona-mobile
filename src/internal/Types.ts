@@ -5,6 +5,11 @@ export enum DiscoveryEnum {
   BADGE,
 }
 
+export type GeoAreaMultiPolygon = {
+  type: "MultiPolygon";
+  coordinates: number[][][][];
+};
+
 export abstract class Discovery {
   public abstract id: number;
   public abstract dType: string;
@@ -294,6 +299,8 @@ export class Heritage extends Discovery {
     subUses: string[];
     functions: { fr: string[]; en: string[] };
     addresses: string[];
+    geo_area_polygon?: GeoAreaMultiPolygon | string | null;
+    geoAreaPolygon?: GeoAreaMultiPolygon | string | null;
   }) {
     super();
     this.id = heritage.id;
@@ -309,6 +316,15 @@ export class Heritage extends Discovery {
     this.borough = heritage.borough;
     this.territory = heritage.territory;
     this.addresses = heritage.addresses;
+
+    const rawPolygon =
+      heritage.geoAreaPolygon ??
+      heritage.geo_area_polygon ??
+      // API v3 ships polygons as `area`, whereas v4 renames the field to `geo_area_polygon`
+      (heritage as { area?: GeoAreaMultiPolygon | string | null }).area ??
+      null;
+
+    this.geoAreaPolygon = Heritage.parseGeoAreaPolygon(rawPolygon);
   }
 
   dType = "heritage";
@@ -325,6 +341,24 @@ export class Heritage extends Discovery {
   synthesis: null;
   subUses: string[];
   addresses: string[];
+  geoAreaPolygon: GeoAreaMultiPolygon | null;
+
+  private static parseGeoAreaPolygon(
+    raw: GeoAreaMultiPolygon | string | null,
+  ): GeoAreaMultiPolygon | null {
+    if (!raw) return null;
+
+    if (typeof raw === "string") {
+      try {
+        const parsed = JSON.parse(raw) as GeoAreaMultiPolygon;
+        return parsed.type === "MultiPolygon" ? parsed : null;
+      } catch (_error) {
+        return null;
+      }
+    }
+
+    return raw.type === "MultiPolygon" ? raw : null;
+  }
 
   public getLocation(): { lat: number; lng: number } {
     return this.location;
@@ -360,6 +394,14 @@ export class Heritage extends Discovery {
   }
   public getFunction(): string {
     return this.functions.fr.join(", ");
+  }
+
+  public hasGeoAreaPolygon(): boolean {
+    return !!this.geoAreaPolygon && this.geoAreaPolygon.coordinates.length > 0;
+  }
+
+  public getGeoAreaPolygon(): GeoAreaMultiPolygon | null {
+    return this.geoAreaPolygon;
   }
 }
 
