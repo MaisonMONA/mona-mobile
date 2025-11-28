@@ -2,9 +2,17 @@
   <ion-page>
     <ion-content :fullscreen="true">
       <div class="collection-content">
-        <p v-if="collected.length===0" class="ion-text-center ion-padding noneCollected">Vous n’avez pas encore
-          photographié d’œuvre d’art</p>
-        <ion-grid class="square-grid">
+        <!-- Empty collection state -->
+        <div v-if="collected.length === 0" class="empty-collection">
+          <img src="/assets/drawable/mascots/mascot_13.svg" alt="Mascotte" class="empty-mascot" />
+          <p class="empty-text">Explorez la carte et photographiez votre première découverte pour l'ajouter à votre collection!</p>
+          <ion-button class="explore-button" @click="goToMap">
+            <ion-icon src="/assets/drawable/icons/white_map_tab_icon_filled.svg" slot="start"></ion-icon>
+            EXPLOREZ LA CARTE
+          </ion-button>
+        </div>
+        
+        <ion-grid v-else class="square-grid">
           <ion-row class="square-row">
             <ion-col
               v-for="item in collected"
@@ -54,6 +62,7 @@ import {
   IonCol,
   IonIcon,
   IonModal,
+  IonButton,
 } from "@ionic/vue";
 import Utils from "@/internal/Utils";
 import customCollectionIcon from "/assets/drawable/icons/collection_white.svg";
@@ -74,6 +83,7 @@ export default {
     IonRow,
     IonCol,
     IonIcon,
+    IonButton,
   },
 
   setup() {
@@ -99,6 +109,10 @@ export default {
   },
 
   methods: {
+    goToMap() {
+      this.$router.push('/tabs/map');
+    },
+
     openDetails(item) {
       this.listSelectedDiscovery = item;
       this.discoveryDetailsFullModalOpen = true;
@@ -144,6 +158,49 @@ export default {
 
 <style scoped>
 @import url("@/theme/GlobalStyle.css");
+
+/* Empty collection state */
+.empty-collection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6vh 8vw 5vh 8vw;
+  text-align: center;
+}
+
+.empty-mascot {
+  width: 50vw;
+  height: auto;
+  margin-bottom: 5vh;
+  margin-right: 10vh;
+}
+
+.empty-text {
+  font-size: 4.2vw;
+  line-height: 1.5;
+  color: #333;
+  margin-bottom: 3vh;
+  padding: 0 0vw;
+}
+
+.explore-button {
+  --background: #4D58CB;
+  --color: white;
+  --border-radius: 10px;
+  --padding-start: 8vw;
+  --padding-end: 8vw;
+  height: 6.5vh;
+  width: 78vw;
+  font-size: 4vw;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.explore-button ion-icon {
+  font-size: 5.5vw;
+  margin-right: 2.5vw;
+}
 
 .noneCollected {
   font-size: 5vw;
