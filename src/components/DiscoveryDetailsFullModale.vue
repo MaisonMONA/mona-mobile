@@ -91,10 +91,13 @@
         </div>
 
         <div class="photoContainer">
-          <ion-img
-            id="defaultPhotoFullModale"
-            :src="'./assets/drawable/discoveryDetailsPhotoPlaceholder.svg'"
-          ></ion-img>
+          <div class="photoPlaceholder">
+            <ion-img
+              id="defaultPhotoFullModale"
+              :src="'./assets/drawable/mascots/mascot_17.svg'"
+            ></ion-img>
+            <p class="photoPlaceholderText">Ajoutez cette découverte à votre collection<br>en la prenant en photo</p>
+          </div>
           <ion-img id="userPhotoFullModale"></ion-img>
         </div>
 
@@ -836,21 +839,37 @@ ion-button {
 
 .photoContainer {
   position: relative;
-  height: 100%;
   width: 92vw;
   margin: 0 0 1.8vh 3.9vw;
+  background-color: #F2F2F2;
+  border-radius: 1.9vw;
 }
 .photoContainer ion-img::part(image) {
   border-radius: 1.9vw;
 }
-.photoContainer ion-img#defaultPhotoFullModale {
-  position: relative;
-  height: 17vh;
+.photoPlaceholder {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 3vh 0;
+}
+.photoPlaceholder ion-img#defaultPhotoFullModale {
+  height: 12vh;
+  width: auto;
+}
+.photoPlaceholderText {
+  margin: 1.5vh 0 0 0;
+  text-align: center;
+  font-size: 3.6vw;
+  color: #666;
+  line-height: 1.5;
 }
 .photoContainer ion-img#userPhotoFullModale {
   display: none;
   object-fit: cover;
   height: 42.6vh;
+  width: 100%;
 }
 
 .segments {
