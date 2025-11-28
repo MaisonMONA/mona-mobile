@@ -19,6 +19,9 @@ const ownerPathLocked = "/assets/drawable/badges/owner/locked/";
 const categoryPathUnlocked = "/assets/drawable/badges/category/unlocked/";
 const categoryPathLocked = "/assets/drawable/badges/category/locked/";
 
+const territoryPathUnlocked = "/assets/drawable/badges/territory/unlocked/";
+const territoryPathLocked = "/assets/drawable/badges/territory/locked/";
+
 const fallbackBadgePath = "/assets/drawable/badges/fallback-badge.svg";
 
 export const useBadgesCollections = defineStore("badgesCollectionStore", {
@@ -34,6 +37,7 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
       boroughCollection: [] as any,
       categoryCollection: [] as any,
       ownerCollection: [] as any,
+      territoryCollection: [] as any,
     };
   },
   getters: {
@@ -49,7 +53,7 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
     },
 
     getBoroughOwnerCollection(): any[] {
-      return this.boroughCollection.concat(this.ownerCollection);
+      return this.boroughCollection.concat(this.ownerCollection, this.territoryCollection);
     },
 
     // Make arrays with ids of the corresponding collected badges
@@ -73,6 +77,11 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
           .filter((badge: any) => badge.type === "owner")
           .map((badge: any) => badge.id);
     },
+    collectedTerritoryBadgesId(): number[] {
+      return this.userCollectedBadges
+          .filter((badge: any) => badge.type === "territory")
+          .map((badge: any) => badge.id);
+    },
   },
 
   actions: {
@@ -88,7 +97,8 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
         ...this.countCollection,
         ...this.boroughCollection,
         ...this.categoryCollection,
-        ...this.ownerCollection
+        ...this.ownerCollection,
+        ...this.territoryCollection,
       ];
       
       const fullBadgeData = allBadges.find(b => b.id === badgeId);
@@ -112,6 +122,7 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
       this.instantiateBoroughBadges();
       this.instantiateCategoryBadges();
       this.instantiateOwnerBadges();
+      this.instantiateTerritoryBadges();
     },
 
     instantiateCountBadges() {
@@ -258,6 +269,38 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
       this.ownerCollection = ownerBadgesArray;
     },
 
+    instantiateTerritoryBadges() {
+      const territoryBadgesArray = [];
+      for (const e of this.badgesDB.territory) {
+        const territoryElementID = e[0];
+        const territoryElement = BadgeDatabase.getFromId(territoryElementID);
+        if (this.collectedTerritoryBadgesId.includes(territoryElementID)) {
+          const collectedBadge = UserData.getCollectedBadge(territoryElementID);
+          if (collectedBadge.count >= collectedBadge.requireCount) {
+            collectedBadge.gridSrc = territoryPathUnlocked + territoryElementID + ".svg";
+          } else {
+            collectedBadge.gridSrc = territoryPathUnlocked + territoryElementID + ".svg";
+          }
+          territoryBadgesArray.push(collectedBadge);
+        } else {
+          territoryBadgesArray.push({
+            id: territoryElementID,
+            notification: territoryElement?.notification.fr,
+            description: territoryElement?.description.fr,
+            requireCount: territoryElement?.required_count,
+            count: 0,
+            src: territoryPathLocked + territoryElementID + ".svg",
+            gridSrc: territoryPathLocked + territoryElementID + ".svg",
+            message: territoryElement?.description.fr,
+            title: this.badgesDB.territory.get(territoryElementID),
+            dType: null,
+            type: "territory",
+          });
+        }
+      }
+      this.territoryCollection = territoryBadgesArray;
+    },
+
     // Updates badges (augment count and/or change picture) with new discovery passed in
     newBadge(id: number, dType: string) {
       const element: Artwork | Place | Heritage | null = Utils.getDiscovery(
@@ -266,11 +309,13 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
       );
       this.userCollectedDiscovery = UserData.getCollectedChronologically(); // Update userCollectedDiscovery
       const tmpBorough = element?.getBorough();
-      const tmpOwner = element?.getOwner();
+  const tmpOwner = element?.getOwner();
+  const tmpTerritory = element?.getTerritory();
       const tmpCategory = element?.dType;
       this.newBoroughBadge(tmpBorough);
       this.newCategoryBadge(tmpCategory);
       this.newOwnerBadge(tmpOwner);
+  this.newTerritoryBadge(tmpTerritory);
       this.newCountBadge();
 
       // Update badges to show
@@ -331,6 +376,23 @@ export const useBadgesCollections = defineStore("badgesCollectionStore", {
             } else {
               // Badge is in progress - grid uses unlocked, modal keeps locked
               elem.gridSrc = ownerPathUnlocked + elem.id + ".svg";
+            }
+            UserData.addCollectedBadge(elem);
+          }
+        }
+      }
+    },
+    newTerritoryBadge(territory: string | undefined) {
+      if (territory) {
+        for (const elem of this.territoryCollection) {
+          if (elem.title === territory) {
+            elem.count++;
+            if (elem.count === elem.requireCount) {
+              elem.src = territoryPathUnlocked + elem.id + ".svg";
+              elem.gridSrc = territoryPathUnlocked + elem.id + ".svg";
+              this.showBadgeNotification(elem.id);
+            } else {
+              elem.gridSrc = territoryPathUnlocked + elem.id + ".svg";
             }
             UserData.addCollectedBadge(elem);
           }

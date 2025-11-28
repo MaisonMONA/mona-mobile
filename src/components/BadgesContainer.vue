@@ -12,13 +12,12 @@
         class="count-badge-item"
         @click="openBadgeDetails(elem)"
       >
-        <div class="count-badge-container" :class="{ unlocked: elem.src.includes('unlocked') }">
+        <div class="count-badge-container">
           <img
             :alt="elem.message"
             :src="getCountBadgeImageSrc(elem)"
             @error="handleImageError($event, elem)"
           />
-          <span class="count-badge-title">{{ elem.title }}</span>
         </div>
       </div>
     </div>
@@ -35,11 +34,11 @@
         @click="openBadgeDetails(elem)"
       >
         <div class="circular-badge-container">
-          <svg class="progress-ring" viewBox="0 0 120 120">
+          <svg class="progress-ring" viewBox="0 0 120 120" v-if="elem.count < elem.requireCount">
             <circle
               v-if="elem.count < elem.requireCount"
               class="progress-ring__circle-bg"
-              stroke-width="10"
+              stroke-width="5"
               fill="transparent"
               r="52"
               cx="60"
@@ -47,8 +46,8 @@
             />
             <circle
               class="progress-ring__circle"
-              :stroke="elem.count >= elem.requireCount ? 'var(--mona-yellow)' : (elem.count > 0 ? 'var(--mona-yellow)' : '#E0E0E0')"
-              stroke-width="10"
+              :stroke="elem.count >= elem.requireCount ? '#D37F66' : (elem.count > 0 ? '#D37F66' : '#E0E0E0')"
+              stroke-width="5"
               :stroke-dasharray="circumference + ' ' + circumference"
               :stroke-dashoffset="elem.count >= elem.requireCount ? 0 : getProgressOffset(elem.count, elem.requireCount)"
               fill="transparent"
@@ -61,8 +60,6 @@
             <img :alt="elem.message" :src="getRoundBadgeImageSrc(elem)" @error="handleImageError($event, elem)" />
           </div>
         </div>
-        <span class="badge-title">{{ typeof elem.title === 'object' ? elem.title.fr : elem.title }}</span>
-        <span class="badge-progress" :class="{ 'completed': elem.count >= elem.requireCount }">{{ elem.count >= elem.requireCount ? 'COMPLÉTÉ!' : elem.count + "/" + elem.requireCount }}</span>
       </div>
     </div>
 
@@ -72,17 +69,17 @@
     </div>
     <div v-if="showNeighborhoods" class="badge-grid">
       <div
-        v-for="elem in [...badgesCollectionsStore.boroughCollection, ...badgesCollectionsStore.ownerCollection]"
+        v-for="elem in neighborhoodBadges"
         :key="elem"
         class="badge-item"
         @click="openBadgeDetails(elem)"
       >
         <div class="circular-badge-container">
-          <svg class="progress-ring" viewBox="0 0 120 120">
+          <svg class="progress-ring" viewBox="0 0 120 120" v-if="elem.count < elem.requireCount">
             <circle
               v-if="elem.count < elem.requireCount"
               class="progress-ring__circle-bg"
-              stroke-width="10"
+              stroke-width="5"
               fill="transparent"
               r="52"
               cx="60"
@@ -90,8 +87,8 @@
             />
             <circle
               class="progress-ring__circle"
-              :stroke="elem.count >= elem.requireCount ? 'var(--mona-yellow)' : (elem.count > 0 ? 'var(--mona-yellow)' : '#E0E0E0')"
-              stroke-width="10"
+              :stroke="elem.count >= elem.requireCount ? '#D37F66' : (elem.count > 0 ? '#D37F66' : '#E0E0E0')"
+              stroke-width="5"
               :stroke-dasharray="circumference + ' ' + circumference"
               :stroke-dashoffset="elem.count >= elem.requireCount ? 0 : getProgressOffset(elem.count, elem.requireCount)"
               fill="transparent"
@@ -104,10 +101,9 @@
             <img :alt="elem.message" :src="getRoundBadgeImageSrc(elem)" @error="handleImageError($event, elem)" />
           </div>
         </div>
-        <span class="badge-title">{{ elem.title }}</span>
-        <span class="badge-progress" :class="{ 'completed': elem.count >= elem.requireCount }">{{ elem.count >= elem.requireCount ? 'COMPLÉTÉ!' : elem.count + "/" + elem.requireCount }}</span>
       </div>
     </div>
+
   </div>
 
   <!-- Badge Details Modal -->
@@ -190,9 +186,6 @@ export default {
   },
   beforeMount() {
     badgesCollectionsStore.instantiateBadgesToShow();
-    this.borough = badgesCollectionsStore.boroughCollection.concat(
-      badgesCollectionsStore.ownerCollection,
-    );
   },
   data() {
     return {
@@ -207,6 +200,13 @@ export default {
   computed: {
     nbrCountUnlocked() {
       return badgesCollectionsStore.collectedCountBadgesId.length;
+    },
+    neighborhoodBadges() {
+      return [
+        ...badgesCollectionsStore.boroughCollection,
+        ...badgesCollectionsStore.ownerCollection,
+        ...badgesCollectionsStore.territoryCollection,
+      ];
     },
   },
   methods: {
@@ -355,36 +355,17 @@ a {
 .count-badge-container {
   width: 25vw;
   height: 25vw;
-  border-radius: 2vw;
-  background-color: #FFFFFF;
-  border: 0.3vw solid #E0E0E0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-  padding: 2vw;
-}
-
-.count-badge-container.unlocked {
-  background-color: #FDF5B4;
-  border-color: #FDF5B4;
 }
 
 .count-badge-container img {
-  width: 12vw;
-  height: 12vw;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
-  margin-bottom: 1vw;
-}
-
-.count-badge-title {
-  font-size: 2.7vw;
-  text-align: center;
-  color: #333;
-  max-width: 20vw;
-  word-wrap: break-word;
-  line-height: 1.2;
 }
 
 /* Circular badge styles for categories */

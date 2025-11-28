@@ -218,12 +218,15 @@
                 <span class="detailsSubTitle">{{ details9 ? 'Quartier' : 'Ville' }}</span> <br />
                 <div 
                   class="detailsTabBoroughElement" 
-                  :class="{ 'with-badge': details9 && getBoroughBadge(details9), 'without-badge': !details9 || !getBoroughBadge(details9) }"
+                  :class="{
+                    'with-badge': !!getRegionBadge(details9, territoryName),
+                    'without-badge': !getRegionBadge(details9, territoryName)
+                  }"
                 >
                   <img 
-                    v-if="details9 && getBoroughBadge(details9)" 
-                    :src="getBoroughBadge(details9).src" 
-                    :alt="getBoroughBadge(details9).title"
+                    v-if="getRegionBadge(details9, territoryName)" 
+                    :src="getRegionBadge(details9, territoryName).src" 
+                    :alt="getRegionBadge(details9, territoryName).title"
                     class="borough-badge-icon"
                   />
                   {{ details9 || territoryName }}
@@ -555,6 +558,28 @@ export default {
         ...badge,
         src: badge.src.replace('/locked/', '/unlocked/')
       };
+    },
+
+    // Method to get the territory badge if it exists (unlocked version)
+    getTerritoryBadge(territoryName) {
+      if (!territoryName || !this.badgesCollectionsStore.territoryCollection) return null;
+
+      const badge = this.badgesCollectionsStore.territoryCollection.find(
+        badge => badge.title === territoryName,
+      );
+      if (!badge) return null;
+
+      return {
+        ...badge,
+        src: badge.src.replace('/locked/', '/unlocked/')
+      };
+    },
+
+    getRegionBadge(boroughName, territoryName) {
+      if (boroughName) {
+        return this.getBoroughBadge(boroughName);
+      }
+      return this.getTerritoryBadge(territoryName);
     },
 
     activateMap() {
