@@ -195,6 +195,7 @@ ion-toolbar {
   --background: white;
   --color: black;
   --border-width: 0;
+  --min-height: 10vh;
   position: relative;
 }
 
@@ -218,16 +219,16 @@ ion-back-button {
 .description {
   text-align: center;
   color: #666;
-  font-size: 3.8vw;
-  margin: 4vw 4vw 5vw 4vw;
+  font-size: 4vw;
+  margin: 9vw 4vw 5vw 4vw;
   padding: 0 2vw;
 }
 
 .badge-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 4vw;
-  padding: 2vw 4vw;
+  gap: 0;
+  padding: 2vw 3vw;
 }
 
 .badge-item {
@@ -239,8 +240,8 @@ ion-back-button {
 
 .circular-badge-container {
   position: relative;
-  width: 26vw;
-  height: 26vw;
+  width: 30vw;
+  height: 30vw;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -249,8 +250,8 @@ ion-back-button {
 .progress-ring {
   position: absolute;
   transform: rotate(-90deg);
-  width: 100%;
-  height: 100%;
+  width: 97%;
+  height: 97%;
 }
 
 .progress-ring__circle-bg {
@@ -263,8 +264,8 @@ ion-back-button {
 }
 
 .circular-badge {
-  width: 22vw;
-  height: 22vw;
+  width: 80%;
+  height: 80%;
   border-radius: 50%;
   background-color: #F6F6F6;
   display: flex;
@@ -281,8 +282,8 @@ ion-back-button {
 }
 
 .circular-badge img {
-  width: 14vw;
-  height: 14vw;
+  width: 90%;
+  height: 90%;
   object-fit: contain;
 }
 

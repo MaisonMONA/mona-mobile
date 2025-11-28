@@ -156,6 +156,7 @@ ion-toolbar {
   --background: white;
   --color: black;
   --border-width: 0;
+  --min-height: 10vh;
   position: relative;
 }
 
@@ -179,15 +180,15 @@ ion-back-button {
 .description {
   text-align: center;
   color: #666;
-  font-size: 3.8vw;
-  margin: 4vw 4vw 5vw 4vw;
+  font-size: 4vw;
+  margin: 9vw 4vw 5vw 4vw;
   padding: 0 2vw;
 }
 
 .count-badges-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 4vw;
+  gap:4vw;
   padding: 2vw 4vw;
 }
 
@@ -199,8 +200,8 @@ ion-back-button {
 }
 
 .count-badge-container {
-  width: 24vw;
-  height: 24vw;
+  width: 28vw;
+  height: 28vw;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -1,7 +1,7 @@
 <template v-if="badgesCollectionsStore.countCollection.length">
   <div class="badges-main-container">
     <!-- Trophées Section -->
-    <div class="section-card" @click="goToTrophees">
+    <div class="section-card trophees-card" @click="goToTrophees">
       <div class="section-header">
         <h1>Trophées</h1>
         <ion-icon :icon="chevronForwardOutline"></ion-icon>
@@ -22,7 +22,7 @@
     </div>
 
     <!-- Catégories Section -->
-    <div class="section-card" @click="goToCategories">
+    <div class="section-card round-card" @click="goToCategories">
       <div class="section-header">
         <h1>Catégories</h1>
         <ion-icon :icon="chevronForwardOutline"></ion-icon>
@@ -64,7 +64,7 @@
     </div>
 
     <!-- Quartiers Section -->
-    <div class="section-card" @click="goToQuartiers">
+    <div class="section-card round-card" @click="goToQuartiers">
       <div class="section-header">
         <h1>Quartiers</h1>
         <ion-icon :icon="chevronForwardOutline"></ion-icon>
@@ -137,7 +137,7 @@ export default {
   computed: {
     previewCountBadges() {
       // Show first 4 count badges for preview
-      return badgesCollectionsStore.countCollection.slice(0, 4);
+      return badgesCollectionsStore.countCollection.slice(0, 5);
     },
     previewCategoryBadges() {
       // Show first 3 category badges for preview
@@ -194,10 +194,10 @@ export default {
 @import url("@/theme/GlobalStyle.css");
 
 .badges-main-container {
-  padding: 0 4vw;
+  padding: 4vw 4vw 0 4vw;
   display: flex;
   flex-direction: column;
-  gap: 3vw;
+  gap: 4vw;
 }
 
 .section-card {
@@ -206,6 +206,14 @@ export default {
   padding: 4vw;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.section-card.trophees-card {
+  overflow: hidden;
+}
+
+.section-card.round-card {
+  padding-bottom: 2vw;
 }
 
 .section-card:hover {
@@ -238,11 +246,13 @@ export default {
   display: flex;
   gap: 2vw;
   justify-content: flex-start;
+  overflow: hidden;
 }
 
 .preview-badge-item {
   width: 18vw;
   height: 18vw;
+  flex-shrink: 0;
 }
 
 .preview-badge-item img {
@@ -254,13 +264,13 @@ export default {
 /* Preview grid for round badges */
 .preview-grid.round-preview {
   display: flex;
-  gap: 3vw;
+  gap: 2vw;
   justify-content: flex-start;
 }
 
 .preview-badge-item.round {
-  width: 22vw;
-  height: 22vw;
+  width: 28vw;
+  height: 28vw;
 }
 
 .circular-badge-container {
@@ -275,8 +285,8 @@ export default {
 .progress-ring {
   position: absolute;
   transform: rotate(-90deg);
-  width: 100%;
-  height: 100%;
+  width: 97%;
+  height: 97%;
 }
 
 .progress-ring__circle-bg {
@@ -289,8 +299,8 @@ export default {
 }
 
 .circular-badge {
-  width: 85%;
-  height: 85%;
+  width: 70%;
+  height: 70%;
   border-radius: 50%;
   background-color: #FBFBFB;
   display: flex;
@@ -306,8 +316,8 @@ export default {
 }
 
 .circular-badge img {
-  width: 65%;
-  height: 65%;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
 }
 
