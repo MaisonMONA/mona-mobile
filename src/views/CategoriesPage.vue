@@ -50,31 +50,11 @@
     </ion-content>
 
     <!-- Badge Details Modal -->
-    <ion-modal :is-open="isBadgeModalOpen" @didDismiss="closeBadgeModal" class="badge-details-modal">
-      <div class="badge-modal-content">
-        <div class="close-button-container" @click="closeBadgeModal">
-          <button class="close-icon">✕</button>
-        </div>
-        
-        <div class="badge-header">
-          <img :src="selectedBadge?.src" alt="Badge" class="badge-image" @error="handleImageError($event, selectedBadge)" />
-          <h2>{{ getBadgeTitle(selectedBadge) }}</h2>
-        </div>
-        
-        <div class="badge-description">
-          <p>{{ getBadgeDescription(selectedBadge) }}</p>
-          
-          <div class="badge-progress" v-if="selectedBadge?.requireCount">
-            <div v-if="selectedBadge.count >= selectedBadge.requireCount" class="completed-badge">
-              <p>Badge complété!</p>
-            </div>
-            <div v-else>
-              <p>Progression: {{ selectedBadge.count }}/{{ selectedBadge.requireCount }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </ion-modal>
+    <BadgeDetailsModal
+      :is-open="isBadgeModalOpen"
+      :badge="selectedBadge"
+      @close="closeBadgeModal"
+    />
   </ion-page>
 </template>
 
@@ -87,10 +67,10 @@ import {
   IonContent,
   IonButtons,
   IonBackButton,
-  IonModal,
 } from "@ionic/vue";
 import { chevronBackOutline } from 'ionicons/icons';
 import { useBadgesCollections } from "@/stores/BadgesCollections";
+import BadgeDetailsModal from "@/components/BadgeDetailsModal.vue";
 
 const badgesCollectionsStore = useBadgesCollections();
 
@@ -104,7 +84,7 @@ export default {
     IonContent,
     IonButtons,
     IonBackButton,
-    IonModal,
+    BadgeDetailsModal,
   },
   setup() {
     return {
@@ -147,28 +127,6 @@ export default {
     handleImageError(event, badge) {
       console.warn(`Badge image failed to load: ${badge?.src || 'unknown'}, using fallback`);
       event.target.src = badgesCollectionsStore.getFallbackBadgePath;
-    },
-    getBadgeTitle(badge) {
-      if (!badge) return '';
-      if (badge.title && typeof badge.title === 'object' && badge.title.fr) {
-        return badge.title.fr;
-      }
-      return badge.title;
-    },
-    getBadgeDescription(badge) {
-      if (!badge) return '';
-      const isUnlocked = badge.count && badge.requireCount && (badge.count >= badge.requireCount);
-      if (isUnlocked && badge.notification) {
-        if (typeof badge.notification === 'object' && badge.notification.fr) {
-          return badge.notification.fr;
-        }
-        return badge.notification;
-      } else {
-        if (badge.description && typeof badge.description === 'object' && badge.description.fr) {
-          return badge.description.fr;
-        }
-        return badge.description;
-      }
     },
   },
 };
@@ -289,82 +247,5 @@ ion-back-button {
 
 .badge-item:hover .circular-badge {
   transform: scale(1.05);
-}
-
-/* Modal Styles */
-.badge-details-modal {
-  --height: auto;
-  --width: 90%;
-  --border-radius: 4vw;
-  --box-shadow: 0 2vh 3vh rgba(0, 0, 0, 0.2);
-}
-
-.badge-modal-content {
-  position: relative;
-  padding: 3vh 2vw;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: white;
-  border-radius: 4vw;
-}
-
-.close-button-container {
-  position: absolute;
-  top: 4.5vw;
-  right: 4.5vw;
-  background: none;
-  border: none;
-  font-size: 5vw;
-  color: #888;
-  cursor: pointer;
-}
-
-.close-icon {
-  background: none;
-  border: none;
-  font-size: 20px;
-  color: #888;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-}
-
-.badge-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-.badge-image {
-  width: 30vw;
-  height: auto;
-  margin-bottom: 2vh;
-}
-
-.badge-header h2 {
-  font-size: 5vw;
-  margin: 0;
-}
-
-.badge-description {
-  text-align: center;
-  width: 90%;
-}
-
-.badge-description p {
-  font-size: 3.8vw;
-  line-height: 1.4;
-  color: #444;
-}
-
-.completed-badge {
-  color: var(--mona-yellow);
-  font-weight: bold;
 }
 </style>
