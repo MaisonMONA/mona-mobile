@@ -106,7 +106,6 @@ export default {
 </script>
 
 <style scoped>
-@import url("@/theme/TopToolbar.css");
 
 ion-tab-bar {
   padding: 0 4% 0 5%;

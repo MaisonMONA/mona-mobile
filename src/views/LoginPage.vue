@@ -166,7 +166,7 @@ export default {
 </script>
 
 <style scoped>
-@import url("@/theme/TopToolbar.css");
+
 .forgotPasswordLink {
   color: #595959 !important;
 }

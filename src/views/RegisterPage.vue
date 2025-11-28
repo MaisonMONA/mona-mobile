@@ -218,7 +218,6 @@ export default {
 </script>
 
 <style scoped>
-@import url("@/theme/TopToolbar.css");
 
 .ion-page {
   background: white;
