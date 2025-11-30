@@ -23,6 +23,21 @@ export class UserData {
   private static path = "appdata/preferences.json";
   private static cachePath = "discoveries_sorted.json";
   private static type = "preferences";
+  // Keep these version counters in sync with our storage formats.
+  // - Bump CACHE_SCHEMA_VERSION whenever the shape of discoveries_sorted.json changes
+  //   (e.g., we add/remove fields, rename properties, or alter the wrapper structure).
+  // - Bump DATA_SCHEMA_VERSION whenever preferences.json or the downloaded DB JSON
+  //   payloads (artworks/places/heritages/badges) change in a way that requires us to
+  //   wipe and repopulate local files for older installs. This ensures users automatically
+  //   refresh their local data after we ship schema-affecting releases.
+  private static readonly CACHE_SCHEMA_VERSION = 1;
+  private static readonly DATA_SCHEMA_VERSION = 1;
+  private static readonly DATABASE_PATHS = [
+    "appdata/artworks.json",
+    "appdata/places.json",
+    "appdata/heritages.json",
+    "appdata/badges.json",
+  ];
 
   // The point of the attribute below is to have a full, sorted list of all
   // discoveries no matter their type. It makes some things easier, for
@@ -46,6 +61,10 @@ export class UserData {
 
       if (typeof content.data === "string") {
         this.data = JSON.parse(content.data);
+        if (typeof this.data.schemaVersion !== "number") {
+          this.data.schemaVersion = 0;
+          this.updateFile();
+        }
       }
 
       console.log(this.type + " db: successfully populated database.");
@@ -114,8 +133,29 @@ export class UserData {
         heritages: [],
       },
       mapStyle: "osm", // Preferred map style (not in use @ the moment)
+      schemaVersion: this.DATA_SCHEMA_VERSION,
     };
 
+    this.updateFile();
+  }
+
+  public static async ensureDataSchemaUpToDate() {
+    await this.populate();
+    const storedVersion = this.data?.schemaVersion ?? 0;
+
+    if (storedVersion === this.DATA_SCHEMA_VERSION) return;
+
+    console.log(
+      `Data schema mismatch detected (current: ${storedVersion}, expected: ${this.DATA_SCHEMA_VERSION}). Refreshing local databases.`,
+    );
+
+    await this.deleteLocalDatabaseFiles();
+    await this.invalidateCacheFile();
+
+    this.sortedDiscoveries = [];
+    this.sortedDiscoveriesDistance = [];
+
+    this.data.schemaVersion = this.DATA_SCHEMA_VERSION;
     this.updateFile();
   }
   public static async getFromServer() {
@@ -150,13 +190,25 @@ export class UserData {
 
       if (typeof content.data === "string") {
         const parsed = JSON.parse(content.data);
-        this.sortedDiscoveries = parsed.map((discovery: any) => {
+        const cachePayload = this.parseCachePayload(parsed);
+
+        if (!cachePayload || cachePayload.version !== this.CACHE_SCHEMA_VERSION) {
+          console.log("Cache schema mismatch detected. Rebuilding cache.");
+          await this.invalidateCacheFile();
+          await this.buildCache();
+          this.sortByDistance();
+          return;
+        }
+
+        this.sortedDiscoveries = cachePayload.data.map((discovery: any) => {
           if (discovery.dType === "artwork")
             return ArtworkFactory.createArtwork(discovery);
           else if (discovery.dType === "place")
             return PlaceFactory.createPlace(discovery);
           else return new Heritage(discovery);
         });
+        this.sortByDistance();
+        return;
       }
     } catch (err) {
       console.log("Failed to load cache, building it.");
@@ -232,10 +284,58 @@ export class UserData {
 
     await Filesystem.writeFile({
       path: this.cachePath,
-      data: JSON.stringify(this.sortedDiscoveries),
+      data: JSON.stringify({
+        version: this.CACHE_SCHEMA_VERSION,
+        data: this.sortedDiscoveries,
+      }),
       directory: Directory.Cache,
       encoding: Encoding.UTF8,
     });
+  }
+
+  private static async deleteLocalDatabaseFiles() {
+    await Promise.all(
+      this.DATABASE_PATHS.map((path) =>
+        Filesystem.deleteFile({
+          path,
+          directory: Directory.Data,
+        }).catch(() => undefined),
+      ),
+    );
+  }
+
+  private static parseCachePayload(parsed: any): { version: number; data: any[] } | null {
+    if (!parsed) return null;
+
+    if (Array.isArray(parsed)) {
+      // Legacy cache file without schema info
+      return { version: 0, data: parsed };
+    }
+
+    if (
+      typeof parsed === "object" &&
+      parsed !== null &&
+      Array.isArray(parsed.data)
+    ) {
+      return {
+        version:
+          typeof parsed.version === "number" ? parsed.version : Number(parsed.version) || 0,
+        data: parsed.data,
+      };
+    }
+
+    return null;
+  }
+
+  private static async invalidateCacheFile() {
+    try {
+      await Filesystem.deleteFile({
+        path: this.cachePath,
+        directory: Directory.Cache,
+      });
+    } catch (error) {
+      // File might already be missing; ignore
+    }
   }
 
   public static getSortedDiscoveriesAZ(sliceA?: number, sliceB?: number) {

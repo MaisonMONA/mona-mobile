@@ -37,44 +37,46 @@ export default {
     };
   },
 
-  mounted() {
-    /* Initializing all databases */
-    Promise.all([
-      ArtworkDatabase.populate(),
-      PlaceDatabase.populate(),
-      HeritageDatabase.populate(),
-      BadgeDatabase.populate(),
-    ])
-      .catch(() => {
-        this.showAlert("Impossible de se connecter à internet !");
-      })
-      .then(() => Promise.all([UserData.getFromServer(), UserData.loadCache()]))
-      .then(() => {
-        // Fetch collected badges
-        CollectedBadge.determineCollectedBadges();
-        // async functions, but DO NOT await (background tasks)
-        UserData.checkForDBUpdate();
-        UserData.tryUploadingPendingDiscoveries();
-      })
-      .then(() => {
+  async mounted() {
+    try {
+      await UserData.ensureDataSchemaUpToDate();
+      await Promise.all([
+        ArtworkDatabase.populate(),
+        PlaceDatabase.populate(),
+        HeritageDatabase.populate(),
+        BadgeDatabase.populate(),
+      ]);
+    } catch (error) {
+      console.error("Failed to populate local databases", error);
+      this.showAlert("Impossible de se connecter à internet !");
+      return;
+    }
 
-        // Set when account was created
-        // TODO check if this is the right way to do it
-        try {
-          if (UserData.getWhenAccountCreated() === "") {
-            UserData.setWhenAccountCreated();
-            console.log("'whenAccountCreated' value fetched and set in UserData.");
-          }
-        } catch (error) {
-          this.showAlert("Error: couldn't get when account was created by API.");
-        }
+    try {
+      await Promise.all([UserData.getFromServer(), UserData.loadCache()]);
+    } catch (err) {
+      throw new Error(`Could not retrieve user data (${err})`);
+    }
 
-        this.ionToastErrorMessageIsOpen = false;
-        this.$router.replace("/tabs/map");
-      })
-      .catch((err) => {
-        throw new Error(`Could not retrieve user data (${err})`);
-      });
+    // Fetch collected badges
+    CollectedBadge.determineCollectedBadges();
+    // async functions, but DO NOT await (background tasks)
+    UserData.checkForDBUpdate();
+    UserData.tryUploadingPendingDiscoveries();
+
+    // Set when account was created
+    // TODO check if this is the right way to do it
+    try {
+      if (UserData.getWhenAccountCreated() === "") {
+        UserData.setWhenAccountCreated();
+        console.log("'whenAccountCreated' value fetched and set in UserData.");
+      }
+    } catch (error) {
+      this.showAlert("Error: couldn't get when account was created by API.");
+    }
+
+    this.ionToastErrorMessageIsOpen = false;
+    this.$router.replace("/tabs/map");
   },
 
   methods: {
