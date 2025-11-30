@@ -31,7 +31,6 @@
           <div class="encadre">
           <h2>L'équipe</h2>
           <ul>
-            <li><strong>Camila De Oliveira Savoi</strong> Direction de la recherche</li>
             <li><strong>Camille Delattre</strong> Direction des opérations et coordinatrice à la structuration des données</li>
             <li><strong>Julie Graff</strong> Direction artistique</li>
             <li><strong>Lena Krause</strong> Direction technique et fondatrice</li>
@@ -41,8 +40,6 @@
             <li><strong>Simon Janssen</strong> Responsable de la base de données</li>
             <li><strong>Christian Lungescu</strong> Développeur mobile</li>
             <li><strong>Barbara Marche</strong> Designer UI/UX</li>
-            <li><strong>Tiffany Maynard</strong> Responsable de l'alignement avec Wikidata</li>
-            <li><strong>Laurent Tousignant</strong> Stagiaire en muséologie</li>
             <li><strong>David Valentine</strong> Consultant en sciences de l'information</li>
           </ul>
           
@@ -63,6 +60,7 @@
             <li>Isabel Leon Arriz, développeuse iOS</li>
             <li>Émile Labbé, développeur Android</li>
             <li>Manping Li, développeuse serveur</li>
+            <li>Tiffany Maynard, responsable de l'alignement avec Wikidata</li>
             <li>Mohammed Naim, développeur Android</li>
             <li>Bojan Odobasic, développeur iOS</li>
             <li>Vi Phung, développeur serveur</li>
@@ -99,6 +97,7 @@
             <li>Gilbert Fortin, graphiste</li>
             <li>Sandrine Rodrigue, graphiste</li>
             <li>Zuzanna Rokita, graphiste</li>
+            <li>Laurent Tousignant, stagiaire en muséologie</li>
           </ul>
 
           <h3 id="artistes-en-residence">Artistes en résidence</h3>
