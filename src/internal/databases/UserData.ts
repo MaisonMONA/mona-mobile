@@ -25,14 +25,15 @@ export class UserData {
   private static type = "preferences";
   // Keep these version counters in sync with our storage formats.
   // - Increment CACHE_SCHEMA_VERSION whenever the shape of discoveries_sorted.json (the
-  //   cached, sorted discovery list we store via Filesystem in Directory.Cache)
+  //   client-generated, cached sorted discovery list we store via Filesystem in Directory.Cache)
   //   changes
-  //   (e.g., we add/remove fields, rename properties, or alter the wrapper structure).
+  //   (e.g., we change how a field is serialized, add/remove fields client-side, rename properties, or alter the wrapper structure).
+  //
   // - Increment DATA_SCHEMA_VERSION whenever preferences.json or the downloaded DB JSON
-  //   payloads (artworks/places/heritages/badges) change in a way that requires us to
+  //   payloads (artworks/places/heritages/badges) we mirror from the server change in a way that requires us to
   //   wipe and repopulate local files for older installs. This ensures users automatically
   //   refresh their local data after we ship schema-affecting releases.
-  //   (e.g., new/removed/renamed field to the artworks API, etc.)
+  //   (e.g., new/removed/renamed field to the artworks, heritages, places, badges server database API, etc.)
   private static readonly CACHE_SCHEMA_VERSION = 1;
   private static readonly DATA_SCHEMA_VERSION = 1;
   private static readonly DATABASE_PATHS = [
