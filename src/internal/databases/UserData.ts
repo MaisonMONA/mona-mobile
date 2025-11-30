@@ -24,11 +24,11 @@ export class UserData {
   private static cachePath = "discoveries_sorted.json";
   private static type = "preferences";
   // Keep these version counters in sync with our storage formats.
-  // - Bump CACHE_SCHEMA_VERSION whenever the shape of discoveries_sorted.json (the
+  // - Increment CACHE_SCHEMA_VERSION whenever the shape of discoveries_sorted.json (the
   //   cached, sorted discovery list we store via Filesystem in Directory.Cache)
   //   changes
   //   (e.g., we add/remove fields, rename properties, or alter the wrapper structure).
-  // - Bump DATA_SCHEMA_VERSION whenever preferences.json or the downloaded DB JSON
+  // - Increment DATA_SCHEMA_VERSION whenever preferences.json or the downloaded DB JSON
   //   payloads (artworks/places/heritages/badges) change in a way that requires us to
   //   wipe and repopulate local files for older installs. This ensures users automatically
   //   refresh their local data after we ship schema-affecting releases.
