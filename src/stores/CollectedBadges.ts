@@ -86,7 +86,7 @@ export class CollectedBadge {
       if (element?.required_count <= this.userCollection.length) {
         countCollected.push({
           id: element.id,
-          src: this.countPathUnlocked + element.id + ".png",
+          src: this.countPathUnlocked + element.id  + ".png",
           notification: element?.notification.fr,
           description: element?.description.fr,
           message: element?.notification.fr,
@@ -221,12 +221,12 @@ export class CollectedBadge {
     if (requireCount && count) {
       if (count >= requireCount) {
         this.obtainedBadges.push(BadgeDatabase.getFromId(id));
-        return pathUnlocked + id + ".png";
+        return pathUnlocked + id  + ".png";
       } else {
-        return pathLocked + id + ".png";
+        return pathLocked + id  + ".png";
       }
     }
-    return pathLocked + id + ".png";
+    return pathLocked + id  + ".png";
   }
 
   static findGridPath(
@@ -255,15 +255,15 @@ export class CollectedBadge {
     if (requireCount && count) {
       if (count >= requireCount) {
         // Badge is UNLOCKED - use unlocked for grid
-        return pathUnlocked + id + ".png";
+        return pathUnlocked + id  + ".png";
       } else if (count > 0) {
         // Badge is IN PROGRESS - use unlocked for grid
-        return pathUnlocked + id + ".png";
+        return pathUnlocked + id  + ".png";
       } else {
         // Badge is LOCKED - use locked for grid
-        return pathLocked + id + ".png";
+        return pathLocked + id  + ".png";
       }
     }
-    return pathLocked + id + ".png";
+    return pathLocked + id  + ".png";
   }
 }

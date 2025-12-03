@@ -97,7 +97,7 @@
           <div class="photoPlaceholder">
             <ion-img
               id="defaultPhoto"
-              :src="'./assets/drawable/mascots/mascot_17.svg'"
+              :src="'./assets/drawable/mascots/mascot_17.png'"
             ></ion-img>
             <p class="photoPlaceholderText">Ajoutez cette découverte à votre collection<br>en la prenant en photo</p>
           </div>
@@ -557,18 +557,18 @@ ion-button {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 3vh 0;
+  padding: 1.8vh 0;
 }
 .photoPlaceholder ion-img#defaultPhoto {
   height: 12vh;
   width: auto;
 }
 .photoPlaceholderText {
-  margin: 1.5vh 0 0 0;
+  margin: 1vh 0 0 0;
   text-align: center;
-  font-size: 3.6vw;
+  font-size: 14px;
   color: #666;
-  line-height: 1.5;
+  line-height: 1.3;
 }
 .photoContainer ion-img#userPhoto {
   display: none;

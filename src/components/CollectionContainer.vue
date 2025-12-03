@@ -4,7 +4,7 @@
       <div class="collection-content">
         <!-- Empty collection state -->
         <div v-if="collected.length === 0" class="empty-collection">
-          <img src="/assets/drawable/mascots/mascot_13.svg" alt="Mascotte" class="empty-mascot" />
+          <img src="/assets/drawable/mascots/mascot_13.png" alt="Mascotte" class="empty-mascot" />
           <p class="empty-text">Explorez la carte et photographiez votre première découverte pour l'ajouter à votre collection!</p>
           <ion-button class="explore-button" @click="goToMap">
             <ion-icon src="/assets/drawable/icons/white_map_tab_icon_filled.svg" slot="start"></ion-icon>
@@ -170,15 +170,15 @@ export default {
 }
 
 .empty-mascot {
-  width: 50vw;
+  width: 40vw;
   height: auto;
   margin-bottom: 5vh;
-  margin-right: 10vh;
+  margin-right: 9vw;
 }
 
 .empty-text {
   font-size: 4.2vw;
-  line-height: 1.5;
+  line-height: 1.4;
   color: #333;
   margin-bottom: 3vh;
   padding: 0 0vw;
