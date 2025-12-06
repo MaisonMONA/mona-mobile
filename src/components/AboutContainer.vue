@@ -31,6 +31,7 @@
           <div class="encadre">
           <h2>L'équipe</h2>
           <ul>
+            <li><strong>Camila De Oliveira Savoi</strong> Direction de la recherche</li>
             <li><strong>Camille Delattre</strong> Direction des opérations et coordinatrice à la structuration des données</li>
             <li><strong>Julie Graff</strong> Direction artistique</li>
             <li><strong>Lena Krause</strong> Direction technique et fondatrice</li>
