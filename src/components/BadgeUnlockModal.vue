@@ -14,7 +14,7 @@
       
       <div class="unlock-animation">
         <img 
-          :src="unlockedBadge?.src || '/assets/drawable/badges/count/unlocked/1.svg'" 
+          :src="unlockedBadge?.src || '/assets/drawable/badges/fallback-badge.svg'" 
           alt="Badge" 
           class="badge-image animated"
           @error="handleImageError"
