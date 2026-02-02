@@ -31,17 +31,18 @@
           <div class="encadre">
           <h2>L'équipe</h2>
           <ul>
-            <li><strong>Camila De Oliveira Savoi</strong> Direction de la recherche</li>
             <li><strong>Camille Delattre</strong> Direction des opérations et coordinatrice à la structuration des données</li>
+            <li><strong>Camila De Oliveira Savoi</strong> Direction de la recherche</li>
             <li><strong>Julie Graff</strong> Direction artistique</li>
             <li><strong>Lena Krause</strong> Direction technique et fondatrice</li>
             <li><strong>Alexia Pinto Ferretti</strong> Direction des publics</li>
             <li><strong>Marguerite Chiarello</strong> Responsable des communications et consultante en médiation</li>
-            <li><strong>Sarah Heng</strong> Développeuse mobile</li>
-            <li><strong>Simon Janssen</strong> Responsable de la base de données</li>
-            <li><strong>Christian Lungescu</strong> Développeur mobile</li>
+            <li><strong>Corélie Godefroid</strong> Développement serveur</li>
+            <li><strong>Simon Janssen</strong> Responsable de l'infrastructure</li>
+            <li><strong>Christian Lungescu</strong> Développement mobile</li>
             <li><strong>Barbara Marche</strong> Designer UI/UX</li>
-            <li><strong>David Valentine</strong> Consultant en sciences de l'information</li>
+            <li><strong>Anissa Ould Ferroukh</strong> Développement serveur</li>
+            <li><strong>David Valentine</strong> Consultation en sciences de l'information</li>
           </ul>
           
           <h3 id="ancien-ne-s-contributeur-rice-s">Ancien·ne·s contributeur·rice·s</h3>
@@ -55,7 +56,7 @@
             <li>Ming-Xia Delvas, développeuse Android</li>
             <li>Paul Chaffanet, développeur iOS</li>
             <li>Matija Dabić, développeur Android</li>
-            <li>Corélie Godefroid, développeuse serveur</li>
+            <li>Sarah Heng, développeuse mobile</li>
             <li>Théodore Jordan, développeur Android</li>
             <li>Emma June Huebner, consultante en éducation</li>
             <li>Isabel Leon Arriz, développeuse iOS</li>
@@ -89,13 +90,12 @@
             <li>Marie Achille, consultante en accessibilité</li>
             <li>Émy Charron-Milot, stagiaire en recherche et communication</li>
             <li>Sarah Dumaresq, responsable des partenariats pédagogiques et des réseaux sociaux</li>
+            <li>Gilbert Fortin, graphiste</li>
             <li>Valeria Guadalupe Márquez Reynoso, co-responsable des activités de médiation</li>
             <li>Aurélie Guye-Perrault, recherche en histoire de l'art</li>
+            <li>Roberto Martinez, graphiste</li>
             <li>Anna Papakostidis, co-responsable des activités de médiation</li>
             <li>Tristan Quiniou, stagiaire en recherche et développement</li>
-            <li>Aurélie Bezacier, communications</li>
-            <li>Roberto Martinez, graphiste</li>
-            <li>Gilbert Fortin, graphiste</li>
             <li>Sandrine Rodrigue, graphiste</li>
             <li>Zuzanna Rokita, graphiste</li>
             <li>Laurent Tousignant, stagiaire en muséologie</li>
