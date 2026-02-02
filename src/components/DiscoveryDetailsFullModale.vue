@@ -91,7 +91,7 @@
         </div>
 
         <div class="photoContainer">
-          <div class="photoPlaceholder">
+          <div class="photoPlaceholder" v-if="!isCollected">
             <ion-img
               id="defaultPhotoFullModale"
               :src="'./assets/drawable/mascots/mascot_17.png'"
@@ -801,7 +801,9 @@ ion-button {
   font-family: "Playfair Display", serif;
   font-size: 32px;
   font-weight: 500;
-  line-height: 9.6vw;
+  line-height: 1.3;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 #targetIcon {
   float: right;
@@ -822,6 +824,8 @@ ion-button {
   font-size: 4.8vw;
   font-weight: 300;
   margin: 20px 0 0 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 .details.production-date {
   font-size: 3.8vw;

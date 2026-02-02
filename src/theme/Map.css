@@ -53,32 +53,39 @@ ion-accordion-group.closestDiscoveriesAccordion ion-accordion div[slot="content"
 
 ion-row#closestDiscoveryTitle {
     margin: 0.8vh 0;
-    height: 6vh;
+    min-height: 6vh;
     font-size: 3.7vw;
     font-weight: 500;
+    line-height: 1.3;
     /* Only let 3 lines of text and then, ellipsis overflowing text*/
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
     overflow: hidden;
     text-overflow: ellipsis;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 ion-row#closestDiscoveryArtistOrUsages {
-    height: 2.2vh;
+    min-height: 2.2vh;
     margin-bottom: 0.5vh;
     font-size: 3.7vw;
+    line-height: 1.3;
     /* Only let 1 line of text and then, ellipsis overflowing text*/
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 1;
     overflow: hidden;
     text-overflow: ellipsis;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 ion-row#closestDiscoveryDate {
-    height: 1.6vh;
+    min-height: 1.6vh;
     font-size: 3.4vw;
+    line-height: 1.3;
     margin-bottom: 1.34vh;
 }
 
