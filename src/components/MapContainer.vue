@@ -51,12 +51,15 @@
       </ion-button>
     </div>
 
-    <ion-accordion value="ionaccordion">
+    <ion-accordion value="ionaccordion" toggle-icon-slot="none">
       <!-- TODO Move recenter button with accordion and update when position changed -->
       <!-- TODO Put between 5 and 12 discoveries depending on discoveries in viewport and add number of discoveries in header?? (to confirm with team to understand what to do) -->
       <!-- TODO Check if discoveries match with user location when it changes -->
       <ion-item slot="header">
         <ion-label>Découvertes à proximité: </ion-label>
+        <span class="custom-chevron" :class="{ open: ionAccordionOpen }">
+          <ion-icon :icon="chevronUpOutline"></ion-icon>
+        </span>
       </ion-item>
       <div slot="content" style="height: 20vh; width: 100vw">
         <ion-list :inset="false" lines="none">
@@ -163,7 +166,7 @@
 
 <script>
 import "ol/ol.css";
-import { arrowForward as arrowRightIcon } from "ionicons/icons";
+import { arrowForward as arrowRightIcon, chevronUpOutline } from "ionicons/icons";
 import {
   IonButton,
   IonContent,
@@ -387,6 +390,7 @@ export default {
       // if location is not available, use the default zoom level = 4.5
       TILE_LAYER: layer,
       arrowRightIcon,
+      chevronUpOutline,
       customLocationIconBlack,
       customLocationIconPurple,
       isAlertOpen: false,
