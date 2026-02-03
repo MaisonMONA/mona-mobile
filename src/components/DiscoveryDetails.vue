@@ -297,7 +297,8 @@ export default {
           const userImg = document.getElementById("userPhoto");
           const defaultImg = document.getElementById("defaultPhoto");
 
-          defaultImg.style.display = "none";
+          if (defaultImg) 
+            defaultImg.style.display = "none";
           userImg.style.display = "block";
           userImg.src = url;
 
@@ -329,7 +330,8 @@ export default {
       // Displaying photo in container
       const userImg = document.getElementById("userPhoto");
       const defaultImg = document.getElementById("defaultPhoto");
-      defaultImg.style.display = "none";
+      if (defaultImg)
+        defaultImg.style.display = "none";
       userImg.style.display = "block";
       userImg.src = img.webPath || "";
 
