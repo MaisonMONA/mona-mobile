@@ -1,32 +1,28 @@
 export default {
   apiRoutes: {
-    base: "https://picasso.iro.umontreal.ca/~mona/api/v3/",
+    base: "https://mona.iro.umontreal.ca/api/v3/",
     artworks: {
-      download: "https://picasso.iro.umontreal.ca/~mona/api/v3/artworks",
-      upload: "https://picasso.iro.umontreal.ca/~mona/api/v3/user/artworks",
-      getUpdate:
-        "https://picasso.iro.umontreal.ca/~mona/api/v3/lastUpdatedArtworks",
+      download: "https://mona.iro.umontreal.ca/api/v3/artworks",
+      upload: "https://mona.iro.umontreal.ca/api/v3/user/artworks",
+      getUpdate: "https://mona.iro.umontreal.ca/api/v3/lastUpdatedArtworks",
     },
     places: {
-      download: "https://picasso.iro.umontreal.ca/~mona/api/v3/places",
-      upload: "https://picasso.iro.umontreal.ca/~mona/api/v3/user/places",
-      getUpdate:
-        "https://picasso.iro.umontreal.ca/~mona/api/v3/lastUpdatedPlaces",
+      download: "https://mona.iro.umontreal.ca/api/v3/places",
+      upload: "https://mona.iro.umontreal.ca/api/v3/user/places",
+      getUpdate: "https://mona.iro.umontreal.ca/api/v3/lastUpdatedPlaces",
     },
     heritages: {
-      download: "https://picasso.iro.umontreal.ca/~mona/api/v3/heritages",
-      upload: "https://picasso.iro.umontreal.ca/~mona/api/v3/user/heritages",
-      getUpdate:
-        "https://picasso.iro.umontreal.ca/~mona/api/v3/lastUpdatedHeritages",
+      download: "https://mona.iro.umontreal.ca/api/v3/heritages",
+      upload: "https://mona.iro.umontreal.ca/api/v3/user/heritages",
+      getUpdate: "https://mona.iro.umontreal.ca/api/v3/lastUpdatedHeritages",
     },
     badges: {
-      download: "https://picasso.iro.umontreal.ca/~mona/api/v3/badges",
+      download: "https://mona.iro.umontreal.ca/api/v3/badges",
     },
-    register: "https://picasso.iro.umontreal.ca/~mona/api/v3/register",
-    login: "https://picasso.iro.umontreal.ca/~mona/api/v3/login",
-    forgotPassword:
-      "https://picasso.iro.umontreal.ca/~mona/api/v3/password/email",
-    getPhotos: "https://picasso.iro.umontreal.ca/~mona/api/v3/user/photo",
-    userProfile: "https://picasso.iro.umontreal.ca/~mona/api/v3/user",
+    register: "https://mona.iro.umontreal.ca/api/v3/register",
+    login: "https://mona.iro.umontreal.ca/api/v3/login",
+    forgotPassword: "https://mona.iro.umontreal.ca/api/v3/password/email",
+  getPhotos: "https://mona.iro.umontreal.ca/api/v3/user/photo",
+    userProfile: "https://mona.iro.umontreal.ca/api/v3/user",
   },
 };
