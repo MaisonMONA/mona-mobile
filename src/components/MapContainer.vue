@@ -385,7 +385,7 @@ export default {
         : UserData.getLocation(false),
       // if location is not available, use the initial coordinates = [-68.2075, 52.8131]
       DEFAULT_ZOOM_LEVEL: discovery ? 17 : 14, // If the map was opened by the DOD page we want to zoom more
-      polygonVisibilityZoomThreshold: 15,
+      polygonVisibilityZoomThreshold: 13,
       vectorRenderBuffer: 512,
       // if location is not available, use the default zoom level = 4.5
       TILE_LAYER: layer,

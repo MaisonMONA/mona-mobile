@@ -91,7 +91,7 @@
         </div>
 
         <div class="photoContainer">
-          <div class="photoPlaceholder">
+          <div class="photoPlaceholder" v-if="!isCollected">
             <ion-img
               id="defaultPhotoFullModale"
               :src="'./assets/drawable/mascots/mascot_17.png'"
@@ -514,8 +514,8 @@ export default {
             .then((blob) => URL.createObjectURL(blob));
           const userImg = document.getElementById("userPhotoFullModale");
           const defaultImg = document.getElementById("defaultPhotoFullModale");
-
-          defaultImg.style.display = "none";
+          if (defaultImg)
+            defaultImg.style.display = "none";
           userImg.style.display = "block";
           userImg.src = url;
 
@@ -606,7 +606,8 @@ export default {
       // Displaying photo in container
       const userImg = document.getElementById("userPhotoFullModale");
       const defaultImg = document.getElementById("defaultPhotoFullModale");
-      defaultImg.style.display = "none";
+      if (defaultImg)
+        defaultImg.style.display = "none";
       userImg.style.display = "block";
       userImg.src = img.webPath || "";
 
@@ -801,7 +802,9 @@ ion-button {
   font-family: "Playfair Display", serif;
   font-size: 32px;
   font-weight: 500;
-  line-height: 9.6vw;
+  line-height: 1.3;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 #targetIcon {
   float: right;
@@ -822,6 +825,8 @@ ion-button {
   font-size: 4.8vw;
   font-weight: 300;
   margin: 20px 0 0 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 .details.production-date {
   font-size: 3.8vw;

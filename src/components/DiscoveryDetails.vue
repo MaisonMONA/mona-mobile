@@ -94,7 +94,7 @@
         </div>
 
         <div class="photoContainer">
-          <div class="photoPlaceholder">
+          <div class="photoPlaceholder" v-if="!isCollected">
             <ion-img
               id="defaultPhoto"
               :src="'./assets/drawable/mascots/mascot_17.png'"
@@ -297,7 +297,8 @@ export default {
           const userImg = document.getElementById("userPhoto");
           const defaultImg = document.getElementById("defaultPhoto");
 
-          defaultImg.style.display = "none";
+          if (defaultImg) 
+            defaultImg.style.display = "none";
           userImg.style.display = "block";
           userImg.src = url;
 
@@ -329,7 +330,8 @@ export default {
       // Displaying photo in container
       const userImg = document.getElementById("userPhoto");
       const defaultImg = document.getElementById("defaultPhoto");
-      defaultImg.style.display = "none";
+      if (defaultImg)
+        defaultImg.style.display = "none";
       userImg.style.display = "block";
       userImg.src = img.webPath || "";
 

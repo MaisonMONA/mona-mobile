@@ -89,6 +89,11 @@ export default {
       badgesCollectionsStore,
     };
   },
+  ionViewWillEnter() {
+    // Reset to collection view whenever entering this page
+    this.choixSegment = "collection";
+    this.component = markRaw(CollectionContainer);
+  },
   beforeMount() {
     const created_at = UserData.getWhenAccountCreated();
     if (created_at) {
@@ -265,7 +270,7 @@ a {
   /* Override dark mode */
   --color: #595959; /* Inactive button color */
   height: 5vh;
-  font-size: 1.8vh;
+  font-size: 3.5vw;
   font-weight: 500;
   letter-spacing: 0.05vw;
   width: 43vw;
