@@ -25,6 +25,17 @@
     --button-activated: #919191;
     --toolbar-purple: #F1F0F5;
 
+    /* Pin colors (fill = vertical gradient top→bottom, border = outer/paler) */
+    --pin-artwork-fill-start: #FFDE7B;
+    --pin-artwork-fill-end: #EBB000;
+    --pin-artwork-border: #FFE599;
+    --pin-heritage-fill-start: #F9B09E;
+    --pin-heritage-fill-end: #F88A6F;
+    --pin-heritage-border: #FBC2B6;
+    --pin-place-fill-start: #D1B9F9;
+    --pin-place-fill-end: #A372F3;
+    --pin-place-border: #F6E8FD;
+
     --ion-color-primary: var(--mona-yellow);
     --ion-color-primary-contrast: #000000;
 }

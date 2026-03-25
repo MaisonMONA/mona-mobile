@@ -201,7 +201,7 @@ import {
   IOSSettings,
   NativeSettings,
 } from "capacitor-native-settings";
-import { Fill, Icon, Stroke, Style } from "ol/style";
+import { Fill, Icon, Stroke, Style, Text } from "ol/style";
 import CircleStyle from "ol/style/Circle.js";
 import { circular } from "ol/geom/Polygon.js";
 import customLocationIconBlack from "/assets/drawable/icons/location_icon_black.svg";
@@ -212,11 +212,295 @@ import { Geolocation } from "@capacitor/geolocation";
 import { LocationService } from "@/internal/LocationService";
 import { isPlatform } from "@ionic/vue";
 import { App } from "@capacitor/app";
+import { Directory, Filesystem } from "@capacitor/filesystem";
 import { Distance } from "@/internal/Distance";
 import DiscoveryDetails from "@/components/DiscoveryDetails.vue";
 import DiscoveryDetailsFullModale from "@/components/DiscoveryDetailsFullModale.vue";
 
 const buildDiscoveryKey = (dType, id) => `${dType}:${id}`;
+
+// --- Pin colors per discovery type ---
+// Reads CSS custom properties from :root (defined in GlobalStyle.css)
+// fill = inner/darker, border = outer/paler
+function getCSSVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+function getPinColors(type) {
+  const map = {
+    artwork: { fillStart: getCSSVar('--pin-artwork-fill-start'), fillEnd: getCSSVar('--pin-artwork-fill-end'), border: getCSSVar('--pin-artwork-border') },
+    heritage: { fillStart: getCSSVar('--pin-heritage-fill-start'), fillEnd: getCSSVar('--pin-heritage-fill-end'), border: getCSSVar('--pin-heritage-border') },
+    place: { fillStart: getCSSVar('--pin-place-fill-start'), fillEnd: getCSSVar('--pin-place-fill-end'), border: getCSSVar('--pin-place-border') },
+  };
+  return map[type] ?? map.heritage;
+}
+
+// --- Icon preloading ---
+const iconImages = {}; // name -> HTMLImageElement
+const iconLoadPromises = {};
+
+function preloadSvgIcon(name, path) {
+  if (iconLoadPromises[name]) return iconLoadPromises[name];
+  iconLoadPromises[name] = new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => { iconImages[name] = img; resolve(img); };
+    img.onerror = () => { iconImages[name] = null; resolve(null); };
+    img.src = path;
+  });
+  return iconLoadPromises[name];
+}
+
+function preloadAllPinIcons() {
+  preloadSvgIcon("targeted", "./assets/drawable/icons/pins/targeted_bookmark.svg");
+  preloadSvgIcon("artwork_default", "./assets/drawable/icons/pins/default.svg");
+}
+
+// Start preloading immediately
+preloadAllPinIcons();
+
+// --- Collected photo pin caches ---
+const collectedPhotoImgCache = {};
+const collectedPhotoPinCache = {};
+
+// --- Targeted pin cache ---
+const targetedPinCache = {}; // "type:title:size" -> canvas
+
+// --- Default pin cache ---
+const defaultPinCache = {}; // "type:size" -> canvas
+
+// Fixed render scale for crisp canvases on all screens (DPR-independent)
+const CANVAS_RENDER_SCALE = 2;
+
+function createCircularPhotoPinCanvas(img, type, size = 56) {
+  const colors = getPinColors(type);
+  const ringWidth = 2;
+  const totalSize = size + ringWidth * 2;
+  const pointerHeight = 10;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = totalSize * CANVAS_RENDER_SCALE;
+  canvas.height = (totalSize + pointerHeight) * CANVAS_RENDER_SCALE;
+  // Store logical size for OpenLayers imgSize
+  canvas._logicalWidth = totalSize;
+  canvas._logicalHeight = totalSize + pointerHeight;
+
+  const ctx = canvas.getContext("2d");
+  ctx.scale(CANVAS_RENDER_SCALE, CANVAS_RENDER_SCALE);
+
+  const cx = totalSize / 2;
+  const cy = totalSize / 2;
+  const photoRadius = size / 2;
+
+  // Shadow
+  ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
+  ctx.shadowBlur = 6;
+  ctx.shadowOffsetY = 2;
+
+  // Gradient ring (single ring, no outer border)
+  const ringGrad = ctx.createLinearGradient(cx, cy - (photoRadius + ringWidth), cx, cy + (photoRadius + ringWidth));
+  ringGrad.addColorStop(0, colors.fillStart);
+  ringGrad.addColorStop(1, colors.fillEnd);
+  ctx.beginPath();
+  ctx.arc(cx, cy, photoRadius + ringWidth, 0, Math.PI * 2);
+  ctx.fillStyle = ringGrad;
+  ctx.fill();
+
+  // Gradient pointer
+  ctx.beginPath();
+  ctx.moveTo(cx - 6, cy + photoRadius + ringWidth - 2);
+  ctx.lineTo(cx, cy + photoRadius + ringWidth + pointerHeight - 2);
+  ctx.lineTo(cx + 6, cy + photoRadius + ringWidth - 2);
+  ctx.closePath();
+  ctx.fillStyle = colors.fillEnd;
+  ctx.fill();
+
+  // Reset shadow
+  ctx.shadowColor = "transparent";
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetY = 0;
+
+  // Clip circle and draw photo
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, photoRadius, 0, Math.PI * 2);
+  ctx.clip();
+
+  const imgSize = Math.min(img.width, img.height);
+  const sx = (img.width - imgSize) / 2;
+  const sy = (img.height - imgSize) / 2;
+  ctx.drawImage(img, sx, sy, imgSize, imgSize, cx - photoRadius, cy - photoRadius, size, size);
+  ctx.restore();
+
+  return canvas;
+}
+
+/**
+ * Creates a targeted/bookmarked pin: rounded pill with bookmark icon + title + pointer at bottom.
+ * Matches Figma design.
+ */
+function createTargetedPinCanvas(title, colors) {
+  const paddingX = 10;
+  const paddingY = 6;
+  const iconSize = 12;
+  const iconGap = 5;
+  const fontSize = 12;
+  const pointerHeight = 8;
+  const borderRadius = 14;
+
+  // Measure text
+  const measureCanvas = document.createElement("canvas");
+  const measureCtx = measureCanvas.getContext("2d");
+  measureCtx.font = `700 ${fontSize}px Arial`;
+  const displayTitle = truncatePinTitle(title);
+  const textWidth = measureCtx.measureText(displayTitle).width;
+
+  const pillWidth = paddingX + iconSize + iconGap + textWidth + paddingX;
+  const pillHeight = paddingY * 2 + fontSize + 2;
+  const totalWidth = pillWidth;
+  const totalHeight = pillHeight + pointerHeight;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = totalWidth * CANVAS_RENDER_SCALE;
+  canvas.height = totalHeight * CANVAS_RENDER_SCALE;
+  canvas._logicalWidth = totalWidth;
+  canvas._logicalHeight = totalHeight;
+
+  const ctx = canvas.getContext("2d");
+  ctx.scale(CANVAS_RENDER_SCALE, CANVAS_RENDER_SCALE);
+
+  // Shadow
+  ctx.shadowColor = "rgba(0, 0, 0, 0.25)";
+  ctx.shadowBlur = 4;
+  ctx.shadowOffsetY = 1;
+
+  // Pill gradient (vertical)
+  const pillGrad = ctx.createLinearGradient(0, 0, 0, pillHeight);
+  pillGrad.addColorStop(0, colors.fillStart);
+  pillGrad.addColorStop(1, colors.fillEnd);
+
+  // Rounded pill
+  ctx.beginPath();
+  ctx.moveTo(borderRadius, 0);
+  ctx.lineTo(pillWidth - borderRadius, 0);
+  ctx.quadraticCurveTo(pillWidth, 0, pillWidth, borderRadius);
+  ctx.lineTo(pillWidth, pillHeight - borderRadius);
+  ctx.quadraticCurveTo(pillWidth, pillHeight, pillWidth - borderRadius, pillHeight);
+  ctx.lineTo(borderRadius, pillHeight);
+  ctx.quadraticCurveTo(0, pillHeight, 0, pillHeight - borderRadius);
+  ctx.lineTo(0, borderRadius);
+  ctx.quadraticCurveTo(0, 0, borderRadius, 0);
+  ctx.closePath();
+  ctx.fillStyle = pillGrad;
+  ctx.fill();
+
+  // Pointer (use gradient end color)
+  const cx = totalWidth / 2;
+  ctx.beginPath();
+  ctx.moveTo(cx - 6, pillHeight - 1);
+  ctx.lineTo(cx, pillHeight + pointerHeight - 1);
+  ctx.lineTo(cx + 6, pillHeight - 1);
+  ctx.closePath();
+  ctx.fillStyle = colors.fillEnd;
+  ctx.fill();
+
+  // Reset shadow
+  ctx.shadowColor = "transparent";
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetY = 0;
+
+  // Draw bookmark icon
+  const bookmarkIcon = iconImages["targeted"];
+  if (bookmarkIcon) {
+    const iconY = (pillHeight - iconSize) / 2;
+    ctx.drawImage(bookmarkIcon, paddingX, iconY, iconSize, iconSize * (18 / 13));
+  }
+
+  // Draw title text
+  ctx.font = `700 ${fontSize}px Arial`;
+  ctx.fillStyle = "#1F1F1F";
+  ctx.textBaseline = "middle";
+  ctx.fillText(displayTitle, paddingX + iconSize + iconGap, pillHeight / 2 + 1);
+
+  return canvas;
+}
+
+/**
+ * Creates a default pin: teardrop/balloon shape with an icon inside.
+ * Matches Figma design.
+ */
+function createDefaultPinCanvas(type) {
+  const colors = getPinColors(type);
+  const borderWidth = 1;
+  const innerRadius = 12;
+  const outerRadius = innerRadius + borderWidth;
+  const pointerHeight = 10;
+  const totalSize = (outerRadius + 2) * 2; // +2 for shadow margin
+  const totalHeight = totalSize + pointerHeight;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = totalSize * CANVAS_RENDER_SCALE;
+  canvas.height = totalHeight * CANVAS_RENDER_SCALE;
+  canvas._logicalWidth = totalSize;
+  canvas._logicalHeight = totalHeight;
+
+  const ctx = canvas.getContext("2d");
+  ctx.scale(CANVAS_RENDER_SCALE, CANVAS_RENDER_SCALE);
+
+  const cx = totalSize / 2;
+  const cy = outerRadius + 1;
+
+  // Shadow
+  ctx.shadowColor = "rgba(0, 0, 0, 0.25)";
+  ctx.shadowBlur = 3;
+  ctx.shadowOffsetY = 1;
+
+  // Outer pale border circle
+  ctx.beginPath();
+  ctx.arc(cx, cy, outerRadius, 0, Math.PI * 2);
+  ctx.fillStyle = colors.border;
+  ctx.fill();
+
+  // Outer pale pointer
+  ctx.beginPath();
+  ctx.moveTo(cx - 6, cy + outerRadius - 2);
+  ctx.lineTo(cx, cy + outerRadius + pointerHeight - 2);
+  ctx.lineTo(cx + 6, cy + outerRadius - 2);
+  ctx.closePath();
+  ctx.fillStyle = colors.border;
+  ctx.fill();
+
+  // Reset shadow for inner fill
+  ctx.shadowColor = "transparent";
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetY = 0;
+
+  // Inner darker fill circle (vertical gradient)
+  const innerGrad = ctx.createLinearGradient(cx, cy - innerRadius, cx, cy + innerRadius);
+  innerGrad.addColorStop(0, colors.fillStart);
+  innerGrad.addColorStop(1, colors.fillEnd);
+  ctx.beginPath();
+  ctx.arc(cx, cy, innerRadius, 0, Math.PI * 2);
+  ctx.fillStyle = innerGrad;
+  ctx.fill();
+
+  // Inner darker pointer (use gradient end color)
+  ctx.beginPath();
+  ctx.moveTo(cx - 4, cy + innerRadius - 1);
+  ctx.lineTo(cx, cy + innerRadius + pointerHeight - 4);
+  ctx.lineTo(cx + 4, cy + innerRadius - 1);
+  ctx.closePath();
+  ctx.fillStyle = colors.fillEnd;
+  ctx.fill();
+
+  // Draw icon inside the circle
+  const icon = iconImages["artwork_default"];
+  if (icon) {
+    const iconDrawSize = 13;
+    ctx.drawImage(icon, cx - iconDrawSize / 2, cy - iconDrawSize / 2, iconDrawSize, iconDrawSize);
+  }
+
+  return canvas;
+}
 
 function getDiscoveryLocation(discovery) {
   if (!discovery) return null;
@@ -276,9 +560,16 @@ function insertAllPins(
       id: discovery.id,
       dType: discovery.dType,
       hasPolygon,
+      title: typeof discovery.getTitle === "function" ? discovery.getTitle() : "",
     });
     destinationLayer.getSource().addFeature(feature);
   }
+}
+
+function truncatePinTitle(title) {
+  const maxChars = 16;
+  if (!title || typeof title !== "string") return "";
+  return title.length > maxChars ? `${title.slice(0, maxChars)}...` : title;
 }
 
 function insertAllPolygons(destinationLayer, discoveryList) {
@@ -385,7 +676,7 @@ export default {
         : UserData.getLocation(false),
       // if location is not available, use the initial coordinates = [-68.2075, 52.8131]
       DEFAULT_ZOOM_LEVEL: discovery ? 17 : 14, // If the map was opened by the DOD page we want to zoom more
-      polygonVisibilityZoomThreshold: 13,
+      polygonVisibilityZoomThreshold: 12, // Zoom level above which discovery polygonal areas appear on the map
       vectorRenderBuffer: 512,
       // if location is not available, use the default zoom level = 4.5
       TILE_LAYER: layer,
@@ -623,6 +914,84 @@ export default {
       this.mainMap.addLayer(polygonLayer);
       this.mainMap.addLayer(pinsLayer);
       this.updateDiscoveryLayerVisibility();
+
+      // Async-load user photos for collected pins
+      this.loadCollectedPhotosForPins();
+    },
+
+    async loadCollectedPhotosForPins() {
+      if (!this.mapPinsLayer) return;
+
+      const features = this.mapPinsLayer.getSource().getFeatures();
+      const collectedFeatures = [];
+
+      for (const feature of features) {
+        const id = feature.get("id");
+        const type = feature.get("dType");
+        if (UserData.isCollected(id, type)) {
+          collectedFeatures.push(feature);
+        }
+      }
+
+      for (const feature of collectedFeatures) {
+        const id = feature.get("id");
+        const type = feature.get("dType");
+        const key = buildDiscoveryKey(type, id);
+
+        if (collectedPhotoImgCache[key]) continue;
+
+        try {
+          const review = UserData.getCollected(id, type);
+          if (!review || !review.filename) {
+            continue;
+          }
+
+          let file;
+          try {
+            file = await Filesystem.readFile({
+              path: "thumbnail/" + review.filename,
+              directory: Directory.Data,
+            });
+          } catch {
+            file = await Filesystem.readFile({
+              path: "img/" + review.filename,
+              directory: Directory.Data,
+            });
+          }
+
+          let url;
+          if (file.data instanceof Blob) {
+            url = URL.createObjectURL(file.data);
+          } else {
+            const ext = review.filename.split(".").at(-1) || "jpeg";
+            const res = await fetch(`data:image/${ext};base64,${file.data}`);
+            const blob = await res.blob();
+            url = URL.createObjectURL(blob);
+          }
+
+          // Convert blob URL to HTMLImageElement for canvas rendering
+          const img = await new Promise((resolve) => {
+            const image = new Image();
+            image.onload = () => resolve(image);
+            image.onerror = () => resolve(null);
+            image.src = url;
+          });
+
+          if (img) {
+            collectedPhotoImgCache[key] = img;
+          }
+        } catch (err) {
+          // Photo load failed, will use fallback pin
+        }
+      }
+
+      // Force re-render of all collected features
+      for (const f of collectedFeatures) {
+        f.changed();
+      }
+      if (this.mapPinsLayer) {
+        this.mapPinsLayer.changed();
+      }
     },
 
     updateDiscoveryLayerVisibility() {
@@ -646,39 +1015,102 @@ export default {
 
     // Taken from Utils.ts
     pinStyleFunction(feature) {
-      /**
-       * Style function for OSM Features (used for pins on the map).
-       * Not supposed to be called manually, but rather assigned or referenced.
-       *
-       * @param feature - the pin feature
-       * @return a new style
-       */
-
       const id = feature.get("id");
       const type = feature.get("dType");
+      const title = feature.get("title");
 
       const status = this.resolveDiscoveryStatus(id, type);
-
       const zoomLevel = this.mainMap.getView().getZoom();
+      const colors = getPinColors(type);
 
-      const pinSize =
-        zoomLevel < 14
-          ? 0.3
-          : zoomLevel === 14
-            ? 0.35
-            : zoomLevel === 15
-              ? 0.4
-              : 0.5;
+      // --- Collected: circular photo pin ---
+      if (status === "collected") {
+        const cacheKey = buildDiscoveryKey(type, id);
+        const cachedImg = collectedPhotoImgCache[cacheKey];
 
-      const style = new Style({
-        image: new Icon({
-          anchor: [0.5, 1],
-          src: `./assets/drawable/pins/${type}/${status}.png`,
-          scale: pinSize,
+        if (cachedImg && cachedImg instanceof HTMLImageElement) {
+          const canvasSize =
+            zoomLevel < 14 ? 18 : zoomLevel <= 15 ? 22 : 26;
+          const canvasCacheKey = `${cacheKey}:${canvasSize}`;
+
+          let canvas = collectedPhotoPinCache[canvasCacheKey];
+          if (!canvas) {
+            canvas = createCircularPhotoPinCanvas(cachedImg, type, canvasSize);
+            collectedPhotoPinCache[canvasCacheKey] = canvas;
+          }
+
+          return [
+            new Style({
+              image: new Icon({
+                anchor: [0.5, 1],
+                img: canvas,
+                imgSize: [canvas.width, canvas.height],
+                scale: 1 / CANVAS_RENDER_SCALE,
+              }),
+              zIndex: 400,
+            }),
+          ];
+        }
+
+        // Fallback: photo not loaded — show colored circle
+        const circleRadius = zoomLevel < 14 ? 8 : zoomLevel <= 15 ? 12 : 16;
+        return [
+          new Style({
+            image: new CircleStyle({
+              radius: circleRadius,
+              fill: new Fill({ color: colors.fillStart }),
+              stroke: new Stroke({ color: colors.border, width: 3 }),
+            }),
+            zIndex: 400,
+          }),
+        ];
+      }
+
+      // --- Targeted: pill with bookmark icon + title + pointer ---
+      if (status === "targeted") {
+        const displayTitle = truncatePinTitle(title);
+        const targetedCacheKey = `${type}:${displayTitle}`;
+
+        let canvas = targetedPinCache[targetedCacheKey];
+        if (!canvas) {
+          canvas = createTargetedPinCanvas(title, colors);
+          targetedPinCache[targetedCacheKey] = canvas;
+        }
+
+        const pinScale = zoomLevel < 14 ? 0.7 : zoomLevel <= 15 ? 0.85 : 1;
+        return [
+          new Style({
+            image: new Icon({
+              anchor: [0.5, 1],
+              img: canvas,
+              imgSize: [canvas.width, canvas.height],
+              scale: pinScale / CANVAS_RENDER_SCALE,
+            }),
+            zIndex: 350,
+          }),
+        ];
+      }
+
+      // --- Default: teardrop pin with icon ---
+      const defaultCacheKey = `${type}`;
+      let canvas = defaultPinCache[defaultCacheKey];
+      if (!canvas) {
+        canvas = createDefaultPinCanvas(type);
+        defaultPinCache[defaultCacheKey] = canvas;
+      }
+
+      const defaultScale = zoomLevel < 14 ? 0.7 : zoomLevel <= 15 ? 0.85 : 1;
+      return [
+        new Style({
+          image: new Icon({
+            anchor: [0.5, 1],
+            img: canvas,
+            imgSize: [canvas.width, canvas.height],
+            scale: defaultScale / CANVAS_RENDER_SCALE,
+          }),
+          zIndex: 300,
         }),
-      });
-
-      return [style];
+      ];
     },
 
     polygonStyleFunction(feature) {
