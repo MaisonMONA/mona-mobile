@@ -252,7 +252,57 @@ function preloadSvgIcon(name, path) {
 
 function preloadAllPinIcons() {
   preloadSvgIcon("targeted", "./assets/drawable/icons/pins/targeted_bookmark.svg");
-  preloadSvgIcon("artwork_default", "./assets/drawable/icons/pins/default.svg");
+  preloadSvgIcon("default", "./assets/drawable/icons/pins/default.svg");
+  preloadSvgIcon("art_public", "./assets/drawable/icons/pins/art_public.svg");
+  preloadSvgIcon("murales", "./assets/drawable/icons/pins/murales.svg");
+  preloadSvgIcon("sculptures", "./assets/drawable/icons/pins/sculptures.svg");
+  preloadSvgIcon("lieux_culturels", "./assets/drawable/icons/pins/lieux_culturels.svg");
+  preloadSvgIcon("bibliotheques", "./assets/drawable/icons/pins/bibliotheques.svg");
+  preloadSvgIcon("patrimoine", "./assets/drawable/icons/pins/patrimoine.svg");
+}
+
+/**
+ * Maps a discovery's category/usage string to the corresponding preloaded icon name.
+ * For artworks: uses getCategories() (e.g. "Art public", "Murale", "Sculpture")
+ * For places: uses getUsages() (e.g. "Bibliothèque", "Maison de la culture")
+ * For heritage: always "patrimoine"
+ */
+function getCategoryIconName(discovery) {
+  if (!discovery) return "default";
+
+  const dType = discovery.dType;
+
+  if (dType === "heritage") return "patrimoine";
+
+  // Get the first category/usage string
+  let rawCategory = "";
+  if (dType === "artwork" && typeof discovery.getCategories === "function") {
+    rawCategory = discovery.getCategories("fr");
+  } else if (dType === "place" && typeof discovery.getUsages === "function") {
+    rawCategory = discovery.getUsages("fr");
+  }
+
+  // Take only the first value if comma-separated
+  const first = rawCategory.split(",")[0].trim().toLowerCase();
+  if (!first) {
+    // No category found — use type-specific default icon
+    if (dType === "artwork") return "art_public";
+    if (dType === "place") return "lieux_culturels";
+    return "default";
+  }
+
+  // Map to icon name
+  if (first.includes("art public")) return "art_public";
+  if (first.includes("murale")) return "murales";
+  if (first.includes("sculpture")) return "sculptures";
+  if (first.includes("biblioth")) return "bibliotheques";
+  if (first.includes("lieu") || first.includes("maison de la culture") || first.includes("centre") || first.includes("galerie") || first.includes("mus")) return "lieux_culturels";
+  if (first.includes("patrimoine")) return "patrimoine";
+
+  // Unrecognized category — use type-specific default
+  if (dType === "artwork") return "art_public";
+  if (dType === "place") return "lieux_culturels";
+  return "default";
 }
 
 // Start preloading immediately
@@ -428,7 +478,7 @@ function createTargetedPinCanvas(title, colors) {
  * Creates a default pin: teardrop/balloon shape with an icon inside.
  * Matches Figma design.
  */
-function createDefaultPinCanvas(type) {
+function createDefaultPinCanvas(type, categoryIcon = "default") {
   const colors = getPinColors(type);
   const borderWidth = 1;
   const innerRadius = 12;
@@ -492,8 +542,8 @@ function createDefaultPinCanvas(type) {
   ctx.fillStyle = colors.fillEnd;
   ctx.fill();
 
-  // Draw icon inside the circle
-  const icon = iconImages["artwork_default"];
+  // Draw category icon inside the circle
+  const icon = iconImages[categoryIcon] || iconImages["default"];
   if (icon) {
     const iconDrawSize = 13;
     ctx.drawImage(icon, cx - iconDrawSize / 2, cy - iconDrawSize / 2, iconDrawSize, iconDrawSize);
@@ -561,6 +611,7 @@ function insertAllPins(
       dType: discovery.dType,
       hasPolygon,
       title: typeof discovery.getTitle === "function" ? discovery.getTitle() : "",
+      categoryIcon: getCategoryIconName(discovery),
     });
     destinationLayer.getSource().addFeature(feature);
   }
@@ -1092,10 +1143,11 @@ export default {
       }
 
       // --- Default: teardrop pin with icon ---
-      const defaultCacheKey = `${type}`;
+      const categoryIcon = feature.get("categoryIcon") || "default";
+      const defaultCacheKey = `${type}:${categoryIcon}`;
       let canvas = defaultPinCache[defaultCacheKey];
       if (!canvas) {
-        canvas = createDefaultPinCanvas(type);
+        canvas = createDefaultPinCanvas(type, categoryIcon);
         defaultPinCache[defaultCacheKey] = canvas;
       }
 
