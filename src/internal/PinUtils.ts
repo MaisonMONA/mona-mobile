@@ -52,7 +52,9 @@ export function getPinColors(type: string): PinColors {
 // ---------------------------------------------------------------------------
 
 export const iconImages: Record<string, HTMLImageElement | null> = {};
-const iconLoadPromises: Record<string, Promise<HTMLImageElement | null>> = {};
+const iconLoadPromises: Partial<
+  Record<string, Promise<HTMLImageElement | null>>
+> = {};
 
 export function preloadSvgIcon(
   name: string,
