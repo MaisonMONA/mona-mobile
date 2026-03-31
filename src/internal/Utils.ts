@@ -125,7 +125,7 @@ const downloadImage = async (
 export default {
   async takePicture(): Promise<Photo | null> {
     /**
-     * Takes a pucture from the phone camera using its default
+     * Takes a picture from the phone camera using its default
      * interface.
      *
      * @return a Photo object, or null if no photo were taken
