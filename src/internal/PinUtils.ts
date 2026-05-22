@@ -156,6 +156,7 @@ export function buildDiscoveryKey(dType: string, id: number | string): string {
 export function createDefaultPinCanvas(
   type: string,
   categoryIcon = "default",
+  isSelected = false,
 ): HTMLCanvasElement {
   const colors = getPinColors(type);
   const borderWidth = 1;
@@ -163,7 +164,8 @@ export function createDefaultPinCanvas(
   const outerRadius = innerRadius + borderWidth;
   const pointerHeight = 10;
   const totalSize = (outerRadius + 2) * 2; // +2 for shadow margin
-  const totalHeight = totalSize + pointerHeight;
+  const shadowPaddingBottom = isSelected ? 4 : 0;
+  const totalHeight = totalSize + pointerHeight + shadowPaddingBottom;
 
   const canvas = document.createElement("canvas");
   canvas.width = totalSize * CANVAS_RENDER_SCALE;
@@ -177,6 +179,15 @@ export function createDefaultPinCanvas(
 
   const cx = totalSize / 2;
   const cy = outerRadius + 1;
+  const tipY = cy + outerRadius + pointerHeight - 2;
+
+  if (isSelected) {
+    // Ground shadow ellipse
+    ctx.fillStyle = "black";
+    ctx.beginPath();
+    ctx.ellipse(cx, tipY, 14, 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
 
   // Shadow
   ctx.shadowColor = "rgba(0, 0, 0, 0.25)";
@@ -192,7 +203,7 @@ export function createDefaultPinCanvas(
   // Outer pale pointer
   ctx.beginPath();
   ctx.moveTo(cx - 6, cy + outerRadius - 2);
-  ctx.lineTo(cx, cy + outerRadius + pointerHeight - 2);
+  ctx.lineTo(cx, tipY);
   ctx.lineTo(cx + 6, cy + outerRadius - 2);
   ctx.closePath();
   ctx.fillStyle = colors.border;
@@ -229,13 +240,26 @@ export function createDefaultPinCanvas(
   // Draw category icon inside the circle
   const icon = iconImages[categoryIcon] || iconImages["default"];
   if (icon) {
-    const iconDrawSize = 13;
+    const maxIconSize = 13;
+    const imgWidth = icon.width || 1;
+    const imgHeight = icon.height || 1;
+    const imgAspect = imgWidth / imgHeight;
+
+    let drawWidth = maxIconSize;
+    let drawHeight = maxIconSize;
+
+    if (imgAspect > 1) {
+      drawHeight = maxIconSize / imgAspect;
+    } else {
+      drawWidth = maxIconSize * imgAspect;
+    }
+
     ctx.drawImage(
       icon,
-      cx - iconDrawSize / 2,
-      cy - iconDrawSize / 2,
-      iconDrawSize,
-      iconDrawSize,
+      cx - drawWidth / 2,
+      cy - drawHeight / 2,
+      drawWidth,
+      drawHeight,
     );
   }
 
@@ -250,18 +274,20 @@ export function createCircularPhotoPinCanvas(
   img: HTMLImageElement,
   type: string,
   size = 56,
+  isSelected = false,
 ): HTMLCanvasElement {
   const colors = getPinColors(type);
   const ringWidth = 2;
   const totalSize = size + ringWidth * 2;
   const pointerHeight = 10;
+  const shadowPaddingBottom = isSelected ? 4 : 0;
 
   const canvas = document.createElement("canvas");
   canvas.width = totalSize * CANVAS_RENDER_SCALE;
-  canvas.height = (totalSize + pointerHeight) * CANVAS_RENDER_SCALE;
+  canvas.height = (totalSize + pointerHeight + shadowPaddingBottom) * CANVAS_RENDER_SCALE;
   // Store logical size so OpenLayers can use imgSize
   (canvas as any)._logicalWidth = totalSize;
-  (canvas as any)._logicalHeight = totalSize + pointerHeight;
+  (canvas as any)._logicalHeight = totalSize + pointerHeight + shadowPaddingBottom;
 
   const ctx = canvas.getContext("2d")!;
   ctx.scale(CANVAS_RENDER_SCALE, CANVAS_RENDER_SCALE);
@@ -269,6 +295,15 @@ export function createCircularPhotoPinCanvas(
   const cx = totalSize / 2;
   const cy = totalSize / 2;
   const photoRadius = size / 2;
+  const tipY = cy + photoRadius + ringWidth + pointerHeight - 2;
+
+  if (isSelected) {
+    // Ground shadow ellipse
+    ctx.fillStyle = "black";
+    ctx.beginPath();
+    ctx.ellipse(cx, tipY, 14, 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
 
   // Shadow
   ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
@@ -292,7 +327,7 @@ export function createCircularPhotoPinCanvas(
   // Gradient pointer
   ctx.beginPath();
   ctx.moveTo(cx - 6, cy + photoRadius + ringWidth - 2);
-  ctx.lineTo(cx, cy + photoRadius + ringWidth + pointerHeight - 2);
+  ctx.lineTo(cx, tipY);
   ctx.lineTo(cx + 6, cy + photoRadius + ringWidth - 2);
   ctx.closePath();
   ctx.fillStyle = colors.fillEnd;
@@ -324,6 +359,117 @@ export function createCircularPhotoPinCanvas(
     size,
   );
   ctx.restore();
+
+  return canvas;
+}
+
+export function truncatePinTitle(title: string): string {
+  const maxChars = 16;
+  if (!title || typeof title !== "string") return "";
+  return title.length > maxChars ? `${title.slice(0, maxChars)}...` : title;
+}
+
+/**
+ * Creates a targeted/bookmarked pin: rounded pill with bookmark icon + title + pointer at bottom.
+ * Matches Figma design.
+ */
+export function createTargetedPinCanvas(
+  title: string,
+  colors: PinColors,
+  isSelected = false
+): HTMLCanvasElement {
+  const paddingX = 10;
+  const paddingY = 6;
+  const iconSize = 12;
+  const iconGap = 5;
+  const fontSize = 12;
+  const pointerHeight = 8;
+  const borderRadius = 14;
+
+  // Measure text
+  const measureCanvas = document.createElement("canvas");
+  const measureCtx = measureCanvas.getContext("2d")!;
+  measureCtx.font = `700 ${fontSize}px Arial`;
+  const displayTitle = truncatePinTitle(title);
+  const textWidth = measureCtx.measureText(displayTitle).width;
+
+  const pillWidth = paddingX + iconSize + iconGap + textWidth + paddingX;
+  const pillHeight = paddingY * 2 + fontSize + 2;
+  const totalWidth = pillWidth;
+  const shadowPaddingBottom = isSelected ? 4 : 0;
+  const totalHeight = pillHeight + pointerHeight + shadowPaddingBottom;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = totalWidth * CANVAS_RENDER_SCALE;
+  canvas.height = totalHeight * CANVAS_RENDER_SCALE;
+  (canvas as any)._logicalWidth = totalWidth;
+  (canvas as any)._logicalHeight = totalHeight;
+
+  const ctx = canvas.getContext("2d")!;
+  ctx.scale(CANVAS_RENDER_SCALE, CANVAS_RENDER_SCALE);
+
+  const cx = totalWidth / 2;
+  const tipY = pillHeight + pointerHeight - 1;
+
+  if (isSelected) {
+    // Ground shadow ellipse
+    ctx.fillStyle = "black";
+    ctx.beginPath();
+    ctx.ellipse(cx, tipY, 14, 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Shadow
+  ctx.shadowColor = "rgba(0, 0, 0, 0.25)";
+  ctx.shadowBlur = 4;
+  ctx.shadowOffsetY = 1;
+
+  // Pill gradient (vertical)
+  const pillGrad = ctx.createLinearGradient(0, 0, 0, pillHeight);
+  pillGrad.addColorStop(0, colors.fillStart);
+  pillGrad.addColorStop(1, colors.fillEnd);
+
+  // Rounded pill
+  ctx.beginPath();
+  ctx.moveTo(borderRadius, 0);
+  ctx.lineTo(pillWidth - borderRadius, 0);
+  ctx.quadraticCurveTo(pillWidth, 0, pillWidth, borderRadius);
+  ctx.lineTo(pillWidth, pillHeight - borderRadius);
+  ctx.quadraticCurveTo(pillWidth, pillHeight, pillWidth - borderRadius, pillHeight);
+  ctx.lineTo(borderRadius, pillHeight);
+  ctx.quadraticCurveTo(0, pillHeight, 0, pillHeight - borderRadius);
+  ctx.lineTo(0, borderRadius);
+  ctx.quadraticCurveTo(0, 0, borderRadius, 0);
+  ctx.closePath();
+  ctx.fillStyle = pillGrad;
+  ctx.fill();
+
+  // Pointer (use gradient end color)
+  ctx.beginPath();
+  ctx.moveTo(cx - 6, pillHeight - 1);
+  ctx.lineTo(cx, tipY);
+  ctx.lineTo(cx + 6, pillHeight - 1);
+  ctx.closePath();
+  ctx.fillStyle = colors.fillEnd;
+  ctx.fill();
+
+  // Reset shadow
+  ctx.shadowColor = "transparent";
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetY = 0;
+
+  // Draw bookmark icon
+  const bookmarkIcon = iconImages["targeted"];
+  if (bookmarkIcon) {
+    const iconY = (pillHeight - iconSize) / 2;
+    ctx.drawImage(bookmarkIcon, paddingX, iconY, iconSize, iconSize * (18 / 13));
+  }
+
+  // Draw title text
+  ctx.font = `700 ${fontSize}px Arial`;
+  ctx.fillStyle = "#1F1F1F";
+  ctx.textBaseline = "middle";
+  ctx.fillText(displayTitle, paddingX + iconSize + iconGap, pillHeight / 2 + 1);
 
   return canvas;
 }
