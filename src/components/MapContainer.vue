@@ -169,7 +169,6 @@ import "ol/ol.css";
 import { arrowForward as arrowRightIcon, chevronUpOutline } from "ionicons/icons";
 import {
   IonButton,
-  IonContent,
   IonIcon,
   IonLabel,
   IonAccordion,
@@ -201,7 +200,7 @@ import {
   IOSSettings,
   NativeSettings,
 } from "capacitor-native-settings";
-import { Fill, Icon, Stroke, Style, Text } from "ol/style";
+import { Fill, Icon, Stroke, Style } from "ol/style";
 import CircleStyle from "ol/style/Circle.js";
 import { circular } from "ol/geom/Polygon.js";
 import customLocationIconBlack from "/assets/drawable/icons/location_icon_black.svg";
@@ -321,12 +320,13 @@ const defaultPinCache = {}; // "type:size" -> canvas
 // Fixed render scale for crisp canvases on all screens (DPR-independent)
 const CANVAS_RENDER_SCALE = 2;
 
-function createCircularPhotoPinCanvas(img, type, size = 56) {
+function createCircularPhotoPinCanvas(img, type, size = 56, isSelected = false) {
   const colors = getPinColors(type);
   const ringWidth = 2;
   const totalSize = size + ringWidth * 2;
   const pointerHeight = 10;
-  const shadowPaddingBottom = 4;
+  // +4 to make room for ground shadow
+  const shadowPaddingBottom = isSelected ? 4 : 0;
 
   const canvas = document.createElement("canvas");
   canvas.width = totalSize * CANVAS_RENDER_SCALE;
@@ -343,11 +343,13 @@ function createCircularPhotoPinCanvas(img, type, size = 56) {
   const photoRadius = size / 2;
   const tipY = cy + photoRadius + ringWidth + pointerHeight - 2;
 
-  // Ground shadow ellipse
-  ctx.fillStyle = "black";
-  ctx.beginPath();
-  ctx.ellipse(cx, tipY, 14, 3, 0, 0, Math.PI * 2);
-  ctx.fill();
+  if (isSelected) {
+    // Ground shadow ellipse
+    ctx.fillStyle = "black";
+    ctx.beginPath();
+    ctx.ellipse(cx, tipY, 14, 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
 
   // Shadow
   ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
@@ -396,7 +398,7 @@ function createCircularPhotoPinCanvas(img, type, size = 56) {
  * Creates a targeted/bookmarked pin: rounded pill with bookmark icon + title + pointer at bottom.
  * Matches Figma design.
  */
-function createTargetedPinCanvas(title, colors) {
+function createTargetedPinCanvas(title, colors, isSelected = false) {
   const paddingX = 10;
   const paddingY = 6;
   const iconSize = 12;
@@ -416,7 +418,7 @@ function createTargetedPinCanvas(title, colors) {
   const pillHeight = paddingY * 2 + fontSize + 2;
   const totalWidth = pillWidth;
   // +4 to make room for ground shadow
-  const shadowPaddingBottom = 4;
+  const shadowPaddingBottom = isSelected ? 4 : 0;
   const totalHeight = pillHeight + pointerHeight + shadowPaddingBottom;
 
   const canvas = document.createElement("canvas");
@@ -431,11 +433,13 @@ function createTargetedPinCanvas(title, colors) {
   const cx = totalWidth / 2;
   const tipY = pillHeight + pointerHeight - 1;
 
-  // Ground shadow ellipse
-  ctx.fillStyle = "black";
-  ctx.beginPath();
-  ctx.ellipse(cx, tipY, 14, 3, 0, 0, Math.PI * 2);
-  ctx.fill();
+  if (isSelected) {
+    // Ground shadow ellipse
+    ctx.fillStyle = "black";
+    ctx.beginPath();
+    ctx.ellipse(cx, tipY, 14, 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
 
   // Shadow
   ctx.shadowColor = "rgba(0, 0, 0, 0.25)";
@@ -496,7 +500,7 @@ function createTargetedPinCanvas(title, colors) {
  * Creates a default pin: teardrop/balloon shape with an icon inside.
  * Matches Figma design.
  */
-function createDefaultPinCanvas(type, categoryIcon = "default") {
+function createDefaultPinCanvas(type, categoryIcon = "default", isSelected = false) {
   const colors = getPinColors(type);
   const borderWidth = 1;
   const innerRadius = 12;
@@ -504,7 +508,7 @@ function createDefaultPinCanvas(type, categoryIcon = "default") {
   const pointerHeight = 10;
   const totalSize = (outerRadius + 2) * 2; // +2 for shadow margin
   // +4 to make room for ground shadow
-  const shadowPaddingBottom = 4;
+  const shadowPaddingBottom = isSelected ? 4 : 0;
   const totalHeight = totalSize + pointerHeight + shadowPaddingBottom;
 
   const canvas = document.createElement("canvas");
@@ -520,11 +524,13 @@ function createDefaultPinCanvas(type, categoryIcon = "default") {
   const cy = outerRadius + 1;
   const tipY = cy + outerRadius + pointerHeight - 2;
 
-  // Ground shadow ellipse
-  ctx.fillStyle = "black";
-  ctx.beginPath();
-  ctx.ellipse(cx, tipY, 14, 3, 0, 0, Math.PI * 2);
-  ctx.fill();
+  if (isSelected) {
+    // Ground shadow ellipse
+    ctx.fillStyle = "black";
+    ctx.beginPath();
+    ctx.ellipse(cx, tipY, 14, 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
 
   // Shadow
   ctx.shadowColor = "rgba(0, 0, 0, 0.25)";
@@ -705,7 +711,6 @@ export default {
     DiscoveryDetails,
     IonModal,
     IonLabel,
-    IonContent,
     IonButton,
     IonIcon,
     IonAlert,
@@ -911,7 +916,7 @@ export default {
         layers: [this.TILE_LAYER],
       });
 
-      this.mainMap.on("singleclick", this.handleMapClick);
+      this.mainMap.on("click", this.handleMapClick);
       this.mainMap.on("moveend", this.setCenterButtonAppearance);
 
       const view = this.mainMap.getView();
@@ -1105,10 +1110,12 @@ export default {
     },
 
     // Taken from Utils.ts
-    pinStyleFunction(feature) {
+    pinStyleFunction(feature, explicitIsSelected) {
       const id = feature.get("id");
       const type = feature.get("dType");
       const title = feature.get("title");
+
+      const isSelected = explicitIsSelected === true || (this.currentSelectedDiscovery?.id === id && this.currentSelectedDiscovery?.dType === type) || false;
 
       const status = this.resolveDiscoveryStatus(id, type);
       const zoomLevel = this.mainMap.getView().getZoom();
@@ -1134,11 +1141,11 @@ export default {
         const cachedImg = collectedPhotoImgCache[cacheKey];
 
         if (cachedImg && cachedImg instanceof HTMLImageElement) {
-          const canvasCacheKey = `${cacheKey}:${canvasSize}`;
+          const canvasCacheKey = `${cacheKey}:${canvasSize}:${isSelected}`;
 
           let canvas = collectedPhotoPinCache[canvasCacheKey];
           if (!canvas) {
-            canvas = createCircularPhotoPinCanvas(cachedImg, type, canvasSize);
+            canvas = createCircularPhotoPinCanvas(cachedImg, type, canvasSize, isSelected);
             collectedPhotoPinCache[canvasCacheKey] = canvas;
           }
 
@@ -1150,7 +1157,7 @@ export default {
                 imgSize: [canvas.width, canvas.height],
                 scale: 1 / CANVAS_RENDER_SCALE,
               }),
-              zIndex: 400,
+              zIndex: isSelected ? 500 : 400,
             }),
           ];
         }
@@ -1163,7 +1170,7 @@ export default {
               fill: new Fill({ color: colors.fillStart }),
               stroke: new Stroke({ color: colors.border, width: 3 }),
             }),
-            zIndex: 400,
+            zIndex: isSelected ? 500 : 400,
           }),
         ];
       }
@@ -1171,11 +1178,11 @@ export default {
       // --- Targeted: pill with bookmark icon + title + pointer ---
       if (status === "targeted") {
         const displayTitle = truncatePinTitle(title);
-        const targetedCacheKey = `${type}:${displayTitle}`;
+        const targetedCacheKey = `${type}:${displayTitle}:${isSelected}`;
 
         let canvas = targetedPinCache[targetedCacheKey];
         if (!canvas) {
-          canvas = createTargetedPinCanvas(title, colors);
+          canvas = createTargetedPinCanvas(title, colors, isSelected);
           targetedPinCache[targetedCacheKey] = canvas;
         }
 
@@ -1187,17 +1194,17 @@ export default {
               imgSize: [canvas.width, canvas.height],
               scale: pinScale / CANVAS_RENDER_SCALE,
             }),
-            zIndex: 350,
+            zIndex: isSelected ? 500 : 350,
           }),
         ];
       }
 
       // --- Default: teardrop pin with icon ---
       const categoryIcon = feature.get("categoryIcon") || "default";
-      const defaultCacheKey = `${type}:${categoryIcon}`;
+      const defaultCacheKey = `${type}:${categoryIcon}:${isSelected}`;
       let canvas = defaultPinCache[defaultCacheKey];
       if (!canvas) {
-        canvas = createDefaultPinCanvas(type, categoryIcon);
+        canvas = createDefaultPinCanvas(type, categoryIcon, isSelected);
         defaultPinCache[defaultCacheKey] = canvas;
       }
 
@@ -1209,7 +1216,7 @@ export default {
             imgSize: [canvas.width, canvas.height],
             scale: pinScale / CANVAS_RENDER_SCALE,
           }),
-          zIndex: 300,
+          zIndex: isSelected ? 500 : 300,
         }),
       ];
     },
@@ -1284,14 +1291,7 @@ export default {
 
       if (!selectedFeature) return;
 
-      const selectedPinStyle = new Style({
-        image: new Icon({
-          anchor: [0.5, 1],
-          src: `./assets/drawable/pins/selected_pin.svg`,
-          scale: 0.83, // Augment selected pin size
-        }),
-        zIndex: 500, // Ensures selected discovery pin appears on top of other discovery pins
-      });
+      const selectedPinStyle = this.pinStyleFunction(selectedFeature, true);
       selectedFeature.setStyle(selectedPinStyle);
 
       this.formerSelectedPinFeature = selectedFeature; // assign currently selected pin as former selected pin
@@ -1530,7 +1530,7 @@ export default {
         const polygonFeature = this.getPolygonFeatureForDiscovery(discovery);
         if (polygonFeature) {
           mapView.fit(polygonFeature.getGeometry().getExtent(), {
-            duration: 200,
+            duration: 100,
             padding: [100, 80, 320, 80],
             maxZoom: Math.max(currentZoom, 17),
             easing: easeOut,
@@ -1549,7 +1549,7 @@ export default {
           mapView.animate({
             // Center viewport a bit below the selected pin so that the pin is towards the top of viewport
             center: [location.lng, location.lat - 0.3 * extentHeight],
-            duration: 200,
+            duration: 100,
             zoom: Math.max(currentZoom, 14.25),
             easing: easeOut,
           });
@@ -1571,7 +1571,7 @@ export default {
 
         mapView.animate({
           center: currentLocation,
-          duration: 200,
+          duration: 100,
           zoom: Math.max(mapView.getZoom(), 14.25),
           easing: easeOut,
         });
@@ -1582,6 +1582,7 @@ export default {
 
     // Close modal, make former selected pin back to normal scale if there was a selected pin before, and put formerSelectedPinFeature to null because there are no more selected pin
     async unfocusDiscovery() {
+      this.currentSelectedDiscovery = null;
       this.discoveryDetailsModalOpen = false;
       if (this.formerSelectedPinFeature && this.mapPinsLayer) {
         await this.formerSelectedPinFeature.setStyle(
