@@ -18,6 +18,8 @@ type Review = {
   comment: string;
 };
 
+import { eventBus } from "@/internal/eventBus";
+
 export class UserData {
   private static data: any = null;
   private static path = "appdata/preferences.json";
@@ -684,6 +686,7 @@ export class UserData {
     this.data.targeted[type].push(collectable.id);
 
     this.updateFile();
+    eventBus.emit("targeted-changed", collectable);
   }
 
   public static removeTargeted(collectable: Discovery) {
@@ -693,6 +696,7 @@ export class UserData {
     );
 
     this.updateFile();
+    eventBus.emit("targeted-changed", collectable);
   }
 
   public static isTargeted(id: number, type: number | string): boolean {

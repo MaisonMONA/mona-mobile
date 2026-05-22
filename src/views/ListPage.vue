@@ -238,207 +238,13 @@ import { UserData } from "@/internal/databases/UserData";
 import { Directory, Filesystem } from "@capacitor/filesystem";
 import { Distance } from "../internal/Distance";
 import DiscoveryDetailsFullModale from "@/components/DiscoveryDetailsFullModale.vue";
+import { 
+  createDefaultPinCanvas, 
+  createCircularPhotoPinCanvas, 
+  getCategoryIconName 
+} from "@/internal/PinUtils";
 
 // --- Pin colors per discovery type ---
-function getCSSVar(name) {
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-}
-
-function getPinColors(type) {
-  const map = {
-    artwork: { fillStart: getCSSVar('--pin-artwork-fill-start'), fillEnd: getCSSVar('--pin-artwork-fill-end'), border: getCSSVar('--pin-artwork-border') },
-    heritage: { fillStart: getCSSVar('--pin-heritage-fill-start'), fillEnd: getCSSVar('--pin-heritage-fill-end'), border: getCSSVar('--pin-heritage-border') },
-    place: { fillStart: getCSSVar('--pin-place-fill-start'), fillEnd: getCSSVar('--pin-place-fill-end'), border: getCSSVar('--pin-place-border') },
-  };
-  return map[type] ?? map.heritage;
-}
-
-// --- Icon preloading ---
-const iconImages = {};
-const iconLoadPromises = {};
-
-function preloadSvgIcon(name, path) {
-  if (iconLoadPromises[name]) return iconLoadPromises[name];
-  iconLoadPromises[name] = new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => { iconImages[name] = img; resolve(img); };
-    img.onerror = () => { iconImages[name] = null; resolve(null); };
-    img.src = path;
-  });
-  return iconLoadPromises[name];
-}
-
-function preloadAllPinIcons() {
-  preloadSvgIcon("default", "./assets/drawable/icons/pins/default.svg");
-  preloadSvgIcon("art_public", "./assets/drawable/icons/pins/art_public.svg");
-  preloadSvgIcon("murales", "./assets/drawable/icons/pins/murales.svg");
-  preloadSvgIcon("sculptures", "./assets/drawable/icons/pins/sculptures.svg");
-  preloadSvgIcon("lieux_culturels", "./assets/drawable/icons/pins/lieux_culturels.svg");
-  preloadSvgIcon("bibliotheques", "./assets/drawable/icons/pins/bibliotheques.svg");
-  preloadSvgIcon("patrimoine", "./assets/drawable/icons/pins/patrimoine.svg");
-}
-
-function getCategoryIconName(discovery) {
-  if (!discovery) return "default";
-  const dType = discovery.dType;
-  if (dType === "heritage") return "patrimoine";
-
-  let rawCategory = "";
-  if (dType === "artwork" && typeof discovery.getCategories === "function") {
-    rawCategory = discovery.getCategories("fr");
-  } else if (dType === "place" && typeof discovery.getUsages === "function") {
-    rawCategory = discovery.getUsages("fr");
-  }
-
-  const first = rawCategory.split(",")[0].trim().toLowerCase();
-  if (!first) {
-    if (dType === "artwork") return "art_public";
-    if (dType === "place") return "lieux_culturels";
-    return "default";
-  }
-
-  if (first.includes("art public")) return "art_public";
-  if (first.includes("murale")) return "murales";
-  if (first.includes("sculpture")) return "sculptures";
-  if (first.includes("biblioth")) return "bibliotheques";
-  if (first.includes("lieu") || first.includes("maison de la culture") || first.includes("centre") || first.includes("galerie") || first.includes("mus")) return "lieux_culturels";
-  if (first.includes("patrimoine")) return "patrimoine";
-
-  if (dType === "artwork") return "art_public";
-  if (dType === "place") return "lieux_culturels";
-  return "default";
-}
-
-const CANVAS_RENDER_SCALE = 2;
-
-// Default teardrop pin with category icon inside (same as MapContainer)
-function createDefaultPinCanvas(type, categoryIcon = "default") {
-  const colors = getPinColors(type);
-  const borderWidth = 1;
-  const innerRadius = 12;
-  const outerRadius = innerRadius + borderWidth;
-  const pointerHeight = 10;
-  const totalSize = (outerRadius + 2) * 2;
-  const totalHeight = totalSize + pointerHeight;
-
-  const canvas = document.createElement("canvas");
-  canvas.width = totalSize * CANVAS_RENDER_SCALE;
-  canvas.height = totalHeight * CANVAS_RENDER_SCALE;
-
-  const ctx = canvas.getContext("2d");
-  ctx.scale(CANVAS_RENDER_SCALE, CANVAS_RENDER_SCALE);
-
-  const cx = totalSize / 2;
-  const cy = outerRadius + 1;
-
-  ctx.shadowColor = "rgba(0, 0, 0, 0.25)";
-  ctx.shadowBlur = 3;
-  ctx.shadowOffsetY = 1;
-
-  ctx.beginPath();
-  ctx.arc(cx, cy, outerRadius, 0, Math.PI * 2);
-  ctx.fillStyle = colors.border;
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.moveTo(cx - 6, cy + outerRadius - 2);
-  ctx.lineTo(cx, cy + outerRadius + pointerHeight - 2);
-  ctx.lineTo(cx + 6, cy + outerRadius - 2);
-  ctx.closePath();
-  ctx.fillStyle = colors.border;
-  ctx.fill();
-
-  ctx.shadowColor = "transparent";
-  ctx.shadowBlur = 0;
-  ctx.shadowOffsetY = 0;
-
-  const innerGrad = ctx.createLinearGradient(cx, cy - innerRadius, cx, cy + innerRadius);
-  innerGrad.addColorStop(0, colors.fillStart);
-  innerGrad.addColorStop(1, colors.fillEnd);
-  ctx.beginPath();
-  ctx.arc(cx, cy, innerRadius, 0, Math.PI * 2);
-  ctx.fillStyle = innerGrad;
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.moveTo(cx - 4, cy + innerRadius - 1);
-  ctx.lineTo(cx, cy + innerRadius + pointerHeight - 4);
-  ctx.lineTo(cx + 4, cy + innerRadius - 1);
-  ctx.closePath();
-  ctx.fillStyle = colors.fillEnd;
-  ctx.fill();
-
-  const icon = iconImages[categoryIcon] || iconImages["default"];
-  if (icon) {
-    const iconDrawSize = 13;
-    ctx.drawImage(icon, cx - iconDrawSize / 2, cy - iconDrawSize / 2, iconDrawSize, iconDrawSize);
-  }
-
-  return canvas;
-}
-
-// Circular photo with gradient ring + pointer for collected discoveries (same shape as map pins)
-function createListCollectedPhotoCanvas(img, type, size = 30) {
-  const colors = getPinColors(type);
-  const ringWidth = 2;
-  const totalSize = size + ringWidth * 2;
-  const pointerHeight = 10;
-
-  const canvas = document.createElement("canvas");
-  canvas.width = totalSize * CANVAS_RENDER_SCALE;
-  canvas.height = (totalSize + pointerHeight) * CANVAS_RENDER_SCALE;
-
-  const ctx = canvas.getContext("2d");
-  ctx.scale(CANVAS_RENDER_SCALE, CANVAS_RENDER_SCALE);
-
-  const cx = totalSize / 2;
-  const cy = totalSize / 2;
-  const photoRadius = size / 2;
-
-  // Shadow
-  ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
-  ctx.shadowBlur = 6;
-  ctx.shadowOffsetY = 2;
-
-  // Gradient ring
-  const ringGrad = ctx.createLinearGradient(cx, cy - (photoRadius + ringWidth), cx, cy + (photoRadius + ringWidth));
-  ringGrad.addColorStop(0, colors.fillStart);
-  ringGrad.addColorStop(1, colors.fillEnd);
-  ctx.beginPath();
-  ctx.arc(cx, cy, photoRadius + ringWidth, 0, Math.PI * 2);
-  ctx.fillStyle = ringGrad;
-  ctx.fill();
-
-  // Gradient pointer
-  ctx.beginPath();
-  ctx.moveTo(cx - 6, cy + photoRadius + ringWidth - 2);
-  ctx.lineTo(cx, cy + photoRadius + ringWidth + pointerHeight - 2);
-  ctx.lineTo(cx + 6, cy + photoRadius + ringWidth - 2);
-  ctx.closePath();
-  ctx.fillStyle = colors.fillEnd;
-  ctx.fill();
-
-  // Reset shadow
-  ctx.shadowColor = "transparent";
-  ctx.shadowBlur = 0;
-  ctx.shadowOffsetY = 0;
-
-  // Clip circle and draw photo
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(cx, cy, photoRadius, 0, Math.PI * 2);
-  ctx.clip();
-
-  const imgSize = Math.min(img.width, img.height);
-  const sx = (img.width - imgSize) / 2;
-  const sy = (img.height - imgSize) / 2;
-  ctx.drawImage(img, sx, sy, imgSize, imgSize, cx - photoRadius, cy - photoRadius, size, size);
-  ctx.restore();
-
-  return canvas;
-}
-
-// Start preloading immediately
 preloadAllPinIcons();
 
 export default {
@@ -727,17 +533,21 @@ export default {
 
     generateDefaultPinDataUrls() {
       const combos = [
-        ['artwork', 'art_public'],
-        ['artwork', 'murales'],
-        ['artwork', 'sculptures'],
-        ['heritage', 'patrimoine'],
-        ['place', 'lieux_culturels'],
-        ['place', 'bibliotheques'],
+        ['artwork', 'art_public', false],
+        ['artwork', 'murales', false],
+        ['artwork', 'sculptures', false],
+        ['heritage', 'patrimoine', false],
+        ['place', 'lieux_culturels', false],
+        ['place', 'bibliotheques', false],
+        ['artwork', 'targeted', true],
+        ['heritage', 'targeted', true],
+        ['place', 'targeted', true],
       ];
       const urls = {};
-      for (const [type, icon] of combos) {
-        const cacheKey = `${type}:${icon}`;
-        const canvas = createDefaultPinCanvas(type, icon);
+      for (const [type, icon, isTargeted] of combos) {
+        const titleKey = isTargeted ? "targeted" : icon;
+        const cacheKey = `${type}:${titleKey}:${isTargeted}`;
+        const canvas = createDefaultPinCanvas(type, titleKey);
         urls[cacheKey] = canvas.toDataURL();
       }
       this.defaultPinDataUrls = urls;
@@ -746,13 +556,16 @@ export default {
     },
 
     getDefaultPinDataUrl(discovery) {
+      const isTargeted = UserData.isTargeted(discovery.id, discovery.dType);
       const categoryIcon = getCategoryIconName(discovery);
-      const cacheKey = `${discovery.dType}:${categoryIcon}`;
+      const titleKey = isTargeted ? "targeted" : categoryIcon;
+      const cacheKey = `${discovery.dType}:${titleKey}:${isTargeted}`;
+      
       if (this.defaultPinDataUrls[cacheKey]) {
         return this.defaultPinDataUrls[cacheKey];
       }
       // Fallback: generate on demand and store reactively
-      const canvas = createDefaultPinCanvas(discovery.dType, categoryIcon);
+      const canvas = createDefaultPinCanvas(discovery.dType, titleKey);
       const url = canvas.toDataURL();
       this.defaultPinDataUrls[cacheKey] = url;
       return url;
@@ -770,7 +583,7 @@ export default {
             img.src = blobUrl;
           });
           if (img.width === 0) continue;
-          const canvas = createListCollectedPhotoCanvas(img, type);
+          const canvas = createCircularPhotoPinCanvas(img, type, 30);
           this.collectedPhotoPinDataUrls[key] = canvas.toDataURL();
         } catch (err) {
           console.warn(`[ListPage] Failed to render collected pin for ${key}:`, err);

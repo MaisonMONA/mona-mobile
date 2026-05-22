@@ -193,6 +193,7 @@ import { defaults as defaultControls } from "ol/control";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import { easeOut } from "ol/easing";
+import { eventBus } from "@/internal/eventBus";
 import { UserData } from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
 import {
@@ -463,7 +464,21 @@ export default {
     this.updateClosestDiscoveries();
   },
 
+  unmounted() {
+    if (this._onTargetedChanged) {
+      eventBus.off("targeted-changed", this._onTargetedChanged);
+    }
+  },
+
   async mounted() {
+    // Listen for target changes
+    this._onTargetedChanged = () => {
+      if (this.mapPinsLayer) {
+        this.mapPinsLayer.changed(); // Force map to re-render pins so target style reacts immediately
+      }
+    };
+    eventBus.on("targeted-changed", this._onTargetedChanged);
+
     // Foreground app state change listener
     // After user go back to the app from app settings, check if the location permission is granted
     await App.addListener("appStateChange", async ({ isActive }) => {
