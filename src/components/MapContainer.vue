@@ -1116,6 +1116,8 @@ export default {
       const title = feature.get("title");
 
       const isSelected = explicitIsSelected === true || (this.currentSelectedDiscovery?.id === id && this.currentSelectedDiscovery?.dType === type) || false;
+      const isAnyPinSelected = !!this.currentSelectedDiscovery;
+      const pinOpacity = (isAnyPinSelected && !isSelected) ? 0.45 : 1;
 
       const status = this.resolveDiscoveryStatus(id, type);
       const zoomLevel = this.mainMap.getView().getZoom();
@@ -1156,6 +1158,7 @@ export default {
                 img: canvas,
                 imgSize: [canvas.width, canvas.height],
                 scale: 1 / CANVAS_RENDER_SCALE,
+                opacity: pinOpacity,
               }),
               zIndex: isSelected ? 500 : 400,
             }),
@@ -1193,6 +1196,7 @@ export default {
               img: canvas,
               imgSize: [canvas.width, canvas.height],
               scale: pinScale / CANVAS_RENDER_SCALE,
+              opacity: pinOpacity,
             }),
             zIndex: isSelected ? 500 : 350,
           }),
@@ -1215,6 +1219,7 @@ export default {
             img: canvas,
             imgSize: [canvas.width, canvas.height],
             scale: pinScale / CANVAS_RENDER_SCALE,
+            opacity: pinOpacity,
           }),
           zIndex: isSelected ? 500 : 300,
         }),
@@ -1522,8 +1527,17 @@ export default {
       const mapView = map.getView();
       const currentZoom = mapView.getZoom();
 
+      // Open pin discovery details description modal
+      this.currentSelectedDiscovery = discovery;
+      this.discoveryDetailsModalOpen = true;
+
       // Highlight clicked discovery
       this.highlightSelectedDiscoveryPin(discovery);
+      
+      // Update opacity for the rest of the pins
+      if (this.mapPinsLayer) {
+        this.mapPinsLayer.changed();
+      }
 
       const polygon = getDiscoveryPolygon(discovery);
       if (polygon && this.mapPolygonsLayer) {
@@ -1555,10 +1569,6 @@ export default {
           });
         }
       }
-
-      // Open pin discovery details description modal
-      this.currentSelectedDiscovery = discovery;
-      this.discoveryDetailsModalOpen = true;
     },
 
     // Re-center on user location
@@ -1589,6 +1599,9 @@ export default {
           this.mapPinsLayer.getStyle(),
         );
         this.formerSelectedPinFeature = null;
+      }
+      if (this.mapPinsLayer) {
+        this.mapPinsLayer.changed(); // Restore opacity for all pins
       }
       if (this.formerSelectedPolygonFeature && this.mapPolygonsLayer) {
         this.formerSelectedPolygonFeature.setStyle(
