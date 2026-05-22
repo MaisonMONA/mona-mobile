@@ -241,7 +241,9 @@ import DiscoveryDetailsFullModale from "@/components/DiscoveryDetailsFullModale.
 import { 
   createDefaultPinCanvas, 
   createCircularPhotoPinCanvas, 
-  getCategoryIconName 
+  getCategoryIconName,
+  preloadAllPinIcons,
+  iconLoadPromises
 } from "@/internal/PinUtils";
 
 // --- Pin colors per discovery type ---
