@@ -55,16 +55,16 @@
               class="list-pin-icon"
               slot="start"
             />
+            <!-- Discovery title -->
+            <ion-label id="title">{{ discovery.getTitle() }}</ion-label>
             <!-- Discovery to user distance  -->
-            <ion-label id="distance" position="fixed" class="ion-text-wrap"
+            <ion-label id="distance" slot="end" class="ion-text-nowrap"
               >{{
                 Distance.distance2string(
                   Distance.calculateDistance(discovery, lat2, lng2),
                 )
               }}
             </ion-label>
-            <!-- Discovery title -->
-            <ion-label id="title">{{ discovery.getTitle() }}</ion-label>
           </ion-item>
         </ion-list>
         <ion-infinite-scroll
@@ -833,14 +833,9 @@ p.bottom-text {
 
 #distance {
   font-size: small;
-  max-width: 20%;
-  /* To correct #title sticking to the right bug caused by #distance taking too much space
-    (max-width: 200px in Inspect element)*/
-  min-width: 0;
-  /* To override ionic probably shadow DOM setting min-width to 100px*/
-}
-.ios #distance {
-  max-width: 18%;
+  flex: 0 0 auto;
+  margin-inline-start: 8px;
+  text-align: end;
 }
 
 ion-col img {
