@@ -272,7 +272,7 @@ function preloadAllPinIcons() {
   preloadSvgIcon("default", "./assets/drawable/icons/pins/default.svg");
   preloadSvgIcon("art_public", "./assets/drawable/icons/pins/art_public.svg");
   preloadSvgIcon("murales", "./assets/drawable/icons/pins/murales.svg");
-  preloadSvgIcon("sculptures", "./assets/drawable/icons/pins/sculptures2.svg");
+  preloadSvgIcon("sculptures", "./assets/drawable/icons/pins/sculptures.svg");
   preloadSvgIcon("lieux_culturels", "./assets/drawable/icons/pins/lieux_culturels.svg");
   preloadSvgIcon("bibliotheques", "./assets/drawable/icons/pins/bibliotheques.svg");
   preloadSvgIcon("patrimoine", "./assets/drawable/icons/pins/patrimoine.svg");

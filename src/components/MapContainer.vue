@@ -255,7 +255,7 @@ function preloadAllPinIcons() {
   preloadSvgIcon("default", "./assets/drawable/icons/pins/default.svg");
   preloadSvgIcon("art_public", "./assets/drawable/icons/pins/art_public.svg");
   preloadSvgIcon("murales", "./assets/drawable/icons/pins/murales.svg");
-  preloadSvgIcon("sculptures", "./assets/drawable/icons/pins/sculptures2.svg");
+  preloadSvgIcon("sculptures", "./assets/drawable/icons/pins/sculptures.svg");
   preloadSvgIcon("lieux_culturels", "./assets/drawable/icons/pins/lieux_culturels.svg");
   preloadSvgIcon("bibliotheques", "./assets/drawable/icons/pins/bibliotheques.svg");
   preloadSvgIcon("patrimoine", "./assets/drawable/icons/pins/patrimoine.svg");
@@ -326,13 +326,14 @@ function createCircularPhotoPinCanvas(img, type, size = 56) {
   const ringWidth = 2;
   const totalSize = size + ringWidth * 2;
   const pointerHeight = 10;
+  const shadowPaddingBottom = 4;
 
   const canvas = document.createElement("canvas");
   canvas.width = totalSize * CANVAS_RENDER_SCALE;
-  canvas.height = (totalSize + pointerHeight) * CANVAS_RENDER_SCALE;
+  canvas.height = (totalSize + pointerHeight + shadowPaddingBottom) * CANVAS_RENDER_SCALE;
   // Store logical size for OpenLayers imgSize
   canvas._logicalWidth = totalSize;
-  canvas._logicalHeight = totalSize + pointerHeight;
+  canvas._logicalHeight = totalSize + pointerHeight + shadowPaddingBottom;
 
   const ctx = canvas.getContext("2d");
   ctx.scale(CANVAS_RENDER_SCALE, CANVAS_RENDER_SCALE);
@@ -340,6 +341,13 @@ function createCircularPhotoPinCanvas(img, type, size = 56) {
   const cx = totalSize / 2;
   const cy = totalSize / 2;
   const photoRadius = size / 2;
+  const tipY = cy + photoRadius + ringWidth + pointerHeight - 2;
+
+  // Ground shadow ellipse
+  ctx.fillStyle = "black";
+  ctx.beginPath();
+  ctx.ellipse(cx, tipY, 14, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
 
   // Shadow
   ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
@@ -358,7 +366,7 @@ function createCircularPhotoPinCanvas(img, type, size = 56) {
   // Gradient pointer
   ctx.beginPath();
   ctx.moveTo(cx - 6, cy + photoRadius + ringWidth - 2);
-  ctx.lineTo(cx, cy + photoRadius + ringWidth + pointerHeight - 2);
+  ctx.lineTo(cx, tipY);
   ctx.lineTo(cx + 6, cy + photoRadius + ringWidth - 2);
   ctx.closePath();
   ctx.fillStyle = colors.fillEnd;
@@ -407,7 +415,9 @@ function createTargetedPinCanvas(title, colors) {
   const pillWidth = paddingX + iconSize + iconGap + textWidth + paddingX;
   const pillHeight = paddingY * 2 + fontSize + 2;
   const totalWidth = pillWidth;
-  const totalHeight = pillHeight + pointerHeight;
+  // +4 to make room for ground shadow
+  const shadowPaddingBottom = 4;
+  const totalHeight = pillHeight + pointerHeight + shadowPaddingBottom;
 
   const canvas = document.createElement("canvas");
   canvas.width = totalWidth * CANVAS_RENDER_SCALE;
@@ -417,6 +427,15 @@ function createTargetedPinCanvas(title, colors) {
 
   const ctx = canvas.getContext("2d");
   ctx.scale(CANVAS_RENDER_SCALE, CANVAS_RENDER_SCALE);
+
+  const cx = totalWidth / 2;
+  const tipY = pillHeight + pointerHeight - 1;
+
+  // Ground shadow ellipse
+  ctx.fillStyle = "black";
+  ctx.beginPath();
+  ctx.ellipse(cx, tipY, 14, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
 
   // Shadow
   ctx.shadowColor = "rgba(0, 0, 0, 0.25)";
@@ -444,10 +463,9 @@ function createTargetedPinCanvas(title, colors) {
   ctx.fill();
 
   // Pointer (use gradient end color)
-  const cx = totalWidth / 2;
   ctx.beginPath();
   ctx.moveTo(cx - 6, pillHeight - 1);
-  ctx.lineTo(cx, pillHeight + pointerHeight - 1);
+  ctx.lineTo(cx, tipY);
   ctx.lineTo(cx + 6, pillHeight - 1);
   ctx.closePath();
   ctx.fillStyle = colors.fillEnd;
@@ -485,7 +503,9 @@ function createDefaultPinCanvas(type, categoryIcon = "default") {
   const outerRadius = innerRadius + borderWidth;
   const pointerHeight = 10;
   const totalSize = (outerRadius + 2) * 2; // +2 for shadow margin
-  const totalHeight = totalSize + pointerHeight;
+  // +4 to make room for ground shadow
+  const shadowPaddingBottom = 4;
+  const totalHeight = totalSize + pointerHeight + shadowPaddingBottom;
 
   const canvas = document.createElement("canvas");
   canvas.width = totalSize * CANVAS_RENDER_SCALE;
@@ -498,6 +518,13 @@ function createDefaultPinCanvas(type, categoryIcon = "default") {
 
   const cx = totalSize / 2;
   const cy = outerRadius + 1;
+  const tipY = cy + outerRadius + pointerHeight - 2;
+
+  // Ground shadow ellipse
+  ctx.fillStyle = "black";
+  ctx.beginPath();
+  ctx.ellipse(cx, tipY, 14, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
 
   // Shadow
   ctx.shadowColor = "rgba(0, 0, 0, 0.25)";
@@ -513,7 +540,7 @@ function createDefaultPinCanvas(type, categoryIcon = "default") {
   // Outer pale pointer
   ctx.beginPath();
   ctx.moveTo(cx - 6, cy + outerRadius - 2);
-  ctx.lineTo(cx, cy + outerRadius + pointerHeight - 2);
+  ctx.lineTo(cx, tipY);
   ctx.lineTo(cx + 6, cy + outerRadius - 2);
   ctx.closePath();
   ctx.fillStyle = colors.border;
@@ -545,8 +572,21 @@ function createDefaultPinCanvas(type, categoryIcon = "default") {
   // Draw category icon inside the circle
   const icon = iconImages[categoryIcon] || iconImages["default"];
   if (icon) {
-    const iconDrawSize = 13;
-    ctx.drawImage(icon, cx - iconDrawSize / 2, cy - iconDrawSize / 2, iconDrawSize, iconDrawSize);
+    const maxIconSize = 13;
+    const imgWidth = icon.width || 1;
+    const imgHeight = icon.height || 1;
+    const imgAspect = imgWidth / imgHeight;
+    
+    let drawWidth = maxIconSize;
+    let drawHeight = maxIconSize;
+
+    if (imgAspect > 1) {
+      drawHeight = maxIconSize / imgAspect;
+    } else {
+      drawWidth = maxIconSize * imgAspect;
+    }
+
+    ctx.drawImage(icon, cx - drawWidth / 2, cy - drawHeight / 2, drawWidth, drawHeight);
   }
 
   return canvas;
@@ -1074,14 +1114,26 @@ export default {
       const zoomLevel = this.mainMap.getView().getZoom();
       const colors = getPinColors(type);
 
+      // Determine sizes based on zoom level:
+      let canvasSize, circleRadius, pinScale;
+      if (zoomLevel < 13.5) {
+        canvasSize = 18; circleRadius = 8; pinScale = 0.7;
+      } else if (zoomLevel < 14.5) {
+        canvasSize = 30; circleRadius = 16; pinScale = 1.15;
+      } else if (zoomLevel < 15.5) {
+        canvasSize = 44; circleRadius = 24; pinScale = 1.7;
+      } else if (zoomLevel < 16.5) {
+        canvasSize = 52; circleRadius = 32; pinScale = 2.0;
+      } else {
+        canvasSize = 64; circleRadius = 40; pinScale = 2.4;
+      }
+
       // --- Collected: circular photo pin ---
       if (status === "collected") {
         const cacheKey = buildDiscoveryKey(type, id);
         const cachedImg = collectedPhotoImgCache[cacheKey];
 
         if (cachedImg && cachedImg instanceof HTMLImageElement) {
-          const canvasSize =
-            zoomLevel < 14 ? 18 : zoomLevel <= 15 ? 22 : 26;
           const canvasCacheKey = `${cacheKey}:${canvasSize}`;
 
           let canvas = collectedPhotoPinCache[canvasCacheKey];
@@ -1104,7 +1156,6 @@ export default {
         }
 
         // Fallback: photo not loaded — show colored circle
-        const circleRadius = zoomLevel < 14 ? 8 : zoomLevel <= 15 ? 12 : 16;
         return [
           new Style({
             image: new CircleStyle({
@@ -1128,7 +1179,6 @@ export default {
           targetedPinCache[targetedCacheKey] = canvas;
         }
 
-        const pinScale = zoomLevel < 14 ? 0.7 : zoomLevel <= 15 ? 0.85 : 1;
         return [
           new Style({
             image: new Icon({
@@ -1151,14 +1201,13 @@ export default {
         defaultPinCache[defaultCacheKey] = canvas;
       }
 
-      const defaultScale = zoomLevel < 14 ? 0.7 : zoomLevel <= 15 ? 0.85 : 1;
       return [
         new Style({
           image: new Icon({
             anchor: [0.5, 1],
             img: canvas,
             imgSize: [canvas.width, canvas.height],
-            scale: defaultScale / CANVAS_RENDER_SCALE,
+            scale: pinScale / CANVAS_RENDER_SCALE,
           }),
           zIndex: 300,
         }),
