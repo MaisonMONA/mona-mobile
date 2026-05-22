@@ -237,10 +237,11 @@ import { filterOutline, close, optionsOutline, reload } from "ionicons/icons";
 import { UserData } from "@/internal/databases/UserData";
 import { Directory, Filesystem } from "@capacitor/filesystem";
 import { Distance } from "../internal/Distance";
+import { eventBus } from "@/internal/eventBus";
 import DiscoveryDetailsFullModale from "@/components/DiscoveryDetailsFullModale.vue";
 import { 
-  createDefaultPinCanvas, 
-  createCircularPhotoPinCanvas, 
+  createAnnuairePinCanvas, 
+  createAnnuaireCollectedPhotoCanvas, 
   getCategoryIconName,
   preloadAllPinIcons,
   iconLoadPromises
@@ -355,12 +356,21 @@ export default {
   },
 
   async mounted() {
+    this._onTargetedChanged = () => this.forceRerender();
+    eventBus.on("targeted-changed", this._onTargetedChanged);
+
     // Wait for pin icons to load, then generate default pin data URLs
     await Promise.all(Object.values(iconLoadPromises));
     this.generateDefaultPinDataUrls();
     // Load collected photos and render as circular canvas pins
     await this.loadCollectedPhotos();
     await this.renderCollectedPhotoPins();
+  },
+
+  unmounted() {
+    if (this._onTargetedChanged) {
+      eventBus.off("targeted-changed", this._onTargetedChanged);
+    }
   },
 
   methods: {
@@ -549,7 +559,7 @@ export default {
       for (const [type, icon, isTargeted] of combos) {
         const titleKey = isTargeted ? "targeted" : icon;
         const cacheKey = `${type}:${titleKey}:${isTargeted}`;
-        const canvas = createDefaultPinCanvas(type, titleKey);
+        const canvas = createAnnuairePinCanvas(type, titleKey, isTargeted);
         urls[cacheKey] = canvas.toDataURL();
       }
       this.defaultPinDataUrls = urls;
@@ -567,7 +577,7 @@ export default {
         return this.defaultPinDataUrls[cacheKey];
       }
       // Fallback: generate on demand and store reactively
-      const canvas = createDefaultPinCanvas(discovery.dType, titleKey);
+      const canvas = createAnnuairePinCanvas(discovery.dType, categoryIcon, isTargeted);
       const url = canvas.toDataURL();
       this.defaultPinDataUrls[cacheKey] = url;
       return url;
@@ -585,7 +595,7 @@ export default {
             img.src = blobUrl;
           });
           if (img.width === 0) continue;
-          const canvas = createCircularPhotoPinCanvas(img, type, 30);
+          const canvas = createAnnuaireCollectedPhotoCanvas(img, type, 30);
           this.collectedPhotoPinDataUrls[key] = canvas.toDataURL();
         } catch (err) {
           console.warn(`[ListPage] Failed to render collected pin for ${key}:`, err);

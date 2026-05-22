@@ -474,6 +474,167 @@ export function createTargetedPinCanvas(
   return canvas;
 }
 
+/**
+ * Creates a circular plain pin without a pointer, used only in Annuaire
+ */
+export function createAnnuairePinCanvas(
+  type: string,
+  categoryIcon = "default",
+  isTargeted = false
+): HTMLCanvasElement {
+  const colors = getPinColors(type);
+  const borderWidth = 1;
+  const innerRadius = 12;
+  const outerRadius = innerRadius + borderWidth;
+  const totalSize = (outerRadius + 2) * 2; // +2 for shadow margin
+
+  const canvas = document.createElement("canvas");
+  canvas.width = totalSize * CANVAS_RENDER_SCALE;
+  canvas.height = totalSize * CANVAS_RENDER_SCALE;
+  (canvas as any)._logicalWidth = totalSize;
+  (canvas as any)._logicalHeight = totalSize;
+
+  const ctx = canvas.getContext("2d")!;
+  ctx.scale(CANVAS_RENDER_SCALE, CANVAS_RENDER_SCALE);
+
+  const cx = totalSize / 2;
+  const cy = totalSize / 2;
+
+  // Shadow
+  ctx.shadowColor = "rgba(0, 0, 0, 0.25)";
+  ctx.shadowBlur = 3;
+  ctx.shadowOffsetY = 1;
+
+  // Outer pale border circle
+  ctx.beginPath();
+  ctx.arc(cx, cy, outerRadius, 0, Math.PI * 2);
+  ctx.fillStyle = colors.border;
+  ctx.fill();
+
+  // Reset shadow for inner fill
+  ctx.shadowColor = "transparent";
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetY = 0;
+
+  // Inner darker fill circle (vertical gradient)
+  const innerGrad = ctx.createLinearGradient(
+    cx,
+    cy - innerRadius,
+    cx,
+    cy + innerRadius,
+  );
+  innerGrad.addColorStop(0, colors.fillStart);
+  innerGrad.addColorStop(1, colors.fillEnd);
+  ctx.beginPath();
+  ctx.arc(cx, cy, innerRadius, 0, Math.PI * 2);
+  ctx.fillStyle = innerGrad;
+  ctx.fill();
+
+  // Draw icon inside the circle
+  const iconToDraw = isTargeted ? "targeted" : categoryIcon;
+  const icon = iconImages[iconToDraw] || iconImages["default"];
+  if (icon) {
+    const maxIconSize = 13;
+    const imgWidth = icon.width || 1;
+    const imgHeight = icon.height || 1;
+    const imgAspect = imgWidth / imgHeight;
+
+    let drawWidth = maxIconSize;
+    let drawHeight = maxIconSize;
+
+    if (imgAspect > 1) {
+      drawHeight = maxIconSize / imgAspect;
+    } else {
+      drawWidth = maxIconSize * imgAspect;
+    }
+
+    ctx.drawImage(
+      icon,
+      cx - drawWidth / 2,
+      cy - drawHeight / 2,
+      drawWidth,
+      drawHeight,
+    );
+  }
+
+  return canvas;
+}
+
+/**
+ * Creates a circular photo pin without a pointer: gradient ring around a circular-clipped photo.
+ * Used in the list for collected discovery avatars.
+ */
+export function createAnnuaireCollectedPhotoCanvas(
+  img: HTMLImageElement,
+  type: string,
+  size = 30, // Default to smaller size for list
+): HTMLCanvasElement {
+  const colors = getPinColors(type);
+  const ringWidth = 2;
+  const totalSize = size + ringWidth * 2;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = totalSize * CANVAS_RENDER_SCALE;
+  canvas.height = totalSize * CANVAS_RENDER_SCALE;
+  (canvas as any)._logicalWidth = totalSize;
+  (canvas as any)._logicalHeight = totalSize;
+
+  const ctx = canvas.getContext("2d")!;
+  ctx.scale(CANVAS_RENDER_SCALE, CANVAS_RENDER_SCALE);
+
+  const cx = totalSize / 2;
+  const cy = totalSize / 2;
+  const photoRadius = size / 2;
+
+  // Shadow
+  ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
+  ctx.shadowBlur = 6;
+  ctx.shadowOffsetY = 2;
+
+  // Gradient ring (single ring, no outer border)
+  const ringGrad = ctx.createLinearGradient(
+    cx,
+    cy - (photoRadius + ringWidth),
+    cx,
+    cy + (photoRadius + ringWidth),
+  );
+  ringGrad.addColorStop(0, colors.fillStart);
+  ringGrad.addColorStop(1, colors.fillEnd);
+  ctx.beginPath();
+  ctx.arc(cx, cy, photoRadius + ringWidth, 0, Math.PI * 2);
+  ctx.fillStyle = ringGrad;
+  ctx.fill();
+
+  // Reset shadow
+  ctx.shadowColor = "transparent";
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetY = 0;
+
+  // Clip circle and draw photo
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, photoRadius, 0, Math.PI * 2);
+  ctx.clip();
+
+  const imgSize = Math.min(img.width, img.height);
+  const sx = (img.width - imgSize) / 2;
+  const sy = (img.height - imgSize) / 2;
+  ctx.drawImage(
+    img,
+    sx,
+    sy,
+    imgSize,
+    imgSize,
+    cx - photoRadius,
+    cy - photoRadius,
+    size,
+    size,
+  );
+  ctx.restore();
+
+  return canvas;
+}
+
 // ---------------------------------------------------------------------------
 // Photo loading from Capacitor Filesystem
 // ---------------------------------------------------------------------------
