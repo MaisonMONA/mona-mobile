@@ -908,28 +908,6 @@ export default {
         this.formerSelectedPolygonFeature = null;
       }
 
-      if (!this.mapPinsLayer) return;
-
-      // if there was a selected pin before, make former selected pin back to normal scale
-      if (this.formerSelectedPinFeature) {
-        this.formerSelectedPinFeature.setStyle(this.mapPinsLayer.getStyle());
-      }
-
-      const location = getDiscoveryLocation(selectedDiscovery);
-      if (!location) return;
-
-      // Setting new style for selected pin
-      // Get feature on the map that corresponds to selected pin
-      const selectedFeature = this.mapPinsLayer
-        .getSource()
-        .getClosestFeatureToCoordinate([location.lng, location.lat]);
-
-      if (!selectedFeature) return;
-
-      const selectedPinStyle = this.pinStyleFunction(selectedFeature, true);
-      selectedFeature.setStyle(selectedPinStyle);
-
-      this.formerSelectedPinFeature = selectedFeature; // assign currently selected pin as former selected pin
     },
 
     highlightSelectedDiscoveryPolygon(selectedDiscovery) {
@@ -1224,14 +1202,9 @@ export default {
     async unfocusDiscovery() {
       this.currentSelectedDiscovery = null;
       this.discoveryDetailsModalOpen = false;
-      if (this.formerSelectedPinFeature && this.mapPinsLayer) {
-        await this.formerSelectedPinFeature.setStyle(
-          this.mapPinsLayer.getStyle(),
-        );
-        this.formerSelectedPinFeature = null;
-      }
+
       if (this.mapPinsLayer) {
-        this.mapPinsLayer.changed(); // Restore opacity for all pins
+        this.mapPinsLayer.changed(); // Restore opacity and normal sizing for all pins
       }
       if (this.formerSelectedPolygonFeature && this.mapPolygonsLayer) {
         this.formerSelectedPolygonFeature.setStyle(
