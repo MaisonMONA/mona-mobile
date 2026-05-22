@@ -128,10 +128,13 @@
           <div v-if="activeTab === 'details'" class="descriptionTab detailsTab">
             <!-- Move address to top of details tab -->
             <div class="addressContainer" @click="activateMap([discovery.lng, discovery.lat])">
-              <!-- Discovery pin icon-->
-              <ion-icon
-                :icon="`./assets/drawable/pins/${discovery.dType}/default.svg`"
-              ></ion-icon>
+              <!-- Discovery pin icon (canvas-rendered, matches Annuaire style) -->
+              <img
+                v-if="pinDataUrl"
+                class="address-pin"
+                :src="pinDataUrl"
+                alt=""
+              />
               <span>{{ details7 }}</span>
             </div>
             <hr class="separating-bar" />
@@ -331,6 +334,7 @@ import targetIconUnactivated from "/assets/drawable/icons/target_unactivated.svg
 import targetIconActivated from "/assets/drawable/icons/target_activated.svg";
 import customMapIcon from "/assets/drawable/icons/map.svg";
 import { useBadgesCollections } from "@/stores/BadgesCollections";
+import { getStaticDiscoveryPinDataUrl } from "@/internal/PinUtils";
 
 export default {
   name: "discovery-details-full-modale",
@@ -471,6 +475,7 @@ export default {
       fullModaleUserImage : document.getElementById("userPhotoFullModale"),
       badgesCollectionsStore: useBadgesCollections(),
       territoryName: this.discovery.getTerritory(),
+      pinDataUrl: "",
     };
   },
 
@@ -533,6 +538,10 @@ export default {
     if (UserData.isTargeted(this.discovery.id, this.discovery.dType))
       this.customTargetIcon = targetIconActivated;
     else this.customTargetIcon = targetIconUnactivated;
+
+    getStaticDiscoveryPinDataUrl(this.discovery).then((url) => {
+      this.pinDataUrl = url;
+    });
   },
 
   methods: {
@@ -999,6 +1008,13 @@ ion-button {
 .addressContainer ion-icon {
   font-size: 6vw;
   margin-right: 1.8vw;
+}
+.addressContainer .address-pin {
+  width: 7vw;
+  height: 7vw;
+  object-fit: contain;
+  margin-right: 1.8vw;
+  flex-shrink: 0;
 }
 .addressContainer span {
   text-decoration: underline;

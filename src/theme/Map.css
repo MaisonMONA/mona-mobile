@@ -109,6 +109,14 @@ ion-row ion-label#closestDiscoveryDistance {
     font-size: 3.2vw;
 }
 
+ion-row img#closestDiscoveryPinIcon {
+    width: 5vw;
+    height: 5vw;
+    object-fit: contain;
+    margin-right: 0.5vw;
+    flex-shrink: 0;
+}
+
 ion-accordion-group.closestDiscoveriesAccordion ion-accordion div[slot="content"] ion-list ion-item {
     flex: 0 0 auto;
     --inner-padding-end: 0vw;

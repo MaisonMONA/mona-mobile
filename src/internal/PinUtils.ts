@@ -635,6 +635,20 @@ export function createAnnuaireCollectedPhotoCanvas(
   return canvas;
 }
 
+/**
+ * Returns a data URL for a discovery's static (map-style teardrop) pin.
+ * Awaits icon preloads so the category icon is always drawn.
+ * Use for inline pins that aren't on the map (details modals, nearby list).
+ */
+export async function getStaticDiscoveryPinDataUrl(
+  discovery: any,
+): Promise<string> {
+  await Promise.all(Object.values(iconLoadPromises));
+  const categoryIcon = getCategoryIconName(discovery);
+  const canvas = createDefaultPinCanvas(discovery.dType, categoryIcon, false);
+  return canvas.toDataURL();
+}
+
 // ---------------------------------------------------------------------------
 // Photo loading from Capacitor Filesystem
 // ---------------------------------------------------------------------------

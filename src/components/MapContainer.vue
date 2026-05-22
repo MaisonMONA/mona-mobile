@@ -101,11 +101,13 @@
                 }}
               </ion-row>
               <ion-row>
-                <!-- Discovery pin icon (svg) -->
-                <ion-icon
+                <!-- Discovery pin icon (canvas-rendered, matches Annuaire style) -->
+                <img
+                  v-if="closestDiscoveryPinUrls[`${discovery.dType}:${discovery.id}`]"
                   id="closestDiscoveryPinIcon"
-                  :icon="`./assets/drawable/pins/${discovery.dType}/default.svg`"
-                ></ion-icon>
+                  :src="closestDiscoveryPinUrls[`${discovery.dType}:${discovery.id}`]"
+                  alt=""
+                />
                 <!-- Discovery to user distance  -->
                 <ion-label id="closestDiscoveryDistance"
                   >{{
@@ -226,6 +228,7 @@ import {
   CANVAS_RENDER_SCALE,
   getCategoryIconName,
   truncatePinTitle,
+  getStaticDiscoveryPinDataUrl,
 } from "@/internal/PinUtils";
 
 // Use cached objects/methods to save on rendering time
@@ -393,6 +396,7 @@ export default {
       lat2: UserData.getLocation(false)[1],
       lng2: UserData.getLocation(false)[0],
       closestDiscoveriesDistance: [],
+      closestDiscoveryPinUrls: {}, // "dType:id" -> data URL of static pin
       formerSelectedPinFeature: null,
       formerSelectedPolygonFeature: null,
       isUserLocationInViewport: false,
@@ -527,6 +531,28 @@ export default {
       // For distance between discoveries and user location
       this.lat2 = UserData.getLocation(true)[1];
       this.lng2 = UserData.getLocation(true)[0];
+
+      // Build/refresh static pin data URLs for the proximity list
+      const nextUrls = {};
+      const promises = [];
+      for (const discovery of this.closestDiscoveriesDistance) {
+        const key = buildDiscoveryKey(discovery.dType, discovery.id);
+        if (this.closestDiscoveryPinUrls[key]) {
+          nextUrls[key] = this.closestDiscoveryPinUrls[key];
+          continue;
+        }
+        promises.push(
+          getStaticDiscoveryPinDataUrl(discovery).then((url) => {
+            nextUrls[key] = url;
+          }),
+        );
+      }
+      this.closestDiscoveryPinUrls = nextUrls;
+      if (promises.length) {
+        Promise.all(promises).then(() => {
+          this.closestDiscoveryPinUrls = { ...nextUrls };
+        });
+      }
     },
 
     async askForPermissions() {
