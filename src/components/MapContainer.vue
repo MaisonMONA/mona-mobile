@@ -133,7 +133,7 @@
   <ion-modal
     id="discoveryDetailsModal"
     :is-open="discoveryDetailsModalOpen"
-    @didDismiss="this.unfocusDiscovery"
+    @willDismiss="this.unfocusDiscovery"
     :breakpoints="[0, .9]"
     :initial-breakpoint=".9"
     :show-backdrop="false"
