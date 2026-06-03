@@ -101,11 +101,13 @@
                 }}
               </ion-row>
               <ion-row>
-                <!-- Discovery pin icon (svg) -->
-                <ion-icon
+                <!-- Discovery pin icon (canvas-rendered, matches Annuaire style) -->
+                <img
+                  v-if="closestDiscoveryPinUrls[`${discovery.dType}:${discovery.id}`]"
                   id="closestDiscoveryPinIcon"
-                  :icon="`./assets/drawable/pins/${discovery.dType}/default.svg`"
-                ></ion-icon>
+                  :src="closestDiscoveryPinUrls[`${discovery.dType}:${discovery.id}`]"
+                  alt=""
+                />
                 <!-- Discovery to user distance  -->
                 <ion-label id="closestDiscoveryDistance"
                   >{{
@@ -131,7 +133,7 @@
   <ion-modal
     id="discoveryDetailsModal"
     :is-open="discoveryDetailsModalOpen"
-    @didDismiss="this.unfocusDiscovery"
+    @willDismiss="this.unfocusDiscovery"
     :breakpoints="[0, .9]"
     :initial-breakpoint=".9"
     :show-backdrop="false"
@@ -169,7 +171,6 @@ import "ol/ol.css";
 import { arrowForward as arrowRightIcon, chevronUpOutline } from "ionicons/icons";
 import {
   IonButton,
-  IonContent,
   IonIcon,
   IonLabel,
   IonAccordion,
@@ -194,6 +195,7 @@ import { defaults as defaultControls } from "ol/control";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import { easeOut } from "ol/easing";
+import { eventBus } from "@/internal/eventBus";
 import { UserData } from "@/internal/databases/UserData";
 import Utils from "@/internal/Utils";
 import {
@@ -212,12 +214,30 @@ import { Geolocation } from "@capacitor/geolocation";
 import { LocationService } from "@/internal/LocationService";
 import { isPlatform } from "@ionic/vue";
 import { App } from "@capacitor/app";
+import { Directory, Filesystem } from "@capacitor/filesystem";
 import { Distance } from "@/internal/Distance";
 import DiscoveryDetails from "@/components/DiscoveryDetails.vue";
 import DiscoveryDetailsFullModale from "@/components/DiscoveryDetailsFullModale.vue";
 
-const buildDiscoveryKey = (dType, id) => `${dType}:${id}`;
+import {
+  getPinColors,
+  buildDiscoveryKey,
+  createDefaultPinCanvas,
+  createCircularPhotoPinCanvas,
+  createTargetedPinCanvas,
+  CANVAS_RENDER_SCALE,
+  getCategoryIconName,
+  truncatePinTitle,
+  getStaticDiscoveryPinDataUrl,
+} from "@/internal/PinUtils";
 
+// Use cached objects/methods to save on rendering time
+const collectedPhotoImgCache = {}; // "type:id" -> HTMLImageElement
+const collectedPhotoPinCache = {}; // "type:id:size" -> canvas
+const targetedPinCache = {}; // "type:title:size" -> canvas
+const defaultPinCache = {}; // "type:size" -> canvas
+
+// --- Pin colors per discovery type ---
 function getDiscoveryLocation(discovery) {
   if (!discovery) return null;
 
@@ -276,6 +296,8 @@ function insertAllPins(
       id: discovery.id,
       dType: discovery.dType,
       hasPolygon,
+      title: typeof discovery.getTitle === "function" ? discovery.getTitle() : "",
+      categoryIcon: getCategoryIconName(discovery),
     });
     destinationLayer.getSource().addFeature(feature);
   }
@@ -323,7 +345,6 @@ export default {
     DiscoveryDetails,
     IonModal,
     IonLabel,
-    IonContent,
     IonButton,
     IonIcon,
     IonAlert,
@@ -375,6 +396,7 @@ export default {
       lat2: UserData.getLocation(false)[1],
       lng2: UserData.getLocation(false)[0],
       closestDiscoveriesDistance: [],
+      closestDiscoveryPinUrls: {}, // "dType:id" -> data URL of static pin
       formerSelectedPinFeature: null,
       formerSelectedPolygonFeature: null,
       isUserLocationInViewport: false,
@@ -385,7 +407,7 @@ export default {
         : UserData.getLocation(false),
       // if location is not available, use the initial coordinates = [-68.2075, 52.8131]
       DEFAULT_ZOOM_LEVEL: discovery ? 17 : 14, // If the map was opened by the DOD page we want to zoom more
-      polygonVisibilityZoomThreshold: 13,
+      polygonVisibilityZoomThreshold: 12, // Zoom level above which discovery polygonal areas appear on the map
       vectorRenderBuffer: 512,
       // if location is not available, use the default zoom level = 4.5
       TILE_LAYER: layer,
@@ -446,7 +468,21 @@ export default {
     this.updateClosestDiscoveries();
   },
 
+  unmounted() {
+    if (this._onTargetedChanged) {
+      eventBus.off("targeted-changed", this._onTargetedChanged);
+    }
+  },
+
   async mounted() {
+    // Listen for target changes
+    this._onTargetedChanged = () => {
+      if (this.mapPinsLayer) {
+        this.mapPinsLayer.changed(); // Force map to re-render pins so target style reacts immediately
+      }
+    };
+    eventBus.on("targeted-changed", this._onTargetedChanged);
+
     // Foreground app state change listener
     // After user go back to the app from app settings, check if the location permission is granted
     await App.addListener("appStateChange", async ({ isActive }) => {
@@ -495,6 +531,28 @@ export default {
       // For distance between discoveries and user location
       this.lat2 = UserData.getLocation(true)[1];
       this.lng2 = UserData.getLocation(true)[0];
+
+      // Build/refresh static pin data URLs for the proximity list
+      const nextUrls = {};
+      const promises = [];
+      for (const discovery of this.closestDiscoveriesDistance) {
+        const key = buildDiscoveryKey(discovery.dType, discovery.id);
+        if (this.closestDiscoveryPinUrls[key]) {
+          nextUrls[key] = this.closestDiscoveryPinUrls[key];
+          continue;
+        }
+        promises.push(
+          getStaticDiscoveryPinDataUrl(discovery).then((url) => {
+            nextUrls[key] = url;
+          }),
+        );
+      }
+      this.closestDiscoveryPinUrls = nextUrls;
+      if (promises.length) {
+        Promise.all(promises).then(() => {
+          this.closestDiscoveryPinUrls = { ...nextUrls };
+        });
+      }
     },
 
     async askForPermissions() {
@@ -529,7 +587,7 @@ export default {
         layers: [this.TILE_LAYER],
       });
 
-      this.mainMap.on("singleclick", this.handleMapClick);
+      this.mainMap.on("click", this.handleMapClick);
       this.mainMap.on("moveend", this.setCenterButtonAppearance);
 
       const view = this.mainMap.getView();
@@ -623,6 +681,84 @@ export default {
       this.mainMap.addLayer(polygonLayer);
       this.mainMap.addLayer(pinsLayer);
       this.updateDiscoveryLayerVisibility();
+
+      // Async-load user photos for collected pins
+      this.loadCollectedPhotosForPins();
+    },
+
+    async loadCollectedPhotosForPins() {
+      if (!this.mapPinsLayer) return;
+
+      const features = this.mapPinsLayer.getSource().getFeatures();
+      const collectedFeatures = [];
+
+      for (const feature of features) {
+        const id = feature.get("id");
+        const type = feature.get("dType");
+        if (UserData.isCollected(id, type)) {
+          collectedFeatures.push(feature);
+        }
+      }
+
+      for (const feature of collectedFeatures) {
+        const id = feature.get("id");
+        const type = feature.get("dType");
+        const key = buildDiscoveryKey(type, id);
+
+        if (collectedPhotoImgCache[key]) continue;
+
+        try {
+          const review = UserData.getCollected(id, type);
+          if (!review || !review.filename) {
+            continue;
+          }
+
+          let file;
+          try {
+            file = await Filesystem.readFile({
+              path: "thumbnail/" + review.filename,
+              directory: Directory.Data,
+            });
+          } catch {
+            file = await Filesystem.readFile({
+              path: "img/" + review.filename,
+              directory: Directory.Data,
+            });
+          }
+
+          let url;
+          if (file.data instanceof Blob) {
+            url = URL.createObjectURL(file.data);
+          } else {
+            const ext = review.filename.split(".").at(-1) || "jpeg";
+            const res = await fetch(`data:image/${ext};base64,${file.data}`);
+            const blob = await res.blob();
+            url = URL.createObjectURL(blob);
+          }
+
+          // Convert blob URL to HTMLImageElement for canvas rendering
+          const img = await new Promise((resolve) => {
+            const image = new Image();
+            image.onload = () => resolve(image);
+            image.onerror = () => resolve(null);
+            image.src = url;
+          });
+
+          if (img) {
+            collectedPhotoImgCache[key] = img;
+          }
+        } catch (err) {
+          // Photo load failed, will use fallback pin
+        }
+      }
+
+      // Force re-render of all collected features
+      for (const f of collectedFeatures) {
+        f.changed();
+      }
+      if (this.mapPinsLayer) {
+        this.mapPinsLayer.changed();
+      }
     },
 
     updateDiscoveryLayerVisibility() {
@@ -645,40 +781,120 @@ export default {
     },
 
     // Taken from Utils.ts
-    pinStyleFunction(feature) {
-      /**
-       * Style function for OSM Features (used for pins on the map).
-       * Not supposed to be called manually, but rather assigned or referenced.
-       *
-       * @param feature - the pin feature
-       * @return a new style
-       */
-
+    pinStyleFunction(feature, explicitIsSelected) {
       const id = feature.get("id");
       const type = feature.get("dType");
+      const title = feature.get("title");
+
+      const isSelected = explicitIsSelected === true || (this.currentSelectedDiscovery?.id === id && this.currentSelectedDiscovery?.dType === type) || false;
+      const isAnyPinSelected = !!this.currentSelectedDiscovery;
+      const pinOpacity = (isAnyPinSelected && !isSelected) ? 0.45 : 1;
 
       const status = this.resolveDiscoveryStatus(id, type);
-
       const zoomLevel = this.mainMap.getView().getZoom();
+      const colors = getPinColors(type);
 
-      const pinSize =
-        zoomLevel < 14
-          ? 0.3
-          : zoomLevel === 14
-            ? 0.35
-            : zoomLevel === 15
-              ? 0.4
-              : 0.5;
+      // Determine sizes based on zoom level:
+      let canvasSize, circleRadius, pinScale;
+      if (zoomLevel < 13.5) {
+        canvasSize = 18; circleRadius = 8; pinScale = 0.7;
+      } else if (zoomLevel < 14.5) {
+        canvasSize = 30; circleRadius = 16; pinScale = 1.15;
+      } else if (zoomLevel < 15.5) {
+        canvasSize = 44; circleRadius = 24; pinScale = 1.7;
+      } else if (zoomLevel < 16.5) {
+        canvasSize = 52; circleRadius = 32; pinScale = 2.0;
+      } else {
+        canvasSize = 64; circleRadius = 40; pinScale = 2.4;
+      }
 
-      const style = new Style({
-        image: new Icon({
-          anchor: [0.5, 1],
-          src: `./assets/drawable/pins/${type}/${status}.png`,
-          scale: pinSize,
+      // --- Collected: circular photo pin ---
+      if (status === "collected") {
+        const cacheKey = buildDiscoveryKey(type, id);
+        const cachedImg = collectedPhotoImgCache[cacheKey];
+
+        if (cachedImg && cachedImg instanceof HTMLImageElement) {
+          const canvasCacheKey = `${cacheKey}:${canvasSize}:${isSelected}`;
+
+          let canvas = collectedPhotoPinCache[canvasCacheKey];
+          if (!canvas) {
+            canvas = createCircularPhotoPinCanvas(cachedImg, type, canvasSize, isSelected);
+            collectedPhotoPinCache[canvasCacheKey] = canvas;
+          }
+
+          return [
+            new Style({
+              image: new Icon({
+                anchor: [0.5, 1],
+                img: canvas,
+                imgSize: [canvas.width, canvas.height],
+                scale: 1 / CANVAS_RENDER_SCALE,
+                opacity: pinOpacity,
+              }),
+              zIndex: isSelected ? 500 : 400,
+            }),
+          ];
+        }
+
+        // Fallback: photo not loaded — show colored circle
+        return [
+          new Style({
+            image: new CircleStyle({
+              radius: circleRadius,
+              fill: new Fill({ color: colors.fillStart }),
+              stroke: new Stroke({ color: colors.border, width: 3 }),
+            }),
+            zIndex: isSelected ? 500 : 400,
+          }),
+        ];
+      }
+
+      // --- Targeted: pill with bookmark icon + title + pointer ---
+      if (status === "targeted") {
+        const displayTitle = truncatePinTitle(title);
+        const targetedCacheKey = `${type}:${displayTitle}:${isSelected}`;
+
+        let canvas = targetedPinCache[targetedCacheKey];
+        if (!canvas) {
+          canvas = createTargetedPinCanvas(title, colors, isSelected);
+          targetedPinCache[targetedCacheKey] = canvas;
+        }
+
+        return [
+          new Style({
+            image: new Icon({
+              anchor: [0.5, 1],
+              img: canvas,
+              imgSize: [canvas.width, canvas.height],
+              scale: pinScale / CANVAS_RENDER_SCALE,
+              opacity: pinOpacity,
+            }),
+            zIndex: isSelected ? 500 : 350,
+          }),
+        ];
+      }
+
+      // --- Default: teardrop pin with icon ---
+      const categoryIcon = feature.get("categoryIcon") || "default";
+      const defaultCacheKey = `${type}:${categoryIcon}:${isSelected}`;
+      let canvas = defaultPinCache[defaultCacheKey];
+      if (!canvas) {
+        canvas = createDefaultPinCanvas(type, categoryIcon, isSelected);
+        defaultPinCache[defaultCacheKey] = canvas;
+      }
+
+      return [
+        new Style({
+          image: new Icon({
+            anchor: [0.5, 1],
+            img: canvas,
+            imgSize: [canvas.width, canvas.height],
+            scale: pinScale / CANVAS_RENDER_SCALE,
+            opacity: pinOpacity,
+          }),
+          zIndex: isSelected ? 500 : 300,
         }),
-      });
-
-      return [style];
+      ];
     },
 
     polygonStyleFunction(feature) {
@@ -733,35 +949,6 @@ export default {
         this.formerSelectedPolygonFeature = null;
       }
 
-      if (!this.mapPinsLayer) return;
-
-      // if there was a selected pin before, make former selected pin back to normal scale
-      if (this.formerSelectedPinFeature) {
-        this.formerSelectedPinFeature.setStyle(this.mapPinsLayer.getStyle());
-      }
-
-      const location = getDiscoveryLocation(selectedDiscovery);
-      if (!location) return;
-
-      // Setting new style for selected pin
-      // Get feature on the map that corresponds to selected pin
-      const selectedFeature = this.mapPinsLayer
-        .getSource()
-        .getClosestFeatureToCoordinate([location.lng, location.lat]);
-
-      if (!selectedFeature) return;
-
-      const selectedPinStyle = new Style({
-        image: new Icon({
-          anchor: [0.5, 1],
-          src: `./assets/drawable/pins/selected_pin.svg`,
-          scale: 0.83, // Augment selected pin size
-        }),
-        zIndex: 500, // Ensures selected discovery pin appears on top of other discovery pins
-      });
-      selectedFeature.setStyle(selectedPinStyle);
-
-      this.formerSelectedPinFeature = selectedFeature; // assign currently selected pin as former selected pin
     },
 
     highlightSelectedDiscoveryPolygon(selectedDiscovery) {
@@ -989,15 +1176,24 @@ export default {
       const mapView = map.getView();
       const currentZoom = mapView.getZoom();
 
+      // Open pin discovery details description modal
+      this.currentSelectedDiscovery = discovery;
+      this.discoveryDetailsModalOpen = true;
+
       // Highlight clicked discovery
       this.highlightSelectedDiscoveryPin(discovery);
+      
+      // Update opacity for the rest of the pins
+      if (this.mapPinsLayer) {
+        this.mapPinsLayer.changed();
+      }
 
       const polygon = getDiscoveryPolygon(discovery);
       if (polygon && this.mapPolygonsLayer) {
         const polygonFeature = this.getPolygonFeatureForDiscovery(discovery);
         if (polygonFeature) {
           mapView.fit(polygonFeature.getGeometry().getExtent(), {
-            duration: 200,
+            duration: 100,
             padding: [100, 80, 320, 80],
             maxZoom: Math.max(currentZoom, 17),
             easing: easeOut,
@@ -1016,16 +1212,12 @@ export default {
           mapView.animate({
             // Center viewport a bit below the selected pin so that the pin is towards the top of viewport
             center: [location.lng, location.lat - 0.3 * extentHeight],
-            duration: 200,
+            duration: 100,
             zoom: Math.max(currentZoom, 14.25),
             easing: easeOut,
           });
         }
       }
-
-      // Open pin discovery details description modal
-      this.currentSelectedDiscovery = discovery;
-      this.discoveryDetailsModalOpen = true;
     },
 
     // Re-center on user location
@@ -1038,7 +1230,7 @@ export default {
 
         mapView.animate({
           center: currentLocation,
-          duration: 200,
+          duration: 100,
           zoom: Math.max(mapView.getZoom(), 14.25),
           easing: easeOut,
         });
@@ -1049,12 +1241,11 @@ export default {
 
     // Close modal, make former selected pin back to normal scale if there was a selected pin before, and put formerSelectedPinFeature to null because there are no more selected pin
     async unfocusDiscovery() {
+      this.currentSelectedDiscovery = null;
       this.discoveryDetailsModalOpen = false;
-      if (this.formerSelectedPinFeature && this.mapPinsLayer) {
-        await this.formerSelectedPinFeature.setStyle(
-          this.mapPinsLayer.getStyle(),
-        );
-        this.formerSelectedPinFeature = null;
+
+      if (this.mapPinsLayer) {
+        this.mapPinsLayer.changed(); // Restore opacity and normal sizing for all pins
       }
       if (this.formerSelectedPolygonFeature && this.mapPolygonsLayer) {
         this.formerSelectedPolygonFeature.setStyle(

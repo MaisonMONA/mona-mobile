@@ -86,7 +86,7 @@
               v-if="dType === 'artwork'"
               id="bigDotBetweenArtistsAndDate"
             >
-              •
+
             </span>
             <!-- Production date -->
             <span class="details production-date">{{ productionDate }}</span>
@@ -105,10 +105,13 @@
         </div>
 
         <div class="addressContainer">
-          <!-- Discovery pin icon-->
-          <ion-icon
-            :icon="`./assets/drawable/pins/${discovery.dType}/default.svg`"
-          ></ion-icon>
+          <!-- Discovery pin icon (canvas-rendered, matches Annuaire style) -->
+          <img
+            v-if="pinDataUrl"
+            class="address-pin"
+            :src="pinDataUrl"
+            alt=""
+          />
           <span>{{ details7 }}</span>
         </div>
 
@@ -162,6 +165,7 @@ import { Directory, Filesystem } from "@capacitor/filesystem";
 import targetIconUnactivated from "/assets/drawable/icons/target_unactivated.svg";
 import targetIconActivated from "/assets/drawable/icons/target_activated.svg";
 import customMapIcon from "/assets/drawable/icons/map.svg";
+import { getStaticDiscoveryPinDataUrl } from "@/internal/PinUtils";
 
 export default {
   name: "discovery-details",
@@ -258,6 +262,7 @@ export default {
       details6,
       details7,
       details13,
+      pinDataUrl: "",
     };
   },
 
@@ -316,6 +321,10 @@ export default {
     if (UserData.isTargeted(this.discovery.id, this.discovery.dType))
       this.customTargetIcon = targetIconActivated;
     else this.customTargetIcon = targetIconUnactivated;
+
+    getStaticDiscoveryPinDataUrl(this.discovery).then((url) => {
+      this.pinDataUrl = url;
+    });
   },
 
   methods: {
@@ -588,6 +597,13 @@ ion-button {
 .addressContainer ion-icon {
   font-size: 6vw;
   margin-right: 1.8vw;
+}
+.addressContainer .address-pin {
+  width: 7vw;
+  height: 7vw;
+  object-fit: contain;
+  margin-right: 1.8vw;
+  flex-shrink: 0;
 }
 .addressContainer span {
   text-decoration: underline;

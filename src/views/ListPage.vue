@@ -42,18 +42,29 @@
             :key="discovery"
             @click="openDiscoveryDetailsFullModale(discovery)"
           >
-            <!-- Discovery icon -->
-            <ion-icon id="discoveryIcon" :icon="getDiscoveryMedalIcon(discovery)" slot="start"></ion-icon>
+            <!-- Discovery pin icon (canvas-rendered) -->
+            <img
+              v-if="collectedPhotoPinDataUrls[`${discovery.dType}:${discovery.id}`]"
+              :src="collectedPhotoPinDataUrls[`${discovery.dType}:${discovery.id}`]"
+              class="list-pin-icon collected-pin-icon"
+              slot="start"
+            />
+            <img
+              v-else
+              :src="getDefaultPinDataUrl(discovery)"
+              class="list-pin-icon"
+              slot="start"
+            />
+            <!-- Discovery title -->
+            <ion-label id="title">{{ discovery.getTitle() }}</ion-label>
             <!-- Discovery to user distance  -->
-            <ion-label id="distance" position="fixed" class="ion-text-wrap"
+            <ion-label id="distance" slot="end" class="ion-text-nowrap"
               >{{
                 Distance.distance2string(
                   Distance.calculateDistance(discovery, lat2, lng2),
                 )
               }}
             </ion-label>
-            <!-- Discovery title -->
-            <ion-label id="title">{{ discovery.getTitle() }}</ion-label>
           </ion-item>
         </ion-list>
         <ion-infinite-scroll
@@ -224,8 +235,20 @@ import {
 } from "@ionic/vue";
 import { filterOutline, close, optionsOutline, reload } from "ionicons/icons";
 import { UserData } from "@/internal/databases/UserData";
+import { Directory, Filesystem } from "@capacitor/filesystem";
 import { Distance } from "../internal/Distance";
+import { eventBus } from "@/internal/eventBus";
 import DiscoveryDetailsFullModale from "@/components/DiscoveryDetailsFullModale.vue";
+import { 
+  createAnnuairePinCanvas, 
+  createAnnuaireCollectedPhotoCanvas, 
+  getCategoryIconName,
+  preloadAllPinIcons,
+  iconLoadPromises
+} from "@/internal/PinUtils";
+
+// --- Pin colors per discovery type ---
+preloadAllPinIcons();
 
 export default {
   name: "ListPage",
@@ -275,6 +298,10 @@ export default {
       lat2: UserData.getLocation(false)[1],
       lng2: UserData.getLocation(false)[0],
       componentKey: 0,
+      collectedPhotoUrls: {}, // { "artwork:123": "blob:..." }
+      collectedPhotoPinDataUrls: {}, // { "artwork:123": "data:image/png;base64,..." }
+      defaultPinDataUrls: {}, // { "artwork:art_public": "data:image/png;base64,..." }
+      iconsReady: false,
 
       // Icon
       filterOutline,
@@ -325,6 +352,24 @@ export default {
         this.pullSortedDiscoveries(null, i, discovery);
         this.arrayOffset = 0;
       }
+    }
+  },
+
+  async mounted() {
+    this._onTargetedChanged = () => this.forceRerender();
+    eventBus.on("targeted-changed", this._onTargetedChanged);
+
+    // Wait for pin icons to load, then generate default pin data URLs
+    await Promise.all(Object.values(iconLoadPromises));
+    this.generateDefaultPinDataUrls();
+    // Load collected photos and render as circular canvas pins
+    await this.loadCollectedPhotos();
+    await this.renderCollectedPhotoPins();
+  },
+
+  unmounted() {
+    if (this._onTargetedChanged) {
+      eventBus.off("targeted-changed", this._onTargetedChanged);
     }
   },
 
@@ -498,12 +543,110 @@ export default {
       }
     },
 
-    getDiscoveryMedalIcon(discovery) {
-      if (UserData.isCollected(discovery.id, discovery.dType))
-        return `./assets/drawable/pins/${discovery.dType}/collected.svg`;
-      else if (UserData.isTargeted(discovery.id, discovery.dType))
-        return `./assets/drawable/pins/${discovery.dType}/targeted.svg`;
-      else return `./assets/drawable/pins/${discovery.dType}/default.svg`;
+    generateDefaultPinDataUrls() {
+      const combos = [
+        ['artwork', 'art_public', false],
+        ['artwork', 'murales', false],
+        ['artwork', 'sculptures', false],
+        ['heritage', 'patrimoine', false],
+        ['place', 'lieux_culturels', false],
+        ['place', 'bibliotheques', false],
+        ['artwork', 'targeted', true],
+        ['heritage', 'targeted', true],
+        ['place', 'targeted', true],
+      ];
+      const urls = {};
+      for (const [type, icon, isTargeted] of combos) {
+        const titleKey = isTargeted ? "targeted" : icon;
+        const cacheKey = `${type}:${titleKey}:${isTargeted}`;
+        const canvas = createAnnuairePinCanvas(type, titleKey, isTargeted);
+        urls[cacheKey] = canvas.toDataURL();
+      }
+      this.defaultPinDataUrls = urls;
+      this.iconsReady = true;
+      this.forceRerender();
+    },
+
+    getDefaultPinDataUrl(discovery) {
+      const isTargeted = UserData.isTargeted(discovery.id, discovery.dType);
+      const categoryIcon = getCategoryIconName(discovery);
+      const titleKey = isTargeted ? "targeted" : categoryIcon;
+      const cacheKey = `${discovery.dType}:${titleKey}:${isTargeted}`;
+      
+      if (this.defaultPinDataUrls[cacheKey]) {
+        return this.defaultPinDataUrls[cacheKey];
+      }
+      // Fallback: generate on demand and store reactively
+      const canvas = createAnnuairePinCanvas(discovery.dType, categoryIcon, isTargeted);
+      const url = canvas.toDataURL();
+      this.defaultPinDataUrls[cacheKey] = url;
+      return url;
+    },
+
+    async renderCollectedPhotoPins() {
+      for (const [key, blobUrl] of Object.entries(this.collectedPhotoUrls)) {
+        if (this.collectedPhotoPinDataUrls[key]) continue;
+        const [type] = key.split(':');
+        try {
+          const img = new Image();
+          await new Promise((resolve) => {
+            img.onload = resolve;
+            img.onerror = resolve;
+            img.src = blobUrl;
+          });
+          if (img.width === 0) continue;
+          const canvas = createAnnuaireCollectedPhotoCanvas(img, type, 30);
+          this.collectedPhotoPinDataUrls[key] = canvas.toDataURL();
+        } catch (err) {
+          console.warn(`[ListPage] Failed to render collected pin for ${key}:`, err);
+        }
+      }
+      this.forceRerender();
+    },
+
+    async loadCollectedPhotos() {
+      const allDiscoveries = this.completeDiscoveriesListByDistance.length
+        ? this.completeDiscoveriesListByDistance
+        : this.completeDiscoveriesListByAZ;
+
+      for (const discovery of allDiscoveries) {
+        if (!UserData.isCollected(discovery.id, discovery.dType)) continue;
+
+        const key = `${discovery.dType}:${discovery.id}`;
+        if (this.collectedPhotoUrls[key]) continue;
+
+        try {
+          const review = UserData.getCollected(discovery.id, discovery.dType);
+          if (!review || !review.filename) continue;
+
+          let file;
+          try {
+            file = await Filesystem.readFile({
+              path: "thumbnail/" + review.filename,
+              directory: Directory.Data,
+            });
+          } catch {
+            file = await Filesystem.readFile({
+              path: "img/" + review.filename,
+              directory: Directory.Data,
+            });
+          }
+
+          let url;
+          if (file.data instanceof Blob) {
+            url = URL.createObjectURL(file.data);
+          } else {
+            const ext = review.filename.split(".").at(-1) || "jpeg";
+            const res = await fetch(`data:image/${ext};base64,${file.data}`);
+            const blob = await res.blob();
+            url = URL.createObjectURL(blob);
+          }
+
+          this.collectedPhotoUrls[key] = url;
+        } catch (err) {
+          console.warn(`[ListPage] Failed to load photo for ${key}:`, err);
+        }
+      }
     },
 
     dismissModal() {
@@ -600,8 +743,18 @@ ion-list {
   padding-left: 4%;
 }
 
-#discoveryIcon {
-  font-size: 8.6vw;
+.list-pin-icon {
+  width: 8.6vw;
+  height: auto;
+  object-fit: contain;
+  margin-inline-end: 10px;
+  flex-shrink: 0;
+}
+
+.collected-pin-icon {
+  width: 8.6vw;
+  height: auto;
+  object-fit: contain;
 }
 
 ion-row {
@@ -680,14 +833,9 @@ p.bottom-text {
 
 #distance {
   font-size: small;
-  max-width: 20%;
-  /* To correct #title sticking to the right bug caused by #distance taking too much space
-    (max-width: 200px in Inspect element)*/
-  min-width: 0;
-  /* To override ionic probably shadow DOM setting min-width to 100px*/
-}
-.ios #distance {
-  max-width: 18%;
+  flex: 0 0 auto;
+  margin-inline-start: 8px;
+  text-align: end;
 }
 
 ion-col img {
