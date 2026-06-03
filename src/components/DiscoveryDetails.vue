@@ -1,3 +1,4 @@
+
 <template>
     <div class="discoveryDetailsContainer">
         <div class="discoverydetails">
@@ -458,6 +459,12 @@ div.discoveryDetailsContainer {
   font-weight: 600;
   --background-activated: black;
 }
+
+#photoButton:active {
+  --background: var(--photo-button-hover-background, #1a216b);
+} 
+
+
 #photoButton ion-icon {
   font-size: 3.7vw;
   margin-right: 1.8vw;

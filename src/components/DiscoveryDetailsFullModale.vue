@@ -97,6 +97,21 @@
               :src="'./assets/drawable/mascots/mascot_17.png'"
             ></ion-img>
             <p class="photoPlaceholderText">Ajoutez cette découverte à votre collection<br>en la prenant en photo</p>
+            
+            <!-- PHOTO BUTTON -->
+            <ion-button
+              class="discovery-button"
+              id="photoButtonFullModale"
+              fill="solid"
+              @click="activateCamera"
+            >
+              <ion-icon
+                id="cameraIcon"
+                :icon="'./assets/drawable/icons/camera_photo_icon.svg'"
+              ></ion-icon>
+              PHOTOGRAPHIER
+            </ion-button>
+
           </div>
           <ion-img id="userPhotoFullModale"></ion-img>
         </div>
@@ -295,19 +310,6 @@
           </div>
         </div>
 
-        <!-- PHOTO BUTTON -->
-        <ion-button
-          class="discovery-button"
-          id="photoButtonFullModale"
-          fill="solid"
-          @click="activateCamera"
-        >
-          <ion-icon
-            id="cameraIcon"
-            :icon="'./assets/drawable/icons/camera_photo_icon.svg'"
-          ></ion-icon>
-          PHOTOGRAPHIER
-        </ion-button>
       </div>
   </ion-content>
 </template>
@@ -769,10 +771,11 @@ div.discoveryDetailsContainer {
 
 #photoButtonFullModale {
   height: 5.4vh;
-  width: 92vw;
-  margin-left: 3.9vw;
-  bottom: 4vh;
-  position: fixed;
+  width: 90%;
+  margin-left: 0;
+  bottom: 1vh;
+  position: absolute;
+  box-sizing: border-box;
   --background: #4d58cb;
   --color: white;
   --border-radius: 8px;
@@ -782,10 +785,15 @@ div.discoveryDetailsContainer {
   font-weight: 600;
   --background-activated: black;
 }
+
+
 #photoButtonFullModale ion-icon {
   font-size: 3.7vw;
   margin-right: 1.8vw;
 }
+#photoButtonFullModale:active {
+  --background: var(--photo-button-hover-background, #1a216b);
+} 
 
 ion-button ion-icon {
   font-weight: 100;
@@ -855,6 +863,7 @@ ion-button {
 .photoContainer {
   position: relative;
   width: 92vw;
+  height: 30.6vh;
   margin: 0 0 1.8vh 3.9vw;
   background-color: #F2F2F2;
   border-radius: 1.9vw;
