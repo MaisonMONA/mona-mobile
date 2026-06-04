@@ -324,42 +324,61 @@ export default {
      * @param type - the endpoint type (ie: 'heritage'), used to interact with DBs.
      */
 
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        Authorization: "Bearer " + UserData.getToken(),
-      },
-    });
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + UserData.getToken(),
+        },
+      });
 
-    const parsed = await response.json();
-
-    // Add each discovery as collected
-    for (const element of parsed) {
-      const id = parseInt(
-        element.artwork_id || element.place_id || element.heritage_id,
-      );
-      const discovery = this.getDiscovery(id, type);
-      if (!discovery)
-        throw new Error(`Discovery (${type} ${id}) does not exist in DB.`);
-
-      const rating = element.rating ? element.rating : null;
-      const comment = element.comment ? element.comment : null;
-
-      let filename = null;
-      if (element.photo) {
-        filename = element.photo.split("/").at(-1);
-
-        // Only download the file if the name is valid (i.e. the file isn't a PHP temp file)
-        if (filename.includes("."))
-          await downloadImage(
-            element.artwork_id || element.place_id || element.heritage_id,
-            type,
-            filename,
-          );
-        else filename = null; // Reset if the file is invalid
+      if (!response.ok) {
+        console.log(`Could not fetch user data for ${type} (status ${response.status}).`);
+        return;
       }
 
-      UserData.addCollected(discovery, filename, rating, comment);
+      const rawContent = await response.text();
+      if (!rawContent.trim()) return;
+
+      const parsed = JSON.parse(rawContent);
+      const records = Array.isArray(parsed)
+        ? parsed
+        : Array.isArray(parsed?.data)
+          ? parsed.data
+          : [];
+
+      // Add each discovery as collected
+      for (const element of records) {
+        const id = parseInt(
+          element.artwork_id || element.place_id || element.heritage_id,
+        );
+        const discovery = this.getDiscovery(id, type);
+        if (!discovery) {
+          console.log(`Discovery (${type} ${id}) does not exist in DB.`);
+          continue;
+        }
+
+        const rating = element.rating ? element.rating : null;
+        const comment = element.comment ? element.comment : null;
+
+        let filename = null;
+        if (element.photo) {
+          filename = element.photo.split("/").at(-1);
+
+          // Only download the file if the name is valid (i.e. the file isn't a PHP temp file)
+          if (filename.includes("."))
+            await downloadImage(
+              element.artwork_id || element.place_id || element.heritage_id,
+              type,
+              filename,
+            );
+          else filename = null; // Reset if the file is invalid
+        }
+
+        UserData.addCollected(discovery, filename, rating, comment);
+      }
+    } catch (error) {
+      console.log(`Failed to fetch user data for ${type}: ${error}`);
     }
   },
 };

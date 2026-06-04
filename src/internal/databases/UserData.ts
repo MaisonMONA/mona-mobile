@@ -37,7 +37,7 @@ export class UserData {
   //   refresh their local data after we ship schema-affecting releases.
   //   (e.g., new/removed/renamed field to the artworks, heritages, places, badges server database API, etc.)
   private static readonly CACHE_SCHEMA_VERSION = 1;
-  private static readonly DATA_SCHEMA_VERSION = 1;
+  private static readonly DATA_SCHEMA_VERSION = 2;
   private static readonly DATABASE_PATHS = [
     "appdata/artworks.json",
     "appdata/places.json",

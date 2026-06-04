@@ -52,10 +52,17 @@ export default {
       return;
     }
 
-    try {
-      await Promise.all([UserData.getFromServer(), UserData.loadCache()]);
-    } catch (err) {
-      throw new Error(`Could not retrieve user data (${err})`);
+    const userDataResults = await Promise.allSettled([
+      UserData.getFromServer(),
+      UserData.loadCache(),
+    ]);
+
+    const failedUserDataLoad = userDataResults.find(
+      (result) => result.status === "rejected",
+    );
+
+    if (failedUserDataLoad) {
+      console.error("Could not retrieve all user data", failedUserDataLoad.reason);
     }
 
     // Fetch collected badges
