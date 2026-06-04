@@ -390,10 +390,22 @@ export class Heritage extends Discovery {
   }
 
   public getStatus(): string {
+    if (!this.status) {
+      console.warn(`Heritage #${this.id} (${this.title}) is missing status data.`);
+      return "";
+    }
+
     return this.status;
   }
   public getFunction(): string {
-    return this.functions.fr.join(", ");
+    const functionText = this.functions?.fr?.join(", ") || this.functions?.en?.join(", ");
+
+    if (!functionText) {
+      console.warn(`Heritage #${this.id} (${this.title}) is missing function data.`);
+      return "";
+    }
+
+    return functionText;
   }
 
   public hasGeoAreaPolygon(): boolean {
