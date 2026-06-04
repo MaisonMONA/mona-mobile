@@ -29,12 +29,38 @@ export abstract class Database {
 
             if (typeof content.data === "string") {
                 const parsed = JSON.parse(content.data);
-                for (const element of parsed) {
-                    // for (const element of parsed.data) {
-                    this.data.push(this.createSingleElement(element));
-                }
-            }
 
+                // Validate and construct elements; if any element is malformed,
+                // consider the local DB file corrupt and fetch from server instead.
+                const validated: Discovery[] = [];
+
+                for (const element of parsed) {
+                    try {
+                        const candidate = this.createSingleElement(element);
+
+                        // Basic validation: must have numeric id and a callable getTitle
+                        if (
+                            !candidate ||
+                            typeof candidate.id !== "number" ||
+                            typeof candidate.getTitle !== "function"
+                        ) {
+                            throw new Error("Invalid discovery object");
+                        }
+
+                        validated.push(candidate);
+                    } catch (e) {
+                        console.warn(`${this.type} db: detected corrupt element while parsing local file (${e}). Will rebuild from server.`);
+                        // Delete the corrupted local file and populate from server
+                        try {
+                            await Filesystem.deleteFile({ path: this.path, directory: Directory.Data });
+                        } catch (_ignored) {}
+
+                        return await this.populateFromServer();
+                    }
+                }
+
+                this.data = validated;
+            }
 
             console.log(`${this.type} db: successfully populated (locally).`);
         } catch (err) {
