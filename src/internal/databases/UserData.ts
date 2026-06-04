@@ -149,6 +149,10 @@ export class UserData {
     // Remove local mirrored DB files and cache, then reset preferences
     await this.deleteLocalDatabaseFiles();
     await this.invalidateCacheFile();
+    // Clear any in-memory caches that could hold stale discovery objects
+    this.sortedDiscoveries = [];
+    this.sortedDiscoveriesDistance = [];
+
     this.resetPreferences(resetTutorial);
   }
 
@@ -315,6 +319,22 @@ export class UserData {
         }).catch(() => undefined),
       ),
     );
+
+    // Also reset in-memory DBs so app doesn't keep using stale data after files are deleted
+    try {
+      const { ArtworkDatabase } = await import("@/internal/databases/ArtworkDatabase");
+      const { PlaceDatabase } = await import("@/internal/databases/PlaceDatabase");
+      const { HeritageDatabase } = await import("@/internal/databases/HeritageDatabase");
+      const { BadgeDatabase } = await import("@/internal/databases/BadgeDatabase");
+
+      ArtworkDatabase.resetData();
+      PlaceDatabase.resetData();
+      HeritageDatabase.resetData();
+      BadgeDatabase.resetData();
+    } catch (err) {
+      // If dynamic import fails for any reason, ignore — best-effort reset
+      console.warn("Failed to reset in-memory DBs:", err);
+    }
   }
 
   private static parseCachePayload(parsed: any): { version: number; data: any[] } | null {

@@ -152,4 +152,9 @@ export abstract class Database {
 
         return this.data.slice(a, b);
     }
+
+    // Reset in-memory data for this database (useful when clearing local files)
+    public static resetData() {
+        this.data = [];
+    }
 }
