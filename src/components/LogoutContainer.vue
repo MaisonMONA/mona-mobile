@@ -57,8 +57,8 @@ export default {
             document.querySelector("ion-back-button").click();
         },
 
-        disconnectUser() {
-            UserData.resetPreferences(false); // `false` to keep hasSeenTutorial to true
+        async disconnectUser() {
+            await UserData.clearLocalDataAndReset(false); // wipe local DBs and cache, keep tutorial flag
 
             // Go to main page
             this.$router.replace("/register")

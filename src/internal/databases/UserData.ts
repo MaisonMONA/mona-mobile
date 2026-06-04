@@ -145,6 +145,13 @@ export class UserData {
     this.updateFile();
   }
 
+  public static async clearLocalDataAndReset(resetTutorial = true) {
+    // Remove local mirrored DB files and cache, then reset preferences
+    await this.deleteLocalDatabaseFiles();
+    await this.invalidateCacheFile();
+    this.resetPreferences(resetTutorial);
+  }
+
   public static async ensureDataSchemaUpToDate() {
     await this.populate();
     const storedVersion = this.data?.schemaVersion ?? 0;
