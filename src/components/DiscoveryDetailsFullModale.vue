@@ -1,5 +1,6 @@
 <template>
-  <ion-content>
+  <template v-if="isReady">
+    <ion-content>
       <div class="discoveryDetailsContainer">
         <div class="discoverydetails">
           <div class="chipsContainer">
@@ -309,7 +310,13 @@
           PHOTOGRAPHIER
         </ion-button>
       </div>
-  </ion-content>
+    </ion-content>
+  </template>
+  <template v-else>
+    <ion-content class="loading-placeholder">
+      <div class="loading-text">Chargement…</div>
+    </ion-content>
+  </template>
 </template>
 
 <script>
@@ -711,6 +718,15 @@ export default {
       return this.details3 && this.details3.trim() !== '';
     },
   },
+  computed: {
+    isReady() {
+      return (
+        this.discovery &&
+        typeof this.discovery.id === "number" &&
+        typeof this.discovery.getTitle === "function"
+      );
+    },
+  },
 };
 </script>
 
@@ -1040,5 +1056,16 @@ a {
   text-underline-offset: 2px;
   color: black;
   font-weight: normal;
+}
+
+.loading-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+}
+.loading-text {
+  font-size: 3.8vw;
+  color: #666;
 }
 </style>

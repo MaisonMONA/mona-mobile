@@ -1,4 +1,5 @@
 <template>
+  <template v-if="isReady">
     <div class="discoveryDetailsContainer">
         <div class="discoverydetails">
           <div class="chipsContainer">
@@ -144,7 +145,13 @@
           ></ion-icon>
           PHOTOGRAPHIER
         </ion-button>
-      </div>
+    </div>
+  </template>
+  <template v-else>
+    <div class="discoveryDetailsContainer loading-placeholder">
+      <div class="loading-text">Chargement…</div>
+    </div>
+  </template>
 </template>
 
 <script>
@@ -267,8 +274,8 @@ export default {
   },
 
   setup(props) {
-    const id = parseInt(props.selectedDiscovery.id.toString() || "-1");
-    const type = props.selectedDiscovery.dType || "-1";
+    const id = parseInt(((props.selectedDiscovery && props.selectedDiscovery.id) ? props.selectedDiscovery.id.toString() : "-1"));
+    const type = (props.selectedDiscovery && props.selectedDiscovery.dType) ? props.selectedDiscovery.dType : "-1";
     //former: const type = parseInt(props.selectedDiscoveryType.toString() || "-1");
 
     const discovery =
@@ -279,6 +286,16 @@ export default {
       discovery,
       DiscoveryEnum,
     };
+  },
+
+  computed: {
+    isReady() {
+      return (
+        this.discovery &&
+        typeof this.discovery.id === "number" &&
+        typeof this.discovery.getTitle === "function"
+      );
+    },
   },
 
   mounted() {
@@ -607,6 +624,17 @@ ion-button {
 }
 .addressContainer span {
   text-decoration: underline;
+}
+
+.loading-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40vh;
+}
+.loading-text {
+  font-size: 3.8vw;
+  color: #666;
 }
 
 </style>
