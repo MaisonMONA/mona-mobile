@@ -87,7 +87,7 @@
               v-if="dType === 'artwork'"
               id="bigDotBetweenArtistsAndDate"
             >
-
+              •
             </span>
             <!-- Production date -->
             <span class="details production-date">{{ productionDate }}</span>
