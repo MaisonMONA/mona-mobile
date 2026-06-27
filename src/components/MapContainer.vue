@@ -524,13 +524,15 @@ export default {
     },
 
     updateClosestDiscoveries() {
+      // For distance between discoveries and user location
+      this.lat2 = UserData.getLocation(true)[1];
+      this.lng2 = UserData.getLocation(true)[0];
+
+      UserData.sortByDistance();
       this.closestDiscoveriesDistance = UserData.getSortedDiscoveriesDistance(
         0,
         12,
       );
-      // For distance between discoveries and user location
-      this.lat2 = UserData.getLocation(true)[1];
-      this.lng2 = UserData.getLocation(true)[0];
 
       // Build/refresh static pin data URLs for the proximity list
       const nextUrls = {};
@@ -1098,6 +1100,7 @@ export default {
           
           // Update the viewport state
           this.updateUserLocationViewportState();
+          this.updateClosestDiscoveries();
         }
       });
     },

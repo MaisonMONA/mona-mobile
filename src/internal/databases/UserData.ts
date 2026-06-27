@@ -235,6 +235,9 @@ export class UserData {
   }
 
   public static sortByDistance() {
+    const lat2 = UserData.getLocation(true)[1];
+    const lng2 = UserData.getLocation(true)[0];
+
     this.sortedDiscoveriesDistance = ArtworkDatabase.getSubset(
       0,
       ArtworkDatabase.getSize(),
@@ -245,13 +248,20 @@ export class UserData {
     this.sortedDiscoveriesDistance = this.sortedDiscoveriesDistance.concat(
       HeritageDatabase.getSubset(0, HeritageDatabase.getSize()),
     );
-    const lat2 = UserData.getLocation(true)[1];
-    const lng2 = UserData.getLocation(true)[0];
     this.sortedDiscoveriesDistance.sort((a, b) => {
-      return (
+      const distanceDelta =
         Distance.calculateDistance(a, lat2, lng2) -
-        Distance.calculateDistance(b, lat2, lng2)
-      );
+        Distance.calculateDistance(b, lat2, lng2);
+
+      if (distanceDelta !== 0) return distanceDelta;
+
+      const titleDelta = a.getTitle().localeCompare(b.getTitle(), "fr", {
+        sensitivity: "base",
+      });
+
+      if (titleDelta !== 0) return titleDelta;
+
+      return a.id - b.id;
     });
   }
   public static getSortedDiscoveriesDistance(sliceA?: number, sliceB?: number) {
