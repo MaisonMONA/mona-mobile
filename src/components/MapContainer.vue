@@ -140,6 +140,7 @@
   >
       <discovery-details
         :selected-discovery="currentSelectedDiscovery"
+        @close-discovery-details="discoveryDetailsModalOpen = false"
         @view-full-details="
           openDiscoveryDetailsFullModale(currentSelectedDiscovery)
         "

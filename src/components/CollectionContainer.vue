@@ -44,6 +44,7 @@
       >
           <discovery-details-full-modale
             :selected-discovery="listSelectedDiscovery"
+            @close-discovery-details-full-modale="discoveryDetailsFullModalOpen = false"
           />
       </ion-modal>
       <!-- Selected discovery full details modal -->
