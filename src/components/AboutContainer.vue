@@ -43,6 +43,7 @@
             <li><strong>Barbara Marche</strong> Designer UI/UX</li>
             <li><strong>Anissa Ould Ferroukh</strong> Développement serveur</li>
             <li><strong>Mariama Amadou Amadou</strong> Développement serveur</li>
+            <li><strong>Franck Hermand Takam Takam</strong> Stage en développement web</li>
             <li><strong>Jonathan Tannous</strong> Développement mobile</li>
             <li><strong>David Valentine</strong> Consultation en sciences de l'information</li>
           </ul>
