@@ -34,7 +34,7 @@
             <li><strong>Camille Delattre</strong> Direction des opérations et coordinatrice à la structuration des données</li>
             <li><strong>Camila De Oliveira Savoi</strong> Direction de la recherche</li>
             <li><strong>Julie Graff</strong> Direction artistique</li>
-            <li><strong>Lena Krause</strong> Direction technique et fondatrice</li>
+            <li><strong>Lena MK</strong> Direction technique et fondatrice</li>
             <li><strong>Alexia Pinto Ferretti</strong> Direction des publics</li>
             <li><strong>Marguerite Chiarello</strong> Responsable des communications et consultante en médiation</li>
             <li><strong>Corélie Godefroid</strong> Développement serveur</li>
@@ -42,6 +42,8 @@
             <li><strong>Christian Lungescu</strong> Développement mobile</li>
             <li><strong>Barbara Marche</strong> Designer UI/UX</li>
             <li><strong>Anissa Ould Ferroukh</strong> Développement serveur</li>
+            <li><strong>Mariama Amadou Amadou</strong> Développement serveur</li>
+            <li><strong>Jonathan Tannous</strong> Développement mobile</li>
             <li><strong>David Valentine</strong> Consultation en sciences de l'information</li>
           </ul>
           
