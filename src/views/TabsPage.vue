@@ -71,6 +71,7 @@ import activeMap from "/assets/drawable/icons/active_map_tab_icon.svg";
 import activeList from "/assets/drawable/icons/active_list_tab_icon.svg";
 import activeCollection from "/assets/drawable/icons/active_collection_tab_icon.svg";
 import activeMore from "/assets/drawable/icons/active_more_tab_icon.svg";
+import { eventBus } from "@/internal/eventBus";
 
 export default {
   components: {
@@ -100,6 +101,10 @@ export default {
   methods: {
     checkRoute(event) {
       this.activeTab = event.tab;
+      // Emit event when "more" (Paramètres) tab is selected
+      if (event.tab === "more") {
+        eventBus.emit("more-tab-selected");
+      }
     },
   },
 };
