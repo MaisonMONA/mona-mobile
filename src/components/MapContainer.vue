@@ -484,6 +484,16 @@ export default {
     };
     eventBus.on("targeted-changed", this._onTargetedChanged);
 
+    this._onCollectedChanged = async () => {
+      Object.keys(collectedPhotoImgCache).forEach((key) => {
+        delete collectedPhotoImgCache[key];
+      });
+      Object.keys(collectedPhotoPinCache).forEach((key) => {
+        delete collectedPhotoPinCache[key];
+      });
+      await this.loadCollectedPhotosForPins();
+    };
+    eventBus.on("collected-changed", this._onCollectedChanged);
     // Foreground app state change listener
     // After user go back to the app from app settings, check if the location permission is granted
     await App.addListener("appStateChange", async ({ isActive }) => {
@@ -951,7 +961,6 @@ export default {
         );
         this.formerSelectedPolygonFeature = null;
       }
-
     },
 
     highlightSelectedDiscoveryPolygon(selectedDiscovery) {

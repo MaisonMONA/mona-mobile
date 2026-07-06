@@ -361,6 +361,14 @@ export default {
     this._onTargetedChanged = () => this.forceRerender();
     eventBus.on("targeted-changed", this._onTargetedChanged);
 
+    this._onCollectedChanged = async () => {
+      this.collectedPhotoUrls = {};
+      this.collectedPhotoPinDataUrls = {};
+      await this.loadCollectedPhotos();
+      await this.renderCollectedPhotoPins();
+    };
+    eventBus.on("collected-changed", this._onCollectedChanged);
+
     // Wait for pin icons to load, then generate default pin data URLs
     await Promise.all(Object.values(iconLoadPromises));
     this.generateDefaultPinDataUrls();
@@ -372,6 +380,10 @@ export default {
   unmounted() {
     if (this._onTargetedChanged) {
       eventBus.off("targeted-changed", this._onTargetedChanged);
+    }
+
+    if (this._onCollectedChanged) {
+      eventBus.off("collected-changed", this._onCollectedChanged);
     }
   },
 

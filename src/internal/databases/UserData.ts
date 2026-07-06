@@ -639,6 +639,7 @@ export class UserData {
         item,
         ...this.data.collected.chronological,
       ];
+      eventBus.emit("collected-changed", collectable);
     } else {
       console.log("Badge collected");
 
