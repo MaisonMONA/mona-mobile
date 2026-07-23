@@ -1,7 +1,10 @@
 <template>
   <ion-page>
     <ion-content :fullscreen="true">
+      
+      <!-- Error message toast -->
       <ion-toast
+        class="error-toast"
         :is-open="ionToastErrorMessageIsOpen"
         :message="ionToastErrorMessage"
         :duration="9000"
@@ -167,7 +170,7 @@ export default {
               this.$router.replace("/loading");
             } else {
               // Show appropriate error
-              this.handleError(parsed);
+              this.handleRegisterPageErrorMessage(parsed);
             }
           })
 
@@ -177,17 +180,28 @@ export default {
       }
     },
 
-    handleError(parsed) {
+    handleRegisterPageErrorMessage(parsed) {
+
       const passwordTooShortMessage =
         "Le mot de passe doit être d'au moins 6 caractères.\n";
       const passwordsNotMatchingMessage =
         "Les mots de passe ne concordent pas.\n";
       const usernameTakenMessage = "Le nom d'utilisateur·rice est déjà pris.\n";
+      const usernameInvalidCharactersMessage_inFrench =
+        "Le nom d'utilisateur·rice ne peut contenir que des lettres,\ndes chiffres, des tirets et des tirets bas.\n";
       const emailTakenMessage = "Le courriel est déjà pris.\n";
+
       if (parsed.errors) {
         let ionToastErrorMessage = "";
-        if (parsed.errors.username)
+
+        if (parsed.errors.username 
+        && parsed.errors.username[0] === "The username may only contain letters, numbers, dashes and underscores.") {
+          ionToastErrorMessage += usernameInvalidCharactersMessage_inFrench;
+        }
+        else if (parsed.errors.username) {
           ionToastErrorMessage += usernameTakenMessage;
+        }
+
         if (parsed.errors.password) {
           // API response returns "The password must be at least 6 characters." and "The password confirmation does not match."
           if (parsed.errors.password.length === 2) {
@@ -203,10 +217,12 @@ export default {
                 : passwordsNotMatchingMessage;
           }
         }
+        
         if (parsed.errors.email) ionToastErrorMessage += emailTakenMessage;
 
         this.showAlert(ionToastErrorMessage);
       }
+
     },
 
     showAlert(alertMessage) {
