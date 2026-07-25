@@ -502,21 +502,11 @@ export function createAnnuairePinCanvas(
   const cx = totalSize / 2;
   const cy = totalSize / 2;
 
-  // Shadow
-  ctx.shadowColor = "rgba(0, 0, 0, 0.25)";
-  ctx.shadowBlur = 3;
-  ctx.shadowOffsetY = 1;
-
   // Outer pale border circle
   ctx.beginPath();
   ctx.arc(cx, cy, outerRadius, 0, Math.PI * 2);
   ctx.fillStyle = colors.border;
   ctx.fill();
-
-  // Reset shadow for inner fill
-  ctx.shadowColor = "transparent";
-  ctx.shadowBlur = 0;
-  ctx.shadowOffsetY = 0;
 
   // Inner darker fill circle (vertical gradient)
   const innerGrad = ctx.createLinearGradient(
@@ -588,11 +578,6 @@ export function createAnnuaireCollectedPhotoCanvas(
   const cy = totalSize / 2;
   const photoRadius = size / 2;
 
-  // Shadow
-  ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
-  ctx.shadowBlur = 6;
-  ctx.shadowOffsetY = 2;
-
   // Gradient ring (single ring, no outer border)
   const ringGrad = ctx.createLinearGradient(
     cx,
@@ -606,11 +591,6 @@ export function createAnnuaireCollectedPhotoCanvas(
   ctx.arc(cx, cy, photoRadius + ringWidth, 0, Math.PI * 2);
   ctx.fillStyle = ringGrad;
   ctx.fill();
-
-  // Reset shadow
-  ctx.shadowColor = "transparent";
-  ctx.shadowBlur = 0;
-  ctx.shadowOffsetY = 0;
 
   // Clip circle and draw photo
   ctx.save();
