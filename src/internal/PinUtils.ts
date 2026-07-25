@@ -364,7 +364,7 @@ export function createCircularPhotoPinCanvas(
 }
 
 export function truncatePinTitle(title: string): string {
-  const maxChars = 16;
+  const maxChars = 11;
   if (!title || typeof title !== "string") return "";
   return title.length > maxChars ? `${title.slice(0, maxChars)}...` : title;
 }
@@ -380,16 +380,18 @@ export function createTargetedPinCanvas(
 ): HTMLCanvasElement {
   const paddingX = 10;
   const paddingY = 6;
-  const iconSize = 12;
+  const iconSize = 8;
   const iconGap = 5;
-  const fontSize = 12;
+  const fontSize = 14;
+  const fontFamily = "Open Sans, sans-serif";
+  const fontWeight = 600;
   const pointerHeight = 8;
   const borderRadius = 14;
 
   // Measure text
   const measureCanvas = document.createElement("canvas");
   const measureCtx = measureCanvas.getContext("2d")!;
-  measureCtx.font = `700 ${fontSize}px Arial`;
+  measureCtx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
   const displayTitle = truncatePinTitle(title);
   const textWidth = measureCtx.measureText(displayTitle).width;
 
@@ -466,7 +468,7 @@ export function createTargetedPinCanvas(
   }
 
   // Draw title text
-  ctx.font = `700 ${fontSize}px Arial`;
+  ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
   ctx.fillStyle = "#1F1F1F";
   ctx.textBaseline = "middle";
   ctx.fillText(displayTitle, paddingX + iconSize + iconGap, pillHeight / 2 + 1);
