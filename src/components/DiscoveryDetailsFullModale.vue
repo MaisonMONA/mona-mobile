@@ -758,10 +758,10 @@ div.discoveryDetailsContainer {
 }
 
 .close-button-container {
-  position: absolute;
+  position: fixed;
   top: 4.5vw;
   right: 4.5vw;
-  z-index: 2;
+  z-index: 1000;
   cursor: pointer;
 }
 
