@@ -816,9 +816,9 @@ export default {
       } else if (zoomLevel < 15.5) {
         canvasSize = 44; circleRadius = 24; pinScale = 1.7;
       } else if (zoomLevel < 16.5) {
-        canvasSize = 52; circleRadius = 32; pinScale = 2.0;
+        canvasSize = 49; circleRadius = 30; pinScale = 1.9;
       } else {
-        canvasSize = 64; circleRadius = 40; pinScale = 2.4;
+        canvasSize = 60; circleRadius = 37; pinScale = 2.25;
       }
 
       // --- Collected: circular photo pin ---
