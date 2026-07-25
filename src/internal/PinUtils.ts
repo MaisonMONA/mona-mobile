@@ -185,7 +185,7 @@ export function createDefaultPinCanvas(
     // Ground shadow ellipse
     ctx.fillStyle = "black";
     ctx.beginPath();
-    ctx.ellipse(cx, tipY, 14, 3, 0, 0, Math.PI * 2);
+    ctx.ellipse(cx, tipY, 10.5, 2.2, 0, 0, Math.PI * 2);
     ctx.fill();
   }
 
@@ -301,7 +301,7 @@ export function createCircularPhotoPinCanvas(
     // Ground shadow ellipse
     ctx.fillStyle = "black";
     ctx.beginPath();
-    ctx.ellipse(cx, tipY, 14, 3, 0, 0, Math.PI * 2);
+    ctx.ellipse(cx, tipY, 10.5, 2.2, 0, 0, Math.PI * 2);
     ctx.fill();
   }
 
@@ -417,7 +417,7 @@ export function createTargetedPinCanvas(
     // Ground shadow ellipse
     ctx.fillStyle = "black";
     ctx.beginPath();
-    ctx.ellipse(cx, tipY, 14, 3, 0, 0, Math.PI * 2);
+    ctx.ellipse(cx, tipY, 10.5, 2.2, 0, 0, Math.PI * 2);
     ctx.fill();
   }
 
