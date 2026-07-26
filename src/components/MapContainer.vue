@@ -924,7 +924,7 @@ export default {
       const fillColors = {
         default: "rgba(249, 161, 134, 0.28)",
         targeted: "rgba(244, 162, 89, 0.28)",
-        collected: "rgba(242, 110, 94, 0.35)",
+        collected: "rgba(249, 161, 134, 0.28)",
       };
 
       return [
