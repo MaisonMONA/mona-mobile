@@ -65,6 +65,8 @@ export default {
       console.error("Could not retrieve all user data", failedUserDataLoad.reason);
     }
 
+    await UserData.ensureThumbnailSchemaUpToDate();
+
     // Fetch collected badges
     CollectedBadge.determineCollectedBadges();
     // async functions, but DO NOT await (background tasks)

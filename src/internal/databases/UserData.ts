@@ -38,6 +38,7 @@ export class UserData {
   //   (e.g., new/removed/renamed field to the artworks, heritages, places, badges server database API, etc.)
   private static readonly CACHE_SCHEMA_VERSION = 1;
   private static readonly DATA_SCHEMA_VERSION = 2;
+  private static readonly THUMBNAIL_SCHEMA_VERSION = 1;
   private static readonly DATABASE_PATHS = [
     "appdata/artworks.json",
     "appdata/places.json",
@@ -69,6 +70,10 @@ export class UserData {
         this.data = JSON.parse(content.data);
         if (typeof this.data.schemaVersion !== "number") {
           this.data.schemaVersion = 0;
+          this.updateFile();
+        }
+        if (typeof this.data.thumbnailSchemaVersion !== "number") {
+          this.data.thumbnailSchemaVersion = 0;
           this.updateFile();
         }
       }
@@ -140,6 +145,7 @@ export class UserData {
       },
       mapStyle: "osm", // Preferred map style (not in use @ the moment)
       schemaVersion: this.DATA_SCHEMA_VERSION,
+      thumbnailSchemaVersion: this.THUMBNAIL_SCHEMA_VERSION,
     };
 
     this.updateFile();
@@ -175,6 +181,35 @@ export class UserData {
     this.data.schemaVersion = this.DATA_SCHEMA_VERSION;
     this.updateFile();
   }
+
+  public static async ensureThumbnailSchemaUpToDate() {
+    await this.populate();
+    const storedVersion = this.data?.thumbnailSchemaVersion ?? 0;
+
+    if (storedVersion === this.THUMBNAIL_SCHEMA_VERSION) return;
+
+    console.log(
+      `Thumbnail schema mismatch detected (current: ${storedVersion}, expected: ${this.THUMBNAIL_SCHEMA_VERSION}). Regenerating collection thumbnails.`,
+    );
+
+    const seenFilenames = new Set<string>();
+    const collectedItems = this.getCollectedChronologically() || [];
+
+    for (const item of collectedItems) {
+      if (!item || !item.filename || seenFilenames.has(item.filename)) continue;
+      seenFilenames.add(item.filename);
+
+      try {
+        await Utils.regenerateThumbnail(item.filename, 512);
+      } catch (error) {
+        console.warn(`Failed to regenerate thumbnail for ${item.filename}:`, error);
+      }
+    }
+
+    this.data.thumbnailSchemaVersion = this.THUMBNAIL_SCHEMA_VERSION;
+    this.updateFile();
+  }
+
   public static async getFromServer() {
     if (this.data.collectedWereFetched) return; // Skip fetching the user's photos if it was done already
 
