@@ -12,6 +12,16 @@
   >
   </ion-alert>
 
+  <ion-alert
+    class="permission-rationale-alert"
+    :is-open="isRationaleOpen"
+    header="Pourquoi MONA demande la localisation et les notifications"
+    :message="rationaleMessage"
+    :buttons="rationaleBtn"
+    @didDismiss="isRationaleOpen = false"
+  >
+  </ion-alert>
+
   <!-- Closest discoveries accordion -->
 
   <!-- ionChange and :value here are a fix to keep the accordion from re-opening by itself caused by recenter button updating (maybe ionic re-renders accordion when recenter button in it updates) -->
@@ -212,6 +222,11 @@ import { containsCoordinate, getHeight } from "ol/extent.js";
 import { unByKey } from "ol/Observable.js";
 import { Geolocation } from "@capacitor/geolocation";
 import { LocationService } from "@/internal/LocationService";
+import {
+  ProximityNotificationService,
+} from "@/internal/services/notification";
+import { backgroundProximityService, ensureBackgroundPermissions } from "@/internal/services/backgroundNotification";
+import { LocalNotifications } from '@capacitor/local-notifications';
 import { isPlatform } from "@ionic/vue";
 import { App } from "@capacitor/app";
 import { Directory, Filesystem } from "@capacitor/filesystem";
@@ -335,6 +350,36 @@ export default {
     Distance() {
       return Distance;
     },
+
+    async requestBackgroundAndNotifPermissions() {
+      // Called when user accepts the rationale alert.
+      try {
+        // Request notifications permission first (Android 13+ path handled by plugin)
+        try {
+          const notifPerm = await LocalNotifications.checkPermissions();
+          if (notifPerm.display !== 'granted') {
+            const requested = await LocalNotifications.requestPermissions();
+            if (requested.display !== 'granted') {
+              // User declined notifications; respect that and stop here.
+              console.log('User declined notifications permission');
+              return;
+            }
+          }
+        } catch (e) {
+          console.warn('LocalNotifications permission check/request failed', e);
+        }
+
+        // Then ensure background/geolocation permission via the background service helper.
+        const ok = await ensureBackgroundPermissions();
+        if (ok) {
+          await backgroundProximityService.start();
+        } else {
+          console.log('Background location permission not granted; skipping background watcher');
+        }
+      } catch (e) {
+        console.warn('requestBackgroundAndNotifPermissions failed', e);
+      }
+    },
     UserData() {
       return UserData;
     },
@@ -390,6 +435,7 @@ export default {
       locationAccuracyLayer: null,
       userPointFeature: null,
       locationUpdateInterval: null,
+      discoveryUpdateInterval: null,
       locationUnsubscribe: null, // Function to unsubscribe from location updates
       mapPinsLayer: null,
       mapPolygonsLayer: null,
@@ -416,6 +462,26 @@ export default {
       customLocationIconBlack,
       customLocationIconPurple,
       isAlertOpen: false,
+      isRationaleOpen: false,
+      rationaleMessage:
+        "Pour envoyer des notifications utiles lorsque vous êtes près d'œuvres, MONA a besoin d'accéder à votre position même en arrière-plan et d'autoriser les notifications. Cela permet d'envoyer une seule alerte lorsque vous êtes à ~1 km d'œuvres intéressantes. Vous pouvez choisir 'Activer' pour continuer ou 'Annuler' si vous préférez ne pas activer ces autorisations.",
+      rationaleBtn: [
+        {
+          text: 'Annuler',
+          role: 'cancel',
+          cssClass: 'alert-button-cancel',
+          handler: () => {
+            this.isRationaleOpen = false;
+          },
+        },
+        {
+          text: "Activer",
+          cssClass: 'alert-button-confirm',
+          handler: () => {
+            this.requestBackgroundAndNotifPermissions();
+          },
+        },
+      ],
       viewResolutionListenerKey: null,
       alertBtn: [
         {
@@ -506,9 +572,40 @@ export default {
     // Start location service
     await this.startLocationService();
 
+    // Start background proximity monitoring after ensuring background permissions.
+    // Native configuration and a proper background-geolocation plugin are
+    // recommended for reliable background delivery on iOS/Android.
+    void (async () => {
+      // Show a short rationale before requesting notification + background location
+      // permissions so users understand why we ask for "Allow always".
+      try {
+        const geoCheck = await Geolocation.checkPermissions();
+        const notifCheck = await LocalNotifications.checkPermissions().catch(() => ({ display: 'prompt' }));
+
+        // If notifications or background location are not already granted, show rationale.
+        const needsNotif = notifCheck.display !== 'granted';
+        const needsGeo = geoCheck.location !== 'granted';
+
+        if (needsNotif || needsGeo) {
+          this.isRationaleOpen = true;
+        } else {
+          // Already allowed — proceed to ensure background watcher starts.
+          const ok = await ensureBackgroundPermissions();
+          if (ok) await backgroundProximityService.start();
+        }
+      } catch (e) {
+        console.warn('Failed to prepare background proximity service', e);
+        void backgroundProximityService.start();
+      }
+    })();
+
+    // Trigger one proximity notification scan once the map and location service are ready.
+    await this.checkProximityNotifications();
+
     // Update closest discoveries every 2 minutes
     this.discoveryUpdateInterval = setInterval(() => {
       this.updateClosestDiscoveries();
+      void this.checkProximityNotifications();
     }, 120000); // 120000 ms = 2 minutes
   },
 
@@ -552,6 +649,27 @@ export default {
         Promise.all(promises).then(() => {
           this.closestDiscoveryPinUrls = { ...nextUrls };
         });
+      }
+    },
+
+    async checkProximityNotifications() {
+      try {
+        const notificationService = new ProximityNotificationService();
+        const discoveries = UserData.getSortedDiscoveriesAZ().map((discovery) => {
+          const location = discovery.getLocation();
+
+          return {
+            id: `${discovery.dType}:${discovery.id}`,
+            title: discovery.getTitle(),
+            lat: location.lat,
+            lng: location.lng,
+            isCollected: discovery.isCollected,
+          };
+        });
+
+        await notificationService.runCheck(discoveries);
+      } catch (error) {
+        console.error("Failed to run proximity notification check:", error);
       }
     },
 
@@ -1106,6 +1224,10 @@ export default {
       // Clean up location subscription
       if (this.locationUnsubscribe) {
         this.locationUnsubscribe();
+      }
+
+      if (this.discoveryUpdateInterval) {
+        clearInterval(this.discoveryUpdateInterval);
       }
       
       // Stop location service

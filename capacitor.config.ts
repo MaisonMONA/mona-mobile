@@ -7,6 +7,10 @@ const config: CapacitorConfig = {
   server: {
     androidScheme: 'https'
   }
+  ,
+  android: {
+    useLegacyBridge: true
+  }
 };
 
 export default config;

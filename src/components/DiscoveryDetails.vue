@@ -100,7 +100,23 @@
               id="defaultPhoto"
               :src="'./assets/drawable/mascots/mascot_17.png'"
             ></ion-img>
-            <p class="photoPlaceholderText">Ajoutez cette découverte à votre collection<br>en la prenant en photo</p>
+            <p class="photoPlaceholderText">Ajoutez cette découverte
+               à votre collection<br>en la prenant en photo</p>
+          
+          <!-- PHOTO BUTTON -->
+        <ion-button
+          class="discovery-button"
+          id="photoButton"
+          fill="solid"
+          @click="activateCamera"
+        >
+          <ion-icon
+            id="cameraIcon"
+            :icon="'./assets/drawable/icons/camera_photo_icon.svg'"
+          ></ion-icon>
+          PHOTOGRAPHIER
+        </ion-button>
+          
           </div>
           <ion-img id="userPhoto"></ion-img>
         </div>
@@ -127,24 +143,11 @@
           id="ficheCompleteButton"
           fill="outline"
           @click="openDiscoveryDetailsPage"
-          :style="{ width: isCollected ? '92vw' : '44vw' }"
+          :style="{ width: isCollected ? '92vw' : '92vw' }"
         >
           {{ isCollected ? "VOIR LA FICHE COMPLÈTE" : "FICHE COMPLÈTE" }}
         </ion-button>
 
-        <!-- PHOTO BUTTON -->
-        <ion-button
-          class="discovery-button"
-          id="photoButton"
-          fill="solid"
-          @click="activateCamera"
-        >
-          <ion-icon
-            id="cameraIcon"
-            :icon="'./assets/drawable/icons/camera_photo_icon.svg'"
-          ></ion-icon>
-          PHOTOGRAPHIER
-        </ion-button>
       </div>
 </template>
 
@@ -448,8 +451,11 @@ div.discoveryDetailsContainer {
 
 #photoButton {
   height: 5.4vh;
-  width: 44vw;
+  width: 100%;
+  margin-left: 0;
+  bottom: 0;
   position: absolute;
+  box-sizing: border-box;
   --background: #4d58cb;
   --color: white;
   --border-radius: 8px;
@@ -563,6 +569,7 @@ ion-button {
 .photoContainer {
   position: relative;
   width: 92vw;
+  height: 26vh;
   margin: 0 0 1.8vh 3.9vw;
   background-color: #F2F2F2;
   border-radius: 1.9vw;
