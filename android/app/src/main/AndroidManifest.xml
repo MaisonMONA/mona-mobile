@@ -16,4 +16,7 @@
     <uses-permission-sdk-23 android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
     <uses-permission-sdk-23 android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission-sdk-23 android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Background and foreground service permissions for location monitoring -->
+    <uses-permission-sdk-23 android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission-sdk-23 android:name="android.permission.FOREGROUND_SERVICE" />
 </manifest>

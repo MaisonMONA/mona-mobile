@@ -11,6 +11,10 @@ const config: CapacitorConfig = {
     navigationBarBackgroundColor: '#1f1f1f',
     navigationBarStyle: 'dark'
   }
+  ,
+  android: {
+    useLegacyBridge: true
+  }
 };
 
 export default config;
