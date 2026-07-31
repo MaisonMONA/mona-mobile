@@ -43,7 +43,7 @@
 
         <div v-if="!(pageNumber===9)" :style="{height: pageNumber===1 ? '45.5vh' :  '55.4vh'}" class="tutorial_content">
           <img v-if="pageNumber!==9" :style="{height: pageNumber===1 ? '45.5vh' :  '55.4vh'}" :src="`./assets/drawable/tutorial/page ${pageNumber}.svg`" alt="tutorial background content"/>
-          <img v-if="pageNumber===3" :src="`./assets/drawable/tutorial/page 3 photo.png`" alt="page 3 photo">
+          <img v-if="pageNumber===3" :src="`./assets/drawable/tutorial/page 3 photo.jpeg`" alt="page 3 photo">
           <img v-if="pageNumber===4" :src="`./assets/drawable/tutorial/page 4 photo.png`" alt="page 4 photo">
           <img v-if="pageNumber===6" :src="`./assets/drawable/tutorial/page 6 photo.png`" alt="page 6 photo">
           <img v-if="pageNumber===7" :src="`./assets/drawable/tutorial/page 7 photo.png`" alt="page 7 photo">
@@ -258,15 +258,12 @@ img[alt="page 9 photo"] {
   border-radius: 4vw;
   height: 50vh;
   position: absolute;
-  top: 0;
+  top:0;
   bottom: 0;
   left: 0;
   right: 0;
 
   margin: auto;
-  width: 92vw;
-  object-fit: cover;
-  display: block;
 }
 
 
@@ -277,9 +274,6 @@ img[alt="page 8 photo"] {
   height: 51%;
   border-radius: 4vw;
   border: 1px solid #BFBFBF;
-  width: 80.4vw;
-  object-fit: cover;
-  display: block;
 }
 
 img[alt="page 7 photo"] {
@@ -289,10 +283,6 @@ img[alt="page 7 photo"] {
   height: 49%;
   border-radius: 4vw;
   border: 1px solid #BFBFBF;
-  width: 80.4vw;
-  object-fit: cover;
-  object-position: top center;
-  display: block;
 }
 
 img[alt="page 6 photo"] {
@@ -301,9 +291,6 @@ img[alt="page 6 photo"] {
   margin-top: 40%;
   height: 60%;
   border-radius: 4vw;
-  width: 80.4vw;
-  object-fit: cover;
-  display: block;
 }
 
 img[alt="page 4 photo"] {
@@ -312,9 +299,6 @@ img[alt="page 4 photo"] {
   margin-top: 11%;
   height: 78%;
   border-radius: 4vw;
-  width: 80.4vw;
-  object-fit: cover;
-  display: block;
 }
 
 img[alt="page 3 photo"] {
@@ -323,9 +307,6 @@ img[alt="page 3 photo"] {
   position: absolute;
   margin-top: 50%;
   border-radius: 4vw;
-  width: 80.4vw;
-  object-fit: cover;
-  display: block;
 }
 
 img[alt="tutorial background content"] {
