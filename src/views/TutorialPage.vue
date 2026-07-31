@@ -339,12 +339,6 @@ img.background-blurred {
   z-index: 1;
 }
 
-@media (max-width: 767px) {
-  .tutorialHeader {
-    margin-bottom: 3vh;
-  }
-}
-
 /* Responsive adjustments for tablet and larger screens */
 @media (min-width: 768px) {
   .tutorial_content {
