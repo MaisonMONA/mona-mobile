@@ -6,6 +6,10 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   server: {
     androidScheme: 'https'
+  },
+  android: {
+    navigationBarBackgroundColor: '#1f1f1f',
+    navigationBarStyle: 'dark'
   }
 };
 

@@ -2,6 +2,9 @@
   <template v-if="isReady">
     <ion-content>
       <div class="discoveryDetailsContainer">
+        <div class="close-button-container" @click="$emit('close-discovery-details-full-modale')">
+          <button class="close-icon" type="button">✕</button>
+        </div>
         <div class="discoverydetails">
           <div class="chipsContainer">
             <!-- Type -->
@@ -361,6 +364,7 @@ export default {
     IonSegment,
     IonSegmentButton,
   },
+  emits: ["close-discovery-details-full-modale"],
 
   data() {
     let isArtwork,
@@ -749,7 +753,30 @@ export default {
 }
 
 div.discoveryDetailsContainer {
+  position: relative;
   overscroll-behavior: none;
+}
+
+.close-button-container {
+  position: fixed;
+  top: 4.5vw;
+  right: 4.5vw;
+  z-index: 1000;
+  cursor: pointer;
+}
+
+.close-icon {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #888;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
 }
 
 .chipsContainer {

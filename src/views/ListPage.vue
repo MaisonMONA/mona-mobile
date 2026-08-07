@@ -35,23 +35,25 @@
         </div>
 
         <!-- Results list -->
-        <ion-list :inset="true" lines="none" :key="componentKey">
+        <ion-list :inset="true" lines="none">
           <ion-item
             id="list"
             v-for="discovery of getDiscoveriesToShow()"
-            :key="discovery"
+            :key="`${discovery.dType}:${discovery.id}`"
             @click="openDiscoveryDetailsFullModale(discovery)"
           >
             <!-- Discovery pin icon (canvas-rendered) -->
             <img
               v-if="collectedPhotoPinDataUrls[`${discovery.dType}:${discovery.id}`]"
               :src="collectedPhotoPinDataUrls[`${discovery.dType}:${discovery.id}`]"
+              :key="`${componentKey}-${discovery.dType}:${discovery.id}-collected`"
               class="list-pin-icon collected-pin-icon"
               slot="start"
             />
             <img
               v-else
               :src="getDefaultPinDataUrl(discovery)"
+              :key="`${componentKey}-${discovery.dType}:${discovery.id}-default`"
               class="list-pin-icon"
               slot="start"
             />
@@ -67,10 +69,7 @@
             </ion-label>
           </ion-item>
         </ion-list>
-        <ion-infinite-scroll
-          @ionInfinite="pullMoreDiscoveries"
-          :key="componentKey"
-        >
+        <ion-infinite-scroll @ionInfinite="pullMoreDiscoveries">
           <ion-infinite-scroll-content></ion-infinite-scroll-content>
         </ion-infinite-scroll>
         <p class="bottom-text">{{ getDiscoveriesToShow().length }} résultats</p>
@@ -348,16 +347,27 @@ export default {
 
     const discoveries = [null, this.place, this.artwork, this.heritage];
     for (const discovery of discoveries) {
-      for (let i = 0; i < 2; i++) {
-        this.pullSortedDiscoveries(null, i, discovery);
-        this.arrayOffset = 0;
-      }
+      this.arrayOffset = 0;
+      this.pullSortedDiscoveries(null, false, discovery);
+      this.pullSortedDiscoveries(null, false, discovery);
+
+      this.arrayOffset = 0;
+      this.pullSortedDiscoveries(null, true, discovery);
+      this.pullSortedDiscoveries(null, true, discovery);
     }
   },
 
   async mounted() {
     this._onTargetedChanged = () => this.forceRerender();
     eventBus.on("targeted-changed", this._onTargetedChanged);
+
+    this._onCollectedChanged = async () => {
+      this.collectedPhotoUrls = {};
+      this.collectedPhotoPinDataUrls = {};
+      await this.loadCollectedPhotos();
+      await this.renderCollectedPhotoPins();
+    };
+    eventBus.on("collected-changed", this._onCollectedChanged);
 
     // Wait for pin icons to load, then generate default pin data URLs
     await Promise.all(Object.values(iconLoadPromises));
@@ -370,6 +380,10 @@ export default {
   unmounted() {
     if (this._onTargetedChanged) {
       eventBus.off("targeted-changed", this._onTargetedChanged);
+    }
+
+    if (this._onCollectedChanged) {
+      eventBus.off("collected-changed", this._onCollectedChanged);
     }
   },
 

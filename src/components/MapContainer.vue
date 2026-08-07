@@ -140,6 +140,7 @@
   >
       <discovery-details
         :selected-discovery="currentSelectedDiscovery"
+        @close-discovery-details="discoveryDetailsModalOpen = false"
         @view-full-details="
           openDiscoveryDetailsFullModale(currentSelectedDiscovery)
         "
@@ -483,6 +484,16 @@ export default {
     };
     eventBus.on("targeted-changed", this._onTargetedChanged);
 
+    this._onCollectedChanged = async () => {
+      Object.keys(collectedPhotoImgCache).forEach((key) => {
+        delete collectedPhotoImgCache[key];
+      });
+      Object.keys(collectedPhotoPinCache).forEach((key) => {
+        delete collectedPhotoPinCache[key];
+      });
+      await this.loadCollectedPhotosForPins();
+    };
+    eventBus.on("collected-changed", this._onCollectedChanged);
     // Foreground app state change listener
     // After user go back to the app from app settings, check if the location permission is granted
     await App.addListener("appStateChange", async ({ isActive }) => {
@@ -524,13 +535,15 @@ export default {
     },
 
     updateClosestDiscoveries() {
+      // For distance between discoveries and user location
+      this.lat2 = UserData.getLocation(true)[1];
+      this.lng2 = UserData.getLocation(true)[0];
+
+      UserData.sortByDistance();
       this.closestDiscoveriesDistance = UserData.getSortedDiscoveriesDistance(
         0,
         12,
       );
-      // For distance between discoveries and user location
-      this.lat2 = UserData.getLocation(true)[1];
-      this.lng2 = UserData.getLocation(true)[0];
 
       // Build/refresh static pin data URLs for the proximity list
       const nextUrls = {};
@@ -803,9 +816,9 @@ export default {
       } else if (zoomLevel < 15.5) {
         canvasSize = 44; circleRadius = 24; pinScale = 1.7;
       } else if (zoomLevel < 16.5) {
-        canvasSize = 52; circleRadius = 32; pinScale = 2.0;
+        canvasSize = 49; circleRadius = 30; pinScale = 1.9;
       } else {
-        canvasSize = 64; circleRadius = 40; pinScale = 2.4;
+        canvasSize = 60; circleRadius = 37; pinScale = 2.25;
       }
 
       // --- Collected: circular photo pin ---
@@ -911,7 +924,7 @@ export default {
       const fillColors = {
         default: "rgba(249, 161, 134, 0.28)",
         targeted: "rgba(244, 162, 89, 0.28)",
-        collected: "rgba(242, 110, 94, 0.35)",
+        collected: "rgba(249, 161, 134, 0.28)",
       };
 
       return [
@@ -948,7 +961,6 @@ export default {
         );
         this.formerSelectedPolygonFeature = null;
       }
-
     },
 
     highlightSelectedDiscoveryPolygon(selectedDiscovery) {
@@ -1098,6 +1110,7 @@ export default {
           
           // Update the viewport state
           this.updateUserLocationViewportState();
+          this.updateClosestDiscoveries();
         }
       });
     },

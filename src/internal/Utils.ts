@@ -112,7 +112,7 @@ const downloadImage = async (
   // Generating thumbnail
   await Filesystem.writeFile({
     path: "thumbnail/" + filename,
-    data: await resizeImage(base64Data, 250, 250),
+    data: await resizeImage(base64Data, 512, 512),
     directory: Directory.Data,
     recursive: true,
   }).catch((err) => {
@@ -170,7 +170,7 @@ export default {
     // Generating thumbnail
     await Filesystem.writeFile({
       path: "thumbnail/" + filename,
-      data: await resizeImage(base64Data, 250, 250),
+      data: await resizeImage(base64Data, 512, 512),
       directory: Directory.Data,
       recursive: true,
     }).catch((err) => {
@@ -178,6 +178,30 @@ export default {
     });
 
     return filename;
+  },
+
+  async regenerateThumbnail(filename: string, targetSize = 512): Promise<void> {
+    /**
+     * Rebuilds the stored thumbnail from the original saved image.
+     *
+     * @param filename - file name of the original image
+     * @param targetSize - maximum width/height for the regenerated thumbnail
+     */
+
+    const image = await Filesystem.readFile({
+      path: "img/" + filename,
+      directory: Directory.Data,
+    });
+
+    const extension = filename.split(".").at(-1) || "jpeg";
+    const base64Image = `data:image/${extension};base64,${image.data}`;
+
+    await Filesystem.writeFile({
+      path: "thumbnail/" + filename,
+      data: await resizeImage(base64Image, targetSize, targetSize),
+      directory: Directory.Data,
+      recursive: true,
+    });
   },
 
   async sendPictureAndDetails(id: number, type: number | string) {

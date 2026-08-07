@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 
 android {
     namespace "com.maison.mona"
-    compileSdkVersion 35
+    compileSdkVersion 36
     defaultConfig {
         applicationId "com.maison.mona"
         minSdkVersion 26
-        targetSdkVersion 35
-        versionCode 803
-        versionName "8.0.3"
+        targetSdkVersion 36
+        versionCode 813
+        versionName "8.1.3"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

@@ -1,6 +1,9 @@
 <template>
   <template v-if="isReady">
     <div class="discoveryDetailsContainer">
+      <div class="close-button-container" @click="$emit('close-discovery-details')">
+        <button class="close-icon" type="button">✕</button>
+      </div>
         <div class="discoverydetails">
           <div class="chipsContainer">
             <!-- Type -->
@@ -87,7 +90,7 @@
               v-if="dType === 'artwork'"
               id="bigDotBetweenArtistsAndDate"
             >
-
+              •
             </span>
             <!-- Production date -->
             <span class="details production-date">{{ productionDate }}</span>
@@ -189,6 +192,7 @@ export default {
     IonImg,
     IonChip,
   },
+  emits: ["close-discovery-details"],
 
   data() {
     let isArtwork,
@@ -426,7 +430,30 @@ export default {
 
 <style scoped>
 div.discoveryDetailsContainer {
+  position: relative;
   padding-bottom: 10vh;
+}
+
+.close-button-container {
+  position: absolute;
+  top: 4.5vw;
+  right: 4.5vw;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.close-icon {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #888;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
 }
 
 .chipsContainer {

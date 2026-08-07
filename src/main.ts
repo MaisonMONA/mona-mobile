@@ -6,6 +6,8 @@ import './global.css';
 
 
 import { IonicVue } from "@ionic/vue";
+import { StatusBar, Style } from '@capacitor/status-bar';
+import { Capacitor } from '@capacitor/core';
 
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/vue/css/core.css";
@@ -30,4 +32,10 @@ const app = createApp(App).use(IonicVue).use(router).use(pinia);
 
 router.isReady().then(() => {
   app.mount("#app");
+  
+    // Initialize status bar styling for native platforms
+    if (Capacitor.isNativePlatform()) {
+      StatusBar.setStyle({ style: Style.Dark });
+      StatusBar.setBackgroundColor({ color: '#1f1f1f' });
+    }
 });

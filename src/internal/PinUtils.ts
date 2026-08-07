@@ -185,7 +185,7 @@ export function createDefaultPinCanvas(
     // Ground shadow ellipse
     ctx.fillStyle = "black";
     ctx.beginPath();
-    ctx.ellipse(cx, tipY, 14, 3, 0, 0, Math.PI * 2);
+    ctx.ellipse(cx, tipY, 10.5, 2.2, 0, 0, Math.PI * 2);
     ctx.fill();
   }
 
@@ -301,7 +301,7 @@ export function createCircularPhotoPinCanvas(
     // Ground shadow ellipse
     ctx.fillStyle = "black";
     ctx.beginPath();
-    ctx.ellipse(cx, tipY, 14, 3, 0, 0, Math.PI * 2);
+    ctx.ellipse(cx, tipY, 10.5, 2.2, 0, 0, Math.PI * 2);
     ctx.fill();
   }
 
@@ -364,7 +364,7 @@ export function createCircularPhotoPinCanvas(
 }
 
 export function truncatePinTitle(title: string): string {
-  const maxChars = 16;
+  const maxChars = 11;
   if (!title || typeof title !== "string") return "";
   return title.length > maxChars ? `${title.slice(0, maxChars)}...` : title;
 }
@@ -380,16 +380,18 @@ export function createTargetedPinCanvas(
 ): HTMLCanvasElement {
   const paddingX = 10;
   const paddingY = 6;
-  const iconSize = 12;
+  const iconSize = 8;
   const iconGap = 5;
-  const fontSize = 12;
+  const fontSize = 14;
+  const fontFamily = "Open Sans, sans-serif";
+  const fontWeight = 600;
   const pointerHeight = 8;
   const borderRadius = 14;
 
   // Measure text
   const measureCanvas = document.createElement("canvas");
   const measureCtx = measureCanvas.getContext("2d")!;
-  measureCtx.font = `700 ${fontSize}px Arial`;
+  measureCtx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
   const displayTitle = truncatePinTitle(title);
   const textWidth = measureCtx.measureText(displayTitle).width;
 
@@ -415,7 +417,7 @@ export function createTargetedPinCanvas(
     // Ground shadow ellipse
     ctx.fillStyle = "black";
     ctx.beginPath();
-    ctx.ellipse(cx, tipY, 14, 3, 0, 0, Math.PI * 2);
+    ctx.ellipse(cx, tipY, 10.5, 2.2, 0, 0, Math.PI * 2);
     ctx.fill();
   }
 
@@ -466,7 +468,7 @@ export function createTargetedPinCanvas(
   }
 
   // Draw title text
-  ctx.font = `700 ${fontSize}px Arial`;
+  ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
   ctx.fillStyle = "#1F1F1F";
   ctx.textBaseline = "middle";
   ctx.fillText(displayTitle, paddingX + iconSize + iconGap, pillHeight / 2 + 1);
@@ -500,21 +502,11 @@ export function createAnnuairePinCanvas(
   const cx = totalSize / 2;
   const cy = totalSize / 2;
 
-  // Shadow
-  ctx.shadowColor = "rgba(0, 0, 0, 0.25)";
-  ctx.shadowBlur = 3;
-  ctx.shadowOffsetY = 1;
-
   // Outer pale border circle
   ctx.beginPath();
   ctx.arc(cx, cy, outerRadius, 0, Math.PI * 2);
   ctx.fillStyle = colors.border;
   ctx.fill();
-
-  // Reset shadow for inner fill
-  ctx.shadowColor = "transparent";
-  ctx.shadowBlur = 0;
-  ctx.shadowOffsetY = 0;
 
   // Inner darker fill circle (vertical gradient)
   const innerGrad = ctx.createLinearGradient(
@@ -586,11 +578,6 @@ export function createAnnuaireCollectedPhotoCanvas(
   const cy = totalSize / 2;
   const photoRadius = size / 2;
 
-  // Shadow
-  ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
-  ctx.shadowBlur = 6;
-  ctx.shadowOffsetY = 2;
-
   // Gradient ring (single ring, no outer border)
   const ringGrad = ctx.createLinearGradient(
     cx,
@@ -604,11 +591,6 @@ export function createAnnuaireCollectedPhotoCanvas(
   ctx.arc(cx, cy, photoRadius + ringWidth, 0, Math.PI * 2);
   ctx.fillStyle = ringGrad;
   ctx.fill();
-
-  // Reset shadow
-  ctx.shadowColor = "transparent";
-  ctx.shadowBlur = 0;
-  ctx.shadowOffsetY = 0;
 
   // Clip circle and draw photo
   ctx.save();

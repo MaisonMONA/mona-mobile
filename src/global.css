@@ -1,5 +1,16 @@
 /* src/global.css */
 
+/* Safe area handling for notches, navigation bars, and gesture areas */
+body {
+    padding-top: max(0px, env(safe-area-inset-top));
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
+}
+
+ion-app {
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+}
+
 /* Difficult to modify ion-searchbar's style, so this is to override Ionic's ion-searchbar's style */
 ion-searchbar#listIonSearchBar {
     margin-right: 1.3vw;

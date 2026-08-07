@@ -43,7 +43,7 @@
 
         <div v-if="!(pageNumber===9)" :style="{height: pageNumber===1 ? '45.5vh' :  '55.4vh'}" class="tutorial_content">
           <img v-if="pageNumber!==9" :style="{height: pageNumber===1 ? '45.5vh' :  '55.4vh'}" :src="`./assets/drawable/tutorial/page ${pageNumber}.svg`" alt="tutorial background content"/>
-          <img v-if="pageNumber===3" :src="`./assets/drawable/tutorial/page 3 photo.jpeg`" alt="page 3 photo">
+          <img v-if="pageNumber===3" :src="`./assets/drawable/tutorial/page 3 photo.png`" alt="page 3 photo">
           <img v-if="pageNumber===4" :src="`./assets/drawable/tutorial/page 4 photo.png`" alt="page 4 photo">
           <img v-if="pageNumber===6" :src="`./assets/drawable/tutorial/page 6 photo.png`" alt="page 6 photo">
           <img v-if="pageNumber===7" :src="`./assets/drawable/tutorial/page 7 photo.png`" alt="page 7 photo">
