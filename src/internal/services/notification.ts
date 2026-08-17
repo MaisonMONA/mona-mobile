@@ -10,6 +10,11 @@ export type DiscoveryCandidate = {
   isCollected?: boolean;
 };
 
+export type CurrentCoordinates = {
+  latitude: number;
+  longitude: number;
+};
+
 type NotificationDensityZone = 'dense' | 'middle' | 'sparse';
 
 type NotificationDecision =
@@ -185,6 +190,17 @@ function getDensityZone(countWithin2Km: number): NotificationDensityZone {
   return 'middle';
 }
 
+export function getGlobalCooldownMs(zone: NotificationDensityZone): number {
+  const zoneCooldownHours =
+    zone === 'dense'
+      ? NOTIFICATION_CONFIG.DENSE.GLOBAL_COOLDOWN_H
+      : zone === 'middle'
+        ? NOTIFICATION_CONFIG.MIDDLE.GLOBAL_COOLDOWN_H
+        : NOTIFICATION_CONFIG.SPARSE.GLOBAL_COOLDOWN_H;
+
+  return (zoneCooldownHours ?? 0) * 3600_000;
+}
+
 export class ProximityNotificationService {
   /**
    * Request the permissions required for geolocation and local notifications.
@@ -208,7 +224,11 @@ export class ProximityNotificationService {
   /**
    * Run one proximity scan and send a notification when the rules pass.
    */
-  async runCheck(discoveries: DiscoveryCandidate[]): Promise<{ sent: boolean; reason: string }> {
+  async runCheck(
+    discoveries: DiscoveryCandidate[],
+    currentCoordinates?: CurrentCoordinates,
+    skipPermissionChecks = false,
+  ): Promise<{ sent: boolean; reason: string }> {
     // Apply the hard gates first to avoid unnecessary location work.
     const permissionsGranted = await this.initPermissions();
 
@@ -233,30 +253,39 @@ export class ProximityNotificationService {
       return { sent: false, reason: 'daily_cap' };
     }
 
-    // Read the current position once, then reuse it for the full rule evaluation.
-    const position = await Geolocation.getCurrentPosition({
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 15000,
-    });
+    // Reuse coordinates from the wake event when available; otherwise read them once.
+    const position = currentCoordinates
+      ? null
+      : await Geolocation.getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 15000,
+        });
 
-    const currentLat = position.coords.latitude;
-    const currentLng = position.coords.longitude;
+    // Safely extract coordinates with fallbacks
+    let currentLat: number = 0;
+    let currentLng: number = 0;
+
+    if (currentCoordinates) {
+      // Use provided coordinates, with validation
+      currentLat = typeof currentCoordinates.latitude === 'number' ? currentCoordinates.latitude : 0;
+      currentLng = typeof currentCoordinates.longitude === 'number' ? currentCoordinates.longitude : 0;
+    } else if (position && position.coords) {
+      // Use position from Geolocation call
+      currentLat = position.coords.latitude;
+      currentLng = position.coords.longitude;
+    }
+    // If both are invalid/falsy, we'll use the defaults (0, 0) which will likely fail validation later
+    // but at least won't crash
+
     const now = nowMs();
 
     // Skip repeated scans if the user has not moved enough since the last one.
     const lastCheckLat = await getNumberPreference(PREFERENCE_KEYS.LAST_CHECK_LAT);
     const lastCheckLng = await getNumberPreference(PREFERENCE_KEYS.LAST_CHECK_LNG);
-    const lastCheckAt = await getNumberPreference(PREFERENCE_KEYS.LAST_CHECK_AT);
-
-    if (lastCheckLat != null && lastCheckLng != null && lastCheckAt != null) {
+    if (lastCheckLat != null && lastCheckLng != null) {
       const movedMeters = haversineDistanceMeters(lastCheckLat, lastCheckLng, currentLat, currentLng);
-      const minutesSinceLastCheck = (now - lastCheckAt) / 60000;
-
-      if (
-        movedMeters < NOTIFICATION_CONFIG.MIN_MOVE_TO_RECHECK_M &&
-        minutesSinceLastCheck < NOTIFICATION_CONFIG.MAX_RECHECK_MIN
-      ) {
+      if (movedMeters < NOTIFICATION_CONFIG.MIN_MOVE_TO_RECHECK_M) {
         return { sent: false, reason: 'not_moved_enough' };
       }
     }
