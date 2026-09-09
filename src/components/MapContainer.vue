@@ -350,36 +350,6 @@ export default {
     Distance() {
       return Distance;
     },
-
-    async requestBackgroundAndNotifPermissions() {
-      // Called when user accepts the rationale alert.
-      try {
-        // Request notifications permission first (Android 13+ path handled by plugin)
-        try {
-          const notifPerm = await LocalNotifications.checkPermissions();
-          if (notifPerm.display !== 'granted') {
-            const requested = await LocalNotifications.requestPermissions();
-            if (requested.display !== 'granted') {
-              // User declined notifications; respect that and stop here.
-              console.log('User declined notifications permission');
-              return;
-            }
-          }
-        } catch (e) {
-          console.warn('LocalNotifications permission check/request failed', e);
-        }
-
-        // Then ensure background/geolocation permission via the background service helper.
-        const ok = await ensureBackgroundPermissions();
-        if (ok) {
-          await backgroundProximityService.start();
-        } else {
-          console.log('Background location permission not granted; skipping background watcher');
-        }
-      } catch (e) {
-        console.warn('requestBackgroundAndNotifPermissions failed', e);
-      }
-    },
     UserData() {
       return UserData;
     },
@@ -552,6 +522,8 @@ export default {
     // Foreground app state change listener
     // After user go back to the app from app settings, check if the location permission is granted
     await App.addListener("appStateChange", async ({ isActive }) => {
+      await backgroundProximityService.setAppForeground(isActive);
+
       if (isActive) {
         const geoCheckPermission = await Geolocation.checkPermissions();
         this.isPermissionDenied = geoCheckPermission.location === "denied";
@@ -599,17 +571,43 @@ export default {
       }
     })();
 
-    // Trigger one proximity notification scan once the map and location service are ready.
-    await this.checkProximityNotifications();
-
-    // Update closest discoveries every 2 minutes
+    // Keep only the visual proximity list updated in the foreground.
     this.discoveryUpdateInterval = setInterval(() => {
       this.updateClosestDiscoveries();
-      void this.checkProximityNotifications();
     }, 120000); // 120000 ms = 2 minutes
   },
 
   methods: {
+
+    async requestBackgroundAndNotifPermissions() {
+      // Called when user accepts the rationale alert.
+      try {
+        // Request notifications permission first (Android 13+ path handled by plugin)
+        try {
+          const notifPerm = await LocalNotifications.checkPermissions();
+          if (notifPerm.display !== 'granted') {
+            const requested = await LocalNotifications.requestPermissions();
+            if (requested.display !== 'granted') {
+              // User declined notifications; respect that and stop here.
+              console.log('User declined notifications permission');
+              return;
+            }
+          }
+        } catch (e) {
+          console.warn('LocalNotifications permission check/request failed', e);
+        }
+
+        const ok = await ensureBackgroundPermissions();
+        if (!ok) {
+          console.log('Background location permission not granted; skipping background watcher');
+          return;
+        }
+
+        await backgroundProximityService.start();
+      } catch (e) {
+        console.warn('requestBackgroundAndNotifPermissions failed', e);
+      }
+    },
 
     openDiscoveryDetailsFullModale(discovery) {
       this.discoveryDetailsFullModalOpen = true;
