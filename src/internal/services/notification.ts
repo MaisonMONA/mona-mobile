@@ -49,18 +49,18 @@ const NOTIFICATION_CONFIG = {
     MIN_TOTAL_IN_RADIUS: 5,
     MIN_UNEXPLORED_IN_RADIUS: 3,
     NEAREST_MAX_M: 150,
-    GLOBAL_COOLDOWN_H: 1/120, //4
+    GLOBAL_COOLDOWN_H: 1/20, //4
   },
   MIDDLE: {
     RADIUS_M: 450,
     MIN_UNEXPLORED_IN_RADIUS: 2,
     NEAREST_MAX_M: 300,
-    GLOBAL_COOLDOWN_H: 1/120, //3
+    GLOBAL_COOLDOWN_H: 1/20, //3
   },
   SPARSE: {
     RADIUS_M: 800,
     MIN_UNEXPLORED_IN_RADIUS: 1,
-    GLOBAL_COOLDOWN_H: 1/120, //2
+    GLOBAL_COOLDOWN_H: 1/20, //2
   },
   
   QUIET_HOURS_START: 21,
@@ -230,13 +230,23 @@ export class ProximityNotificationService {
     skipPermissionChecks = false,
   ): Promise<{ sent: boolean; reason: string }> {
     // Apply the hard gates first to avoid unnecessary location work.
+    console.log('[ProximityNotificationService] runCheck start', {
+      discoveryCount: discoveries.length,
+      currentCoordinates,
+      skipPermissionChecks,
+    });
+
     const permissionsGranted = await this.initPermissions();
 
-    if (!permissionsGranted) 
+    if (!permissionsGranted) {
+      console.warn('[ProximityNotificationService] Notification gate blocked: permissions_not_granted');
       return { sent: false, reason: 'permissions_not_granted' };
+    }
 
-    if (await isQuietHours()) 
+    if (await isQuietHours()) {
+      console.log('[ProximityNotificationService] Notification gate blocked: quiet_hours');
       return { sent: false, reason: 'quiet_hours' };
+    }
 
     // Enforce the daily cap with a local YYYY-MM-DD key.
     const today = todayKeyLocal();
@@ -250,6 +260,10 @@ export class ProximityNotificationService {
     }
 
     if (dailyNotificationCount >= NOTIFICATION_CONFIG.DAILY_CAP) {
+      console.log('[ProximityNotificationService] Notification gate blocked: daily_cap', {
+        dailyNotificationCount,
+        limit: NOTIFICATION_CONFIG.DAILY_CAP,
+      });
       return { sent: false, reason: 'daily_cap' };
     }
 
@@ -285,7 +299,16 @@ export class ProximityNotificationService {
     const lastCheckLng = await getNumberPreference(PREFERENCE_KEYS.LAST_CHECK_LNG);
     if (lastCheckLat != null && lastCheckLng != null) {
       const movedMeters = haversineDistanceMeters(lastCheckLat, lastCheckLng, currentLat, currentLng);
+      console.log('[ProximityNotificationService] Movement gate', {
+        lastCheckLat,
+        lastCheckLng,
+        currentLat,
+        currentLng,
+        movedMeters,
+        minMove: NOTIFICATION_CONFIG.MIN_MOVE_TO_RECHECK_M,
+      });
       if (movedMeters < NOTIFICATION_CONFIG.MIN_MOVE_TO_RECHECK_M) {
+        console.log('[ProximityNotificationService] Notification gate blocked: not_moved_enough', { movedMeters });
         return { sent: false, reason: 'not_moved_enough' };
       }
     }
@@ -307,7 +330,20 @@ export class ProximityNotificationService {
     const zone = getDensityZone(discoveriesWithin2Km.length);
 
     const decision = await this.evaluateTrigger(zone, discoveriesWithDistance, now);
-    if (!decision.notify) return { sent: false, reason: decision.reason };
+    if (!decision.notify) {
+      console.log('[ProximityNotificationService] Notification decision denied', {
+        zone,
+        reason: decision.reason,
+        discoveriesWithin2Km: discoveriesWithin2Km.length,
+      });
+      return { sent: false, reason: decision.reason };
+    }
+
+    console.log('[ProximityNotificationService] Notification decision accepted', {
+      zone,
+      message: decision.message,
+      candidateCount: decision.candidates.length,
+    });
 
     await this.sendNotification(decision.message);
 

@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "test:e2e": "cypress run",
     "test:unit": "vitest",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "android:build": "npx cap build android",
+    "android:build:windows": "cmd /c \"C:\\Users\\User\\Desktop\\MONA\\mona-mobile\\build-android-windows.bat\""
   },
   "dependencies": {
     "@capacitor-community/background-geolocation": "^1.2.26",
