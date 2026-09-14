@@ -60,6 +60,7 @@ public final class MonaNativeNotification {
                 .setSmallIcon(android.R.drawable.ic_dialog_map)
                 .setContentTitle(title)
                 .setContentText(message)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
