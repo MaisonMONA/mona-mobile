@@ -224,8 +224,13 @@ import { Geolocation } from "@capacitor/geolocation";
 import { LocationService } from "@/internal/LocationService";
 import {
   ProximityNotificationService,
+  resetGlobalNotificationCooldown,
 } from "@/internal/services/notification";
-import { backgroundProximityService, ensureBackgroundPermissions } from "@/internal/services/backgroundNotification";
+import {
+  backgroundProximityService,
+  ensureBackgroundPermissions,
+  checkNativeBackgroundPermissions,
+} from "@/internal/services/backgroundNotification";
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { isPlatform } from "@ionic/vue";
 import { App } from "@capacitor/app";
@@ -434,7 +439,7 @@ export default {
       isAlertOpen: false,
       isRationaleOpen: false,
       rationaleMessage:
-        "Pour envoyer des notifications utiles lorsque vous êtes près d'œuvres, MONA a besoin d'accéder à votre position même en arrière-plan et d'autoriser les notifications. Cela permet d'envoyer une seule alerte lorsque vous êtes à ~1 km d'œuvres intéressantes. Vous pouvez choisir 'Activer' pour continuer ou 'Annuler' si vous préférez ne pas activer ces autorisations.",
+        "Pour profiter pleinement de MONA et recevoir les notifications même lorsque l'app est fermée, choisissez « Toujours autoriser » dans les réglages Android. Votre position sert uniquement à trouver les œuvres à proximité.",
       rationaleBtn: [
         {
           text: 'Annuler',
@@ -530,19 +535,23 @@ export default {
 
         if (!this.isPermissionDenied) {
           this.showLocation();
+          await resetGlobalNotificationCooldown();
           // Restart location service if needed
           if (!LocationService.isWatching()) {
             await this.startLocationService();
           }
+
+          const nativePermissions = await checkNativeBackgroundPermissions();
+          if (nativePermissions.backgroundGranted) {
+            // Re-center the native 1 km fence at the user's current location.
+            // This accounts for movement that happened before reopening MONA.
+            await backgroundProximityService.stop({ keepArmed: true });
+            await backgroundProximityService.start();
+          }
         }
       }
     });
-    // If the permission is granted, this.askForPermissions() will not ask for permission again
-    await this.askForPermissions();
     this.myMap();
-
-    // Start location service
-    await this.startLocationService();
 
     // Start background proximity monitoring after ensuring background permissions.
     // Native configuration and a proper background-geolocation plugin are
@@ -554,20 +563,23 @@ export default {
         const geoCheck = await Geolocation.checkPermissions();
         const notifCheck = await LocalNotifications.checkPermissions().catch(() => ({ display: 'prompt' }));
 
-        // If notifications or background location are not already granted, show rationale.
+        // Foreground location is enough to use the app. Background access is
+        // optional and only affects notifications after the app is closed.
         const needsNotif = notifCheck.display !== 'granted';
         const needsGeo = geoCheck.location !== 'granted';
 
         if (needsNotif || needsGeo) {
           this.isRationaleOpen = true;
         } else {
-          // Already allowed — proceed to ensure background watcher starts.
-          const ok = await ensureBackgroundPermissions();
-          if (ok) await backgroundProximityService.start();
+          await this.askForPermissions();
+          await this.startLocationService();
+          const nativePermissions = await checkNativeBackgroundPermissions();
+          if (nativePermissions.backgroundGranted) {
+            await backgroundProximityService.start();
+          }
         }
       } catch (e) {
         console.warn('Failed to prepare background proximity service', e);
-        void backgroundProximityService.start();
       }
     })();
 
@@ -582,6 +594,13 @@ export default {
     async requestBackgroundAndNotifPermissions() {
       // Called when user accepts the rationale alert.
       try {
+        const geoPerm = await Geolocation.requestPermissions();
+        this.isPermissionDenied = geoPerm.location === "denied";
+        if (this.isPermissionDenied) {
+          console.log('User declined foreground location permission');
+          return;
+        }
+
         // Request notifications permission first (Android 13+ path handled by plugin)
         try {
           const notifPerm = await LocalNotifications.checkPermissions();
@@ -597,12 +616,9 @@ export default {
           console.warn('LocalNotifications permission check/request failed', e);
         }
 
-        const ok = await ensureBackgroundPermissions();
-        if (!ok) {
-          console.log('Background location permission not granted; skipping background watcher');
-          return;
-        }
-
+        // Only users who explicitly press "Activer" are sent to Android
+        // settings to enable background location.
+        await ensureBackgroundPermissions();
         await backgroundProximityService.start();
       } catch (e) {
         console.warn('requestBackgroundAndNotifPermissions failed', e);

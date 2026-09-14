@@ -41,34 +41,17 @@ const PREFERENCE_KEYS = {
 
 // Proximity thresholds used by the notification rules.
 const NOTIFICATION_CONFIG = {
-  DENSITY_RADIUS_M: 1999,
+  DENSITY_RADIUS_M: 1000,
   DENSE_MIN_COUNT: 20,
   SPARSE_MAX_COUNT: 5,
-  DENSE: {
-    RADIUS_M: 200,
-    MIN_TOTAL_IN_RADIUS: 5,
-    MIN_UNEXPLORED_IN_RADIUS: 3,
-    NEAREST_MAX_M: 150,
-    GLOBAL_COOLDOWN_H: 1/20, //4
-  },
-  MIDDLE: {
-    RADIUS_M: 450,
-    MIN_UNEXPLORED_IN_RADIUS: 2,
-    NEAREST_MAX_M: 300,
-    GLOBAL_COOLDOWN_H: 1/20, //3
-  },
-  SPARSE: {
-    RADIUS_M: 800,
-    MIN_UNEXPLORED_IN_RADIUS: 1,
-    GLOBAL_COOLDOWN_H: 1/20, //2
-  },
-  
   QUIET_HOURS_START: 21,
   QUIET_HOURS_END: 8,
   MIN_MOVE_TO_RECHECK_M: 1/*20*/,
-  MAX_RECHECK_MIN: 1/*5*/,
+  MAX_RECHECK_MIN: 5,
   DAILY_CAP: 40,
-  PER_DISCOVERY_COOLDOWN_H: 0/*24*/,
+  // Keep this short while testing. Production values can be 4h dense / 6h sparse.
+  GLOBAL_COOLDOWN_MS: 3 * 60 * 1000,
+  PER_DISCOVERY_COOLDOWN_MS: 24 * 60 * 60 * 1000,
 };
 
 // Convert degrees to radians for the haversine formula.
@@ -191,14 +174,17 @@ function getDensityZone(countWithin2Km: number): NotificationDensityZone {
 }
 
 export function getGlobalCooldownMs(zone: NotificationDensityZone): number {
-  const zoneCooldownHours =
-    zone === 'dense'
-      ? NOTIFICATION_CONFIG.DENSE.GLOBAL_COOLDOWN_H
-      : zone === 'middle'
-        ? NOTIFICATION_CONFIG.MIDDLE.GLOBAL_COOLDOWN_H
-        : NOTIFICATION_CONFIG.SPARSE.GLOBAL_COOLDOWN_H;
+  void zone;
+  return NOTIFICATION_CONFIG.GLOBAL_COOLDOWN_MS;
+}
 
-  return (zoneCooldownHours ?? 0) * 3600_000;
+/**
+ * An intentional app opening starts a new discovery session. The next check
+ * may notify immediately, while future background checks use the normal
+ * persistent cooldown timestamp.
+ */
+export async function resetGlobalNotificationCooldown(): Promise<void> {
+  await setNumberPreference(PREFERENCE_KEYS.LAST_GLOBAL_NOTIF_AT, 0);
 }
 
 export class ProximityNotificationService {
@@ -375,17 +361,9 @@ export class ProximityNotificationService {
     const discoveryLastNotificationMap = await getDiscoveryLastNotificationMap();
     const lastGlobalNotificationAt = await getNumberPreference(PREFERENCE_KEYS.LAST_GLOBAL_NOTIF_AT);
 
-    // Each zone has its own global cooldown window.
-    const zoneCooldownHours =
-      zone === 'dense'
-        ? NOTIFICATION_CONFIG.DENSE.GLOBAL_COOLDOWN_H
-        : zone === 'middle'
-          ? NOTIFICATION_CONFIG.MIDDLE.GLOBAL_COOLDOWN_H
-          : NOTIFICATION_CONFIG.SPARSE.GLOBAL_COOLDOWN_H;
-
     if (
       lastGlobalNotificationAt != null &&
-      now - lastGlobalNotificationAt < zoneCooldownHours * 3600_000
+      now - lastGlobalNotificationAt < NOTIFICATION_CONFIG.GLOBAL_COOLDOWN_MS
     ) {
       return { notify: false, reason: 'global_cooldown' };
     }
@@ -394,95 +372,81 @@ export class ProximityNotificationService {
     const canNotifyDiscovery = (discoveryId: string): boolean => {
       const lastNotificationAt = discoveryLastNotificationMap[discoveryId];
       if (!lastNotificationAt) return true;
-      return now - lastNotificationAt >= NOTIFICATION_CONFIG.PER_DISCOVERY_COOLDOWN_H * 3600_000;
+      return now - lastNotificationAt >= NOTIFICATION_CONFIG.PER_DISCOVERY_COOLDOWN_MS;
     };
 
-    if (zone === 'dense') {
-      const discoveriesInRadius = discoveriesWithDistance.filter(
-        (item) => item.distanceMeters <= NOTIFICATION_CONFIG.DENSE.RADIUS_M,
-      );
-      const uncollectedDiscoveries = discoveriesInRadius.filter((item) => item.isUncollected);
-      const nearestDistanceMeters = discoveriesInRadius.length
-        ? Math.min(...discoveriesInRadius.map((item) => item.distanceMeters))
-        : Infinity;
-
-      const candidates = uncollectedDiscoveries
-        .filter((item) => canNotifyDiscovery(item.discovery.id))
-        .sort((a, b) => a.distanceMeters - b.distanceMeters)
-        .map((item) => item.discovery);
-
-      const shouldNotify =
-        discoveriesInRadius.length >= NOTIFICATION_CONFIG.DENSE.MIN_TOTAL_IN_RADIUS &&
-        uncollectedDiscoveries.length >= NOTIFICATION_CONFIG.DENSE.MIN_UNEXPLORED_IN_RADIUS &&
-        nearestDistanceMeters <= NOTIFICATION_CONFIG.DENSE.NEAREST_MAX_M &&
-        candidates.length > 0;
-
-      if (!shouldNotify) return { notify: false, reason: 'dense_conditions_not_met' };
-
-      return {
-        notify: true,
-        zone: 'dense',
-        candidates: candidates.slice(0, 3),
-        message: `🎨 Zone riche : plusieurs œuvres proches de vous (à ~${Math.round(nearestDistanceMeters)} m).`,
-      };
-    }
-
-    if (zone === 'middle') {
-      const discoveriesInRadius = discoveriesWithDistance.filter(
-        (item) => item.distanceMeters <= NOTIFICATION_CONFIG.MIDDLE.RADIUS_M,
-      );
-      const uncollectedDiscoveries = discoveriesInRadius.filter((item) => item.isUncollected);
-      const nearestDistanceMeters = discoveriesInRadius.length
-        ? Math.min(...discoveriesInRadius.map((item) => item.distanceMeters))
-        : Infinity;
-
-      const candidates = uncollectedDiscoveries
-        .filter((item) => canNotifyDiscovery(item.discovery.id))
-        .sort((a, b) => a.distanceMeters - b.distanceMeters)
-        .map((item) => item.discovery);
-
-      const shouldNotify =
-        uncollectedDiscoveries.length >= NOTIFICATION_CONFIG.MIDDLE.MIN_UNEXPLORED_IN_RADIUS &&
-        nearestDistanceMeters <= NOTIFICATION_CONFIG.MIDDLE.NEAREST_MAX_M &&
-        candidates.length > 0;
-
-      if (!shouldNotify) return { notify: false, reason: 'middle_conditions_not_met' };
-
-      return {
-        notify: true,
-        zone: 'middle',
-        candidates: candidates.slice(0, 2),
-        message: `🧭 Des œuvres intéressantes sont proches (à ~${Math.round(nearestDistanceMeters)} m et plus!).`,
-      };
-    }
-
-    // Sparse zones use a broader radius and a lighter trigger condition.
-    const discoveriesInRadius = discoveriesWithDistance.filter(
-      (item) => item.distanceMeters <= NOTIFICATION_CONFIG.SPARSE.RADIUS_M,
-    );
-    const uncollectedDiscoveries = discoveriesInRadius.filter((item) => item.isUncollected);
-
-    const candidates = uncollectedDiscoveries
-      .filter((item) => canNotifyDiscovery(item.discovery.id))
-      .sort((a, b) => a.distanceMeters - b.distanceMeters)
-      .map((item) => item.discovery);
-
-    const shouldNotify =
-      uncollectedDiscoveries.length >= NOTIFICATION_CONFIG.SPARSE.MIN_UNEXPLORED_IN_RADIUS &&
-      candidates.length > 0;
-
-    if (!shouldNotify) return { notify: false, reason: 'sparse_conditions_not_met' };
-
-    const nearestDistanceMeters = discoveriesInRadius.length
-      ? Math.min(...discoveriesInRadius.map((item) => item.distanceMeters))
-      : Infinity;
-
-    return {
-      notify: true,
-      zone: 'sparse',
-      candidates: candidates.slice(0, 2),
-      message: `🗺️ Une ou quelques œuvres à ~${Math.round(nearestDistanceMeters)} m).`,
+    const inRing = (min: number, max: number) =>
+      discoveriesWithDistance.filter((item) => item.distanceMeters >= min && item.distanceMeters <= max);
+    const candidateItems = (items: typeof discoveriesWithDistance) =>
+      items.filter((item) => item.isUncollected && canNotifyDiscovery(item.discovery.id))
+        .sort((a, b) => a.distanceMeters - b.distanceMeters);
+    const ringA = inRing(0, 299);
+    const ringB = inRing(300, 500);
+    const ringC = inRing(501, 1000);
+    const ringBtoC = inRing(300, 1000);
+    const horizon = inRing(0, 1000);
+    const outerHorizon = inRing(1001, 2000);
+    const nearest = (items: typeof discoveriesWithDistance) =>
+      items.length ? Math.round(Math.min(...items.map((item) => item.distanceMeters))) : 0;
+    const notify = (
+      items: typeof discoveriesWithDistance,
+      message: string,
+      reason: string,
+    ): NotificationDecision => {
+      const candidates = candidateItems(items);
+      return candidates.length
+        ? { notify: true, zone, candidates: candidates.slice(0, 3).map((item) => item.discovery), message }
+        : { notify: false, reason };
     };
+
+    if (ringA.length >= 5) {
+      return notify(ringA, `🎨 Zone riche : ${ringA.length} œuvres sont à ~${nearest(ringA)} m de toi!`, 'ring_a_no_new_piece');
+    }
+    if (ringA.length >= 3) {
+      return notify(ringA, `✨ De belles œuvres sont à ~${nearest(ringA)} m de toi!`, 'ring_a_no_new_piece');
+    }
+    if (ringB.length >= 7) {
+      return notify(ringB, `🧭 Un groupe de ${ringB.length} œuvres est à ~${nearest(ringB)} m de toi!`, 'ring_b_no_new_piece');
+    }
+    if (ringB.length >= 5) {
+      return notify(ringB, `🚶 Des œuvres t'attendent à ~${nearest(ringB)} m de toi!`, 'ring_b_no_new_piece');
+    }
+    if (ringA.length + ringB.length >= 5) {
+      return notify([...ringA, ...ringB], `🌟 Plusieurs œuvres sont à moins de 500 m de toi!`, 'ring_ab_no_new_piece');
+    }
+    if (ringA.length + ringB.length >= 4) {
+      return notify([...ringA, ...ringB], `🏘️ Un quartier d'œuvres est à moins de 500 m de toi!`, 'ring_ab_no_new_piece');
+    }
+    if (ringC.length >= 15) {
+      return notify(ringC, `🌄 Un district d'œuvres est à ~${nearest(ringC)} m de toi; elles peuvent être éloignées!`, 'ring_c_no_new_piece');
+    }
+    if (ringC.length >= 10) {
+      return notify(ringC, `🗺️ Une zone d'exploration est à ~${nearest(ringC)} m de toi!`, 'ring_c_no_new_piece');
+    }
+    if (ringBtoC.length >= 12) {
+      return notify(ringBtoC, `🔥 Un point chaud approche à ~${nearest(ringBtoC)} m de toi!`, 'ring_bc_no_new_piece');
+    }
+    if (ringBtoC.length >= 7) {
+      return notify(ringBtoC, `🛣️ Une route d'œuvres s'étend devant toi!`, 'ring_bc_no_new_piece');
+    }
+    if (horizon.length >= 6) {
+      return notify(horizon, `🌿 Des œuvres sont dispersées dans les environs!`, 'horizon_no_new_piece');
+    }
+    if (horizon.length >= 4) {
+      return notify(horizon, `🌲 Des œuvres se trouvent dans ton horizon d'1 km!`, 'horizon_no_new_piece');
+    }
+    // Rural fallback: if the 0-1 km horizon is still sparse, two or fewer
+    // pieces in the next kilometre mean the user may not find much soon.
+    // Three or more outer pieces suggest a better area may be ahead, so stay
+    // silent instead.
+    if (outerHorizon.filter((item) => item.isUncollected).length <= 2) {
+      return notify(
+        [...horizon, ...outerHorizon],
+        `🌾 Peu d'œuvres sont disponibles dans les environs; les prochaines sont à l'horizon!`,
+        'rural_fallback_no_new_piece',
+      );
+    }
+    return { notify: false, reason: 'wilderness' };
   } 
 
   /**

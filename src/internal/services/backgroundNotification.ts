@@ -5,7 +5,13 @@ import { UserData } from '@/internal/databases/UserData';
 import { registerPlugin, Capacitor } from '@capacitor/core';
 import type { BackgroundGeolocationPlugin } from '@capacitor-community/background-geolocation';
 import { getBackgroundMonitoringPlatform } from '@/internal/services/backgroundNotificationPlatform';
-import { startGeofenceMonitoring, stopGeofenceMonitoring, onGeofenceTriggered } from '@/internal/services/geofence';
+import {
+  startGeofenceMonitoring,
+  stopGeofenceMonitoring,
+  onGeofenceTriggered,
+  requestGeofencePermissions,
+  checkGeofencePermissions,
+} from '@/internal/services/geofence';
 const FOREGROUND_LOCATION_DISTANCE_M = 1;
 const BACKGROUND_LOCATION_DISTANCE_M = 1000;
 
@@ -103,6 +109,12 @@ export class BackgroundProximityService {
     if (this.locationDistanceFilterM === nextDistanceFilterM && this.running) return;
 
     this.locationDistanceFilterM = nextDistanceFilterM;
+    // The Android geofence is already OS-managed and must remain registered
+    // across app foreground/background changes. Restarting it here can create
+    // an unnecessary initial-enter event and duplicate checks.
+    if (Capacitor.getPlatform() === 'android') {
+      return;
+    }
     if (!this.running) return;
 
     // Avoid restarting the watcher from a background app-state callback. On
@@ -295,8 +307,6 @@ export class BackgroundProximityService {
     this.autoRearm = true;
     this.clearRearmTimer();
 
-    await this.installGeofenceListener();
-
     const platform = Capacitor.getPlatform();
     const nativeWatcherAvailable = this.platformAdapter.supportsNativeWakeup || Boolean(
       BackgroundGeolocation && BackgroundGeolocation.addWatcher,
@@ -323,6 +333,30 @@ export class BackgroundProximityService {
       }
     } catch (e) {
       console.warn('BackgroundProximityService: permission check failed', e);
+    }
+
+    // Android uses only the OS-managed geofence. A continuous Capacitor watcher
+    // is intentionally not started because it keeps GPS active and is unnecessary
+    // for the 1 km movement-triggered notification design.
+    if (platform === 'android') {
+      try {
+        const currentPosition = await Geolocation.getCurrentPosition({
+          enableHighAccuracy: false,
+          timeout: 20_000,
+          maximumAge: 120_000,
+        });
+        await startGeofenceMonitoring(
+          currentPosition.coords.latitude,
+          currentPosition.coords.longitude,
+          BACKGROUND_LOCATION_DISTANCE_M,
+          'mona-main-geofence',
+        );
+        this.running = true;
+        console.log('[BackgroundProximityService] Android native geofence started without a continuous watcher');
+      } catch (e) {
+        console.warn('[BackgroundProximityService] Android geofence startup failed', e);
+      }
+      return;
     }
 
     // Prefer the platform-native background monitoring adapter when available.
@@ -454,6 +488,11 @@ export const backgroundProximityService = new BackgroundProximityService();
  */
 export async function ensureBackgroundPermissions(): Promise<boolean> {
   try {
+    if (Capacitor.getPlatform() === 'android') {
+      const result = await requestGeofencePermissions();
+      return result.granted;
+    }
+
     if (BackgroundGeolocation && BackgroundGeolocation.addWatcher) {
       // Add a temporary watcher that requests permissions then remove it.
       const watcherId = await BackgroundGeolocation.addWatcher(
@@ -494,4 +533,15 @@ export async function ensureBackgroundPermissions(): Promise<boolean> {
     console.warn('ensureBackgroundPermissions fallback failed', e);
     return false;
   }
+}
+
+export async function checkNativeBackgroundPermissions(): Promise<{
+  foregroundGranted: boolean;
+  backgroundGranted: boolean;
+}> {
+  if (Capacitor.getPlatform() !== 'android') {
+    return { foregroundGranted: true, backgroundGranted: true };
+  }
+
+  return checkGeofencePermissions();
 }

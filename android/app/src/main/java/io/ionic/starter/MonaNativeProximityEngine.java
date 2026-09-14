@@ -11,6 +11,8 @@ import org.json.JSONObject;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Performs the small amount of MONA proximity logic needed when Android wakes
@@ -25,8 +27,13 @@ public final class MonaNativeProximityEngine {
             "appdata/heritages.json"
     };
     // These values mirror MONA's current JavaScript notification settings.
+    // Testing value. Use 4 hours for dense areas and 6 hours for sparse areas in production.
     private static final long COOLDOWN_MS = 3 * 60 * 1000L;
+    private static final long PER_DISCOVERY_COOLDOWN_MS = 24 * 60 * 60 * 1000L;
     private static final long DAILY_LIMIT = 40L;
+    private static final float BASE_NOTIFICATION_RADIUS_METERS = 800f;
+    private static final float ACCURACY_BUFFER_START_METERS = 50f;
+    private static final float MAX_ACCURACY_BUFFER_METERS = 400f;
 
     private MonaNativeProximityEngine() {
     }
@@ -70,9 +77,8 @@ public final class MonaNativeProximityEngine {
             }
 
             JSONObject userData = readJsonObject(context, PREFERENCES_FILE);
-            int nearbyCount = 0;
-            JSONObject nearest = null;
-            double nearestDistance = Double.MAX_VALUE;
+            List<DiscoveryDistance> allDiscoveries = new ArrayList<>();
+            float notificationRadius = getNotificationRadius(currentLocation);
 
             for (String fileName : DISCOVERY_FILES) {
                 JSONArray discoveries = readJsonArray(context, fileName);
@@ -102,33 +108,29 @@ public final class MonaNativeProximityEngine {
                             result
                     );
 
-                    if (result[0] <= 1999) {
-                        nearbyCount++;
-                    }
-
                     String type = discovery.optString("dType", fileName.contains("artworks") ? "artwork"
                             : fileName.contains("places") ? "place" : "heritage");
                     int id = discovery.optInt("id", -1);
-                    if (id >= 0 && result[0] <= 800 && !isCollected(userData, type, id)
-                            && result[0] < nearestDistance) {
-                        nearestDistance = result[0];
-                        nearest = discovery;
+                    if (id >= 0 && result[0] <= 2000 && !isCollected(userData, type, id)) {
+                        allDiscoveries.add(new DiscoveryDistance(discovery, result[0], type, id));
                     }
                 }
             }
 
-            if (nearest == null || nearbyCount == 0) {
+            List<DiscoveryDistance> eligible = filterRecentlyNotified(preferences, allDiscoveries, now);
+            String message = buildRingMessage(eligible);
+            if (message == null) {
                 Log.d(TAG, "Native proximity check found no eligible nearby discovery.");
                 return;
             }
 
-            String title = nearest.optString("title", "une oeuvre d'art");
-            MonaNativeNotification.show(context, "MONA", "Une oeuvre d'art est à proximité : " + title);
+            MonaNativeNotification.show(context, "MONA", message);
             preferences.edit()
                     .putString("notif_last_global_at", String.valueOf(now))
                     .putString("notif_daily_count", String.valueOf(dailyCount + 1))
                     .apply();
-            Log.d(TAG, "Native proximity notification sent for " + title);
+            saveRecentlyNotified(preferences, eligible, now);
+            Log.d(TAG, "Native proximity notification sent: " + message);
         } catch (Exception error) {
             Log.e(TAG, "Native proximity check failed.", error);
         }
@@ -226,5 +228,147 @@ public final class MonaNativeProximityEngine {
             }
         }
         return false;
+    }
+
+    private static List<DiscoveryDistance> filterRecentlyNotified(
+            SharedPreferences preferences,
+            List<DiscoveryDistance> discoveries,
+            long now
+    ) {
+        JSONObject lastMap = readPreferenceObject(preferences, "notif_piece_last_map");
+        List<DiscoveryDistance> result = new ArrayList<>();
+        for (DiscoveryDistance discovery : discoveries) {
+            long last = lastMap.optLong(discovery.key(), 0);
+            if (last == 0 || now - last >= PER_DISCOVERY_COOLDOWN_MS) {
+                result.add(discovery);
+            }
+        }
+        return result;
+    }
+
+    private static void saveRecentlyNotified(
+            SharedPreferences preferences,
+            List<DiscoveryDistance> discoveries,
+            long now
+    ) {
+        JSONObject lastMap = readPreferenceObject(preferences, "notif_piece_last_map");
+        for (int index = 0; index < Math.min(3, discoveries.size()); index++) {
+            try {
+                lastMap.put(discoveries.get(index).key(), now);
+            } catch (Exception error) {
+                Log.w(TAG, "Could not persist per-discovery notification timestamp.", error);
+            }
+        }
+        preferences.edit().putString("notif_piece_last_map", lastMap.toString()).apply();
+    }
+
+    private static JSONObject readPreferenceObject(SharedPreferences preferences, String key) {
+        try {
+            return new JSONObject(preferences.getString(key, "{}"));
+        } catch (Exception error) {
+            return new JSONObject();
+        }
+    }
+
+    private static String buildRingMessage(List<DiscoveryDistance> discoveries) {
+        List<DiscoveryDistance> ringA = ring(discoveries, 0, 299);
+        List<DiscoveryDistance> ringB = ring(discoveries, 300, 500);
+        List<DiscoveryDistance> ringC = ring(discoveries, 501, 1000);
+        List<DiscoveryDistance> ringBC = ring(discoveries, 300, 1000);
+        List<DiscoveryDistance> horizon = ring(discoveries, 0, 1000);
+        List<DiscoveryDistance> outerHorizon = ring(discoveries, 1001, 2000);
+        if (ringA.size() >= 5) return ringMessage("🎨 Zone riche", ringA);
+        if (ringA.size() >= 3) return ringMessage("✨ Des œuvres proches", ringA);
+        if (ringB.size() >= 7) return ringMessage("🧭 Un groupe d'œuvres", ringB);
+        if (ringB.size() >= 5) return ringMessage("🚶 Des œuvres t'attendent", ringB);
+        if (ringA.size() + ringB.size() >= 5) return "🌟 Plusieurs œuvres sont à moins de 500 m de toi!";
+        if (ringA.size() + ringB.size() >= 4) return "🏘️ Un quartier d'œuvres est à moins de 500 m de toi!";
+        if (ringC.size() >= 15) return "🌄 Un district d'œuvres est à l'horizon; elles peuvent être éloignées!";
+        if (ringC.size() >= 10) return "🗺️ Une zone d'exploration est à l'horizon!";
+        if (ringBC.size() >= 12) return "🔥 Un point chaud approche!";
+        if (ringBC.size() >= 7) return "🛣️ Une route d'œuvres s'étend devant toi!";
+        if (horizon.size() >= 6) return "🌿 Des œuvres sont dispersées dans les environs!";
+        if (horizon.size() >= 4) return "🌲 Des œuvres se trouvent dans ton horizon d'1 km!";
+        // Rural fallback mirrors the JavaScript engine: with fewer than four
+        // pieces within 1 km, notify only when the next kilometre has at most
+        // two pieces; three or more means better options may be ahead.
+        if (!horizon.isEmpty() && outerHorizon.size() <= 2) {
+            return "🌾 Peu d'œuvres sont disponibles dans les environs; les prochaines sont à l'horizon!";
+        }
+        return null;
+    }
+
+    private static String ringMessage(String prefix, List<DiscoveryDistance> ring) {
+        return prefix + " : " + ring.size() + " œuvres sont à ~"
+                + Math.round(ring.get(0).distanceMeters) + " m de toi!";
+    }
+
+    private static List<DiscoveryDistance> ring(
+            List<DiscoveryDistance> discoveries,
+            float minimum,
+            float maximum
+    ) {
+        List<DiscoveryDistance> result = new ArrayList<>();
+        for (DiscoveryDistance discovery : discoveries) {
+            if (discovery.distanceMeters >= minimum && discovery.distanceMeters <= maximum) {
+                result.add(discovery);
+            }
+        }
+        return result;
+    }
+
+    private static final class DiscoveryDistance {
+        private final JSONObject discovery;
+        private final float distanceMeters;
+        private final String type;
+        private final int id;
+
+        private DiscoveryDistance(JSONObject discovery, float distanceMeters, String type, int id) {
+            this.discovery = discovery;
+            this.distanceMeters = distanceMeters;
+            this.type = type;
+            this.id = id;
+        }
+
+        private String key() {
+            return type + ":" + id;
+        }
+    }
+
+    /**
+     * MONA stores translated discovery titles as an object. Native notifications
+     * always use French, regardless of the phone's language.
+     */
+    private static String getFrenchTitle(JSONObject discovery) {
+        Object rawTitle = discovery.opt("title");
+        if (rawTitle instanceof JSONObject) {
+            String frenchTitle = ((JSONObject) rawTitle).optString("fr", "").trim();
+            if (!frenchTitle.isEmpty()) {
+                return frenchTitle;
+            }
+        } else if (rawTitle instanceof String) {
+            String title = ((String) rawTitle).trim();
+            if (!title.isEmpty()) {
+                return title;
+            }
+        }
+        return "une oeuvre d'art";
+    }
+
+    /**
+     * Compensates for a weak GPS fix without allowing an inaccurate cell-tower
+     * location to expand the notification range without a safety limit.
+     */
+    private static float getNotificationRadius(Location location) {
+        float accuracy = location.getAccuracy();
+        if (accuracy <= ACCURACY_BUFFER_START_METERS) {
+            return BASE_NOTIFICATION_RADIUS_METERS;
+        }
+
+        float buffer = Math.min(
+                accuracy - ACCURACY_BUFFER_START_METERS,
+                MAX_ACCURACY_BUFFER_METERS
+        );
+        return BASE_NOTIFICATION_RADIUS_METERS + buffer;
     }
 }
