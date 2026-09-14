@@ -335,52 +335,67 @@ export class ProximityNotificationService {
     const outerHorizon = inRing(1001, 2000);
     const nearest = (items: typeof discoveriesWithDistance) =>
       items.length ? Math.round(Math.min(...items.map((item) => item.distanceMeters))) : 0;
+    const furthest = (items: typeof discoveriesWithDistance) =>
+      items.length ? Math.round(Math.max(...items.map((item) => item.distanceMeters))) : 0;
+    const distanceRange = (items: typeof discoveriesWithDistance) => {
+      const closest = nearest(items);
+      const farthest = furthest(items);
+      return closest === farthest ? `à ~${closest} m` : `de ~${closest} à ~${farthest} m`;
+    };
     const notify = (
       items: typeof discoveriesWithDistance,
-      message: string,
+      title: string,
+      description: string,
       reason: string,
     ): NotificationDecision => {
       const candidates = candidateItems(items);
       return candidates.length
-        ? { notify: true, zone, candidates: candidates.slice(0, 3).map((item) => item.discovery), message }
+        ? {
+            notify: true,
+            zone,
+            candidates: candidates.slice(0, 3).map((item) => item.discovery),
+            message: `${title}\n${description}`,
+          }
         : { notify: false, reason };
     };
 
     if (ringA.length >= 5) {
-      return notify(ringA, `🎨 Zone riche : ${ringA.length} œuvres sont à ~${nearest(ringA)} m de toi!`, 'ring_a_no_new_piece');
+      return notify(ringA, '🔥 Véritable nid d’art ici !', `Vous êtes entouré·e ! ${ringA.length} œuvres non collectées se trouvent ${distanceRange(ringA)}. Sortez l’appareil photo !`, 'ring_a_no_new_piece');
     }
     if (ringA.length >= 3) {
-      return notify(ringA, `✨ De belles œuvres sont à ~${nearest(ringA)} m de toi!`, 'ring_a_no_new_piece');
+      return notify(ringA, '👀 Ouvrez l’œil !', `${ringA.length} œuvres non collectées se trouvent ${distanceRange(ringA)}. Saurez-vous les repérer sur la carte ?`, 'ring_a_no_new_piece');
     }
     if (ringB.length >= 7) {
-      return notify(ringB, `🧭 Un groupe de ${ringB.length} œuvres est à ~${nearest(ringB)} m de toi!`, 'ring_b_no_new_piece');
+      return notify(ringB, '📍 Alerte quartier d’art !', `Une belle concentration de ${ringB.length} œuvres vous attend ${distanceRange(ringB)}. Prêt·e pour un petit détour ?`, 'ring_b_no_new_piece');
     }
     if (ringB.length >= 5) {
-      return notify(ringB, `🚶 Des œuvres t'attendent à ~${nearest(ringB)} m de toi!`, 'ring_b_no_new_piece');
+      return notify(ringB, '🎨 De l’art sur votre chemin', `${ringB.length} œuvres intéressantes se profilent ${distanceRange(ringB)}. Gardez votre carte ouverte !`, 'ring_b_no_new_piece');
     }
     if (ringA.length + ringB.length >= 5) {
-      return notify([...ringA, ...ringB], `🌟 Plusieurs œuvres sont à moins de 500 m de toi!`, 'ring_ab_no_new_piece');
+      const items = [...ringA, ...ringB];
+      return notify(items, '🏛️ Terrain de jeu artistique !', `Ce secteur regorge de ${items.length} pépites cachées ${distanceRange(items)}. Baladez-vous pour toutes les ajouter à votre collection !`, 'ring_ab_no_new_piece');
     }
     if (ringA.length + ringB.length >= 4) {
-      return notify([...ringA, ...ringB], `🏘️ Un quartier d'œuvres est à moins de 500 m de toi!`, 'ring_ab_no_new_piece');
+      const items = [...ringA, ...ringB];
+      return notify(items, '✨ Une ruelle inspirante tout près', `${items.length} œuvres sont parsemées autour de vous ${distanceRange(items)}. Parfait pour une petite marche d’exploration !`, 'ring_ab_no_new_piece');
     }
     if (ringC.length >= 15) {
-      return notify(ringC, `🌄 Un district d'œuvres est à ~${nearest(ringC)} m de toi; elles peuvent être éloignées!`, 'ring_c_no_new_piece');
+      return notify(ringC, '🏢 Cap vers un district culturel !', `${ringC.length} œuvres vous attendent ${distanceRange(ringC)}. Consultez la carte pour planifier votre itinéraire de collectionneur !`, 'ring_c_no_new_piece');
     }
     if (ringC.length >= 10) {
-      return notify(ringC, `🗺️ Une zone d'exploration est à ~${nearest(ringC)} m de toi!`, 'ring_c_no_new_piece');
+      return notify(ringC, '🗺️ Curiosités à l’horizon...', `${ringC.length} œuvres vous attendent ${distanceRange(ringC)}. Prêt·e pour l’aventure ?`, 'ring_c_no_new_piece');
     }
     if (ringBtoC.length >= 12) {
-      return notify(ringBtoC, `🔥 Un point chaud approche à ~${nearest(ringBtoC)} m de toi!`, 'ring_bc_no_new_piece');
+      return notify(ringBtoC, '🚀 Destination artistique en vue !', `Une belle route culturelle de ${ringBtoC.length} œuvres se dessine ${distanceRange(ringBtoC)}. Sortez votre application pour ne rien manquer.`, 'ring_bc_no_new_piece');
     }
     if (ringBtoC.length >= 7) {
-      return notify(ringBtoC, `🛣️ Une route d'œuvres s'étend devant toi!`, 'ring_bc_no_new_piece');
+      return notify(ringBtoC, '💎 L’art s’invite dans le paysage', `Un parcours de ${ringBtoC.length} œuvres s’étend ${distanceRange(ringBtoC)}. Gardez l’œil ouvert !`, 'ring_bc_no_new_piece');
     }
     if (horizon.length >= 6) {
-      return notify(horizon, `🌿 Des œuvres sont dispersées dans les environs!`, 'horizon_no_new_piece');
+      return notify(horizon, '🌿 L’art s’invite dans le paysage', `${horizon.length} œuvres sont dispersées dans les environs ${distanceRange(horizon)}. Gardez l’œil ouvert !`, 'horizon_no_new_piece');
     }
     if (horizon.length >= 4) {
-      return notify(horizon, `🌲 Des œuvres se trouvent dans ton horizon d'1 km!`, 'horizon_no_new_piece');
+      return notify(horizon, '💎 Un parcours artistique se dessine', `${horizon.length} œuvres se trouvent dans votre horizon ${distanceRange(horizon)}. Gardez l’œil ouvert !`, 'horizon_no_new_piece');
     }
     // Rural fallback: if the 0-1 km horizon is still sparse, two or fewer
     // pieces in the next kilometre mean the user may not find much soon.
@@ -389,7 +404,8 @@ export class ProximityNotificationService {
     if (outerHorizon.filter((item) => item.isUncollected).length <= 2) {
       return notify(
         [...horizon, ...outerHorizon],
-        `🌾 Peu d'œuvres sont disponibles dans les environs; les prochaines sont à l'horizon!`,
+        '🌲 Pépite de région en vue !',
+        `Une rare œuvre d’art se trouve à l’horizon, ${distanceRange([...horizon, ...outerHorizon])}. Préparez-vous à faire un arrêt découverte !`,
         'rural_fallback_no_new_piece',
       );
     }
@@ -408,13 +424,16 @@ export class ProximityNotificationService {
       visibility: 1,
     }).catch(() => {});
 
+    const [title, ...descriptionParts] = body.split('\n');
+    const description = descriptionParts.join('\n') || title;
+
     // Schedule the notification a moment later so the call behaves consistently.
     await LocalNotifications.schedule({
       notifications: [
         {
           id: Math.floor(Math.random() * 1_000_000),
-          title: '',
-          body,
+          title,
+          body: description,
           schedule: { at: new Date(Date.now() + 1000) },
           channelId: 'mona-proximity',
           smallIcon: 'ic_launcher',
