@@ -11,6 +11,7 @@ export interface MonaGeofencePlugin {
   startMonitoring(options: GeofenceOptions): Promise<{ status: string; identifier?: string }>;
   stopMonitoring(): Promise<{ status: string }>;
   requestPermissions(): Promise<{ status: string; granted: boolean }>;
+  checkPermissions(): Promise<{ foregroundGranted: boolean; backgroundGranted: boolean }>;
   addListener(eventName: 'geofenceTriggered', listener: (event: any) => void): Promise<{ remove: () => Promise<void> }>;
 }
 
@@ -44,6 +45,13 @@ export async function stopGeofenceMonitoring(): Promise<{ status: string }> {
  */
 export async function requestGeofencePermissions(): Promise<{ status: string; granted: boolean }> {
   return MonaGeofence.requestPermissions();
+}
+
+export async function checkGeofencePermissions(): Promise<{
+  foregroundGranted: boolean;
+  backgroundGranted: boolean;
+}> {
+  return MonaGeofence.checkPermissions();
 }
 
 /**

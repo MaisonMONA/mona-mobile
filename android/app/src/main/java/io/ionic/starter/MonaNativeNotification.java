@@ -42,8 +42,9 @@ public final class MonaNativeNotification {
             NotificationChannel channel = new NotificationChannel(
                     CHANNEL_ID,
                     "MONA proximity notifications",
-                    NotificationManager.IMPORTANCE_DEFAULT
+                    NotificationManager.IMPORTANCE_HIGH
             );
+            channel.enableVibration(true);
             manager.createNotificationChannel(channel);
         }
 
@@ -61,7 +62,7 @@ public final class MonaNativeNotification {
                 .setContentText(message)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .build();
         manager.notify(NOTIFICATION_ID, notification);
     }

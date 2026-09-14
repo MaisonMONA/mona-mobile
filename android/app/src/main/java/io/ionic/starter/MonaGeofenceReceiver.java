@@ -48,8 +48,10 @@ public class MonaGeofenceReceiver extends BroadcastReceiver {
         }
 
         int transition = geofencingEvent.getGeofenceTransition();
-        if (transition == Geofence.GEOFENCE_TRANSITION_ENTER || transition == Geofence.GEOFENCE_TRANSITION_EXIT) {
-            String transitionName = transition == Geofence.GEOFENCE_TRANSITION_ENTER ? "enter" : "exit";
+        if (transition == Geofence.GEOFENCE_TRANSITION_ENTER
+                || transition == Geofence.GEOFENCE_TRANSITION_EXIT) {
+            String transitionName = transition == Geofence.GEOFENCE_TRANSITION_ENTER
+                    ? "enter" : "exit";
             Log.d(TAG, "Geofence transition: " + transitionName);
 
             List<Geofence> geofences = geofencingEvent.getTriggeringGeofences();
@@ -63,6 +65,10 @@ public class MonaGeofenceReceiver extends BroadcastReceiver {
             // not include one, use its last known location so the native check can still
             // run after the WebView process has been stopped.
             if (geofencingEvent.getTriggeringLocation() != null) {
+                MonaGeofencePlugin.rearmFromReceiver(
+                        context,
+                        geofencingEvent.getTriggeringLocation()
+                );
                 MonaNativeProximityEngine.checkAndNotify(
                         context,
                         geofencingEvent.getTriggeringLocation()
@@ -78,6 +84,7 @@ public class MonaGeofenceReceiver extends BroadcastReceiver {
                                 pendingResult.finish();
                                 return;
                             }
+                            MonaGeofencePlugin.rearmFromReceiver(context, location);
                             MonaNativeProximityEngine.checkAndNotify(context, location);
                             pendingResult.finish();
                         })
