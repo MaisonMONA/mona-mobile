@@ -65,11 +65,6 @@ public final class MonaNativeProximityEngine {
                 return;
             }
 
-            if (isQuietHours()) {
-                Log.d(TAG, "Native notification skipped because quiet hours are active.");
-                return;
-            }
-
             long dailyCount = readLong(preferences, "notif_daily_count");
             if (dailyCount >= DAILY_LIMIT) {
                 Log.d(TAG, "Native notification skipped because the daily limit was reached.");
@@ -160,14 +155,6 @@ public final class MonaNativeProximityEngine {
                 .putString("notif_last_check_lng", String.valueOf(location.getLongitude()))
                 .putString("notif_last_check_at", String.valueOf(timestamp))
                 .apply();
-    }
-
-    /**
-     * Checks the same overnight quiet-hours window used by the JavaScript service.
-     */
-    private static boolean isQuietHours() {
-        int hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY);
-        return hour >= 21 || hour < 9;
     }
 
     /**

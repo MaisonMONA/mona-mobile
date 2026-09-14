@@ -35,8 +35,6 @@ const PREFERENCE_KEYS = {
   DAILY_COUNT_DATE: 'notif_daily_count_date',
   DAILY_COUNT: 'notif_daily_count',
   PIECE_LAST_NOTIF_MAP: 'notif_piece_last_map',
-  QUIET_HOURS_START: 'quiet_hours_start',
-  QUIET_HOURS_END: 'quiet_hours_end',
 };
 
 // Proximity thresholds used by the notification rules.
@@ -44,8 +42,6 @@ const NOTIFICATION_CONFIG = {
   DENSITY_RADIUS_M: 1000,
   DENSE_MIN_COUNT: 20,
   SPARSE_MAX_COUNT: 5,
-  QUIET_HOURS_START: 21,
-  QUIET_HOURS_END: 8,
   MIN_MOVE_TO_RECHECK_M: 1/*20*/,
   MAX_RECHECK_MIN: 5,
   DAILY_CAP: 40,
@@ -90,31 +86,6 @@ function todayKeyLocal(): string {
   return `${year}-${month}-${day}`;
 }
 
-// Return true when notifications should be suppressed for quiet hours.
-async function isQuietHours(date = new Date()): Promise<boolean> {
-  const hour = date.getHours();
-
-  const { value: startValue } = await Preferences.get({
-    key: PREFERENCE_KEYS.QUIET_HOURS_START,
-  });
-
-  const { value: endValue } = await Preferences.get({
-    key: PREFERENCE_KEYS.QUIET_HOURS_END,
-  });
-
-  // Default if user never changed them
-  const start = Number(startValue ?? 21); // 9 PM
-  const end = Number(endValue ?? 9);      // 9 AM
-
-  // Example: 13 -> 15
-  if (start < end) {
-    return hour >= start && hour < end;
-  }
-
-  // Example: 21 -> 9
-  return hour >= start || hour < end;
-}
-
 // Read a numeric preference and normalize invalid values to null.
 async function getNumberPreference(key: string): Promise<number | null> {
   const { value } = await Preferences.get({ key });
@@ -128,25 +99,6 @@ async function getNumberPreference(key: string): Promise<number | null> {
 async function setNumberPreference(key: string, value: number): Promise<void> {
   await Preferences.set({ key, value: String(value) });
 }
-
-// Set the quiet hours for notifications.
-// The function saves these values in the preferences 
-//storage using the `Preferences.set` method.
-
-export async function setQuietHours(
-  start: number,
-  end: number,
-): Promise<void> {
-  await Preferences.set({
-    key: PREFERENCE_KEYS.QUIET_HOURS_START,
-    value: String(start),
-  });
-
-  await Preferences.set({
-    key: PREFERENCE_KEYS.QUIET_HOURS_END,
-    value: String(end),
-  });
-} 
 
 // Read the per-discovery cooldown map from storage.
 async function getDiscoveryLastNotificationMap(): Promise<Record<string, number>> {
@@ -227,11 +179,6 @@ export class ProximityNotificationService {
     if (!permissionsGranted) {
       console.warn('[ProximityNotificationService] Notification gate blocked: permissions_not_granted');
       return { sent: false, reason: 'permissions_not_granted' };
-    }
-
-    if (await isQuietHours()) {
-      console.log('[ProximityNotificationService] Notification gate blocked: quiet_hours');
-      return { sent: false, reason: 'quiet_hours' };
     }
 
     // Enforce the daily cap with a local YYYY-MM-DD key.
