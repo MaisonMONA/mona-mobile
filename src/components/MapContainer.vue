@@ -556,8 +556,7 @@ export default {
           if (nativePermissions.backgroundGranted) {
             // Re-center the native 1 km fence at the user's current location.
             // This accounts for movement that happened before reopening MONA.
-            await backgroundProximityService.stop({ keepArmed: true });
-            await backgroundProximityService.start();
+            await backgroundProximityService.recenterAndroidGeofence();
           }
         }
       }

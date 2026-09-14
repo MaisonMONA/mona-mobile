@@ -141,6 +141,34 @@ export class BackgroundProximityService {
     await this.start();
   }
 
+  /**
+   * Re-center Android's geofence without stopping it first. Calling stop()
+   * immediately before start() creates two asynchronous remove/register
+   * operations and widens the gap in which a fast movement can be missed.
+   */
+  async recenterAndroidGeofence(): Promise<void> {
+    if (Capacitor.getPlatform() !== 'android') return;
+
+    try {
+      const currentPosition = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: false,
+        timeout: 20_000,
+        maximumAge: 120_000,
+      });
+
+      await startGeofenceMonitoring(
+        currentPosition.coords.latitude,
+        currentPosition.coords.longitude,
+        BACKGROUND_LOCATION_DISTANCE_M,
+        'mona-main-geofence',
+      );
+      this.running = true;
+      console.log('[BackgroundProximityService] Android native geofence re-centered');
+    } catch (error) {
+      console.warn('[BackgroundProximityService] Android geofence re-centering failed', error);
+    }
+  }
+
   private async isAppForeground(): Promise<boolean> {
     try {
       const state = await App.getState();
@@ -340,17 +368,7 @@ export class BackgroundProximityService {
     // for the 1 km movement-triggered notification design.
     if (platform === 'android') {
       try {
-        const currentPosition = await Geolocation.getCurrentPosition({
-          enableHighAccuracy: false,
-          timeout: 20_000,
-          maximumAge: 120_000,
-        });
-        await startGeofenceMonitoring(
-          currentPosition.coords.latitude,
-          currentPosition.coords.longitude,
-          BACKGROUND_LOCATION_DISTANCE_M,
-          'mona-main-geofence',
-        );
+        await this.recenterAndroidGeofence();
         this.running = true;
         console.log('[BackgroundProximityService] Android native geofence started without a continuous watcher');
       } catch (e) {
