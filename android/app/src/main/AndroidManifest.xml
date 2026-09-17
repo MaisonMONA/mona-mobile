@@ -34,4 +34,10 @@
     <uses-permission-sdk-23 android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission-sdk-23 android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+
+    <!-- Location is used for proximity notifications but isn't essential to run the app,
+         so don't let Play Store exclude devices without GPS hardware (TVs, Chromebooks, etc.) -->
+    <uses-feature android:name="android.hardware.location.gps" android:required="false" />
+    <uses-feature android:name="android.hardware.location.network" android:required="false" />
+    <uses-feature android:name="android.hardware.location" android:required="false" />
 </manifest>
