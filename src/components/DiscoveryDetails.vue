@@ -73,7 +73,8 @@
             <!-- TARGET BUTTON -->
             <ion-icon
               v-if="!isCollected"
-              id="targetIcon"
+    </div>
+    </div>
               @click="toggleTargetDiscovery"
               :icon="customTargetIcon"
             ></ion-icon>
@@ -152,7 +153,10 @@
           {{ isCollected ? "VOIR LA FICHE COMPLÈTE" : "FICHE COMPLÈTE" }}
         </ion-button>
       </div>
+<<<<<<< HEAD
     </div>
+=======
+>>>>>>> 79906bf (Merge candidate: integrate dev readiness + close button and dwell notification UI)
   </template>
   <template v-else>
     <div class="discoveryDetailsContainer loading-placeholder">
@@ -183,6 +187,8 @@ import { getStaticDiscoveryPinDataUrl } from "@/internal/PinUtils";
 
 export default {
   name: "discovery-details",
+
+  emits: ["close-discovery-details", "view-full-details"],
 
   props: {
     selectedDiscovery: Object,
@@ -350,6 +356,16 @@ export default {
     getStaticDiscoveryPinDataUrl(this.discovery).then((url) => {
       this.pinDataUrl = url;
     });
+  },
+
+  computed: {
+    isReady() {
+      return (
+        this.discovery &&
+        typeof this.discovery.id === "number" &&
+        typeof this.discovery.getTitle === "function"
+      );
+    },
   },
 
   methods: {
@@ -665,6 +681,28 @@ ion-button {
 }
 .addressContainer span {
   text-decoration: underline;
+}
+
+.close-button-container {
+  position: absolute;
+  top: 4.5vw;
+  right: 4.5vw;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.close-icon {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #888;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
 }
 
 .loading-placeholder {

@@ -150,10 +150,8 @@
   >
       <discovery-details
         :selected-discovery="currentSelectedDiscovery"
+        @view-full-details="openDiscoveryDetailsFullModale(currentSelectedDiscovery)"
         @close-discovery-details="discoveryDetailsModalOpen = false"
-        @view-full-details="
-          openDiscoveryDetailsFullModale(currentSelectedDiscovery)
-        "
       />
   </ion-modal>
   <!-- Selected pin discovery details modal -->
