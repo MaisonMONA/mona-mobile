@@ -46,7 +46,8 @@ const NOTIFICATION_CONFIG = {
   MAX_RECHECK_MIN: 5,
   DAILY_CAP: 40,
   // Keep this short while testing. Production values can be 4h dense / 6h sparse.
-  GLOBAL_COOLDOWN_MS: 3 * 60 * 1000,
+  // Increase global cooldown to 15 minutes to reduce notification frequency.
+  GLOBAL_COOLDOWN_MS: 15 * 60 * 1000,
   PER_DISCOVERY_COOLDOWN_MS: 24 * 60 * 60 * 1000,
 };
 
