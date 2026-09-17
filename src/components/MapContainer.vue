@@ -580,6 +580,9 @@ export default {
           this.isRationaleOpen = true;
         } else {
           await this.askForPermissions();
+          // myMap() ran before permissions were resolved, so isPermissionDenied was
+          // still true and showLocation() was skipped. Show it now that we know.
+          if (!this.isPermissionDenied) this.showLocation();
           await this.startLocationService();
           const nativePermissions = await checkNativeBackgroundPermissions();
           if (nativePermissions.backgroundGranted) {
@@ -623,6 +626,11 @@ export default {
         } catch (e) {
           console.warn('LocalNotifications permission check/request failed', e);
         }
+
+        // myMap() ran before permissions were resolved, so isPermissionDenied was
+        // still true and showLocation() was skipped. Show it now that we know.
+        if (!this.isPermissionDenied) this.showLocation();
+        await this.startLocationService();
 
         // Only users who explicitly press "Activer" are sent to Android
         // settings to enable background location.
