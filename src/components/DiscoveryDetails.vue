@@ -73,8 +73,7 @@
             <!-- TARGET BUTTON -->
             <ion-icon
               v-if="!isCollected"
-    </div>
-    </div>
+              id="targetIcon"
               @click="toggleTargetDiscovery"
               :icon="customTargetIcon"
             ></ion-icon>
@@ -153,10 +152,7 @@
           {{ isCollected ? "VOIR LA FICHE COMPLÈTE" : "FICHE COMPLÈTE" }}
         </ion-button>
       </div>
-<<<<<<< HEAD
     </div>
-=======
->>>>>>> 79906bf (Merge candidate: integrate dev readiness + close button and dwell notification UI)
   </template>
   <template v-else>
     <div class="discoveryDetailsContainer loading-placeholder">
@@ -202,7 +198,7 @@ export default {
     IonImg,
     IonChip,
   },
-  emits: ["close-discovery-details", "view-full-details"],
+  
 
   data() {
     let isArtwork,
