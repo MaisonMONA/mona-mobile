@@ -353,17 +353,7 @@ export default {
       this.pinDataUrl = url;
     });
   },
-
-  computed: {
-    isReady() {
-      return (
-        this.discovery &&
-        typeof this.discovery.id === "number" &&
-        typeof this.discovery.getTitle === "function"
-      );
-    },
-  },
-
+  
   methods: {
     openDiscoveryDetailsPage() {
       this.$emit('view-full-details', UserData.getCollected(this.discovery.id, this.discovery.dType));
