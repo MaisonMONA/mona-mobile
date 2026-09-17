@@ -1,5 +1,5 @@
-          >
-            {{ isCollected ? "VOIR LA FICHE COMPLÈTE" : "FICHE COMPLÈTE" }}
+<template>
+  <template v-if="isReady">
     <div class="discoveryDetailsContainer">
       <div class="close-button-container" @click="$emit('close-discovery-details')">
         <button class="close-icon" type="button">✕</button>
@@ -151,7 +151,6 @@
           {{ isCollected ? "VOIR LA FICHE COMPLÈTE" : "FICHE COMPLÈTE" }}
         </ion-button>
       </div>
-    </div>
   </template>
   <template v-else>
     <div class="discoveryDetailsContainer loading-placeholder">
