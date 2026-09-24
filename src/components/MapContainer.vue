@@ -231,6 +231,7 @@ import {
   checkNativeBackgroundPermissions,
 } from "@/internal/services/backgroundNotification";
 import { LocalNotifications } from '@capacitor/local-notifications';
+import { Preferences } from '@capacitor/preferences';
 import { isPlatform } from "@ionic/vue";
 import { App } from "@capacitor/app";
 import { Directory, Filesystem } from "@capacitor/filesystem";
@@ -255,6 +256,9 @@ const collectedPhotoImgCache = {}; // "type:id" -> HTMLImageElement
 const collectedPhotoPinCache = {}; // "type:id:size" -> canvas
 const targetedPinCache = {}; // "type:title:size" -> canvas
 const defaultPinCache = {}; // "type:size" -> canvas
+
+const PERMISSION_RATIONALE_LAST_SHOWN_KEY = 'permission_rationale_last_shown';
+const PERMISSION_RATIONALE_COOLDOWN_MS = 30 * 24 * 60 * 60 * 1000;
 
 // --- Pin colors per discovery type ---
 function getDiscoveryLocation(discovery) {
@@ -445,6 +449,7 @@ export default {
           role: 'cancel',
           cssClass: 'alert-button-cancel',
           handler: () => {
+            void this.recordPermissionRationaleShown();
             this.isRationaleOpen = false;
           },
         },
@@ -452,6 +457,7 @@ export default {
           text: "Activer",
           cssClass: 'alert-button-confirm',
           handler: () => {
+            void this.recordPermissionRationaleShown();
             this.requestBackgroundAndNotifPermissions();
           },
         },
@@ -570,24 +576,28 @@ export default {
       try {
         const geoCheck = await Geolocation.checkPermissions();
         const notifCheck = await LocalNotifications.checkPermissions().catch(() => ({ display: 'prompt' }));
+        const nativePermissions = await checkNativeBackgroundPermissions();
 
         // Foreground location is enough to use the app. Background access is
         // optional and only affects notifications after the app is closed.
         const needsNotif = notifCheck.display !== 'granted';
         const needsGeo = geoCheck.location !== 'granted';
+        const needsBackground = !nativePermissions.backgroundGranted;
 
-        if (needsNotif || needsGeo) {
-          this.isRationaleOpen = true;
-        } else {
-          await this.askForPermissions();
-          // myMap() ran before permissions were resolved, so isPermissionDenied was
-          // still true and showLocation() was skipped. Show it now that we know.
-          if (!this.isPermissionDenied) this.showLocation();
-          await this.startLocationService();
-          const nativePermissions = await checkNativeBackgroundPermissions();
-          if (nativePermissions.backgroundGranted) {
-            await backgroundProximityService.start();
+        if (needsNotif || needsGeo || needsBackground) {
+          if (await this.shouldShowPermissionRationale()) {
+            this.isRationaleOpen = true;
           }
+          return;
+        }
+
+        await this.askForPermissions();
+        // myMap() ran before permissions were resolved, so isPermissionDenied was
+        // still true and showLocation() was skipped. Show it now that we know.
+        if (!this.isPermissionDenied) this.showLocation();
+        await this.startLocationService();
+        if (nativePermissions.backgroundGranted) {
+          await backgroundProximityService.start();
         }
       } catch (e) {
         console.warn('Failed to prepare background proximity service', e);
@@ -601,6 +611,23 @@ export default {
   },
 
   methods: {
+
+    async shouldShowPermissionRationale() {
+      const { value } = await Preferences.get({
+        key: PERMISSION_RATIONALE_LAST_SHOWN_KEY,
+      });
+      const lastShown = value ? Number(value) : 0;
+
+      return !Number.isFinite(lastShown) ||
+        Date.now() - lastShown >= PERMISSION_RATIONALE_COOLDOWN_MS;
+    },
+
+    async recordPermissionRationaleShown() {
+      await Preferences.set({
+        key: PERMISSION_RATIONALE_LAST_SHOWN_KEY,
+        value: String(Date.now()),
+      });
+    },
 
     async requestBackgroundAndNotifPermissions() {
       // Called when user accepts the rationale alert.
