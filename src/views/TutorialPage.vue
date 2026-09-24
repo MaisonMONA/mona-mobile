@@ -1,8 +1,8 @@
 <template>
   <ion-page>
-    <ion-content :fullscreen="true" :class="{ 'bg-lines': pageNumber === 2 }">
+    <ion-content :fullscreen="true" :class="{ 'bg-lines': pageNumber === 2 }" @click="handlePageTap">
 
-      <div @click="handlePageTap">
+      <div>
         <div class="tutorialHeader" 
         :style="{padding: pageNumber === 1 ? '7.59vh 10vw 0' : 
                           (pageNumber === 2 || pageNumber === maxPageNumber) ? '7.59vh 6vw 0' : null}">
@@ -161,16 +161,34 @@ export default {
   },
 
   methods: {
-    handlePageTap() {
+    handlePageTap(event) {
       if (this.pageNumber === 1 || this.pageNumber === this.maxPageNumber) return;
-      this.nextSlide();
+      const screenWidth=window.innerWidth;
+      const click = event.clientX;
+
+      // diviser l'ecran en 2 pour permettre un retour arriere et avant
+
+      if (click< (screenWidth /2)){ 
+        this.previousSlide()
+        }else{
+          this.nextSlide();
+        }
     },
+
+    previousSlide(){
+      if (this.pageNumber > 1){
+        this.pageNumber--;
+        }
+    },
+
     nextSlide() {
       if (this.pageNumber < this.maxPageNumber) this.pageNumber++;
       else {
         this.returnBack();
       }
     },
+
+    
     returnBack() {
       // The user played the tutorial form `/tabs/more`, don't check perms
       if (this.$route.query.callbackurl) {
