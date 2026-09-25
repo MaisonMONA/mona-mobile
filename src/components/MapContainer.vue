@@ -584,18 +584,28 @@ export default {
         const needsGeo = geoCheck.location !== 'granted';
         const needsBackground = !nativePermissions.backgroundGranted;
 
-        if (needsNotif || needsGeo || needsBackground) {
+        // Start foreground location independently of background permission.
+        // "While using the app" is enough to display the blue location pin.
+        if (needsGeo) {
           if (await this.shouldShowPermissionRationale()) {
             this.isRationaleOpen = true;
           }
           return;
         }
 
-        await this.askForPermissions();
-        // myMap() ran before permissions were resolved, so isPermissionDenied was
-        // still true and showLocation() was skipped. Show it now that we know.
-        if (!this.isPermissionDenied) this.showLocation();
+        this.isPermissionDenied = false;
+        this.showLocation();
         await this.startLocationService();
+
+        // Background monitoring and notification permission are optional for the
+        // foreground map, so do not block the blue pin while either is missing.
+        if (needsNotif || needsBackground) {
+          if (await this.shouldShowPermissionRationale()) {
+            this.isRationaleOpen = true;
+          }
+          return;
+        }
+
         if (nativePermissions.backgroundGranted) {
           await backgroundProximityService.start();
         }
