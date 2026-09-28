@@ -260,56 +260,52 @@ public final class MonaNativeProximityEngine {
         List<DiscoveryDistance> ringBC = ring(discoveries, 300, 1000);
         List<DiscoveryDistance> horizon = ring(discoveries, 0, 1000);
         List<DiscoveryDistance> outerHorizon = ring(discoveries, 1001, 2000);
-        if (ringA.size() >= 5) return selection(ringA, ringMessage("🔥 Véritable nid d’art ici !",
-                "Vous êtes entouré·e ! " + ringA.size() + " œuvres non collectées se trouvent "
-                        + distanceRange(ringA) + ". Sortez l’appareil photo !", ringA));
+        if (ringA.size() >= 5) return selection(ringA, ringMessage("🔥 Un vrai nid d’art !",
+                "Vous êtes entouré·e par " + quantityDescriptor(ringA.size())
+                        + ", juste à quelques pas. Sortez l’appareil photo !", ringA));
         if (ringA.size() >= 3) return selection(ringA, ringMessage("👀 Ouvrez l’œil !",
-                ringA.size() + " œuvres non collectées se trouvent " + distanceRange(ringA)
-                        + ". Saurez-vous les repérer sur la carte ?", ringA));
-        if (ringB.size() >= 7) return selection(ringB, ringMessage("📍 Alerte quartier d’art !",
-                "Une belle concentration de " + ringB.size() + " œuvres vous attend "
-                        + distanceRange(ringB) + ". Prêt·e pour un petit détour ?", ringB));
+                quantityDescriptor(ringA.size()) + " se cachent tout près. "
+                        + "Saurez-vous les repérer sur la carte ?", ringA));
+        if (ringB.size() >= 7) return selection(ringB, ringMessage("📍 Un quartier plein de découvertes !",
+                "Une belle concentration de " + quantityDescriptor(ringB.size())
+                        + " vous attend à quelques minutes d’ici. Un petit détour ?", ringB));
         if (ringB.size() >= 5) return selection(ringB, ringMessage("🎨 De l’art sur votre chemin",
-                ringB.size() + " œuvres intéressantes se profilent " + distanceRange(ringB)
-                        + ". Gardez votre carte ouverte !", ringB));
+                quantityDescriptor(ringB.size()) + " se profilent dans le quartier. "
+                        + "Gardez l’œil ouvert !", ringB));
         if (ringA.size() + ringB.size() >= 5) {
             List<DiscoveryDistance> items = combine(ringA, ringB);
-            return selection(items, ringMessage("🏛️ Terrain de jeu artistique !",
-                    "Ce secteur regorge de " + items.size() + " pépites cachées "
-                            + distanceRange(items) + ". Baladez-vous pour toutes les ajouter à votre collection !", items));
+            return selection(items, ringMessage("🏛️ Un terrain de jeu artistique !",
+                    "Ce secteur regorge de " + quantityDescriptor(items.size())
+                            + ". Une petite balade vous permettra peut-être d’en croiser plusieurs !", items));
         }
         if (ringA.size() + ringB.size() >= 4) {
             List<DiscoveryDistance> items = combine(ringA, ringB);
             return selection(items, ringMessage("✨ Une ruelle inspirante tout près",
-                    items.size() + " œuvres sont parsemées autour de vous " + distanceRange(items)
-                            + ". Parfait pour une petite marche d’exploration !", items));
+                    quantityDescriptor(items.size()) + " sont éparpillées à proximité. "
+                            + "Parfait pour une petite marche d’exploration !", items));
         }
-        if (ringC.size() >= 15) return selection(ringC, ringMessage("🏢 Cap vers un district culturel !",
-                ringC.size() + " œuvres vous attendent " + distanceRange(ringC)
-                        + ". Consultez la carte pour planifier votre itinéraire de collectionneur !", ringC));
+        if (ringC.size() >= 15) return selection(ringC, ringMessage("🏢 Un beau secteur culturel à explorer !",
+                "Un véritable concentré de découvertes vous attend dans les environs. "
+                        + "Consultez la carte pour préparer votre itinéraire !", ringC));
         if (ringC.size() >= 10) return selection(ringC, ringMessage("🗺️ Curiosités à l’horizon...",
-                ringC.size() + " œuvres vous attendent " + distanceRange(ringC)
-                        + ". Prêt·e pour l’aventure ?", ringC));
+                "Une belle sélection de découvertes vous attend un peu plus loin. "
+                        + "Prêt·e pour l’aventure ?", ringC));
         if (ringBC.size() >= 12) return selection(ringBC, ringMessage("🚀 Destination artistique en vue !",
-                "Une belle route culturelle de " + ringBC.size() + " œuvres se dessine "
-                        + distanceRange(ringBC) + ". Sortez votre application pour ne rien manquer.", ringBC));
+                "Un véritable parcours culturel se dessine dans le quartier. "
+                        + "Ouvrez la carte pour ne rien manquer !", ringBC));
         if (ringBC.size() >= 7) return selection(ringBC, ringMessage("💎 L’art s’invite dans le paysage",
-                "Un parcours de " + ringBC.size() + " œuvres s’étend " + distanceRange(ringBC)
-                        + ". Gardez l’œil ouvert !", ringBC));
+                "Plusieurs découvertes s’étendent dans les environs. Gardez l’œil ouvert !", ringBC));
         if (horizon.size() >= 6) return selection(horizon, ringMessage("🌿 L’art s’invite dans le paysage",
-                horizon.size() + " œuvres sont dispersées dans les environs "
-                        + distanceRange(horizon) + ". Gardez l’œil ouvert !", horizon));
+                "Plusieurs découvertes se trouvent dans les environs. Gardez l’œil ouvert !", horizon));
         if (horizon.size() >= 4) return selection(horizon, ringMessage("💎 Un parcours artistique se dessine",
-                horizon.size() + " œuvres se trouvent dans votre horizon "
-                        + distanceRange(horizon) + ". Gardez l’œil ouvert !", horizon));
+                "Quelques découvertes se trouvent dans le secteur. Une petite marche pourrait en révéler d’autres !", horizon));
         // Rural fallback mirrors the JavaScript engine: with fewer than four
         // pieces within 1 km, notify only when the next kilometre has at most
         // two pieces; three or more means better options may be ahead.
         if (!horizon.isEmpty() && outerHorizon.size() <= 2) {
             List<DiscoveryDistance> items = combine(horizon, outerHorizon);
             return selection(items, ringMessage("🌲 Pépite de région en vue !",
-                    "Une rare œuvre d’art se trouve à l’horizon, " + distanceRange(items)
-                            + ". Préparez-vous à faire un arrêt découverte !", items));
+                    "Une découverte se trouve un peu plus loin. Préparez-vous à faire un arrêt découverte !", items));
         }
         return null;
     }
@@ -325,18 +321,12 @@ public final class MonaNativeProximityEngine {
         return title + "\n" + description;
     }
 
-    private static String distanceRange(List<DiscoveryDistance> discoveries) {
-        float closest = Float.MAX_VALUE;
-        float furthest = 0;
-        for (DiscoveryDistance discovery : discoveries) {
-            closest = Math.min(closest, discovery.distanceMeters);
-            furthest = Math.max(furthest, discovery.distanceMeters);
-        }
-        long roundedClosest = Math.round(closest);
-        long roundedFurthest = Math.round(furthest);
-        return roundedClosest == roundedFurthest
-                ? "à ~" + roundedClosest + " m"
-                : "de ~" + roundedClosest + " à ~" + roundedFurthest + " m";
+    private static String quantityDescriptor(int count) {
+        if (count == 1) return "une découverte";
+        if (count <= 3) return "quelques découvertes";
+        if (count <= 6) return "plusieurs découvertes";
+        if (count <= 11) return "une belle sélection de découvertes";
+        return "un véritable concentré de découvertes";
     }
 
     private static List<DiscoveryDistance> combine(
