@@ -30,7 +30,6 @@ public final class MonaNativeProximityEngine {
     // Testing value. Use 4 hours for dense areas and 6 hours for sparse areas in production.
     private static final long COOLDOWN_MS = 3 * 60 * 1000L;
     private static final long PER_DISCOVERY_COOLDOWN_MS = 24 * 60 * 60 * 1000L;
-    private static final long DAILY_LIMIT = 40L;
     private static final float BASE_NOTIFICATION_RADIUS_METERS = 800f;
     private static final float ACCURACY_BUFFER_START_METERS = 50f;
     private static final float MAX_ACCURACY_BUFFER_METERS = 400f;
@@ -62,12 +61,6 @@ public final class MonaNativeProximityEngine {
             long lastNotification = readLong(preferences, "notif_last_global_at");
             if (lastNotification > 0 && now - lastNotification < COOLDOWN_MS) {
                 Log.d(TAG, "Native notification skipped because the cooldown is still active.");
-                return;
-            }
-
-            long dailyCount = readLong(preferences, "notif_daily_count");
-            if (dailyCount >= DAILY_LIMIT) {
-                Log.d(TAG, "Native notification skipped because the daily limit was reached.");
                 return;
             }
 
@@ -126,7 +119,6 @@ public final class MonaNativeProximityEngine {
             MonaNativeNotification.show(context, title, description);
             preferences.edit()
                     .putString("notif_last_global_at", String.valueOf(now))
-                    .putString("notif_daily_count", String.valueOf(dailyCount + 1))
                     .apply();
             saveRecentlyNotified(preferences, selection.discoveries, now);
             Log.d(TAG, "Native proximity notification sent: " + message);

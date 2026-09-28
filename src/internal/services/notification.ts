@@ -32,8 +32,6 @@ const PREFERENCE_KEYS = {
   LAST_CHECK_LAT: 'notif_last_check_lat',
   LAST_CHECK_LNG: 'notif_last_check_lng',
   LAST_CHECK_AT: 'notif_last_check_at',
-  DAILY_COUNT_DATE: 'notif_daily_count_date',
-  DAILY_COUNT: 'notif_daily_count',
   PIECE_LAST_NOTIF_MAP: 'notif_piece_last_map',
 };
 
@@ -44,7 +42,6 @@ const NOTIFICATION_CONFIG = {
   SPARSE_MAX_COUNT: 5,
   MIN_MOVE_TO_RECHECK_M: 1/*20*/,
   MAX_RECHECK_MIN: 5,
-  DAILY_CAP: 40,
   // Keep this short while testing. Production values can be 24h-48h
   GLOBAL_COOLDOWN_MS: 3 * 60 * 1000,
   PER_DISCOVERY_COOLDOWN_MS: 24 * 60 * 60 * 1000,
@@ -75,15 +72,6 @@ function haversineDistanceMeters(
 // Return the current timestamp in milliseconds.
 function nowMs(): number {
   return Date.now();
-}
-
-// Build a local YYYY-MM-DD key for daily notification limits.
-function todayKeyLocal(): string {
-  const date = new Date();
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
 }
 
 // Read a numeric preference and normalize invalid values to null.
@@ -181,25 +169,6 @@ export class ProximityNotificationService {
       return { sent: false, reason: 'permissions_not_granted' };
     }
 
-    // Enforce the daily cap with a local YYYY-MM-DD key.
-    const today = todayKeyLocal();
-    const { value: storedDay } = await Preferences.get({ key: PREFERENCE_KEYS.DAILY_COUNT_DATE });
-    let dailyNotificationCount = (await getNumberPreference(PREFERENCE_KEYS.DAILY_COUNT)) ?? 0;
-
-    if (storedDay !== today) {
-      dailyNotificationCount = 0;
-      await Preferences.set({ key: PREFERENCE_KEYS.DAILY_COUNT_DATE, value: today });
-      await setNumberPreference(PREFERENCE_KEYS.DAILY_COUNT, 0);
-    }
-
-    if (dailyNotificationCount >= NOTIFICATION_CONFIG.DAILY_CAP) {
-      console.log('[ProximityNotificationService] Notification gate blocked: daily_cap', {
-        dailyNotificationCount,
-        limit: NOTIFICATION_CONFIG.DAILY_CAP,
-      });
-      return { sent: false, reason: 'daily_cap' };
-    }
-
     // Reuse coordinates from the wake event when available; otherwise read them once.
     const position = currentCoordinates
       ? null
@@ -282,7 +251,6 @@ export class ProximityNotificationService {
 
     // Persist the cooldown counters after a notification has been scheduled.
     await setNumberPreference(PREFERENCE_KEYS.LAST_GLOBAL_NOTIF_AT, now);
-    await setNumberPreference(PREFERENCE_KEYS.DAILY_COUNT, dailyNotificationCount + 1);
 
     const discoveryLastNotificationMap = await getDiscoveryLastNotificationMap();
     for (const discovery of decision.candidates) {
