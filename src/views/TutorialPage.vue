@@ -1,8 +1,8 @@
 <template>
   <ion-page>
-    <ion-content :fullscreen="true" :class="{ 'bg-lines': pageNumber === 2 }">
+    <ion-content :fullscreen="true" :class="{ 'bg-lines': pageNumber === 2 }" @click="handlePageTap">
 
-      <div @click="handlePageTap">
+      <div>
         <div class="tutorialHeader" 
         :style="{padding: pageNumber === 1 ? '7.59vh 10vw 0' : 
                           (pageNumber === 2 || pageNumber === maxPageNumber) ? '7.59vh 6vw 0' : null}">
@@ -161,24 +161,51 @@ export default {
   },
 
   methods: {
-    handlePageTap() {
-      if (this.pageNumber === 1 || this.pageNumber === this.maxPageNumber) return;
-      this.nextSlide();
+    handlePageTap(event) {
+    // prend pas en compte les boutons quitter et suivant
+      if (event.target.closest('#next, #passer')){
+        return;
+      }
+
+
+      if (this.pageNumber === 1 ) return;
+      const screenWidth = window.innerWidth;
+      const click = event.clientX
+
+      const leftLimite = screenWidth * 0.3;
+      const rightLimite = screenWidth * 0.7;
+
+      if (click < leftLimite){
+        this.previousSlide();
+        } else if (click > rightLimite){
+          this.nextSlide();
+        }
+      
     },
+
     nextSlide() {
       if (this.pageNumber < this.maxPageNumber) this.pageNumber++;
       else {
         this.returnBack();
       }
     },
+
+    previousSlide(){
+      if (this.pageNumber > 1){
+        this.pageNumber --;
+      }
+    },
+
+
     returnBack() {
       // The user played the tutorial form `/tabs/more`, don't check perms
+
       if (this.$route.query.callbackurl) {
         this.$router.replace(this.$route.query.callbackurl);
         return;
       }
 
-      UserData.setSeenTutorial(true);
+      //UserData.setSeenTutorial(true);
       this.$router.replace("/register");
     },
   },
