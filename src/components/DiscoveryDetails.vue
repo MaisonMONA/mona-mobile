@@ -103,23 +103,7 @@
               id="defaultPhoto"
               :src="'./assets/drawable/mascots/mascot_17.png'"
             ></ion-img>
-            <p class="photoPlaceholderText">Ajoutez cette découverte
-               à votre collection<br>en la prenant en photo</p>
-          
-          <!-- PHOTO BUTTON -->
-        <ion-button
-          class="discovery-button"
-          id="photoButton"
-          fill="solid"
-          @click="activateCamera"
-        >
-          <ion-icon
-            id="cameraIcon"
-            :icon="'./assets/drawable/icons/camera_photo_icon.svg'"
-          ></ion-icon>
-          PHOTOGRAPHIER
-        </ion-button>
-          
+            <p class="photoPlaceholderText">Ajoutez cette découverte à votre collection<br>en la prenant en photo</p>
           </div>
           <ion-img id="userPhoto"></ion-img>
         </div>
@@ -146,11 +130,25 @@
           id="ficheCompleteButton"
           fill="outline"
           @click="openDiscoveryDetailsPage"
-          :style="{ width: isCollected ? '92vw' : '92vw' }"
+          :style="{ width: isCollected ? '92vw' : '44vw' }"
         >
           {{ isCollected ? "VOIR LA FICHE COMPLÈTE" : "FICHE COMPLÈTE" }}
         </ion-button>
-      </div>
+
+        <!-- PHOTO BUTTON -->
+        <ion-button
+          class="discovery-button"
+          id="photoButton"
+          fill="solid"
+          @click="activateCamera"
+        >
+          <ion-icon
+            id="cameraIcon"
+            :icon="'./assets/drawable/icons/camera_photo_icon.svg'"
+          ></ion-icon>
+          PHOTOGRAPHIER
+        </ion-button>
+    </div>
   </template>
   <template v-else>
     <div class="discoveryDetailsContainer loading-placeholder">
@@ -182,8 +180,6 @@ import { getStaticDiscoveryPinDataUrl } from "@/internal/PinUtils";
 export default {
   name: "discovery-details",
 
-  emits: ["close-discovery-details", "view-full-details"],
-
   props: {
     selectedDiscovery: Object,
   },
@@ -196,7 +192,7 @@ export default {
     IonImg,
     IonChip,
   },
-  
+  emits: ["close-discovery-details"],
 
   data() {
     let isArtwork,
@@ -351,7 +347,7 @@ export default {
       this.pinDataUrl = url;
     });
   },
-  
+
   methods: {
     openDiscoveryDetailsPage() {
       this.$emit('view-full-details', UserData.getCollected(this.discovery.id, this.discovery.dType));
@@ -495,11 +491,8 @@ div.discoveryDetailsContainer {
 
 #photoButton {
   height: 5.4vh;
-  width: 100%;
-  margin-left: 0;
-  bottom: 0;
+  width: 44vw;
   position: absolute;
-  box-sizing: border-box;
   --background: #4d58cb;
   --color: white;
   --border-radius: 8px;
@@ -509,12 +502,6 @@ div.discoveryDetailsContainer {
   font-weight: 600;
   --background-activated: black;
 }
-
-#photoButton:active {
-  --background: var(--photo-button-hover-background, #1a216b);
-} 
-
-
 #photoButton ion-icon {
   font-size: 3.7vw;
   margin-right: 1.8vw;
@@ -613,7 +600,6 @@ ion-button {
 .photoContainer {
   position: relative;
   width: 92vw;
-  height: 26vh;
   margin: 0 0 1.8vh 3.9vw;
   background-color: #F2F2F2;
   border-radius: 1.9vw;
@@ -665,28 +651,6 @@ ion-button {
 }
 .addressContainer span {
   text-decoration: underline;
-}
-
-.close-button-container {
-  position: absolute;
-  top: 4.5vw;
-  right: 4.5vw;
-  z-index: 2;
-  cursor: pointer;
-}
-
-.close-icon {
-  background: none;
-  border: none;
-  font-size: 20px;
-  color: #888;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
 }
 
 .loading-placeholder {
