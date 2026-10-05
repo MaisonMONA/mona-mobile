@@ -9,8 +9,8 @@
     </ion-header>
 
     <ion-content :fullscreen="true">
-      <div class="discoveryPhotoContainer">
-        <div class="photoContainer">
+      <div class="discoveryPhotoContainer" @click="activateCamera">
+        <div class="photoContainer" >
           <ion-img
             id="defaultPhoto"
             :src="'./assets/drawable/mona_logo_med.png'"

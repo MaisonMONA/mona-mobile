@@ -98,7 +98,7 @@
         </div>
 
         <div class="photoContainer">
-          <div class="photoPlaceholder" v-if="!isCollected">
+          <div class="photoPlaceholder" v-if="!isCollected" @click="activateCamera">
             <ion-img
               id="defaultPhoto"
               :src="'./assets/drawable/mascots/mascot_17.png'"
