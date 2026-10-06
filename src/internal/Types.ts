@@ -264,8 +264,8 @@ export class Place extends Discovery {
   }
 
   public getUsages(lang = "fr"): string {
-    if (lang == "fr") return this.usages.fr.join(", ");
-    else return this.usages.en.join(", ");
+    const list = this.usages?.[lang === "fr" ? "fr" : "en"];
+    return Array.isArray(list) ? list.join(", ") : "";
   }
 
   public getBorough(): string {
@@ -378,7 +378,7 @@ export class Heritage extends Discovery {
   }
 
   public getUsages(): string {
-    return this.subUses.join(", ");
+    return (this.subUses ?? []).join(", ");
   }
 
   public getAddress(): string | null {

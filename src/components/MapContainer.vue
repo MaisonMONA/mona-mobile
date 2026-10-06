@@ -12,6 +12,16 @@
   >
   </ion-alert>
 
+  <ion-alert
+    class="permission-rationale-alert"
+    :is-open="isRationaleOpen"
+    header="Pourquoi MONA demande la localisation et les notifications"
+    :message="rationaleMessage"
+    :buttons="rationaleBtn"
+    @didDismiss="isRationaleOpen = false"
+  >
+  </ion-alert>
+
   <!-- Closest discoveries accordion -->
 
   <!-- ionChange and :value here are a fix to keep the accordion from re-opening by itself caused by recenter button updating (maybe ionic re-renders accordion when recenter button in it updates) -->
@@ -140,10 +150,8 @@
   >
       <discovery-details
         :selected-discovery="currentSelectedDiscovery"
+        @view-full-details="openDiscoveryDetailsFullModale(currentSelectedDiscovery)"
         @close-discovery-details="discoveryDetailsModalOpen = false"
-        @view-full-details="
-          openDiscoveryDetailsFullModale(currentSelectedDiscovery)
-        "
       />
   </ion-modal>
   <!-- Selected pin discovery details modal -->
@@ -213,6 +221,16 @@ import { containsCoordinate, getHeight } from "ol/extent.js";
 import { unByKey } from "ol/Observable.js";
 import { Geolocation } from "@capacitor/geolocation";
 import { LocationService } from "@/internal/LocationService";
+import {
+  ProximityNotificationService,
+  resetGlobalNotificationCooldown,
+} from "@/internal/services/notification";
+import {
+  backgroundProximityService,
+  ensureBackgroundPermissions,
+  checkNativeBackgroundPermissions,
+} from "@/internal/services/backgroundNotification";
+import { LocalNotifications } from '@capacitor/local-notifications';
 import { isPlatform } from "@ionic/vue";
 import { App } from "@capacitor/app";
 import { Directory, Filesystem } from "@capacitor/filesystem";
@@ -391,6 +409,7 @@ export default {
       locationAccuracyLayer: null,
       userPointFeature: null,
       locationUpdateInterval: null,
+      discoveryUpdateInterval: null,
       locationUnsubscribe: null, // Function to unsubscribe from location updates
       mapPinsLayer: null,
       mapPolygonsLayer: null,
@@ -417,6 +436,26 @@ export default {
       customLocationIconBlack,
       customLocationIconPurple,
       isAlertOpen: false,
+      isRationaleOpen: false,
+      rationaleMessage:
+        "Pour profiter pleinement de MONA et recevoir les notifications même lorsque l'app est fermée, choisissez « Toujours autoriser » dans les réglages Android. Votre position sert uniquement à trouver les œuvres à proximité.",
+      rationaleBtn: [
+        {
+          text: 'Annuler',
+          role: 'cancel',
+          cssClass: 'alert-button-cancel',
+          handler: () => {
+            this.isRationaleOpen = false;
+          },
+        },
+        {
+          text: "Activer",
+          cssClass: 'alert-button-confirm',
+          handler: () => {
+            this.requestBackgroundAndNotifPermissions();
+          },
+        },
+      ],
       viewResolutionListenerKey: null,
       alertBtn: [
         {
@@ -497,33 +536,110 @@ export default {
     // Foreground app state change listener
     // After user go back to the app from app settings, check if the location permission is granted
     await App.addListener("appStateChange", async ({ isActive }) => {
+      await backgroundProximityService.setAppForeground(isActive);
+
       if (isActive) {
         const geoCheckPermission = await Geolocation.checkPermissions();
         this.isPermissionDenied = geoCheckPermission.location === "denied";
 
         if (!this.isPermissionDenied) {
           this.showLocation();
+          await resetGlobalNotificationCooldown();
           // Restart location service if needed
           if (!LocationService.isWatching()) {
             await this.startLocationService();
           }
+
+          const nativePermissions = await checkNativeBackgroundPermissions();
+          if (nativePermissions.backgroundGranted) {
+            // Re-center the native 1 km fence at the user's current location.
+            // This accounts for movement that happened before reopening MONA.
+            await backgroundProximityService.recenterAndroidGeofence();
+          }
         }
       }
     });
-    // If the permission is granted, this.askForPermissions() will not ask for permission again
-    await this.askForPermissions();
     this.myMap();
 
-    // Start location service
-    await this.startLocationService();
+    // Start background proximity monitoring after ensuring background permissions.
+    // Native configuration and a proper background-geolocation plugin are
+    // recommended for reliable background delivery on iOS/Android.
+    void (async () => {
+      // Show a short rationale before requesting notification + background location
+      // permissions so users understand why we ask for "Allow always".
+      try {
+        const geoCheck = await Geolocation.checkPermissions();
+        const notifCheck = await LocalNotifications.checkPermissions().catch(() => ({ display: 'prompt' }));
 
-    // Update closest discoveries every 2 minutes
+        // Foreground location is enough to use the app. Background access is
+        // optional and only affects notifications after the app is closed.
+        const needsNotif = notifCheck.display !== 'granted';
+        const needsGeo = geoCheck.location !== 'granted';
+
+        if (needsNotif || needsGeo) {
+          this.isRationaleOpen = true;
+        } else {
+          await this.askForPermissions();
+          // myMap() ran before permissions were resolved, so isPermissionDenied was
+          // still true and showLocation() was skipped. Show it now that we know.
+          if (!this.isPermissionDenied) this.showLocation();
+          await this.startLocationService();
+          const nativePermissions = await checkNativeBackgroundPermissions();
+          if (nativePermissions.backgroundGranted) {
+            await backgroundProximityService.start();
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to prepare background proximity service', e);
+      }
+    })();
+
+    // Keep only the visual proximity list updated in the foreground.
     this.discoveryUpdateInterval = setInterval(() => {
       this.updateClosestDiscoveries();
     }, 120000); // 120000 ms = 2 minutes
   },
 
   methods: {
+
+    async requestBackgroundAndNotifPermissions() {
+      // Called when user accepts the rationale alert.
+      try {
+        const geoPerm = await Geolocation.requestPermissions();
+        this.isPermissionDenied = geoPerm.location === "denied";
+        if (this.isPermissionDenied) {
+          console.log('User declined foreground location permission');
+          return;
+        }
+
+        // Request notifications permission first (Android 13+ path handled by plugin)
+        try {
+          const notifPerm = await LocalNotifications.checkPermissions();
+          if (notifPerm.display !== 'granted') {
+            const requested = await LocalNotifications.requestPermissions();
+            if (requested.display !== 'granted') {
+              // User declined notifications; respect that and stop here.
+              console.log('User declined notifications permission');
+              return;
+            }
+          }
+        } catch (e) {
+          console.warn('LocalNotifications permission check/request failed', e);
+        }
+
+        // myMap() ran before permissions were resolved, so isPermissionDenied was
+        // still true and showLocation() was skipped. Show it now that we know.
+        if (!this.isPermissionDenied) this.showLocation();
+        await this.startLocationService();
+
+        // Only users who explicitly press "Activer" are sent to Android
+        // settings to enable background location.
+        await ensureBackgroundPermissions();
+        await backgroundProximityService.start();
+      } catch (e) {
+        console.warn('requestBackgroundAndNotifPermissions failed', e);
+      }
+    },
 
     openDiscoveryDetailsFullModale(discovery) {
       this.discoveryDetailsFullModalOpen = true;
@@ -565,6 +681,27 @@ export default {
         Promise.all(promises).then(() => {
           this.closestDiscoveryPinUrls = { ...nextUrls };
         });
+      }
+    },
+
+    async checkProximityNotifications() {
+      try {
+        const notificationService = new ProximityNotificationService();
+        const discoveries = UserData.getSortedDiscoveriesAZ().map((discovery) => {
+          const location = discovery.getLocation();
+
+          return {
+            id: `${discovery.dType}:${discovery.id}`,
+            title: discovery.getTitle(),
+            lat: location.lat,
+            lng: location.lng,
+            isCollected: discovery.isCollected,
+          };
+        });
+
+        await notificationService.runCheck(discoveries);
+      } catch (error) {
+        console.error("Failed to run proximity notification check:", error);
       }
     },
 
@@ -1119,6 +1256,10 @@ export default {
       // Clean up location subscription
       if (this.locationUnsubscribe) {
         this.locationUnsubscribe();
+      }
+
+      if (this.discoveryUpdateInterval) {
+        clearInterval(this.discoveryUpdateInterval);
       }
       
       // Stop location service
