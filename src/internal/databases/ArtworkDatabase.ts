@@ -14,4 +14,8 @@ export class ArtworkDatabase extends Database {
     public static getFromId(id: number): Artwork | null {
         return super.getFromId(id) as Artwork | null;
     }
+
+    public static getAll(): Artwork[] {
+        return this.data;
+    }
 }

@@ -5,7 +5,7 @@ import Globals from "@/internal/Globals";
 import { UserData } from "@/internal/databases/UserData";
 
 export abstract class Database {
-    protected static data: Discovery[];
+    protected static data: any[] = [];
     protected static path: string;
     protected static type: string;
 
@@ -41,8 +41,7 @@ export abstract class Database {
                         // Basic validation: must have numeric id and a callable getTitle
                         if (
                             !candidate ||
-                            typeof candidate.id !== "number" ||
-                            typeof candidate.getTitle !== "function"
+                            typeof candidate.id !== "number"
                         ) {
                             throw new Error("Invalid discovery object");
                         }
@@ -73,6 +72,7 @@ export abstract class Database {
         if (this.type == "artworks") url = Globals.apiRoutes.artworks.download;
         else if (this.type == "places") url = Globals.apiRoutes.places.download;
         else if (this.type == "heritages") url = Globals.apiRoutes.heritages.download;
+        else if (this.type == "artists") url = Globals.apiRoutes.artists.download;
         else /* (this.type == "badges") */ url = Globals.apiRoutes.badges.download;
 
         try {
@@ -118,6 +118,7 @@ export abstract class Database {
 
         .then(() => UserData.setDBLastUpdate(this.type, new Date()));
     }
+
 
     public static getFromId(id: number): Discovery | null {
         for (let i = Math.min(id, this.data.length) - 1; i >= 0; i--) {

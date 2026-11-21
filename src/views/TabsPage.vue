@@ -20,9 +20,9 @@
           :class="{ 'active-tab': activeTab === 'artworks-list' }"
         >
           <ion-icon
-            :icon="activeTab === 'artworks-list' ? activeList : inactiveList"
+            :icon="activeTab === 'artworks-list' ? activeExplorer : inactiveExplorer"
           />
-          <ion-label v-show="activeTab === 'artworks-list'">Annuaire</ion-label>
+          <ion-label v-show="activeTab === 'artworks-list'">Explorer</ion-label>
         </ion-tab-button>
 
         <ion-tab-button
@@ -67,6 +67,8 @@ import inactiveMap from "/assets/drawable/icons/inactive_map_tab_icon.svg";
 import inactiveList from "/assets/drawable/icons/inactive_list_tab_icon.svg";
 import inactiveCollection from "/assets/drawable/icons/inactive_collection_tab_icon.svg";
 import inactiveMore from "/assets/drawable/icons/inactive_more_tab_icon.svg";
+import inactiveExplorer from "/assets/drawable/icons/inactive_search.svg";
+import activeExplorer from "/assets/drawable/icons/active_search.svg";
 import activeMap from "/assets/drawable/icons/active_map_tab_icon.svg";
 import activeList from "/assets/drawable/icons/active_list_tab_icon.svg";
 import activeCollection from "/assets/drawable/icons/active_collection_tab_icon.svg";
@@ -89,6 +91,8 @@ export default {
       inactiveList,
       inactiveCollection,
       inactiveMore,
+      inactiveExplorer,
+      activeExplorer,
       activeMap,
       activeList,
       activeCollection,

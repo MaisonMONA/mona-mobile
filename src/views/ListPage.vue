@@ -2,40 +2,131 @@
   <ion-page>
     <ion-content :fullscreen="true">
       <div class="main-content">
+        <h1>Explorer</h1>
 
         <div id="searchbarAndFilterButton">
           <!-- triggerTextFilter function triggered each 500 ms when search bar value changes -->
           <ion-searchbar
             id="listIonSearchBar"
             show-clear-button="always"
-            placeholder="Rechercher par titre de découverte"
+            placeholder="Rechercher un.e artiste ou découverte"
             @ion-clear="triggerTextFilter('')"
             @ionInput="triggerTextFilter($event.target.value)"
             @keydown.enter="triggerTextFilter($event.target.value)"
           ></ion-searchbar>
-          
-          <!-- Filter options button -->
-          <ion-button
-            id="open-modal"
-            class="filters-button"
-            shape="round"
-            fill="outline"
-          >
-            <ion-icon slot="icon-only" :icon="`/assets/drawable/icons/list_filters_icon_white.svg`"></ion-icon>
-          </ion-button>
-          
-          <!-- Refresh button -->
-          <ion-button
-            @click="refreshPage"
-            id="refresh-button"
-            class="filters-button"
-          >
-            <ion-icon :icon="syncCircleIcon"></ion-icon>
-          </ion-button>
+                  
         </div>
 
-        <!-- Results list -->
-        <ion-list :inset="true" lines="none">
+
+        <!-- Affiche seulement si barre de recherche vide -->
+        <div v-if="currentTextFilter.trim() === ''" class="explorer-home">
+
+        <!-- Catégories -->
+         <h2 class="explorer-title">Catégories</h2>
+         <div class="categories-scroll">
+
+          <div class="category-card" @click="$router.push({path: '/discoveries',query: { category: 'art_public' }})">
+            <img src="/assets/drawable/icons/pins/art_public.svg" alt="Art public" />
+            <span>Art Public</span>
+          </div>
+
+          <div class="category-card" @click="$router.push({path: '/discoveries',query: { category: 'lieux_culturels' }})">
+            <img src="/assets/drawable/icons/pins/lieux_culturels.svg" alt="Lieux culturels" />
+            <span>Lieux culturels</span>
+          </div>
+
+          <div class="category-card" @click="$router.push({path: '/discoveries',query: { category: 'murales' }})">
+            <img src="/assets/drawable/icons/pins/murales.svg" alt="Murales" />
+            <span>Murales</span>
+          </div>
+
+          <div class="category-card" @click="$router.push({path: '/discoveries',query: { category: 'patrimoine' }})">
+            <img src="/assets/drawable/icons/pins/patrimoine.svg" alt="Patrimoine" />
+            <span>Patrimoine</span>
+          </div>
+
+          <div class="category-card" @click="$router.push({path: '/discoveries',query: { category: 'sculptures' }})">
+            <img src="/assets/drawable/icons/pins/sculptures.svg" alt="Sculptures" />
+            <span>Sculptures</span>
+          </div>
+
+          <div class="category-card" @click="$router.push({path: '/discoveries',query: { category: 'bibliotheques' }})">
+            <img src="/assets/drawable/icons/pins/bibliotheques.svg" alt="Bibliothèques" />
+            <span>Bibliothèque</span>
+          </div>
+          </div>
+
+        <!--Artistes-->
+        <h2 class="explorer-title">Artistes</h2>
+
+        <div class="artists-promo">
+          <div class="artists-promo-txt">
+            <p> Plus de {{ artistsList.length }} artistes à découvrir dans l’application!</p>
+            <button @click="goToAllArtists">VOIR TOUT</button>
+          </div>
+          <img src="/assets/drawable/tutorial/page 1.svg">
+        </div>
+
+        <!-- Par quartier -->
+        <h2 class="explorer-title">Par quartier</h2>
+
+        <div class="boroughs-grid" >
+          <div v-for="(badge, index) in boroughBadges" v-show="index < boroughsToShow" :key="badge.id" class="borough-card" @click="$router.push({path: '/discoveries', query: { borough: badge.title }})">
+            <img :src="getBoroughImage(badge)" :alt="badge.title" />
+            <span>{{ badge.title }}</span>
+          </div>
+        </div>
+
+        <!-- Charger plus -->
+        <button v-if="boroughsToShow < boroughBadges.length" class="load-more-boroughs" @click="boroughsToShow += 9">
+          CHARGER PLUS DE QUARTIERS
+          <ion-icon :icon="chevronDownOutline"></ion-icon>
+        </button>
+
+        <!-- Charger moins -->
+        <button v-if="boroughsToShow > 9" class="load-more-boroughs" @click="boroughsToShow = 9">
+          CHARGER MOINS DE QUARTIERS
+          <ion-icon :icon="chevronUpOutline"></ion-icon>
+        </button>
+      </div>
+
+
+
+      <!-- Recherche -->
+      <div v-else>
+        <!-- Artist search results -->
+
+          <!-- Only if user inserted text and at least 1 artist is found  -->
+        <div v-if="currentTextFilter.trim() !== '' && searchArtists().length > 0" :inset="true" lines="none">
+            <div class="search-section">
+              <h2>Artistes</h2>
+
+              <span @click="goToAllArtists">
+                Voir tout 
+                ({{ searchArtists().length }})
+              </span>
+            </div>
+            <ion-list lines="none" >
+            <!-- Affiche seulement 4 artistes -->
+            <ion-item id="listArtiste" v-for="artist in (showAllArtists ? searchArtists(): searchArtists().slice(0, 4))" :key="`artist:${artist.id}`" @click="openArtistDetails(artist)" >
+              <ion-label id="title"> {{ artist.name }}</ion-label>
+            </ion-item>
+            </ion-list>
+        </div>
+
+        <div style="height: 1px; background: #d0d0d0; margin: 10px 14px 0px;"></div>
+
+
+        <!-- Discovery list -->
+        <div v-if="currentTextFilter.trim() !== ''">
+          <div class="search-section">
+            <h2>Découvertes</h2>
+          
+            <span @click="gotoAllDiscoveries">
+              Voir tout ({{ getTotalDiscoveries()}})
+            </span>
+          </div>
+          <ion-list lines="none"> 
           <ion-item
             id="list"
             v-for="discovery of getDiscoveriesToShow()"
@@ -69,18 +160,19 @@
             </ion-label>
           </ion-item>
         </ion-list>
-        <ion-infinite-scroll @ionInfinite="pullMoreDiscoveries">
-          <ion-infinite-scroll-content></ion-infinite-scroll-content>
-        </ion-infinite-scroll>
-        <p class="bottom-text">{{ getDiscoveriesToShow().length }} résultats</p>
+        </div>
+      </div>
+
+          
+
       </div>
 
       <!-- Filtres modal window opened when clicking Filtrer button -->
       <ion-modal
         ref="modal"
         trigger="open-modal"
-        :initial-breakpoint="0.5"
-        :breakpoints="[0, 0.2, 0.5, 0.7]"
+        :initial-breakpoint="1"
+        :breakpoints="[0, 1]"
       >
         <!-- Filtres modal window content -->
         <ion-content>
@@ -103,83 +195,54 @@
 
           <!-- Choose how to order the results -->
           <div class="titreTrier">
-            <ion-label>Trier par</ion-label>
-          </div>
-
-          <div id="trierParRadioGroup">
-            <ion-radio-group :value="this.getTrierPar()" v-model="choixTrie">
-              <ion-radio mode="md" label-placement="end" value="Distance">Distance</ion-radio>
-
-              <ion-label class="trierAZ"></ion-label>
-              <ion-radio mode="md" label-placement="end" value="AZ">Ordre alphabétique</ion-radio>
+            <h3>Trier</h3>
+            <ion-radio-group v-model="draftFilters.sortBy">
+              <ion-item lines="none">
+                <ion-radio value="Distance">Distance</ion-radio>
+              </ion-item>
+              <ion-item lines="none">
+                <ion-radio value="AZ">A-Z</ion-radio>
+              </ion-item>
+              <ion-item lines="none">
+                <ion-radio value="Date">Date</ion-radio>
+              </ion-item>
             </ion-radio-group>
           </div>
 
-          <!-- Choose how to filter the results -->
-          <div class="titreTrier">
-            <ion-label>Filtrer par</ion-label>
+
+          <!--Par quartier-->
+          <div class="filter-section">
+            <h3>Par badge</h3>
+            <div v-for="badge in badgesCollectionsStore.boroughCollection"
+              :key="badge.id" class="filter-option"
+              :class="{ selected: draftFilters.badges.includes(badge.title) }"
+              @click="toggleDraftBadge(badge.title)">
+              {{ badge.title }}
+              <ion-icon v-if="draftFilters.badges.includes(badge.title)" :icon="checkmarkOutline"/>
+            </div>
           </div>
 
-          <ion-row class="ion-justify-content-between">
-            <!-- Oeuvres select button -->
-            <ion-col
-              class="filtre"
-              size="4"
-              size-xs="3.8"
-              @click="selectedDiscovery(artwork)"
-              :style="{
-                color: artwork.color,
-                backgroundColor: artwork.backgroundColor,
-              }"
-            >
-              <div class="filter-category">
-                <ion-avatar>
-                  <img :src="'./assets/drawable/medals/artwork/default.svg'" alt="artwork discovery medal icon"/>
-                </ion-avatar>
-                <ion-text>Œuvres d'art</ion-text>
-              </div>
-            </ion-col>
+          <!-- Types de découvertes -->
+          <div class="filter-section">
+            <h3>Types de découvertes</h3>
 
-            <!-- Patrimoine select button -->
-            <ion-col
-              class="filtre"
-              size="3.3"
-              size-xs="3.2"
-              @click="selectedDiscovery(heritage)"
-              :style="{
-                color: heritage.color,
-                backgroundColor: heritage.backgroundColor,
-              }"
-            >
-              <div class="filter-category">
-                <ion-avatar>
-                  <img :src="'./assets/drawable/medals/heritage/default.svg'" alt="heritage discovery medal icon"/>
-                </ion-avatar>
-                <ion-text>Patrimoine</ion-text>
-              </div>
-            </ion-col>
-            <!-- Lieux culturels select button -->
-            <ion-col
-                class="filtre"
-                size="4.3"
-                size-xs="4"
-                @click="selectedDiscovery(place)"
-                :style="{
-                color: place.color,
-                backgroundColor: place.backgroundColor,
-              }"
-            >
-              <div class="filter-category">
-                <ion-avatar>
-                  <img
-                      :src="'./assets/drawable/medals/place/default.svg'"
-                      alt="place discovery medal icon"
-                  />
-                </ion-avatar>
-                <ion-text>Lieux culturels</ion-text>
-              </div>
-            </ion-col>
-          </ion-row>
+            <div v-for="type in discoveryFilterTypes"
+              :key="type.value" class="filter-option"
+              :class="{ selected: draftFilters.types.includes(type.value) }" @click="toggleDraftType(type.value)">
+        {{ type.label }}
+            <ion-icon v-if="draftFilters.types.includes(type.value)" :icon="checkmarkOutline"/>
+            </div>
+          </div>
+
+          <div class="filter-actions">
+            <ion-button fill="clear" @click="resetDraftFilters">
+              Réinitialiser
+            </ion-button>
+            <ion-button @click="applyFilters">
+              Appliquer
+            </ion-button>
+          </div>
+            
         </ion-content>
       </ion-modal>
 
@@ -197,14 +260,15 @@
               @close-discovery-details-full-modale="discoveryDetailsFullModalOpen = false"
           />
       </ion-modal>
-      <!-- Selected discovery full details modal -->
 
+
+
+
+      <!-- Selected discovery full details modal -->
       <ion-refresher slot="fixed" @ion-refresh="refreshPage">
-        <ion-refresher-content></ion-refresher-content>
+          <ion-refresher-content></ion-refresher-content>
       </ion-refresher>
-      <ion-button @click="refreshPage" id="refresh-button">
-        <ion-icon :icon="syncCircleIcon"></ion-icon>
-      </ion-button>
+
     </ion-content>
   </ion-page>
 </template>
@@ -221,10 +285,10 @@ import {
   IonInfiniteScroll,
   IonInfiniteScrollContent,
   IonSearchbar,
+  IonRefresher,
+  IonRefresherContent,
   IonIcon,
   IonButton,
-  IonRefresherContent,
-  IonRefresher,
   IonModal,
   IonRadio,
   IonRadioGroup,
@@ -232,11 +296,14 @@ import {
   IonCol,
   IonRow,
 } from "@ionic/vue";
-import { filterOutline, close, optionsOutline, reload } from "ionicons/icons";
+import { filterOutline, close, optionsOutline, checkmarkOutline, chevronDownOutline, chevronUpOutline } from "ionicons/icons";
 import { UserData } from "@/internal/databases/UserData";
+import { ArtistDatabase } from "@/internal/databases/ArtistDatabase";
+import ArtistDetails from "@/components/ArtistDetails.vue";
 import { Directory, Filesystem } from "@capacitor/filesystem";
 import { Distance } from "../internal/Distance";
 import { eventBus } from "@/internal/eventBus";
+import { useBadgesCollections } from "@/stores/BadgesCollections";
 import DiscoveryDetailsFullModale from "@/components/DiscoveryDetailsFullModale.vue";
 import { 
   createAnnuairePinCanvas, 
@@ -255,9 +322,14 @@ export default {
     Distance() {
       return Distance;
     },
+
+    boroughBadges() {
+      return this.badgesCollectionsStore.boroughCollection;
+    },
   },
   components: {
     DiscoveryDetailsFullModale,
+    ArtistDetails,
     IonRefresher,
     IonRefresherContent,
     IonPage,
@@ -280,9 +352,14 @@ export default {
     IonRow,
   },
   setup() {
+    const badgesCollectionsStore = useBadgesCollections();
     return {
       close,
       optionsOutline,
+      badgesCollectionsStore,
+      checkmarkOutline,
+      chevronDownOutline,
+      chevronUpOutline
     };
   },
 
@@ -291,9 +368,15 @@ export default {
 
       discoveryDetailsFullModalOpen: false,
       listSelectedDiscovery: null,
+      artistDetailsModalOpen: false,
+      listSelectedArtist: null,
+      showAllArtists: false,
+      boroughsToShow: 9,
 
       arrayOffset: 0,
       currentTextFilter: "",
+      artistsList:[],
+      showingArtists: false, // indicateur pour recherche artiste vs art
       lat2: UserData.getLocation(false)[1],
       lng2: UserData.getLocation(false)[0],
       componentKey: 0,
@@ -302,9 +385,11 @@ export default {
       defaultPinDataUrls: {}, // { "artwork:art_public": "data:image/png;base64,..." }
       iconsReady: false,
 
+      
+      
+
       // Icon
       filterOutline,
-      syncCircleIcon: reload,
 
       // Discoveries arrays
       completeDiscoveriesListByAZ: [],
@@ -337,6 +422,28 @@ export default {
       },
       // Tri choisi par distance ou AZ (alphabetique)
       choixTrie: "Distance",
+
+      // Filtres sélectionnés mais pas encore appliqué
+      draftFilters: {
+        sortBy: "Distance",
+        displayBy: "title",
+        badges: [],
+        types: [],
+      },
+
+      // Filtres appliqués
+      appliedFilters: {
+        sortBy: "Distance",
+        isplayBy: "title",
+        badges: [],
+        types: [],
+      },
+
+      discoveryFilterTypes: [
+        { label: "Œuvres d'art", value: "artwork" },
+        { label: "Lieux culturels", value: "place" },
+        { label: "Patrimoine", value: "heritage" },
+      ],
     };
   },
 
@@ -344,6 +451,7 @@ export default {
     // Setting initial values for the discoveries arrays
     this.completeDiscoveriesListByDistance = UserData.getSortedDiscoveriesDistance();
     this.completeDiscoveriesListByAZ = UserData.getSortedDiscoveriesAZ();
+    this.badgesCollectionsStore.instantiateBadgesToShow();
 
     const discoveries = [null, this.place, this.artwork, this.heritage];
     for (const discovery of discoveries) {
@@ -372,6 +480,10 @@ export default {
     // Wait for pin icons to load, then generate default pin data URLs
     await Promise.all(Object.values(iconLoadPromises));
     this.generateDefaultPinDataUrls();
+
+    //load artists
+    this.artistsList = ArtistDatabase.getAll();
+
     // Load collected photos and render as circular canvas pins
     await this.loadCollectedPhotos();
     await this.renderCollectedPhotoPins();
@@ -388,6 +500,8 @@ export default {
   },
 
   methods: {
+    
+
     pullMoreDiscoveries(event) {
       if (this.choixTrie === "Distance")
         if (this.place.selected) {
@@ -409,6 +523,10 @@ export default {
 
     getTrierPar() {
       return this.choixTrie;
+    },
+
+    getBoroughImage(badge) {
+      return `/assets/drawable/badges/borough/progress/${badge.id}.png`;
     },
 
     getDiscoveriesToShow() {
@@ -433,7 +551,7 @@ export default {
         }
       }
 
-      return currentArray;
+      return currentArray.slice(0,5);
     },
 
     pullSortedDiscoveries(event, sortByAZ, discoveryTypeObject) {
@@ -453,9 +571,7 @@ export default {
         arraySubset = this[completeDiscoveries]
           // Filter discoveries by search bar value
           .filter((arrayElement) => {
-            return this.handleText(arrayElement.getTitle()).includes(
-              this.currentTextFilter.toLowerCase(),
-            );
+            return this.isSimilar(arrayElement.getTitle(), this.currentTextFilter,);
           })
           // Filter discoveries by discovery type
           .filter((discovery) => discovery.dType === discoveryType)
@@ -468,9 +584,7 @@ export default {
         arraySubset = this[completeDiscoveries]
           // Filter discoveries by search bar value
           .filter((arrayElement) => {
-            return this.handleText(arrayElement.getTitle()).includes(
-              this.currentTextFilter.toLowerCase(),
-            );
+            return this.isSimilar(arrayElement.getTitle(), this.currentTextFilter,);
           })
           // Get the next 50 discoveries in array after arrayOffset
           .slice(this.arrayOffset, this.arrayOffset + 50);
@@ -490,6 +604,12 @@ export default {
       this.discoveryDetailsFullModalOpen = true;
       this.listSelectedDiscovery = discovery;
     },
+    openArtistDetails(artist) {
+      this.$router.push({
+        name: "ArtistDetails",
+        params: { id: artist.id },
+      });
+    },
 
     openDiscoveryDetailsPage(discovery) {
       const type =
@@ -500,6 +620,12 @@ export default {
             : /* (discovery.dType == "heritage") */ 2;
 
       this.$router.push(`/discovery-details/${type}/${discovery.id}`);
+    },
+
+    searchArtists(){
+      return ArtistDatabase.getAll().filter((artist) => 
+        this.isSimilar(artist.name, this.currentTextFilter)
+      );
     },
 
     handleText(text) {
@@ -523,9 +649,68 @@ export default {
       );
     },
 
+
+isSimilar(text, search) {
+  text= this.handleText(text);
+  search= this.handleText(search);
+
+  if (!search || text.includes(search)) {
+    return true;
+  }
+  // Pas de fuzzy search pour les mots < 3
+  if (search.length < 3) {
+    return false;
+  }
+
+  //distance de Levenshtein
+  const editDistance = (a, b) => {
+    const scores = Array.from(
+      {length: a.length + 1},
+      (_, i)=> i,
+    );
+
+    for (let i = 1; i <= b.length; i++) {
+      let previous= scores[0];
+      scores[0]= i;
+
+      for (let j= 1; j<= a.length; j++) {
+        const oldScore = scores[j];
+
+        scores[j] = Math.min(
+          scores[j]+ 1,
+          scores[j-1] + 1,
+          previous+ (a[j-1] === b[i-1] ? 0: 1),
+        );
+
+        previous= oldScore;
+      }
+    }
+    return scores[a.length];
+  };
+
+  // Recherche portion du titre avec MAX 2 fautes
+  for (let start= 0; start< text.length; start++) {
+    for (
+      let length= Math.max(1, search.length- 1);
+      length<= search.length+ 1;
+      length++
+    ) {
+      const part= text.substring(start, start + length);
+
+      if (part.length=== length && editDistance(search, part)<= 2) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+},
+
     triggerTextFilter(searchText) {
       this.currentTextFilter = this.handleText(searchText);
+      this.showingArtists = this.currentTextFilter.length > 0;
       this.arrayOffset = 0;
+      
 
       // Choice "Trier par" in "Filtres"
       if (this.choixTrie === "AZ") {
@@ -716,15 +901,105 @@ export default {
       // Toggle on/off clicked selected discovery filter
       discovery.selected = !discovery.selected;
     },
+
+    goToAllArtists() {
+      this.$router.push({
+        path: "/artists",
+        //Sends text in searchbar to Artist Search Page
+        query: {
+          search: this.currentTextFilter
+        }
+      });
+    },
+
+    gotoAllDiscoveries(){
+      this.$router.push({
+        path: "/discoveries",
+        //Sends text in searchbar to Discovery Search Page
+        query:{
+          search: this.currentTextFilter,
+          from: "/tabs/list"
+        }
+      })
+    },
+
+    getTotalDiscoveries() {
+      let currentArray = [];
+
+      if (this.choixTrie === "Distance") {
+        currentArray = this.discoveriesSortByDistance;
+        } else {
+        currentArray = this.discoveriesSortByAZ;
+      }
+
+      const discoveries = [this.place, this.artwork, this.heritage];
+
+      for (const discovery of discoveries) {
+        if (discovery.selected) {
+        currentArray =
+          this.choixTrie === "Distance"
+            ? discovery.sortByDistance
+            : discovery.sortByAZ;
+        break;
+      }
+    }
+
+    return currentArray.length;
+    },
+
+    
+      toggleDraftbadge(title){
+        const badges = this.draftFilters.badges;
+        this.draftFilters.badges = badges.includes(title)
+          ? badges. filter(badge => badge !=title)
+          : [...badges, title];
+      },
+
+      toggleDraftType(type){
+        const types = this.draftFilters.types;
+        this.draftFilters.types = types.includes(type)
+          ? types.filter(item => item !== type)
+          : [...types, type];
+      },
+      resetDraftFilters(){
+        this.draftFilters = {
+          sortBy: "Distance",
+          displayBy: "title",
+          badges: [],
+          types: [],
+        };
+      },
+
+      applyFilters(){
+        this.appliedFilters = {
+          sortBy: this.draftFilters.sortBy,
+          displayBy: this.draftFilters.displayBy,
+          badges: [...this.draftFilters.badges],
+          types: [...this.draftFilters.types],
+        };
+        this.dismissModal();
+      },
+  },
+
+  watch: {
+  // Clears search bar
+    "$route.query.resetSearch"(value) {
+    if (value === "true") {
+      this.currentTextFilter = "";
+      this.$router.replace("/tabs/list");
+    }
+    }
   },
 };
+
+
 </script>
 
 <style scoped>
 @import url("@/theme/GlobalStyle.css");
 
 ion-content {
-  background: #f3f2f7;
+  background: #FFFFFF;
 }
 
 #tab-title {
@@ -737,18 +1012,27 @@ ion-content {
 
 div.main-content {
   min-height: 100%;
-  background: #f3f2f7;
+  background: #FFFFFF;
 }
 
 ion-list {
-  background: #f3f2f7;
+  background: #FFFFFF;
   /* To override ionic setting margin-top to 16px, since padding-bottom was added to the search bar */
   margin-top: 3%!important;
 }
 
-#list {
-  border-bottom: 5px solid #f3f2f7;
-  border-top: 5px solid #f3f2f7;
+#listArtist{
+  --min-height: 45px;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --inner-padding-top: 0;
+  --inner-padding-bottom: 0;
+  --border-width: 0; 
+}
+
+#list{
+  border-bottom: 5px solid #FFFFFF;
+  border-top: 5px solid #FFFFFF;
   border-radius: 3vw;
   --min-height: 15vw;
 }
@@ -771,18 +1055,10 @@ ion-list {
   object-fit: contain;
 }
 
-ion-row {
-  margin: 5%;
-}
-
-ion-col {
-  margin-top: 2%;
-  margin-bottom: 2%;
-}
 
 #searchbarAndFilterButton {
-  background: #f3f2f7;
-  padding-top: 6%;
+  background: #FFFFFF;
+  padding-top: 2%;
   display: flex;
   align-items: center;
   padding-left: 4vw;
@@ -794,9 +1070,6 @@ ion-col {
     due to fractional pixel gap. */
   border-bottom: 1px solid #f3f2f7;
 }
-.ios #searchbarAndFilterButton {
-  padding-top: 15%;
-}
 
 /* Also modified in global.css*/
 ion-searchbar#listIonSearchBar {
@@ -807,7 +1080,7 @@ ion-searchbar#listIonSearchBar {
   --border-radius: 2vw;
   --box-shadow: none;
   padding: 0;
-  width: 63vw;
+  width: 92vw;
   border-radius: 4px;
 }
 
@@ -852,11 +1125,7 @@ p.bottom-text {
   text-align: end;
 }
 
-ion-col img {
-  width: 5vw;
-  height: 5vw;
-  margin: auto;
-}
+
 
 .filtre {
   border: 1px solid black;
@@ -887,13 +1156,6 @@ ion-col img {
   display: block;
 }
 
-/* Make filter columns more flexible */
-ion-col.filtre {
-  min-width: 70px;
-  height: auto !important;
-  min-height: 15vw;
-  padding: 5px 2px;
-}
 
 .titreTrier {
   margin-top: 5%;
@@ -970,9 +1232,6 @@ ion-modal ion-content {
     font-size: 10px;
   }
   
-  ion-col.filtre {
-    padding: 6px 1px;
-  }
 }
 
 /* Small adjustment to modal initial sizing */
@@ -1002,6 +1261,219 @@ ion-modal[trigger="open-modal"] {
 #refresh-button ion-icon {
   transform: scale(1.3);
   color: grey;
+}
+
+.search-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0px 15px;
+  padding-top:25px;
+}
+
+h1 {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  margin: 20px 15px;
+}
+
+.search-section h2 {
+  font-size: 24px;
+  font-weight: bold;  
+}
+
+.search-section span {
+  font-size: 16px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.search-section ion-list {
+  background: white;
+  margin: 0 !important;
+}
+
+.explorer-title {
+  font-size: 22px;
+  font-weight: bold;
+  margin: 18px 12px;
+}
+
+/*Catégories */
+
+.categories-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: none;
+  margin: 18px 0px 18px 12px;
+}
+
+.category-card {
+  min-width: 78px;
+  height: 82px;
+  border-radius: 7px;
+  background: #F3F2F7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  flex-shrink: 0;
+}
+
+.category-card img {
+  width: 25px;
+  height: 25px;
+  object-fit: contain;
+}
+
+.category-card span {
+  font-size: 10px;
+  text-align: center;
+}
+
+/* Pressed */
+.category-card:active {
+  background: #B5B8E5;
+}
+
+.artists-promo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: #FFFFFF;
+  border: 2px solid #7779E8;
+  border-radius: 14px;
+  padding: 20px;
+  margin: 20px;
+  min-height: 190px;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.artists-promo p {
+  font-size: 18px;
+  line-height: 1.35;
+  margin: 0 0 18px;
+  color: #000000;
+}
+
+.artists-promo button {
+  background: #4D58CB;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 22px;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.artists-promo img {
+  width: 52%;
+  max-width: 180px;
+  height: auto;
+  object-fit: contain;
+}
+
+.artists-promo-txt{
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+
+/* Borough filter cards */
+.boroughs-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-width: 90px;
+  min-height: 105px;
+  padding: 10px;
+
+  background: #F3F2F7;
+  border: 2px solid transparent;
+  border-radius: 10px;
+
+  font-size: 12px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.boroughs-card.selected {
+  background: #EEF0FF;
+  border-color: #4D58CB;
+  color: #4D58CB;
+  font-weight: bold;
+}
+
+/* Grille des quartiers */
+.boroughs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  padding: 5px 20px;
+}
+
+.borough-card {
+  background: #F3F2F7;
+  border-radius: 16px;
+  min-height: 180px;
+  padding: 18px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 16px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.borough-card img {
+  width: 100%;
+  height: 105px;
+  object-fit: contain;
+}
+
+.borough-card span {
+  font-size: 16px;
+  line-height: 1.2;
+  font-weight: 500;
+  color: #000;
+}
+
+/* Pressed */
+.borough-card:active {
+  background: #B5B8E5;
+}
+
+/* Bouton charger plus */
+.load-more-boroughs {
+  width: calc(100% - 40px);
+  margin: 12px 20px 25px;
+  min-height: 58px;
+  border: none;
+  border-radius: 14px;
+  background: #DCDDF3;
+  color: #000;
+  font-size: 16px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.load-more-boroughs ion-icon {
+  font-size: 23px;
 }
 
 /** {*/
