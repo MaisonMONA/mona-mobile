@@ -37,3 +37,18 @@ export class PlaceFactory {
         return new Place(place);
     }
 }
+
+export class ArtistFactory {
+    
+    static createArtist(artist: any) {
+        return new Artist(
+            artist.id,
+            artist.name,
+            artist.artist?.alias,
+            artist.is,
+            artist.links,
+            artist.collective,
+            artist.artworks
+        );
+    }
+}

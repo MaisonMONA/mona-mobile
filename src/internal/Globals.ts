@@ -6,6 +6,9 @@ export default {
       upload: "https://mona.iro.umontreal.ca/api/v3/user/artworks",
       getUpdate: "https://mona.iro.umontreal.ca/api/v3/lastUpdatedArtworks",
     },
+    artists: {
+      download: "https://mona.iro.umontreal.ca/api/v3/artists",
+    },
     places: {
       download: "https://mona.iro.umontreal.ca/api/v3/places",
       upload: "https://mona.iro.umontreal.ca/api/v3/user/places",

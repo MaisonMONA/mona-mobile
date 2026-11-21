@@ -100,7 +100,7 @@
               id="defaultPhotoFullModale"
               :src="'./assets/drawable/mascots/mascot_17.png'"
             ></ion-img>
-            <p class="photoPlaceholderText">Ajoutez cette découverte à votre collection<br>en la prenant en photo</p>
+            <p class="photoPlaceholderText">Prends la découverte en photo</p>
           </div>
           <ion-img id="userPhotoFullModale"></ion-img>
         </div>
@@ -299,6 +299,20 @@
           </div>
         </div>
 
+        <div class="footer">
+
+        <!-- SEE ON MAP BUTTON -->
+        <ion-button
+          class="discovery-button"
+          id="mapButtonFullModale"
+          fill="solid"
+          @click="activateMap"
+        >
+          <ion-icon
+            :icon="customMapIcon"
+          ></ion-icon>
+          VOIR SUR LA CARTE
+        </ion-button>
         <!-- PHOTO BUTTON -->
         <ion-button
           class="discovery-button"
@@ -312,6 +326,7 @@
           ></ion-icon>
           PHOTOGRAPHIER
         </ion-button>
+        </div>
       </div>
     </ion-content>
   </template>
@@ -810,22 +825,44 @@ div.discoveryDetailsContainer {
   font-size: 3.8vw;
 }
 
-#photoButtonFullModale {
-  height: 5.4vh;
-  width: 92vw;
-  margin-left: 3.9vw;
-  bottom: 4vh;
+.footer{
   position: fixed;
-  --background: #4d58cb;
-  --color: white;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: white;
+  padding: 1.5vh 3.9vw calc(1.5vh + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 1vh;
+  z-index: 100;
+  box-sizing: border-box;
+}
+
+.footer .discovery-button {
+  width: 100%;
+  height: 5.4vh;
+  margin: 0;
   --border-radius: 8px;
-  --padding-start: 2.9vw;
-  --padding-end: 2.9vw;
   font-size: 3.8vw;
   font-weight: 600;
+}
+
+/* Voir sur la carte */
+.footer #mapButtonFullModale {
+  --background: #DCDDF3;
+  --color: black;
+  --background-activated: #B5B8E5;
+}
+
+/* Photographier */
+.footer #photoButtonFullModale {
+  --background: #4D58CB;
+  --color: white;
   --background-activated: black;
 }
-#photoButtonFullModale ion-icon {
+
+.footer ion-icon {
   font-size: 3.7vw;
   margin-right: 1.8vw;
 }
@@ -932,7 +969,7 @@ ion-button {
 
 .segments {
   margin: 3.67vh 3.9vw 0 3.9vw;
-  padding-bottom: 10vh;
+  padding-bottom: 17vh;
 }
 .segments ion-segment {
   --background: white;

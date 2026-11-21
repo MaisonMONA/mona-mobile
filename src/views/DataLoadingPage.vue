@@ -17,6 +17,7 @@
 <script>
 import { IonPage, IonContent, IonToast } from "@ionic/vue";
 import { ArtworkDatabase } from "@/internal/databases/ArtworkDatabase";
+import { ArtistDatabase } from "@/internal/databases/ArtistDatabase";
 import { PlaceDatabase } from "@/internal/databases/PlaceDatabase";
 import { HeritageDatabase } from "@/internal/databases/HeritageDatabase";
 import { BadgeDatabase } from "@/internal/databases/BadgeDatabase";
@@ -42,6 +43,7 @@ export default {
       await UserData.ensureDataSchemaUpToDate();
       await Promise.all([
         ArtworkDatabase.populate(),
+        ArtistDatabase.populate(),
         PlaceDatabase.populate(),
         HeritageDatabase.populate(),
         BadgeDatabase.populate(),

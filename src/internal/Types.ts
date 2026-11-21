@@ -40,7 +40,11 @@ export abstract class Discovery {
 }
 
 export class Artist {
-  constructor(id: number, name: string, alias?: string | null) {
+  constructor(id: number, name: string, alias?: string | null, public is?: string,
+    // ?: optional
+    public links?: any, 
+    public collective?: any,
+    public artworks?: number[]) {
     this.id = id;
     this.name = name;
     this.alias = alias || null;

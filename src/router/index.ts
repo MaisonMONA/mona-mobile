@@ -20,7 +20,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import("@/views/MapPage.vue"),
       },
       {
-        path: "list", // annuaire
+        path: "list", // explorer
         component: () => import("@/views/ListPage.vue"),
       },
       {
@@ -36,6 +36,21 @@ const routes: RouteRecordRaw[] = [
   {
     path: "/discovery-details/:type/:id",
     component: () => import("@/views/DiscoveryDetailsPage.vue"),
+  },
+  {
+    path: "/category/:category",
+    component: () => import("@/views/CategoryPage.vue"),
+  },
+  {
+    path: "/discoveries",
+    name: "Discoveries",
+    component: () => import("@/views/CategoryPage.vue"),
+  },
+  {
+    path: "/artist/:id",
+    name: "ArtistDetails",
+    component: () => import("@/components/ArtistDetails.vue"),
+    props: true,
   },
   {
     path: "/discovery-review",
@@ -76,6 +91,10 @@ const routes: RouteRecordRaw[] = [
   {
     path: "/categories",
     component: () => import("@/views/CategoriesPage.vue"),
+  },
+  {
+  path: "/artists",
+  component: () => import("@/views/ArtistsPage.vue"),
   },
   {
     path: "/quartiers",
